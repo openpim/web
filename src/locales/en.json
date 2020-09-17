@@ -232,7 +232,7 @@
   "ItemCreationDialog.NameRequired": "Name required",
   "ItemCreationDialog.NoChildren": "Impossible to create children for {typeName}",
   "Item.byIdentifier.NotFound": "Item not found by identifier: {identifier}",
-  "Item.Tab.Attributes": "Attributes",
+  "ItemView.Tab.Attributes": "Attributes",
   "ItemView.Tab.File": "File",
   "ItemView.Tab.MediaFiles": "Media files",
   "ItemView.Tab.LinksFrom": "Links from",
