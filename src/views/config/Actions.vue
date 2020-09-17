@@ -1,0 +1,374 @@
+<template>
+  <v-container v-if="canViewConfigRef">
+    <v-row no-gutters>
+      <v-col cols="3">
+        <v-toolbar dense flat>
+          <v-toolbar-title>{{ $t('Config.Actions.Title') }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-tooltip bottom v-if="canEditConfigRef">
+            <template v-slot:activator="{ on }">
+              <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+            </template>
+            <span>{{ $t('Add') }}</span>
+          </v-tooltip>
+        </v-toolbar>
+        <v-list nav dense>
+          <v-list-item-group v-model="itemRef" color="primary">
+            <v-list-item v-for="(item, i) in actions" :key="i">
+              <v-list-item-icon><v-icon>mdi-file-code-outline</v-icon></v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-col>
+      <v-col cols="9">
+        <template v-if="selectedRef.id != -1">
+        <v-form ref="formRef" lazy-validation class="ml-7">
+          <div class="d-inline-flex align-center">
+            <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Languages.Identifier')" required></v-text-field>
+            <SystemInformation :data="selectedRef"></SystemInformation>
+          </div>
+
+          <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Languages.Name')"></LanguageDependentField>
+        </v-form>
+
+        <v-tabs v-model="tabRef">
+          <v-tab v-text="$t('Config.Actions.Tab.Code')"></v-tab>
+          <v-tab v-text="$t('Config.Actions.Tab.Triggers')"></v-tab>
+        </v-tabs>
+        <v-tabs-items v-model="tabRef">
+          <v-tab-item> <!-- Code -->
+            <v-textarea class="ml-3 mr-3" v-model="selectedRef.code" :label="$t('Config.Actions.Code')"></v-textarea>
+          </v-tab-item>
+          <v-tab-item> <!-- Triggers -->
+            <v-toolbar dense flat>
+              <v-toolbar-title class="subtitle-2">{{ $t('Config.Actions.Triggers.Title') }}</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-tooltip bottom v-if="canEditConfigRef">
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="addTrigger"><v-icon>mdi-plus</v-icon></v-btn>
+                </template>
+                <span>{{ $t('Add') }}</span>
+              </v-tooltip>
+              <v-tooltip bottom v-if="canEditConfigRef">
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="removeTrigger"><v-icon>mdi-minus</v-icon></v-btn>
+                </template>
+                <span>{{ $t('Remove') }}</span>
+              </v-tooltip>
+            </v-toolbar>
+            <v-list nav dense class="mb-4">
+              <v-list-item-group v-model="triggerRef" color="primary">
+                <v-list-item v-for="(trigger, i) in selectedRef.triggers" :key="i" :v1="relation = getRelation(trigger.relation)" :v2="type = getType(trigger.itemType)" :v3="item = getItem(trigger.itemFrom)">
+                  <v-list-item-icon><v-icon>mdi-flash-outline</v-icon></v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      <div v-if="trigger.type === 1">
+                        {{ $t('Config.Actions.Triggers.Item1') }}
+                        <router-link :to="'/config/types/' + type.identifier">{{ type.identifier }}</router-link>
+                        {{ $t('Config.Actions.Triggers.Item2') }}
+                        <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
+                        ({{ displayEvent(trigger.event) }})
+                      </div>
+                      <div v-if="trigger.type === 2">
+                        {{ $t('Config.Actions.Triggers.Relation') }}
+                        <router-link :to="'/config/relations/' + relation.identifier">{{ relation.identifier }}</router-link>
+                        ({{ displayEvent(trigger.event) }})
+                      </div>
+                      <div v-if="trigger.type === 3">
+                        {{ $t('Config.Actions.Triggers.ButtonsWithText', {text: trigger.itemButton}) }}
+                      </div>
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </v-tab-item>
+        </v-tabs-items>
+
+        <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
+        <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
+        <v-btn class="mr-4" v-if="canEditConfigRef" @click="itemSelectionDialogRef.showDialog()">{{ $t('Config.Actions.Test') }}</v-btn>
+        </template>
+      </v-col>
+    </v-row>
+    <ActionTriggerCreationDialog ref="triggerDialogRef" @created="triggerCreated"></ActionTriggerCreationDialog>
+    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="testDialogRef" persistent max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('Config.Actions.TestResult.Title') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <template v-if="testResultRef && !testResultRef.failed">
+                      <v-alert type="success">{{ $t('Config.Actions.TestResult.Success') }}</v-alert>
+                      <v-textarea v-model="testResultRef.log" readonly :label="$t('Config.Actions.TestResult.Log')"></v-textarea>
+                    </template>
+                    <template v-if="testResultRef && testResultRef.failed">
+                      <v-alert type="error">{{ $t('Config.Actions.TestResult.Failed') }}</v-alert>
+                      <v-textarea v-if="testResultRef.compileError" v-model="testResultRef.compileError" readonly :label="$t('Config.Actions.TestResult.RunError')"></v-textarea>
+                      <v-textarea v-if="testResultRef.error" v-model="testResultRef.error" readonly :label="$t('Config.Actions.TestResult.CompileError')"></v-textarea>
+                    </template>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="testDialogRef = false">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+  </v-container>
+</template>
+
+<script>
+import { ref, watch, onMounted } from '@vue/composition-api'
+import * as langStore from '../../store/languages'
+import * as actionsStore from '../../store/actions'
+import * as errorStore from '../../store/error'
+import * as relStore from '../../store/relations'
+import * as typesStore from '../../store/types'
+import * as itemStore from '../../store/item'
+import i18n from '../../i18n'
+import LanguageDependentField from '../../components/LanguageDependentField'
+import * as userStore from '../../store/users'
+import SystemInformation from '../../components/SystemInformation'
+import ActionTriggerCreationDialog from '../../components/ActionTriggerCreationDialog'
+import ItemsSelectionDialog from '../../components/ItemsSelectionDialog'
+import router from '../../router'
+
+export default {
+  components: { LanguageDependentField, SystemInformation, ActionTriggerCreationDialog, ItemsSelectionDialog },
+  setup () {
+    const { canViewConfig, canEditConfig } = userStore.useStore()
+    const {
+      showInfo
+    } = errorStore.useStore()
+
+    const {
+      currentLanguage,
+      defaultLanguageIdentifier
+    } = langStore.useStore()
+
+    const {
+      loadAllActions,
+      actions,
+      addAction,
+      saveAction,
+      removeAction,
+      testAction
+    } = actionsStore.useStore()
+
+    const {
+      relations,
+      loadAllRelations
+    } = relStore.useStore()
+
+    const {
+      findType,
+      loadAllTypes
+    } = typesStore.useStore()
+
+    const {
+      loadItemsByIds
+    } = itemStore.useStore()
+
+    const canViewConfigRef = ref(false)
+    const canEditConfigRef = ref(false)
+
+    const empty = { id: -1 }
+    const formRef = ref(null)
+    const selectedRef = ref(empty)
+    const itemRef = ref(null)
+    const tabRef = ref(null)
+    const triggerRef = ref(null)
+    const triggerDialogRef = ref(null)
+    const itemSelectionDialogRef = ref(null)
+    const itemsRef = ref([])
+    const testResultRef = ref(null)
+    const testDialogRef = ref(false)
+
+    function triggerCreated (trigger) {
+      triggerDialogRef.value.closeDialog()
+      selectedRef.value.triggers.push(trigger)
+      if (trigger.type === 1) {
+        loadItemsByIds([trigger.itemFrom]).then(arr => { itemsRef.value.push(arr[0]) })
+      }
+    }
+
+    function displayEvent (event) {
+      event = parseInt(event)
+      if (event === 1) {
+        return i18n.t('Config.Actions.Triggers.Event.BeforeCreate')
+      } else if (event === 2) {
+        return i18n.t('Config.Actions.Triggers.Event.AfterCreate')
+      } else if (event === 3) {
+        return i18n.t('Config.Actions.Triggers.Event.BeforeUpdate')
+      } else if (event === 4) {
+        return i18n.t('Config.Actions.Triggers.Event.AfterUpdate')
+      } else if (event === 5) {
+        return i18n.t('Config.Actions.Triggers.Event.BeforeDelete')
+      } else if (event === 6) {
+        return i18n.t('Config.Actions.Triggers.Event.AfterDelete')
+      } else {
+        return '???'
+      }
+    }
+
+    function getRelation (id) {
+      if (!id) return null
+      return relations.find(rel => rel.id === id)
+    }
+
+    function getType (id) {
+      if (!id) return null
+      return findType(id).node
+    }
+
+    function getItem (id) {
+      if (!id) return null
+      return itemsRef.value.find(elem => elem.id === id)
+    }
+
+    watch(itemRef, (selected, previous) => {
+      if (selected == null) {
+        selectedRef.value = empty
+        return
+      }
+      if (selected < actions.length) {
+        if (previous && actions[previous].internalId === 0) {
+          showInfo(i18n.t('Config.NotSaved'))
+        }
+        setSelected(actions[selected])
+      }
+    })
+
+    function setSelected (action) {
+      selectedRef.value = action
+      const ids = []
+      selectedRef.value.triggers.forEach(trigger => {
+        if (trigger.type === 1) ids.push(trigger.itemFrom)
+      })
+      loadItemsByIds(ids).then(arr => { itemsRef.value = arr })
+      if (action.identifier) router.push('/config/actions/' + action.identifier)
+    }
+
+    function addTrigger () {
+      triggerDialogRef.value.showDialog()
+    }
+
+    function removeTrigger () {
+      if (confirm(i18n.t('Config.Actions.Triggers.ConfirmDelete'))) {
+        selectedRef.value.triggers.splice(triggerRef.value, 1)
+      }
+    }
+
+    function add () {
+      selectedRef.value = addAction()
+      itemRef.value = actions.length - 1
+    }
+
+    function save () {
+      if (formRef.value.validate()) {
+        saveAction(selectedRef.value).then(() => {
+          showInfo(i18n.t('Saved'))
+        })
+      }
+    }
+
+    function remove () {
+      if (confirm(i18n.t('Config.Actions.Confirm.Delete'))) {
+        removeAction(selectedRef.value.id)
+        selectedRef.value = empty
+      }
+    }
+
+    function itemSelected (id) {
+      itemSelectionDialogRef.value.closeDialog()
+      testAction(id, selectedRef.value.id).then(result => {
+        testResultRef.value = result
+        testDialogRef.value = true
+      })
+    }
+
+    onMounted(() => {
+      loadAllTypes()
+      loadAllRelations()
+      loadAllActions().then(() => {
+        const id = router.currentRoute.params.id
+        if (id) {
+          const idx = actions.findIndex(elem => elem.identifier === id)
+          if (idx !== -1) {
+            itemRef.value = idx
+            setSelected(actions[idx])
+          } else {
+            router.push('/config/actions')
+          }
+        }
+      })
+      canViewConfigRef.value = canViewConfig('actions')
+      canEditConfigRef.value = canEditConfig('actions')
+    })
+
+    function identifierValidation (v) {
+      if (!v) {
+        return i18n.t('Config.Actions.Error.IdentifierRequired')
+      }
+      if (!/^[A-Za-z0-9_]*$/.test(v)) {
+        return i18n.t('Wrong.Identifier')
+      }
+      if (v && selectedRef.value.internalId === 0) {
+        const found = actions.find((lang) => lang.identifier === v)
+        if (found && found.internalId !== 0) {
+          return i18n.t('Config.Actions.Error.IdentifierNotUnique')
+        }
+      }
+      return true
+    }
+
+    return {
+      testResultRef,
+      testDialogRef,
+      itemSelected,
+      getItem,
+      getType,
+      getRelation,
+      displayEvent,
+      triggerDialogRef,
+      itemSelectionDialogRef,
+      triggerCreated,
+      addTrigger,
+      removeTrigger,
+      triggerRef,
+      tabRef,
+      canViewConfigRef,
+      canEditConfigRef,
+      formRef,
+      actions,
+      selectedRef,
+      itemRef,
+      add,
+      remove,
+      save,
+      currentLanguage,
+      defaultLanguageIdentifier,
+      identifierRules: [
+        v => identifierValidation(v)
+      ],
+      nameRules: [
+        v => !!v || i18n.t('Config.Actions.Error.NameRequired')
+      ]
+    }
+  }
+}
+</script>
