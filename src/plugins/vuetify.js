@@ -8,6 +8,6 @@ Vue.use(Vuetify)
 export default new Vuetify({
   lang: {
     locales: { ru },
-    current: 'ru'
+    current: 'en'
   }
 })
