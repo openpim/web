@@ -57,7 +57,9 @@ export default {
     const totalItemsRef = ref(0)
     const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: [], sortDesc: [] })
     const loadingRef = ref(false)
-    const headersRef = ref([{ identifier: 'identifier', text: 'Identifier', align: 'start', sortable: false, filterable: false, value: 'identifier' }, { identifier: 'name_en', text: 'Name (English)', align: 'start', sortable: false, filterable: false, value: ['name', 'en'] }])
+    const headersRef = ref([{ identifier: '#thumbnail#', text: 'Thumbnail', align: 'start', sortable: false, filterable: false, value: '#thumbnail#' },
+      { identifier: 'identifier', text: 'Identifier', align: 'start', sortable: false, filterable: false, value: 'identifier' },
+      { identifier: 'name_en', text: 'Name (English)', align: 'start', sortable: false, filterable: false, value: ['name', 'en'] }])
     const thumbnailsRef = ref([])
 
     function editHeaders () {
