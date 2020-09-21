@@ -173,7 +173,7 @@
   "Config.Actions.Triggers.Type.ItemRel": "Relation changing",
   "Config.Actions.Triggers.Type.Button": "Button",
   "Config.Actions.Triggers.Event.BeforeCreate": "before create",
-  "Config.Actions.Triggers.Event.AfterCreate": "ffter create",
+  "Config.Actions.Triggers.Event.AfterCreate": "after create",
   "Config.Actions.Triggers.Event.BeforeUpdate": "before update",
   "Config.Actions.Triggers.Event.AfterUpdate": "after update",
   "Config.Actions.Triggers.Event.BeforeDelete": "before delete",
