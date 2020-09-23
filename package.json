@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "demo": "vue-cli-service serve --port 80 --host demo.openpim.org",
+    "demo": "vue-cli-service serve --port 8080 --host demo.openpim.org",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
