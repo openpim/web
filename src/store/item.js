@@ -194,7 +194,6 @@ const actions = {
   },
   removeItem: async (id) => {
     const node = removeNode(id, itemsTree)
-    debugger
 
     if (node.internalId !== 0) {
       const query = `
