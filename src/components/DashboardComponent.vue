@@ -70,7 +70,6 @@ export default {
 
           if (dataRef.value.lovValues) {
             const tst = dataRef.value.lovValues.find(lovItem => lovItem.value.ru === data)
-            debugger
             if (tst) data = tst.id
           }
 

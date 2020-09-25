@@ -116,7 +116,6 @@ export default {
       loadSearches(true).then(arr => {
         searchesRef.value = arr
 
-        debugger
         const idx = searchesRef.value.findIndex(elem => elem.identifier === selected.identifier)
         if (idx !== -1) {
           creationRef.value = false
