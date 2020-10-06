@@ -85,8 +85,8 @@ export default {
     }
 
     async function loadChildren (item) {
-      loadItems(item.id, item.internalId)
-      loadItemRelationsChildren(item.id, item.internalId)
+      await loadItems(item.id, item.internalId)
+      await loadItemRelationsChildren(item.id, item.internalId)
     }
 
     function add () {
