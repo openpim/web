@@ -66,7 +66,6 @@ export default {
 
     watch(typeSelectedRef, (val) => {
       if (val && !newItemRef.value.identifier) {
-        debugger
         const type = findType(val).node
         newItemRef.value.identifier = type.identifier + newId
       }
