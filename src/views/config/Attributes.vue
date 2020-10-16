@@ -512,7 +512,8 @@ export default {
         { text: i18n.t('Config.Attribute.Type.Float'), value: AttributeType.Float },
         { text: i18n.t('Config.Attribute.Type.Date'), value: AttributeType.Date },
         { text: i18n.t('Config.Attribute.Type.Time'), value: AttributeType.Time },
-        { text: i18n.t('Config.Attribute.Type.LOV'), value: AttributeType.LOV }
+        { text: i18n.t('Config.Attribute.Type.LOV'), value: AttributeType.LOV },
+        { text: i18n.t('Config.Attribute.Type.URL'), value: AttributeType.URL }
       ]
     }
   }

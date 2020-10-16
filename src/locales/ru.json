@@ -73,6 +73,7 @@
   "Config.Attribute.Type.Date": "Дата",
   "Config.Attribute.Type.Time": "Время",
   "Config.Attribute.Type.LOV": "Список значений",
+  "Config.Attribute.Type.URL": "Ссылка",
   "Config.Attribute.Type": "Тип атрибута",
   "Config.Attribute.Pattern": "Шаблон Regex",
   "Config.Attribute.ErrorMessage": "Текст ошибки при проверки шаблона",
