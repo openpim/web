@@ -131,7 +131,8 @@ export default {
     } = itemRelStore.useStore()
 
     const {
-      loadItemsByIds
+      loadItemsByIds,
+      nextId
     } = itemStore.useStore()
 
     const pageSize = 5
@@ -272,20 +273,24 @@ export default {
 
     function itemsSelected (id, parameters) {
       itemSelectionDialogRef.value.closeDialog()
-      loadItemsByIds([id], false).then(items => {
-        const rel = relations.find(rel => rel.identifier === parameters.identifier)
-        const typesArray = props.componentType === 'source' ? rel.targets : rel.sources
-        const tst = typesArray.find(typeId => typeId === parseInt(items[0].typeId))
-        if (tst) {
-          const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
-          itemRels[parameters.identifier].forEach(itemRel => {
-            if (itemRel.id === parameters.itemRelId) {
-              root.$set(itemRel, props.componentType === 'source' ? 'target' : 'item', items[0])
-            }
-          })
-        } else {
-          showError(i18n.t('ItemRelationsList.WrongSelection'))
-        }
+      nextId().then(nextId => {
+        loadItemsByIds([id], false).then(items => {
+          const rel = relations.find(rel => rel.identifier === parameters.identifier)
+          const typesArray = props.componentType === 'source' ? rel.targets : rel.sources
+          const tst = typesArray.find(typeId => typeId === parseInt(items[0].typeId))
+          if (tst) {
+            const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
+            itemRels[parameters.identifier].forEach(itemRel => {
+              if (itemRel.id === parameters.itemRelId) {
+                root.$set(itemRel, props.componentType === 'source' ? 'target' : 'item', items[0])
+                const newIdentifier = props.componentType === 'source' ? props.item.identifier + '_' + items[0].identifier + '_' + nextId : items[0].identifier + '_' + props.item.identifier + '_' + nextId
+                root.$set(itemRel, 'identifier', newIdentifier)
+              }
+            })
+          } else {
+            showError(i18n.t('ItemRelationsList.WrongSelection'))
+          }
+        })
       })
     }
 
