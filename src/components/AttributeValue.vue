@@ -59,12 +59,32 @@
 
       <!-- URL -->
       <template v-if="attr.type === AttributeType.URL && !attr.languageDependent">
-        <v-text-field v-if="!attr.readonly" @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier])" hide-details v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-text-field>
-        <label v-if="attr.readonly" class="theme--light v-input v-label v-text-field v-label--active" style="font-size:12px">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label><a v-if="attr.readonly" :href="values[attr.identifier]" target="_blank">{{values[attr.identifier]}}</a>
+        <v-container v-if="!attr.readonly" class="pa-0">
+          <v-row>
+            <v-col cols="6">
+              <v-text-field @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier])" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-text-field>
+            </v-col>
+            <v-col cols="6">
+              <v-text-field @blur="attrBlur" v-model="values[attr.identifier + '_text']" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
+            </v-col>
+          </v-row>
+        </v-container>
+        <label v-if="attr.readonly" class="theme--light v-input v-label v-text-field v-label--active" style="font-size:12px">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
+        <a v-if="attr.readonly" :href="values[attr.identifier]" target="_blank">{{values[attr.identifier + '_text'] || values[attr.identifier]}}</a>
       </template>
       <template v-if="attr.type === AttributeType.URL && attr.languageDependent">
-        <v-text-field v-if="!attr.readonly" @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier][currentLanguage.identifier])" hide-details v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-text-field>
-        <label v-if="attr.readonly" class="theme--light v-input v-label v-text-field v-label--active" style="font-size:12px">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label><a v-if="attr.readonly" :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier][currentLanguage.identifier]}}</a>
+        <v-container v-if="!attr.readonly" class="pa-0">
+          <v-row>
+            <v-col cols="6">
+              <v-text-field @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier][currentLanguage.identifier])" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-text-field>
+            </v-col>
+            <v-col cols="6">
+              <v-text-field @blur="attrBlur" v-model="values[attr.identifier + '_text'][currentLanguage.identifier]" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
+            </v-col>
+          </v-row>
+        </v-container>
+        <label v-if="attr.readonly" class="theme--light v-input v-label v-text-field v-label--active" style="font-size:12px">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
+        <a v-if="attr.readonly" :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier + '_text'][currentLanguage.identifier] || values[attr.identifier][currentLanguage.identifier]}}</a>
       </template>
 
     </div>

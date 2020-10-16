@@ -132,6 +132,7 @@ import SystemInformation from '../components/SystemInformation'
 import LanguageDependentField from '../components/LanguageDependentField'
 import ItemsDataTable from '../components/ItemsDataTable'
 import router from '../router'
+import AttributeType from '../constants/attributeTypes'
 
 export default {
   components: { AttributeValue, ItemRelationsList, SystemInformation, LanguageDependentField, ItemsDataTable },
@@ -310,6 +311,15 @@ export default {
               item.values[attr.identifier][currentLanguage.value.identifier] = ''
             } else {
               item.values[attr.identifier] = ''
+            }
+          }
+
+          if (attr.type === AttributeType.URL && !item.values[attr.identifier + '_text']) {
+            if (attr.languageDependent) {
+              item.values[attr.identifier + '_text'] = {}
+              item.values[attr.identifier + '_text'][currentLanguage.value.identifier] = ''
+            } else {
+              item.values[attr.identifier + '_text'] = ''
             }
           }
         })

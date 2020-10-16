@@ -74,6 +74,7 @@
   "Config.Attribute.Type.Time": "Time",
   "Config.Attribute.Type.LOV": "List of values",
   "Config.Attribute.Type.URL": "URL",
+  "Config.Attribute.URL.Text": "URL text",
   "Config.Attribute.Type": "Attribute type",
   "Config.Attribute.Pattern": "Regex pattern",
   "Config.Attribute.ErrorMessage": "Error message at regex validation",
