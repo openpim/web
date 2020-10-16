@@ -37,6 +37,10 @@ const actions = {
     const node = findNodeByComparator(id, itemsTree, path, (id, item) => item.internalId === id)
     return { node, path }
   },
+  nextId: async () => {
+    const data = await serverFetch('query { nextId }')
+    return data.nextId
+  },
   identifierExists: async (identifier) => {
     const data = await serverFetch('query { getItemByIdentifier(identifier: "' + identifier + `") { 
       id 

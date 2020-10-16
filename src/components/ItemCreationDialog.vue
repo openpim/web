@@ -36,7 +36,7 @@
 <script>
 import * as typesStore from '../store/types'
 import * as itemsStore from '../store/item'
-import { ref, computed } from '@vue/composition-api'
+import { ref, computed, watch } from '@vue/composition-api'
 import * as langStore from '../store/languages'
 import * as errorStore from '../store/error'
 import * as userStore from '../store/users'
@@ -46,7 +46,7 @@ export default {
   name: 'ItemCreation',
   setup (props, { emit }) {
     const { typesTree, findType } = typesStore.useStore()
-    const { identifierExists } = itemsStore.useStore()
+    const { identifierExists, nextId } = itemsStore.useStore()
     const { showError } = errorStore.useStore()
     const { canEditItem } = userStore.useStore()
 
@@ -62,6 +62,15 @@ export default {
     const newItemRef = ref(null)
     const formRef = ref(null)
     const identifierErrors = ref([])
+    let newId
+
+    watch(typeSelectedRef, (val) => {
+      if (val && !newItemRef.value.identifier) {
+        debugger
+        const type = findType(val).node
+        newItemRef.value.identifier = type.identifier + newId
+      }
+    })
 
     const typesToCreate = computed(() => {
       if (selectedItemRef.value.id === -1) {
@@ -94,18 +103,21 @@ export default {
     }
 
     function showDialog (itemSelected) {
-      const name = {}
-      name[currentLanguage.value.identifier] = ''
-      newItemRef.value = { id: Date.now(), internalId: 0, children: [], name: name }
-      selectedItemRef.value = itemSelected
-      typeSelectedRef.value = null
+      nextId().then(id => {
+        newId = id
+        const name = {}
+        name[currentLanguage.value.identifier] = ''
+        newItemRef.value = { id: Date.now(), internalId: 0, children: [], name: name, identifier: '' }
+        selectedItemRef.value = itemSelected
+        typeSelectedRef.value = null
 
-      if (typesToCreate.value.length > 0) {
-        dialogRef.value = true
-      } else {
-        showError(i18n.t('ItemCreationDialog.NoChildren',
-          { typeName: (itemSelected.name[currentLanguage.value.identifier] || '[' + itemSelected.name[currentLanguage.value.identifier] + ']') }))
-      }
+        if (typesToCreate.value.length > 0) {
+          dialogRef.value = true
+        } else {
+          showError(i18n.t('ItemCreationDialog.NoChildren',
+            { typeName: (itemSelected.name[currentLanguage.value.identifier] || '[' + itemSelected.name[currentLanguage.value.identifier] + ']') }))
+        }
+      })
     }
 
     function closeDialog () {
