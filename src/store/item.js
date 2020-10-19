@@ -204,7 +204,6 @@ const actions = {
     const path = []
     const node = findNodeByComparator(id, itemsTree, path, (id, item) => item.internalId === id)
 
-    debugger
     if (node.internalId !== 0) {
       const query = `
         mutation { removeItem(id: "` + node.internalId + `")
