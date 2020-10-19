@@ -118,7 +118,10 @@ export default {
     }
 
     function onSelect (arr) {
-      selectedItemsRef.value = [arr[arr.length - 1]]
+      if (arr && arr.length > 1) {
+        const val = arr[arr.length - 1]
+        selectedItemsRef.value = [val]
+      }
     }
 
     async function loadChildren (item) {
