@@ -70,9 +70,27 @@ function removeNode (id, tree) {
   return node
 }
 
+function removeNodeByInternalId (internalId, tree) {
+  const path = []
+  const node = findNodeByComparator(internalId, tree, path, (id, item) => item.internalId === id)
+
+  let arr
+  if (path.length > 0) {
+    const node = findNode(path[path.length - 1], tree)
+    arr = node.children
+  } else {
+    arr = tree
+  }
+
+  const idx = arr.findIndex(item => item.internalId === internalId)
+  arr = arr.splice(idx, 1)
+
+  return node
+}
+
 function objectToGraphgl (value) {
   // https://stackoverflow.com/questions/48614730/how-can-i-convert-the-object-array-to-graphql-format-in-javascript
   return JSON.stringify(value).replace(/"([^(")"]+)":/g, '$1:')
 }
 
-export { findNode, findNodeByComparator, removeNode, objectToGraphgl }
+export { findNode, findNodeByComparator, removeNode, removeNodeByInternalId, objectToGraphgl }

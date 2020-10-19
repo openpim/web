@@ -140,7 +140,7 @@ export default {
   setup (params, context) {
     const { route } = useRouter()
 
-    const { showInfo } = errorStore.useStore()
+    const { showInfo, showError } = errorStore.useStore()
 
     const { canEditItem } = userStore.useStore()
 
@@ -162,7 +162,8 @@ export default {
       uploadFile,
       removeItemFile,
       loadAssets,
-      loadChildren
+      loadChildren,
+      hasRelations
     } = itemStore.useStore()
 
     const {
@@ -290,8 +291,20 @@ export default {
 
     function remove () {
       if (confirm(i18n.t('ItemView.RemoveItem'))) {
-        removeItem(itemRef.value.id).then(() => {
-          router.push('/')
+        loadChildren(itemRef.value.internalId, { page: 1, itemsPerPage: 1 }).then(data => {
+          if (data.count > 0) {
+            showError(i18n.t('ItemView.Remove.HasChildrenError'))
+          } else {
+            hasRelations(itemRef.value.internalId).then(res => {
+              if (res) {
+                showError(i18n.t('ItemView.Remove.HasRelationsError'))
+              } else {
+                removeItem(itemRef.value.internalId).then(() => {
+                  router.push('/')
+                })
+              }
+            })
+          }
         })
       }
     }

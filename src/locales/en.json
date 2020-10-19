@@ -243,6 +243,8 @@
   "ItemView.RemoveItem": "Remove this item?",
   "ItemView.NewFile": "Upload new file",
   "ItemView.Upload": "Upload",
+  "ItemView.Remove.HasChildrenError": "Can not remove this item because it has children, remove them first.",
+  "ItemView.Remove.HasRelationsError": "Can not remove this item because it has links, remove them first.",
   "ItemView.RemoveFile": "Remove this file?",
   "Items.SelectionDialog.Title": "Select items",
   "Items.SelectionDialog.Selection": "Select",

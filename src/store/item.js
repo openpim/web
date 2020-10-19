@@ -1,5 +1,5 @@
 import { ref, reactive, provide, inject } from '@vue/composition-api'
-import { serverFetch, findNode, removeNode, findNodeByComparator, objectToGraphgl } from './utils'
+import { serverFetch, findNode, removeNodeByInternalId, findNodeByComparator, objectToGraphgl } from './utils'
 import * as typesStore from './types'
 import * as err from './error'
 import i18n from '../i18n'
@@ -171,6 +171,10 @@ const actions = {
     } } }`)
     return data.getItems
   },
+  hasRelations: async (id) => {
+    const data = await serverFetch('query { hasRelations(id: "' + id + '") }')
+    return data.hasRelations
+  },
   createItem: async (item, parent) => {
     const query = `
       mutation { createItem(identifier: "` + item.identifier + '", name: ' + objectToGraphgl(item.name) +
@@ -197,14 +201,18 @@ const actions = {
     await serverFetch(query)
   },
   removeItem: async (id) => {
-    const node = removeNode(id, itemsTree)
+    const path = []
+    const node = findNodeByComparator(id, itemsTree, path, (id, item) => item.internalId === id)
 
+    debugger
     if (node.internalId !== 0) {
       const query = `
         mutation { removeItem(id: "` + node.internalId + `")
       }`
       await serverFetch(query)
     }
+
+    removeNodeByInternalId(id, itemsTree)
   },
   uploadFile: async (id, file) => {
     const data = new FormData()

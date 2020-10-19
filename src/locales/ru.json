@@ -243,6 +243,8 @@
   "ItemView.RemoveItem": "Удалить эту запись?",
   "ItemView.NewFile": "Загрузить новый файл",
   "ItemView.Upload": "Загрузить",
+  "ItemView.Remove.HasChildrenError": "Невозможно удалить этот объект потому что он имеет подчиненные записи. Удалите сперва их.",
+  "ItemView.Remove.HasRelationsError": "Невозможно удалить этот объект потому что он имеет ссылки. Удалите сперва их.",
   "ItemView.RemoveFile": "Удалить этот файл?",
   "Items.SelectionDialog.Title": "Выбор объекта",
   "Items.SelectionDialog.Selection": "Выбор",
