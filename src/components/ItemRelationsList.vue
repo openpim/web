@@ -158,7 +158,7 @@ export default {
     })
 
     function pageChanged (identifier) {
-      const newPage = pagesSource[identifier]
+      const newPage = props.componentType === 'source' ? pagesSource[identifier] : pagesTarget[identifier]
       const offset = (newPage - 1) * pageSize
       if (props.componentType === 'source') {
         loadSourcePage(props.item, root, identifier, offset, pageSize)
