@@ -186,11 +186,8 @@ const actions = {
     const newId = parseInt(data.createItem)
     item.internalId = newId
 
-    if (parent && parent.id !== -1) {
-      parent.children.push(item)
-    } else {
-      itemsTree.push(item)
-    }
+    const children = parent && parent.id !== -1 ? parent.children : itemsTree
+    children.push(item)
   },
   updateItem: async (item) => {
     const query = `

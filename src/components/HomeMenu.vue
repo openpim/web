@@ -95,10 +95,21 @@ export default {
 
     function itemCreated (item) {
       itemCreationDialogRef.value.closeDialog()
-      createItem(item, selectedRef.value)
-      openRef.value.push(selectedRef.value.id)
-      activeRef.value = [item.id]
-      router.push('/item/' + item.identifier)
+
+      if (selectedRef.value.children && selectedRef.value.children.length === 0) {
+        loadChildren(selectedRef.value).then(() => {
+          itemCreatedInternal(item)
+        })
+      } else {
+        itemCreatedInternal(item)
+      }
+    }
+    function itemCreatedInternal (item) {
+      createItem(item, selectedRef.value).then(() => {
+        openRef.value.push(selectedRef.value.id)
+        activeRef.value = [item.id]
+        router.push('/item/' + item.identifier)
+      })
     }
 
     onMounted(() => {
