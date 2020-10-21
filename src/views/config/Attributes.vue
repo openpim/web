@@ -321,6 +321,7 @@ export default {
     }
 
     function newAttrSelected (attr) {
+      visible.value = []
       if (attr && !attr.group && attr.visible && attr.visible.length > 0) {
         loadItemsByIds(attr.visible, false).then(items => {
           visible.value = items
