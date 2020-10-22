@@ -86,6 +86,7 @@ export default {
     }
 
     function DataChanged () {
+      optionsRef.value.page = 1
       loadingRef.value = true
       totalItemsRef.value = 0
       props.loadData(optionsRef.value).then(data => {
