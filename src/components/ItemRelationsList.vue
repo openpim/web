@@ -1,6 +1,6 @@
 <template>
 <div v-if="sourceRelations && targetRelations"> <!-- this is necessary to refrech computed itemRelations right way -->
-  <v-expansion-panels popout multiple>
+  <v-expansion-panels popout multiple :model="panels">
     <v-expansion-panel v-for="(rel, identifier, i) in itemRelations" :key="i" :set="canEditItemRelation = canEditItemRelationByIdentifier(identifier)">
       <v-expansion-panel-header class="pb-0">{{ getRelationName(identifier) }}</v-expansion-panel-header>
       <v-expansion-panel-content>
@@ -65,8 +65,22 @@
               </tbody>
             </template>
           </v-simple-table>
-          <v-pagination @input="pageChanged(identifier)" v-if="componentType === 'source' && Math.ceil(sourceRelationsTotal[identifier]/pageSize)>1" v-model="pagesSource[identifier]" :length="Math.ceil(sourceRelationsTotal[identifier]/pageSize)"></v-pagination>
-          <v-pagination @input="pageChanged(identifier)" v-if="componentType === 'target' && Math.ceil(targetRelationsTotal[identifier]/pageSize)>1" v-model="pagesTarget[identifier]" :length="Math.ceil(targetRelationsTotal[identifier]/pageSize)"></v-pagination>
+          <v-container class="pa-0">
+            <v-row>
+              <v-col cols="2">
+                <v-text-field type="number" v-model="pageSize" :label="$t('ItemRelationsList.RowsPerPage')" required :rules="[required, pageSizePositive]" @change="pageSizeChanged(identifier)"></v-text-field>
+              </v-col>
+              <v-col cols="2" class="mt-5">
+                <span>{{ $t('ItemRelationsList.TotalRows') + ' ' + targetRelationsTotal[identifier]}}</span>
+              </v-col>
+              <v-col cols="8">
+                <template v-if="pageSize && pageSize !== '0'">
+                  <v-pagination @input="pageChanged(identifier)" v-if="componentType === 'source' && Math.ceil(sourceRelationsTotal[identifier]/pageSize)>1" v-model="pagesSource[identifier]" :length="Math.ceil(sourceRelationsTotal[identifier]/pageSize)"></v-pagination>
+                  <v-pagination @input="pageChanged(identifier)" v-if="componentType === 'target' && Math.ceil(targetRelationsTotal[identifier]/pageSize)>1" v-model="pagesTarget[identifier]" :length="Math.ceil(targetRelationsTotal[identifier]/pageSize)"></v-pagination>
+                </template>
+              </v-col>
+            </v-row>
+          </v-container>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -135,21 +149,22 @@ export default {
       nextId
     } = itemStore.useStore()
 
-    const pageSize = 5
+    const pageSize = ref(5)
     const itemSelectionDialogRef = ref(null)
 
     const pagesSource = reactive({})
     const pagesTarget = reactive({})
+    const panels = ref([])
 
     watch(() => props.item, (newValue, previousValue) => {
       if (props.componentType === 'source') {
-        loadSourceRelations(newValue, root, 0, pageSize).then(() => {
+        loadSourceRelations(newValue, root, 0, pageSize.value).then(() => {
           for (const identifier in sourceRelationsTotal) {
             root.$set(pagesSource, identifier, 1)
           }
         })
       } else {
-        loadTargetRelations(newValue, root, 0, pageSize).then(() => {
+        loadTargetRelations(newValue, root, 0, pageSize.value).then(() => {
           for (const identifier in targetRelationsTotal) {
             root.$set(pagesTarget, identifier, 1)
           }
@@ -157,13 +172,19 @@ export default {
       }
     })
 
+    function pageSizeChanged (identifier) {
+      if (pageSize.value > 0) {
+        pageChanged(identifier)
+      }
+    }
+
     function pageChanged (identifier) {
       const newPage = props.componentType === 'source' ? pagesSource[identifier] : pagesTarget[identifier]
-      const offset = (newPage - 1) * pageSize
+      const offset = (newPage - 1) * pageSize.value
       if (props.componentType === 'source') {
-        loadSourcePage(props.item, root, identifier, offset, pageSize)
+        loadSourcePage(props.item, root, identifier, offset, pageSize.value)
       } else {
-        loadTargetPage(props.item, root, identifier, offset, pageSize)
+        loadTargetPage(props.item, root, identifier, offset, pageSize.value)
       }
     }
 
@@ -319,7 +340,11 @@ export default {
       pageSize,
       pageChanged,
       getAttributesForRelation,
-      canEditItemRelationByIdentifier
+      canEditItemRelationByIdentifier,
+      panels,
+      pageSizeChanged,
+      required: value => !!value || i18n.t('ItemRelationsList.Required'),
+      pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive')
     }
   }
 }
