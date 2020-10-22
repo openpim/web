@@ -65,13 +65,13 @@
               </tbody>
             </template>
           </v-simple-table>
-          <v-container class="pa-0">
+          <v-container class="pa-0" v-if="componentType === 'source' ? sourceRelationsTotal[identifier] > pageSize : targetRelationsTotal[identifier] > pageSize">
             <v-row>
               <v-col cols="2">
                 <v-text-field type="number" v-model="pageSize" :label="$t('ItemRelationsList.RowsPerPage')" required :rules="[required, pageSizePositive]" @change="pageSizeChanged(identifier)"></v-text-field>
               </v-col>
               <v-col cols="2" class="mt-5">
-                <span>{{ $t('ItemRelationsList.TotalRows') + ' ' + targetRelationsTotal[identifier]}}</span>
+                <span>{{ $t('ItemRelationsList.TotalRows') + ' ' + (componentType === 'source' ? sourceRelationsTotal[identifier] : targetRelationsTotal[identifier])}}</span>
               </v-col>
               <v-col cols="8">
                 <template v-if="pageSize && pageSize !== '0'">
