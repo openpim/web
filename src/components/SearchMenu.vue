@@ -35,7 +35,10 @@
             <v-list-item-content>
               <v-select dense v-model="filter.attr" :items="fieldsSelection" :label="$t('Search.Filter.Attribute.Attr')"></v-select>
               <v-select dense v-model="filter.operation" :items="operationSelection" :label="$t('Search.Filter.Attribute.Operation')"></v-select>
-              <v-text-field dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+
+              <v-select v-if="filter.attr && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
+              <v-text-field v-else dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+
             </v-list-item-content>
           </v-list-item>
         </v-list-item-group>
@@ -62,6 +65,7 @@ import * as langStore from '../store/languages'
 import * as errorStore from '../store/error'
 import * as userStore from '../store/users'
 import * as searchStore from '../store/search'
+import * as lovsStore from '../store/lovs'
 import SearchSaveDialog from '../components/SearchSaveDialog'
 import SearchLoadDialog from '../components/SearchLoadDialog'
 import router from '../router'
@@ -100,12 +104,17 @@ export default {
       currentUserRef
     } = userStore.useStore()
 
+    const {
+      getLOVData
+    } = lovsStore.useStore()
+
     const searchSaveDialogRef = ref(null)
     const searchLoadDialogRef = ref(null)
     const selectedFilterRef = ref(null)
     const selectedRef = ref(null)
     const fieldsSelection = ref([])
     const extendedSearchRef = ref('{ "identifier": "???", ... }')
+    const lovsMap = {}
 
     function searchSelected (selected) {
       if (selected.user === currentUserRef.value.login) {
@@ -216,6 +225,16 @@ export default {
       }
     }
 
+    function checkLOV (attr, val) {
+      if (attr.lov) {
+        getLOVData(attr.lov).then(values => {
+          lovsMap[val] = values.map(elem => {
+            return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' }
+          })
+        })
+      }
+    }
+
     onMounted(() => {
       loadAllTypes()
 
@@ -249,10 +268,15 @@ export default {
               for (let i = 0; i < languages.length; i++) {
                 const lang = languages[i]
                 const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-                arr.push({ value: 'attr#' + attr.identifier + '#' + lang.identifier, text: nameText + langText })
+                const val = 'attr#' + attr.identifier + '#' + lang.identifier
+                arr.push({ value: val, text: nameText + langText })
+                checkLOV(attr, val)
               }
             } else {
-              arr.push({ value: 'attr#' + attr.identifier, text: nameText })
+              const val = 'attr#' + attr.identifier
+              arr.push({ value: val, text: nameText, lov: attr.lov })
+              if (attr.lov) lovsMap[val] = attr.lov
+              checkLOV(attr, val)
             }
           }
 
@@ -287,6 +311,7 @@ export default {
       search,
       extendedSearchRef,
       fieldsSelection,
+      lovsMap,
       operationSelection: [
         { text: i18n.t('Search.Filter.Operation.Eq'), value: 1 },
         { text: i18n.t('Search.Filter.Operation.Ne'), value: 2 },
