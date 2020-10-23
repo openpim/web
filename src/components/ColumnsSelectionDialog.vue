@@ -136,10 +136,14 @@ export default {
           for (let i = 0; i < languages.length; i++) {
             const lang = languages[i]
             const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-            arr.push({ identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameText + langText, align: 'start', sortable: false, filterable: false, value: ['values', attr.identifier, lang.identifier] })
+            const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameText + langText, align: 'start', sortable: false, filterable: false, value: ['values', attr.identifier, lang.identifier] }
+            if (attr.lov) data.lov = attr.lov
+            arr.push(data)
           }
         } else {
-          arr.push({ identifier: 'attr_' + attr.identifier, text: nameText, align: 'start', sortable: false, filterable: false, value: ['values', attr.identifier] })
+          const data = { identifier: 'attr_' + attr.identifier, text: nameText, align: 'start', sortable: false, filterable: false, value: ['values', attr.identifier] }
+          if (attr.lov) data.lov = attr.lov
+          arr.push(data)
         }
       }
       availableColumnsRef.value = arr.filter(elem => !selected.find(elem2 => elem2.identifier === elem.identifier))

@@ -19,7 +19,7 @@
 
           <v-img v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="50" max-height="50"></v-img>
 
-          <span v-if="header.identifier !== 'identifier' &&  header.identifier !== '#thumbnail#'">{{ getValue(item, header.value) }}</span>
+          <span v-if="header.identifier !== 'identifier' &&  header.identifier !== '#thumbnail#'">{{ getValue(item, header) }}</span>
         </td>
       </tr>
     </template>
@@ -31,6 +31,7 @@
 <script>
 import * as langStore from '../store/languages'
 import * as itemStore from '../store/item'
+import * as lovsStore from '../store/lovs'
 import { ref, onMounted } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 
@@ -51,6 +52,10 @@ export default {
       loadThumbnails
     } = itemStore.useStore()
 
+    const {
+      getLOVData
+    } = lovsStore.useStore()
+
     const columnsSelectionDialogRef = ref(null)
 
     const itemsRef = ref([])
@@ -61,6 +66,7 @@ export default {
       { identifier: 'identifier', text: 'Identifier', align: 'start', sortable: false, filterable: false, value: 'identifier' },
       { identifier: 'name_en', text: 'Name (English)', align: 'start', sortable: false, filterable: false, value: ['name', 'en'] }])
     const thumbnailsRef = ref([])
+    const lovsMap = {}
 
     function editHeaders () {
       columnsSelectionDialogRef.value.showDialog([...headersRef.value])
@@ -69,7 +75,18 @@ export default {
     function columnsSelected (arr) {
       columnsSelectionDialogRef.value.closeDialog()
       headersRef.value = arr
+      loadLOVs()
       localStorage.setItem('item_headers', JSON.stringify(arr))
+    }
+
+    function loadLOVs () {
+      headersRef.value.forEach(elem => {
+        if (elem.lov) {
+          getLOVData(elem.lov).then(values => {
+            lovsMap[elem.lov] = values
+          })
+        }
+      })
     }
 
     function optionsUpdate (options) {
@@ -103,11 +120,17 @@ export default {
       return thumbnailsRef.value.find(elem => elem.itemId === ('' + id))
     }
 
-    function getValue (item, headerValue) {
-      if (Array.isArray(headerValue)) {
-        return getDeepValue(headerValue, item)
+    function getValue (item, header) {
+      if (Array.isArray(header.value)) {
+        let val = getDeepValue(header.value, item)
+        if (header.lov) {
+          const lovValues = lovsMap[header.lov]
+          const tst = lovValues.find(elem => elem.id === val)
+          if (tst) val = tst.value[currentLanguage.value.identifier] || '[' + tst.value[defaultLanguageIdentifier.value] + ']'
+        }
+        return val
       } else {
-        return item[headerValue]
+        return item[header.value]
       }
     }
     // https://medium.com/javascript-inside/safely-accessing-deeply-nested-values-in-javascript-99bf72a0855a
@@ -116,6 +139,7 @@ export default {
     onMounted(() => {
       const tst = localStorage.getItem('item_headers')
       if (tst) headersRef.value = JSON.parse(tst)
+      loadLOVs()
       DataChanged()
     })
 
