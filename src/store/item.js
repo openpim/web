@@ -260,7 +260,7 @@ const actions = {
                 entity: ITEM, 
                 offset: 0, 
                 limit: 100,
-                where: {OP_or: [{ identifier: { OP_like: "%` + text + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_like:"%' + text + `%"}}}] }
+                where: {OP_or: [{ identifier: { OP_iLike: "%` + text + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + text + `%"}}}] }
             }]
         ) {
         responses {
