@@ -111,6 +111,8 @@ export default {
         totalItemsRef.value = data.count
         loadingRef.value = false
 
+        emit('dataLoaded', itemsRef.value)
+
         const ids = data.rows.map(elem => elem.id)
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
       })

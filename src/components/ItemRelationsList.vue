@@ -110,7 +110,7 @@ export default {
       required: true
     }
   },
-  setup (props, { root }) {
+  setup (props, { emit, root }) {
     const {
       showError,
       showInfo
@@ -159,12 +159,16 @@ export default {
     watch(() => props.item, (newValue, previousValue) => {
       if (props.componentType === 'source') {
         loadSourceRelations(newValue, root, 0, pageSize.value).then(() => {
+          emit('dataLoaded', sourceRelations)
+
           for (const identifier in sourceRelationsTotal) {
             root.$set(pagesSource, identifier, 1)
           }
         })
       } else {
         loadTargetRelations(newValue, root, 0, pageSize.value).then(() => {
+          emit('dataLoaded', targetRelations)
+
           for (const identifier in targetRelationsTotal) {
             root.$set(pagesTarget, identifier, 1)
           }

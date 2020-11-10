@@ -33,10 +33,10 @@
         <v-tabs v-model="tabRef">
           <v-tab v-text="$t('ItemView.Tab.Attributes')"></v-tab>
           <v-tab v-if="itemRef.typeFile" v-text="$t('ItemView.Tab.File')"></v-tab>
-          <v-tab v-if="!itemRef.typeFile" v-text="$t('ItemView.Tab.MediaFiles')"></v-tab>
-          <v-tab v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
-          <v-tab v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
-          <v-tab v-text="$t('ItemView.Tab.Children')"></v-tab>
+          <v-tab v-if="!itemRef.typeFile && filesRef.length > 0" v-text="$t('ItemView.Tab.MediaFiles')"></v-tab>
+          <v-tab v-if="hasSources" v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
+          <v-tab v-if="hasTargets" v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
+          <v-tab v-if="hasChildren" v-text="$t('ItemView.Tab.Children')"></v-tab>
         </v-tabs>
         <v-tabs-items v-model="tabRef">
           <v-tab-item> <!-- Attributes -->
@@ -85,7 +85,7 @@
               </v-card-text>
             </v-card>
           </v-tab-item>
-          <v-tab-item v-if="!itemRef.typeFile">  <!-- MediaFiles -->
+          <v-tab-item v-if="!itemRef.typeFile && filesRef.length > 0">  <!-- MediaFiles -->
             <v-carousel height="500" show-arrows-on-hover>
               <v-carousel-item v-for="(file, i) in filesRef" :key="i">
                 <router-link v-if="file.image" :to="'/item/' + file.identifier">
@@ -100,14 +100,14 @@
               </v-carousel-item>
             </v-carousel>
           </v-tab-item>
-          <v-tab-item>  <!-- Links from -->
-            <ItemRelationsList :item="itemRef" componentType="source"></ItemRelationsList>
+          <v-tab-item v-if="hasSources" eager>  <!-- Links from -->
+            <ItemRelationsList :item="itemRef" componentType="source" @dataLoaded="sourcesLoaded"></ItemRelationsList>
           </v-tab-item>
-          <v-tab-item>  <!-- Links to -->
-            <ItemRelationsList :item="itemRef" componentType="target"></ItemRelationsList>
+          <v-tab-item v-if="hasTargets" eager>  <!-- Links to -->
+            <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded"></ItemRelationsList>
           </v-tab-item>
-          <v-tab-item>  <!-- Children -->
-            <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction"></ItemsDataTable>
+          <v-tab-item v-if="hasChildren" eager>  <!-- Children -->
+            <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded"></ItemsDataTable>
           </v-tab-item>
         </v-tabs-items>
       </v-col>
@@ -185,6 +185,9 @@ export default {
     const fileRef = ref(null)
     const imageKeyRef = ref(1)
     const filesRef = ref([])
+    const hasChildren = ref(true)
+    const hasSources = ref(true)
+    const hasTargets = ref(true)
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -239,6 +242,18 @@ export default {
         return []
       }
     })
+
+    function childrenLoaded (rows) {
+      hasChildren.value = rows && rows.length > 0
+    }
+
+    function sourcesLoaded (links) {
+      hasSources.value = links && Object.keys(links).length > 0
+    }
+
+    function targetsLoaded (links) {
+      hasTargets.value = links && Object.keys(links).length > 0
+    }
 
     function upload () {
       uploadFile(itemRef.value.id, fileRef.value).then(() => {
@@ -310,6 +325,10 @@ export default {
     }
 
     function itemSelected (item) {
+      hasChildren.value = true
+      hasSources.value = true
+      hasTargets.value = true
+
       loadAssets(item.internalId).then(arr => {
         filesRef.value = arr
       })
@@ -413,6 +432,12 @@ export default {
       loadDataFunction,
       itemsDataTableRef,
       itemType,
+      hasSources,
+      hasTargets,
+      hasChildren,
+      childrenLoaded,
+      sourcesLoaded,
+      targetsLoaded,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]
