@@ -127,8 +127,10 @@ export default {
         let val = getDeepValue(header.value, item)
         if (header.lov) {
           const lovValues = lovsMap[header.lov]
-          const tst = lovValues.find(elem => elem.id === val)
-          if (tst) val = tst.value[currentLanguage.value.identifier] || '[' + tst.value[defaultLanguageIdentifier.value] + ']'
+          if (lovValues) {
+            const tst = lovValues.find(elem => elem.id === val)
+            if (tst) val = tst.value[currentLanguage.value.identifier] || '[' + tst.value[defaultLanguageIdentifier.value] + ']'
+          }
         }
         return val
       } else {
