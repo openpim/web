@@ -9,8 +9,8 @@
       <v-textarea @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="3" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :error-messages="errors"></v-textarea>
 
       <label v-if="attr.type === AttributeType.Text && attr.richText">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
-      <ckeditor v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :disabled="attr.readonly" :editor="editor" v-model="values[attr.identifier]"></ckeditor>
-      <ckeditor v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent"  :disabled="attr.readonly" :editor="editor" v-model="values[attr.identifier][currentLanguage.identifier]"></ckeditor>
+      <ckeditor v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :disabled="attr.readonly" :editor="editor" :config="editorConfig" v-model="values[attr.identifier]"></ckeditor>
+      <ckeditor v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent"  :disabled="attr.readonly" :editor="editor" :config="editorConfig" v-model="values[attr.identifier][currentLanguage.identifier]"></ckeditor>
       <br v-if="attr.type === AttributeType.Text && attr.richText"/>
 
       <!-- Boolean -->
@@ -160,9 +160,32 @@ import * as lovStore from '../store/lovs'
 import { ref, computed, onMounted } from '@vue/composition-api'
 import LanguageDependentField from './LanguageDependentField'
 import AttributeType from '../constants/attributeTypes'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import i18n from '../i18n'
 import XRegExp from 'xregexp'
+
+// NOTE: We don't use @ckeditor/ckeditor5-build-classic any more!
+// Since we're building CKEditor from source, we use the source version of ClassicEditor.
+import ClassicEditor from '@ckeditor/ckeditor5-editor-classic/src/classiceditor'
+import EssentialsPlugin from '@ckeditor/ckeditor5-essentials/src/essentials'
+import BoldPlugin from '@ckeditor/ckeditor5-basic-styles/src/bold'
+import ItalicPlugin from '@ckeditor/ckeditor5-basic-styles/src/italic'
+import LinkPlugin from '@ckeditor/ckeditor5-link/src/link'
+import Heading from '@ckeditor/ckeditor5-heading/src/heading'
+
+import ListStyle from '@ckeditor/ckeditor5-list/src/liststyle'
+import Indent from '@ckeditor/ckeditor5-indent/src/indent'
+import IndentBlock from '@ckeditor/ckeditor5-indent/src/indentblock'
+
+import Table from '@ckeditor/ckeditor5-table/src/table'
+import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar'
+
+import ImageInsert from '@ckeditor/ckeditor5-image/src/imageinsert'
+import Image from '@ckeditor/ckeditor5-image/src/image'
+import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption'
+import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle'
+import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar'
+import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize'
+import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64uploadadapter'
 
 export default {
   components: { LanguageDependentField },
@@ -268,6 +291,64 @@ export default {
       lovSelection,
       AttributeType,
       editor: ClassicEditor,
+      editorConfig: {
+        plugins: [
+          EssentialsPlugin,
+          Heading,
+          BoldPlugin,
+          ItalicPlugin,
+          LinkPlugin,
+          ListStyle,
+          Indent,
+          IndentBlock,
+          Base64UploadAdapter,
+          Image,
+          ImageResize,
+          ImageToolbar,
+          ImageInsert,
+          ImageCaption,
+          ImageStyle,
+          Table,
+          TableToolbar
+        ],
+        table: {
+          contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
+        },
+        image: {
+          toolbar: [
+            'imageStyle:full',
+            'imageStyle:side',
+            '|',
+            'imageTextAlternative'
+          ],
+
+          // The default value.
+          styles: [
+            'full',
+            'side'
+          ]
+        },
+        toolbar: {
+          items: [
+            'heading',
+            'bold',
+            'italic',
+            'link',
+            '|',
+            'bulletedList',
+            'numberedList',
+            '|',
+            'outdent',
+            'indent',
+            '|',
+            'undo',
+            'redo',
+            '|',
+            'imageInsert',
+            'insertTable'
+          ]
+        }
+      },
       isValid
     }
   }
