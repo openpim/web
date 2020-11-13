@@ -3,6 +3,7 @@ const CKEditorWebpackPlugin = require('@ckeditor/ckeditor5-dev-webpack-plugin')
 const { styles } = require('@ckeditor/ckeditor5-dev-utils')
 
 module.exports = {
+  parallel: false, // https://github.com/ckeditor/ckeditor5-vue/issues/136
   transpileDependencies: [
     'vuetify',
     // The source of CKEditor is encapsulated in ES6 modules. By default, the code
