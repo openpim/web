@@ -9,8 +9,8 @@
       <v-textarea @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="3" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :error-messages="errors"></v-textarea>
 
       <label v-if="attr.type === AttributeType.Text && attr.richText">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
-      <ckeditor v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :disabled="attr.readonly" :editor="editor" :config="editorConfig" v-model="values[attr.identifier]"></ckeditor>
-      <ckeditor v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent"  :disabled="attr.readonly" :editor="editor" :config="editorConfig" v-model="values[attr.identifier][currentLanguage.identifier]"></ckeditor>
+      <ckeditor v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :disabled="attr.readonly" :editor="editor" :config="attr.readonly?  editorConfigReadonly : editorConfig" v-model="values[attr.identifier]"></ckeditor>
+      <ckeditor v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent"  :disabled="attr.readonly" :editor="editor" :config="attr.readonly?  editorConfigReadonly : editorConfig" v-model="values[attr.identifier][currentLanguage.identifier]"></ckeditor>
       <br v-if="attr.type === AttributeType.Text && attr.richText"/>
 
       <!-- Boolean -->
@@ -286,11 +286,37 @@ export default {
       timeMenuRef,
       time,
       goto,
+      isValid,
       currentLanguage,
       defaultLanguageIdentifier,
       lovSelection,
       AttributeType,
       editor: ClassicEditor,
+      editorConfigReadonly: {
+        plugins: [
+          EssentialsPlugin,
+          Heading,
+          BoldPlugin,
+          ItalicPlugin,
+          LinkPlugin,
+          ListStyle,
+          Indent,
+          IndentBlock,
+          Base64UploadAdapter,
+          Image,
+          ImageResize,
+          ImageToolbar,
+          ImageInsert,
+          ImageCaption,
+          ImageStyle,
+          Table,
+          TableToolbar
+        ],
+        toolbar: {
+          items: [
+          ]
+        }
+      },
       editorConfig: {
         plugins: [
           EssentialsPlugin,
@@ -348,8 +374,7 @@ export default {
             'insertTable'
           ]
         }
-      },
-      isValid
+      }
     }
   }
 }
