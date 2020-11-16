@@ -35,6 +35,9 @@
                     type="password"
                     v-model="password"
                   />
+
+                  <v-select prepend-icon="mdi-translate" v-if="languageSelect" v-model="i18n.locale" :items="localeSelection" :label="$t('Login.Language')"></v-select>
+
                 </v-form>
               </v-card-text>
               <v-card-actions>
@@ -49,9 +52,10 @@
 <script>
 import { ref, onMounted } from '@vue/composition-api'
 import * as userStore from '../store/users'
+import i18n from '../i18n'
 
 export default {
-  setup () {
+  setup (props, { root }) {
     const {
       signIn
     } = userStore.useStore()
@@ -71,7 +75,13 @@ export default {
     return {
       login,
       password,
-      signIn
+      signIn,
+      i18n,
+      languageSelect: process.env.VUE_APP_I18N_LANGUAGE_SELECT === 'true',
+      localeSelection: [
+        { text: i18n.t('Language.English'), value: 'en' },
+        { text: i18n.t('Language.Russian'), value: 'ru' }
+      ]
     }
   }
 }
