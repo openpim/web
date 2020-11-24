@@ -344,6 +344,10 @@ export default {
             } else {
               item.values[attr.identifier] = ''
             }
+          } else if (attr.languageDependent && typeof item.values[attr.identifier] !== 'object') {
+            // attr was changed to languageDependent and it has old data that must be cleared
+            item.values[attr.identifier] = {}
+            item.values[attr.identifier][currentLanguage.value.identifier] = ''
           }
 
           if (attr.type === AttributeType.URL && !item.values[attr.identifier + '_text']) {
