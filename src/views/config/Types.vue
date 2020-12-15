@@ -74,7 +74,7 @@
             <LanguageDependentField :values="linkParent.name" v-model="linkParent.name[currentLanguage.identifier]" :label="$t('Config.Types.ObjectType.Name')"></LanguageDependentField>
             <v-text-field v-model="linkParent.icon" readonly :label="$t('Config.Types.ObjectType.Icon')" required></v-text-field>
             <v-text-field v-model="linkParent.iconColor" readonly :label="$t('Config.Types.ObjectType.IconColor')" required></v-text-field>
-            <v-btn  v-if="canEditConfig" class="mr-4" @click="remove">{{ $t('Remove') }}</v-btn>
+            <v-btn  v-if="canEditConfigRef" class="mr-4" @click="remove">{{ $t('Remove') }}</v-btn>
           </div>
         </v-form>
       </v-col>
