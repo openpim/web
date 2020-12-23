@@ -154,13 +154,14 @@ const actions = {
       return false
     }
 
+    let access = -1
     for (let i = 0; i < currentRoles.length; i++) {
       const role = currentRoles[i]
       if (role.relAccess.relations.find(id => id === relationId)) {
-        if (role.relAccess.access === 0) return false
+        if (role.relAccess.access > access) access = role.relAccess.access
       }
     }
-    return true
+    return access === -1 || access > 0
   },
   canEditItemRelation: (relationId) => {
     if (!currentUserRef.value) return false
@@ -169,13 +170,14 @@ const actions = {
       return false
     }
 
+    let access = -1
     for (let i = 0; i < currentRoles.length; i++) {
       const role = currentRoles[i]
       if (role.relAccess.relations.find(id => id === relationId)) {
-        if (role.relAccess.access === 0 || role.relAccess.access === 1) return false
+        if (role.relAccess.access > access) access = role.relAccess.access
       }
     }
-    return true
+    return access === -1 || access > 1
   },
   canEditItem: (typeId, path) => {
     if (!currentUserRef.value) return false
@@ -184,6 +186,7 @@ const actions = {
       return false
     }
 
+    let access = -1
     typeId = parseInt(typeId)
     for (let i = 0; i < currentRoles.length; i++) {
       const role = currentRoles[i]
@@ -191,13 +194,13 @@ const actions = {
         if (path) {
           const pathArr = path.split('.').map(elem => parseInt(elem))
           const tst = pathArr.find(id => role.itemAccess.fromItems.includes(id))
-          if (tst && (role.itemAccess.access === 0 || role.itemAccess.access === 1)) return false
+          if (tst && (role.itemAccess.access > access)) access = role.itemAccess.access
         } else {
-          if (role.itemAccess.access === 0 || role.itemAccess.access === 1) return false
+          if (role.itemAccess.access > access) access = role.itemAccess.access
         }
       }
     }
-    return true
+    return access === -1 || access > 1
   }
 }
 
