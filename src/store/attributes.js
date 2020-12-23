@@ -163,12 +163,8 @@ const actions = {
         for (let i = 0; i < roles.length; i++) {
           const role = roles[i]
           if (role.itemAccess.valid.find(tId => tId === typeId)) {
-            if (role.itemAccess.access === 0) {
-              access = 0
-            } else {
-              const tst = role.itemAccess.groups.find(data => data.groupId === group.id)
-              if (tst && tst.access < access) access = tst.access
-            }
+            const tst = role.itemAccess.groups.find(data => data.groupId === group.id)
+            if (tst && tst.access < access) access = tst.access
           }
         }
 

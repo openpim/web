@@ -223,12 +223,8 @@ const actions = {
       for (let i = 0; i < roles.length; i++) {
         const role = roles[i]
         if (role.relAccess.relations.find(id => id === relationId)) {
-          if (role.relAccess.access === 0) {
-            access = 0
-          } else {
-            const tst = role.relAccess.groups.find(data => data.groupId === group.id)
-            if (tst && tst.access < access) access = tst.access
-          }
+          const tst = role.relAccess.groups.find(data => data.groupId === group.id)
+          if (tst && tst.access < access) access = tst.access
         }
       }
 
