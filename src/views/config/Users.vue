@@ -178,7 +178,7 @@ export default {
 
     const userRoles = computed(() => {
       if (selectedRef.value.roles) {
-        return selectedRef.value.roles.map(id => roles.find(role => role.id === id))
+        return selectedRef.value.roles.map(id => roles.find(role => role.id === id || role.internalId === id))
       } else {
         return []
       }

@@ -53,7 +53,7 @@ export default {
     let initiator
 
     function selected () {
-      const arr = selectedRolesRef.value.map(idx => roles[idx].id)
+      const arr = selectedRolesRef.value.map(idx => roles[idx].internalId)
       emit('selected', arr, initiator)
     }
 
@@ -62,12 +62,12 @@ export default {
       if (roles.length === 0) {
         loadAllRoles().then(() => {
           selectionDialogRef.value = true
-          const arr = selected ? selected.map(id => roles.findIndex(role => role.id === id)) : []
+          const arr = selected ? selected.map(id => roles.findIndex(role => role.id === id || role.internalId === id)) : []
           selectedRolesRef.value = arr
         })
       } else {
         selectionDialogRef.value = true
-        const arr = selected ? selected.map(id => roles.findIndex(role => role.id === id)) : []
+        const arr = selected ? selected.map(id => roles.findIndex(role => role.id === id || role.internalId === id)) : []
         selectedRolesRef.value = arr
       }
     }
