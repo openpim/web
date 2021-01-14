@@ -348,6 +348,9 @@ export default {
             // attr was changed to languageDependent and it has old data that must be cleared
             item.values[attr.identifier] = {}
             item.values[attr.identifier][currentLanguage.value.identifier] = ''
+          } else if (!attr.languageDependent && typeof item.values[attr.identifier] === 'object') {
+            // attr was changed to NOT languageDependent and it has old data that must be cleared
+            item.values[attr.identifier] = null
           }
 
           if (attr.type === AttributeType.URL) {
@@ -362,6 +365,9 @@ export default {
               // attr was changed to languageDependent and it has old data that must be cleared
               item.values[attr.identifier + '_text'] = {}
               item.values[attr.identifier + '_text'][currentLanguage.value.identifier] = ''
+            } else if (!attr.languageDependent && typeof item.values[attr.identifier + '_text'] === 'object') {
+              // attr was changed to NOT languageDependent and it has old data that must be cleared
+              item.values[attr.identifier + '_text'] = null
             }
           }
         })
