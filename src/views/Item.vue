@@ -22,6 +22,7 @@
           </v-card-title>
           <v-card-actions>
             <v-btn v-if="canEditSelected" text @click="save" v-text="$t('Save')"></v-btn>
+            <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
             <template v-if="canEditSelected">
               <v-btn text @click="executeAction(trigger.itemButton)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
@@ -112,11 +113,12 @@
         </v-tabs-items>
       </v-col>
     </v-row>
+    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemToMoveSelected"/>
   </v-container>
 </template>
 
 <script>
-import { ref, onMounted, watch, computed, onBeforeUpdate } from '@vue/composition-api'
+import { ref, onMounted, watch, computed, onBeforeUpdate, onUnmounted } from '@vue/composition-api'
 import { useRouter } from '../router/useRouter'
 import * as itemStore from '../store/item'
 import * as attrStore from '../store/attributes'
@@ -133,9 +135,10 @@ import LanguageDependentField from '../components/LanguageDependentField'
 import ItemsDataTable from '../components/ItemsDataTable'
 import router from '../router'
 import AttributeType from '../constants/attributeTypes'
+import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 
 export default {
-  components: { AttributeValue, ItemRelationsList, SystemInformation, LanguageDependentField, ItemsDataTable },
+  components: { AttributeValue, ItemRelationsList, SystemInformation, LanguageDependentField, ItemsDataTable, ItemsSelectionDialog },
   name: 'Home',
   setup (params, context) {
     const { route } = useRouter()
@@ -158,6 +161,7 @@ export default {
       loadItemByIdentifier,
       loadItemsByIds,
       updateItem,
+      moveItem,
       removeItem,
       uploadFile,
       removeItemFile,
@@ -188,6 +192,7 @@ export default {
     const hasChildren = ref(true)
     const hasSources = ref(true)
     const hasTargets = ref(true)
+    const itemSelectionDialogRef = ref(null)
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -304,6 +309,34 @@ export default {
       })
     }
 
+    function move () {
+      loadChildren(itemRef.value.internalId, { page: 1, itemsPerPage: 1 }).then(data => {
+        if (data.count > 0) {
+          showError(i18n.t('ItemView.Move.HasChildrenError'))
+        } else {
+          itemSelectionDialogRef.value.showDialog()
+        }
+      })
+    }
+
+    function itemToMoveSelected (id) {
+      itemSelectionDialogRef.value.closeDialog()
+      loadItemsByIds([id], false).then(items => {
+        const parent = items[0]
+        const parentType = findType(parent.typeId).node
+        const tstType = parentType.children.find(elem => (elem.identifier === itemType.value.identifier) || (elem.link === itemType.value.id))
+        if (tstType) {
+          moveItem(itemRef.value, id).then(() => {
+            itemPathRef.value = []
+            loadItemPath(itemRef.value.path)
+            showInfo(i18n.t('Saved'))
+          })
+        } else {
+          showError(i18n.t('ItemView.Move.WrongParent'))
+        }
+      })
+    }
+
     function remove () {
       if (confirm(i18n.t('ItemView.RemoveItem'))) {
         loadChildren(itemRef.value.internalId, { page: 1, itemsPerPage: 1 }).then(data => {
@@ -403,6 +436,7 @@ export default {
     })
 
     onMounted(() => {
+      window.addEventListener('keydown', hotkey)
       loadAllActions()
       loadAllAttributes()
       loadAllTypes().then(() => {
@@ -415,6 +449,19 @@ export default {
         }
       })
     })
+
+    onUnmounted(() => {
+      window.removeEventListener('keydown', hotkey)
+    })
+
+    function hotkey (event) {
+      if ((event.ctrlKey || event.metaKey) && !(event.altKey) && (event.keyCode === 83 || event.keyCode === 115)) { // CTRL-S
+        if (canEditSelected.value) {
+          event.preventDefault()
+          save()
+        }
+      }
+    }
 
     function loadDataFunction (options) {
       return new Promise((resolve, reject) => {
@@ -430,6 +477,7 @@ export default {
       tabRef,
       attrGroups,
       save,
+      move,
       remove,
       isImage,
       isFile,
@@ -454,6 +502,8 @@ export default {
       childrenLoaded,
       sourcesLoaded,
       targetsLoaded,
+      itemSelectionDialogRef,
+      itemToMoveSelected,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]

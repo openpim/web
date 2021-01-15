@@ -1,6 +1,7 @@
 {
   "Close": "Close",
   "Save": "Save",
+  "Move": "Move",
   "Remove": "Remove",
   "Add": "Add",
   "Edit": "Edit",
@@ -246,6 +247,8 @@
   "ItemView.RemoveItem": "Remove this item?",
   "ItemView.NewFile": "Upload new file",
   "ItemView.Upload": "Upload",
+  "ItemView.Move.HasChildrenError": "Can not move this item because it has children, remove them first.",
+  "ItemView.Move.WrongParent": "Can not move this item to this parent because this is not allowed by data model.",
   "ItemView.Remove.HasChildrenError": "Can not remove this item because it has children, remove them first.",
   "ItemView.Remove.HasRelationsError": "Can not remove this item because it has links, remove them first.",
   "ItemView.RemoveFile": "Remove this file?",

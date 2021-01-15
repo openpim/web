@@ -197,13 +197,28 @@ const actions = {
     }`
     await serverFetch(query)
   },
+  moveItem: async (item, parentId) => {
+    const query = `
+      mutation { moveItem(id: "` + item.internalId + '", parentId: "' + parentId + `") { 
+        path
+      }
+    }`
+    const data = await serverFetch(query)
+    item.path = data.moveItem.path
+
+    removeNodeByInternalId(item.internalId, itemsTree)
+
+    const path = []
+    const parent = findNodeByComparator(parentId, itemsTree, path, (id, item) => item.internalId === id)
+    parent.children.push(item)
+  },
   removeItem: async (id) => {
     const path = []
     const node = findNodeByComparator(id, itemsTree, path, (id, item) => item.internalId === id)
 
     if (node.internalId !== 0) {
       const query = `
-        mutation { removeItem(id: "` + node.internalId + `")
+        mutation { removeItem(id: "` + node.internalId + `") 
       }`
       await serverFetch(query)
     }
