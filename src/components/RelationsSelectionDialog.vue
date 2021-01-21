@@ -73,12 +73,12 @@ export default {
       if (relations.length === 0) {
         loadAllRelations().then(() => {
           selectionDialogRef.value = true
-          const arr = selected ? selected.map(id => relations.findIndex(rel => rel.id === id)) : []
+          const arr = selected ? selected.map(id => relations.findIndex(rel => rel.id === id || rel.internalId === id)) : []
           selectedRelationsRef.value = arr
         })
       } else {
         selectionDialogRef.value = true
-        const arr = selected ? selected.map(id => relations.findIndex(rel => rel.id === id)) : []
+        const arr = selected ? selected.map(id => relations.findIndex(rel => rel.id === id || rel.internalId === id)) : []
         selectedRelationsRef.value = arr
       }
     }

@@ -142,7 +142,7 @@ export default {
 
     const imageRelations = computed(() => {
       if (selectedRef.value.images) {
-        return selectedRef.value.images.map(id => relations.find(rel => rel.id === id))
+        return selectedRef.value.images.map(id => relations.find(rel => rel.id === id || rel.internalId === id))
       } else {
         return []
       }
