@@ -2,6 +2,7 @@
 <div>
   <v-toolbar dense elevation="1" class="mt-2">
       <v-spacer></v-spacer>
+      <v-btn icon :disabled="!totalItemsRef" @click="exportData"><v-icon>mdi-application-export</v-icon></v-btn>
       <v-btn icon @click="editHeaders"><v-icon>mdi-table-settings</v-icon></v-btn>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
@@ -29,9 +30,11 @@
 </div>
 </template>
 <script>
+import { saveAs } from 'file-saver'
 import * as langStore from '../store/languages'
 import * as itemStore from '../store/item'
 import * as lovsStore from '../store/lovs'
+import i18n from '../i18n'
 import { ref, onMounted } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 
@@ -102,6 +105,43 @@ export default {
       })
     }
 
+    function exportData () {
+      const maxRows = 1000
+      if (totalItemsRef.value > maxRows && confirm(i18n.t('DataTable.Export.Limit', { number: totalItemsRef.value, max: maxRows }))) {
+        performExport(maxRows)
+      } else {
+        performExport(maxRows)
+      }
+    }
+    function performExport (maxRows) {
+      loadingRef.value = true
+      props.loadData({ page: 1, itemsPerPage: maxRows, sortBy: [], sortDesc: [] }).then(data => {
+        let csv = ''
+        headersRef.value.forEach(header => {
+          if (header.identifier !== '#thumbnail#') {
+            csv += '"' + header.text.replaceAll('"', '""') + '",'
+          }
+        })
+        csv += '\n'
+
+        data.rows.forEach(row => {
+          headersRef.value.forEach(header => {
+            if (header.identifier !== '#thumbnail#') {
+              const value = '' + getValue(row, header)
+              csv += '"' + value.replaceAll('"', '""') + '",'
+            }
+          })
+          csv += '\n'
+        })
+
+        loadingRef.value = false
+
+        // set BOM at the begining so that Excel can open UTF-8 right
+        const blob = new Blob([String.fromCharCode(0xFEFF), csv], { type: 'application/vnd.ms-excel;charset=utf-8' })
+        saveAs(blob, 'export.csv')
+      })
+    }
+
     function DataChanged () {
       optionsRef.value.page = 1
       loadingRef.value = true
@@ -163,7 +203,8 @@ export default {
       columnsSelected,
       damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : '/',
       token: localStorage.getItem('token'),
-      getThumbnail
+      getThumbnail,
+      exportData
     }
   }
 }

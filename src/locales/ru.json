@@ -319,5 +319,6 @@
   "Dashboards.Select": "Дашборд",
   "UserSelect.Title": "Выбор клиента и пользователя",
   "UserSelect.Tenant": "Клиент",
-  "UserSelect.User": "Пользователь"
+  "UserSelect.User": "Пользователь",
+  "DataTable.Export.Limit" : "У вас загружено {number} записей, но только {max} записей может быть выгружено. Продолжить?"
 }

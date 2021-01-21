@@ -319,5 +319,6 @@
   "Dashboards.Select": "Dashboard",
   "UserSelect.Title": "Select tenant and user",
   "UserSelect.Tenant": "Tenant",
-  "UserSelect.User": "User"
+  "UserSelect.User": "User",
+  "DataTable.Export.Limit" : "You have {number} rows loaded, but only {max} rows can be exported. Do you want to proceed?"
 }
