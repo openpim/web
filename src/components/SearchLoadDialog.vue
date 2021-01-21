@@ -20,7 +20,7 @@
                 <v-text-field readonly v-model="selectedRef.identifier" :disabled="selectedRef.id !== 0" :label="$t('SearchSaveDialog.Identifier')" required></v-text-field>
 
                 <LanguageDependentField readonly :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :label="$t('SearchSaveDialog.Name')"></LanguageDependentField>
-                <v-checkbox readonly v-model="selectedRef.public" :label="$t('SearchSaveDialog.Public')" required></v-checkbox>
+                <v-checkbox readonly disabled v-model="selectedRef.public" :label="$t('SearchSaveDialog.Public')" required></v-checkbox>
               </v-form>
             </v-col>
           </v-row>
