@@ -40,6 +40,9 @@ const actions = {
   findByIdentifier: (identifier) => {
     return findByComparator(identifier, (identifier, item) => item.identifier === identifier)
   },
+  checkIdentifier: (identifier) => {
+    return findByComparator(identifier, (identifier, item) => item.identifier === identifier && item.internalId !== 0)
+  },
   saveData: async (item) => {
     if (item.internalId === 0) {
       let query

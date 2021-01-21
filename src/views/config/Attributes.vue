@@ -225,6 +225,7 @@ export default {
       groups,
       findById,
       findByIdentifier,
+      checkIdentifier,
       loadAllAttributes,
       saveData,
       assignData,
@@ -453,8 +454,8 @@ export default {
         return i18n.t('Config.Attributes.Error.IdentifierRequired')
       }
       if (v && selectedRef.value.internalId === 0) {
-        const found = findByIdentifier(v)
-        if (found && found.item.internalId !== 0) {
+        const found = checkIdentifier(v)
+        if (found) {
           return i18n.t('Config.Attributes.Error.IdentifierNotUnique')
         }
       }
