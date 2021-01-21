@@ -94,7 +94,7 @@
   "Config.Relations.Error.IdentifierRequired": "Не введен идентификатор",
   "Config.Relations.Error.IdentifierNotUnique": "Такой идентификатор уже существует",
   "Config.Relations.Error.NameRequired": "Не введено наименование",
-  "Config.Relations.Confirm.Delete": "Удалить зависимость {name}?",
+  "Config.Relations.Confirm.Delete": "Удалить зависимость?",
   "Config.Relations.Sources": "Источники",
   "Config.Relations.Targets": "Назначение",
   "Config.Relations.Child": "Показывается в виде ребенка",

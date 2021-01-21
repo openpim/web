@@ -176,7 +176,7 @@ export default {
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.Relations.Confirm.Delete', { name: selectedRef.value.name }))) {
+      if (confirm(i18n.t('Config.Relations.Confirm.Delete'))) {
         removeRelation(selectedRef.value.id)
         selectedRef.value = empty
         router.push('/config/relations')

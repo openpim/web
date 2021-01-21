@@ -94,7 +94,7 @@
   "Config.Relations.Error.IdentifierRequired": "Identifier required",
   "Config.Relations.Error.IdentifierNotUnique": "Such identifier already exists",
   "Config.Relations.Error.NameRequired": "Name required",
-  "Config.Relations.Confirm.Delete": "Remove relation {name}?",
+  "Config.Relations.Confirm.Delete": "Remove relation?",
   "Config.Relations.Sources": "Sources",
   "Config.Relations.Targets": "Targets",
   "Config.Relations.Child": "Visible as child",
