@@ -244,13 +244,14 @@ const actions = {
       return true
     }
   },
-  uploadAndCreateFile: async (itemId, file, fileItemTypeId, parentId, relationId) => {
+  uploadAndCreateFile: async (itemId, file, fileItemTypeId, parentId, relationId, lang) => {
     const data = new FormData()
     data.append('itemId', itemId)
     data.append('file', file)
     data.append('fileItemTypeId', fileItemTypeId)
     data.append('parentId', parentId)
     data.append('relationId', relationId)
+    data.append('lang', lang)
 
     const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : '/') + 'asset-create-upload', {
       method: 'POST',

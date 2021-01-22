@@ -303,8 +303,9 @@ export default {
 
     function linkNewFile (fileData) {
       fileUploadDialogRef.value.closeDialog()
-      uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId).then((ok) => {
+      uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier).then((ok) => {
         if (ok) {
+          showInfo(i18n.t('Saved'))
           loadAssets(itemRef.value.id).then(arr => {
             filesRef.value = arr
           })
