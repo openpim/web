@@ -27,6 +27,8 @@
             <template v-if="canEditSelected">
               <v-btn text @click="executeAction(trigger.itemButton)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
+            <v-spacer></v-spacer>
+            <v-btn v-if="!itemRef.typeFile && canEditSelected && hasFileUpload" text @click="fileUploadDialogRef.showDialog()" v-text="$t('ItemView.UploadFile')"></v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -114,6 +116,7 @@
       </v-col>
     </v-row>
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemToMoveSelected"/>
+    <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
   </v-container>
 </template>
 
@@ -126,6 +129,7 @@ import * as errorStore from '../store/error'
 import * as userStore from '../store/users'
 import * as typesStore from '../store/types'
 import * as actionsStore from '../store/actions'
+import * as relStore from '../store/relations'
 import i18n from '../i18n'
 import * as langStore from '../store/languages'
 import AttributeValue from '../components/AttributeValue'
@@ -136,9 +140,10 @@ import ItemsDataTable from '../components/ItemsDataTable'
 import router from '../router'
 import AttributeType from '../constants/attributeTypes'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
+import FileUploadDialog from '../components/FileUploadDialog'
 
 export default {
-  components: { AttributeValue, ItemRelationsList, SystemInformation, LanguageDependentField, ItemsDataTable, ItemsSelectionDialog },
+  components: { AttributeValue, ItemRelationsList, SystemInformation, LanguageDependentField, ItemsDataTable, ItemsSelectionDialog, FileUploadDialog },
   name: 'Home',
   setup (params, context) {
     const { route } = useRouter()
@@ -164,6 +169,7 @@ export default {
       moveItem,
       removeItem,
       uploadFile,
+      uploadAndCreateFile,
       removeItemFile,
       loadAssets,
       loadChildren,
@@ -181,6 +187,11 @@ export default {
       executeButtonAction
     } = actionsStore.useStore()
 
+    const {
+      loadAllRelations,
+      relations
+    } = relStore.useStore()
+
     const itemsDataTableRef = ref(null)
     const itemRef = ref(null)
     const tabRef = ref(null)
@@ -193,6 +204,7 @@ export default {
     const hasSources = ref(true)
     const hasTargets = ref(true)
     const itemSelectionDialogRef = ref(null)
+    const fileUploadDialogRef = ref(null)
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -222,6 +234,24 @@ export default {
         (itemRef.value.mimeType === 'image/bmp') ||
         (itemRef.value.mimeType === 'image/tiff') ||
         (itemRef.value.mimeType === 'image/gif'))
+    })
+
+    const hasFileUpload = computed(() => {
+      if (itemRef.value) {
+        let found = false
+        const typeId = parseInt(itemRef.value.typeId)
+        relations.forEach(relation => {
+          if (relation.sources.includes(typeId)) {
+            relation.targets.forEach(targetTypeId => {
+              const targetType = findType(targetTypeId).node
+              if (targetType && targetType.file) found = true
+            })
+          }
+        })
+        return found
+      } else {
+        return false
+      }
     })
 
     const buttonActions = computed(() => {
@@ -261,11 +291,24 @@ export default {
     }
 
     function upload () {
-      uploadFile(itemRef.value.id, fileRef.value).then(() => {
-        itemRef.value.mimeType = fileRef.value.type
-        itemRef.value.fileOrigName = fileRef.value.name
-        imageKeyRef.value++
-        fileRef.value = null
+      uploadFile(itemRef.value.id, fileRef.value).then((ok) => {
+        if (ok) {
+          itemRef.value.mimeType = fileRef.value.type
+          itemRef.value.fileOrigName = fileRef.value.name
+          imageKeyRef.value++
+          fileRef.value = null
+        }
+      })
+    }
+
+    function linkNewFile (fileData) {
+      fileUploadDialogRef.value.closeDialog()
+      uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId).then((ok) => {
+        if (ok) {
+          loadAssets(itemRef.value.id).then(arr => {
+            filesRef.value = arr
+          })
+        }
       })
     }
 
@@ -439,6 +482,7 @@ export default {
       window.addEventListener('keydown', hotkey)
       loadAllActions()
       loadAllAttributes()
+      loadAllRelations()
       loadAllTypes().then(() => {
         if (route.value && route.value.params && route.value.params.id) {
           itemPathRef.value = []
@@ -504,6 +548,9 @@ export default {
       targetsLoaded,
       itemSelectionDialogRef,
       itemToMoveSelected,
+      fileUploadDialogRef,
+      linkNewFile,
+      hasFileUpload,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]

@@ -237,8 +237,33 @@ const actions = {
       },
       body: data
     })
-    if (resp.ok) {
-      // todo: handle errors
+    if (!resp.ok) {
+      err.store.showError(i18n.t('File.UploadFailed'))
+      return false
+    } else {
+      return true
+    }
+  },
+  uploadAndCreateFile: async (itemId, file, fileItemTypeId, parentId, relationId) => {
+    const data = new FormData()
+    data.append('itemId', itemId)
+    data.append('file', file)
+    data.append('fileItemTypeId', fileItemTypeId)
+    data.append('parentId', parentId)
+    data.append('relationId', relationId)
+
+    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : '/') + 'asset-create-upload', {
+      method: 'POST',
+      headers: {
+        'x-token': localStorage.getItem('token')
+      },
+      body: data
+    })
+    if (!resp.ok) {
+      err.store.showError(i18n.t('File.UploadFailed'))
+      return false
+    } else {
+      return true
     }
   },
   removeItemFile: async (id) => {

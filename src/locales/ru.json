@@ -247,6 +247,7 @@
   "ItemView.RemoveItem": "Удалить эту запись?",
   "ItemView.NewFile": "Загрузить новый файл",
   "ItemView.Upload": "Загрузить",
+  "ItemView.UploadFile": "Загрузить файл",
   "ItemView.Move.HasChildrenError": "Невозможно переместить этот объект потому что он имеет подчиненные записи. Удалите сперва их.",
   "ItemView.Move.WrongParent": "Невозможно переместить объект в это место так как это не разрешено моделью данных.",
   "ItemView.Remove.HasChildrenError": "Невозможно удалить этот объект потому что он имеет подчиненные записи. Удалите сперва их.",
@@ -320,5 +321,11 @@
   "UserSelect.Title": "Выбор клиента и пользователя",
   "UserSelect.Tenant": "Клиент",
   "UserSelect.User": "Пользователь",
-  "DataTable.Export.Limit" : "У вас загружено {number} записей, но только {max} записей может быть выгружено. Продолжить?"
+  "DataTable.Export.Limit" : "У вас загружено {number} записей, но только {max} записей может быть выгружено. Продолжить?",
+  "FileUploadDialog.Title" : "Загрузка файла",
+  "FileUploadDialog.NewFile" : "Файл для загрузки",
+  "FileUploadDialog.FileType" : "Тип",
+  "FileUploadDialog.SelectParent.Button": "Выберите папку для файла",
+  "FileUploadDialog.SelectParent.WrongParent": "Нельзя выбрать эту папку для файла так как это не разрешено моделью данных",
+  "File.UploadFailed": "Произошла ошибка при загрузке файла"
 }
