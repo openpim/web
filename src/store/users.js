@@ -8,7 +8,7 @@ const users = reactive([])
 const currentUserRef = ref(null)
 const currentRoles = reactive([])
 
-async function userLogin (token, user) {
+async function userLogin (token, user, pathAfterLogin) {
   currentUserRef.value = user
   localStorage.setItem('token', token)
   localStorage.setItem('user', JSON.stringify(user))
@@ -19,7 +19,7 @@ async function userLogin (token, user) {
   } else {
     await rolesStore.store.loadAllRoles()
     user.roles.forEach(roleId => currentRoles.push(rolesStore.store.roles.find(role => role.id === roleId)))
-    router.push({ path: '/', query: null })
+    router.push({ path: pathAfterLogin, query: null })
   }
 }
 
@@ -84,7 +84,7 @@ const actions = {
     const data = await serverFetch('query { getTenantUsers(tenantId: "' + tenantId + '") { id name login roles } }')
     return data.getTenantUsers
   },
-  signIn: async (login, password) => {
+  signIn: async (login, password, pathAfterLogin) => {
     try {
       const serverUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_SERVER_URL : '/graphql'
       const resp = await fetch(serverUrl, {
@@ -97,7 +97,7 @@ const actions = {
       })
       if (resp.ok) {
         const data = (await resp.json()).data
-        await userLogin(data.signIn.token, data.signIn.user)
+        await userLogin(data.signIn.token, data.signIn.user, pathAfterLogin)
       } else {
         localStorage.setItem('token', '')
         const data = await resp.json()
@@ -110,7 +110,7 @@ const actions = {
   },
   signInAs: async (id) => {
     const data = await serverFetch('mutation {signInAs(id: "' + id + '") { token, user {id internalId login name email roles tenantId} }}')
-    await userLogin(data.signInAs.token, data.signInAs.user)
+    await userLogin(data.signInAs.token, data.signInAs.user, '/')
   },
   reloadModel: async () => {
     await serverFetch('mutation {reloadModel(tenantId: "' + currentUserRef.value.tenantId + '") }')

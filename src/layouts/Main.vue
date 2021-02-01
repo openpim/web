@@ -4,7 +4,7 @@
     <v-navigation-drawer width="35%" v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
       <router-view name="menu"></router-view>
 
-      <v-bottom-navigation horizontal height="40" class="mt-2" v-model="activeBottom">
+      <v-bottom-navigation horizontal height="40" class="mt-2" v-model="activeBottom" v-if="!isExportSearch">
         <v-btn to="/">
             <span>{{ $t('Main.Work') }}</span>
             <v-icon>mdi-sitemap</v-icon>
@@ -26,7 +26,7 @@
         <!-- span class="hidden-sm-and-down">App</span -->
       </v-toolbar-title>
       <v-spacer />
-      <v-autocomplete v-if="currentUserRef.tenantId !== '0'" @input="searchSelected" @focus="searchResultsRef=[]" item-value="identifier" v-model="searchTextRef" :loading="searchLoadingRef" :items="searchResultsRef" :search-input.sync="searchRef" class="mr-2 hidden-sm-and-down" flat solo-inverted hide-no-data hide-details prepend-inner-icon="mdi-magnify" :label="$t('Search')">
+      <v-autocomplete v-if="currentUserRef.tenantId !== '0' && !isExportSearch" @input="searchSelected" @focus="searchResultsRef=[]" item-value="identifier" v-model="searchTextRef" :loading="searchLoadingRef" :items="searchResultsRef" :search-input.sync="searchRef" class="mr-2 hidden-sm-and-down" flat solo-inverted hide-no-data hide-details prepend-inner-icon="mdi-magnify" :label="$t('Search')">
         <template v-slot:item="{ item }">
           <v-list-item-content>
             <v-list-item-title><router-link :to="'/item/'+item.identifier">{{item.identifier + ' (' +item.type.identifier+')'}}</router-link></v-list-item-title>
@@ -50,7 +50,7 @@
     </v-app-bar>
     <v-content>
       <v-container class="fill-height" fluid>
-        <router-view></router-view>
+        <router-view :export="isExportSearch"></router-view>
       </v-container>
     </v-content>
     <v-dialog v-model="userDialogRef" persistent max-width="600px">
@@ -97,7 +97,13 @@ import router from '../router'
 
 export default {
   components: { ErrorBox },
-  setup () {
+  props: {
+    export: {
+      type: Boolean,
+      required: true
+    }
+  },
+  setup (props) {
     const {
       showInfo
     } = errorStore.useStore()
@@ -163,7 +169,7 @@ export default {
     function logout () {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      router.push('/login')
+      router.push(props.export ? '/export_login' : '/login')
       location.reload()
     }
 
@@ -212,6 +218,7 @@ export default {
       searchLoadingRef,
       searchSelected,
       hasConfigRef,
+      isExportSearch: props.export,
       nameRules: [
         v => !!v || i18n.t('Config.Users.Error.NameRequired')
       ]

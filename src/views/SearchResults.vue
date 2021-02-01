@@ -2,7 +2,7 @@
   <v-container>
     <v-row no-gutters>
       <v-col cols="12">
-        <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction"></ItemsDataTable>
+        <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" :export="isExportSearch"></ItemsDataTable>
       </v-col>
     </v-row>
   </v-container>
@@ -15,7 +15,13 @@ import ItemsDataTable from '../components/ItemsDataTable'
 
 export default {
   components: { ItemsDataTable },
-  setup () {
+  props: {
+    export: {
+      type: Boolean,
+      required: true
+    }
+  },
+  setup (props) {
     const {
       searchItems,
       currentWhereRef
@@ -39,7 +45,8 @@ export default {
 
     return {
       itemsDataTableRef,
-      loadDataFunction
+      loadDataFunction,
+      isExportSearch: props.export
     }
   }
 }

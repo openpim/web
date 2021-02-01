@@ -43,6 +43,10 @@ export default {
   props: {
     loadData: {
       required: true
+    },
+    export: {
+      type: Boolean,
+      required: true
     }
   },
   setup (props, { emit, root }) {
@@ -106,7 +110,7 @@ export default {
     }
 
     function exportData () {
-      const maxRows = 1000
+      const maxRows = 10000
       if (totalItemsRef.value > maxRows && confirm(i18n.t('DataTable.Export.Limit', { number: totalItemsRef.value, max: maxRows }))) {
         performExport(maxRows)
       } else {
@@ -116,29 +120,40 @@ export default {
     function performExport (maxRows) {
       loadingRef.value = true
       props.loadData({ page: 1, itemsPerPage: maxRows, sortBy: [], sortDesc: [] }).then(data => {
-        let csv = ''
-        headersRef.value.forEach(header => {
-          if (header.identifier !== '#thumbnail#') {
-            csv += '"' + header.text.replaceAll('"', '""') + '",'
-          }
-        })
-        csv += '\n'
+        if (props.export) {
+          console.log('#@SELECTED_ITEMS@#')
+          const identHeader = { value: 'identifier' }
+          data.rows.forEach(row => {
+            console.log(getValue(row, identHeader))
+          })
+          console.log('#@END@#')
 
-        data.rows.forEach(row => {
+          loadingRef.value = false
+        } else {
+          let csv = ''
           headersRef.value.forEach(header => {
             if (header.identifier !== '#thumbnail#') {
-              const value = '' + getValue(row, header)
-              csv += '"' + value.replaceAll('"', '""') + '",'
+              csv += '"' + header.text.replaceAll('"', '""') + '",'
             }
           })
           csv += '\n'
-        })
 
-        loadingRef.value = false
+          data.rows.forEach(row => {
+            headersRef.value.forEach(header => {
+              if (header.identifier !== '#thumbnail#') {
+                const value = '' + getValue(row, header)
+                csv += '"' + value.replaceAll('"', '""') + '",'
+              }
+            })
+            csv += '\n'
+          })
 
-        // set BOM at the begining so that Excel can open UTF-8 right
-        const blob = new Blob([String.fromCharCode(0xFEFF), csv], { type: 'application/vnd.ms-excel;charset=utf-8' })
-        saveAs(blob, 'export.csv')
+          loadingRef.value = false
+
+          // set BOM at the begining so that Excel can open UTF-8 right
+          const blob = new Blob([String.fromCharCode(0xFEFF), csv], { type: 'application/vnd.ms-excel;charset=utf-8' })
+          saveAs(blob, 'export.csv')
+        }
       })
     }
 

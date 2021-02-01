@@ -42,7 +42,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
-                <v-btn color="primary" @click="signIn(login, password)">{{ $t('Login.Login') }}</v-btn>
+                <v-btn color="primary" @click="signIn(login, password, pathAfterLogin)">{{ $t('Login.Login') }}</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -55,6 +55,11 @@ import * as userStore from '../store/users'
 import i18n from '../i18n'
 
 export default {
+  props: {
+    pathAfterLogin: {
+      required: true
+    }
+  },
   setup (props, { root }) {
     const {
       signIn
@@ -69,7 +74,7 @@ export default {
         (m, key, value) => {
           params[key] = value
         })
-      if (params.user && params.password) signIn(params.user, params.password)
+      if (params.user && params.password) signIn(params.user, params.password, props.pathAfterLogin)
     })
 
     return {

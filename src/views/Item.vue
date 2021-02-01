@@ -110,7 +110,7 @@
             <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded"></ItemRelationsList>
           </v-tab-item>
           <v-tab-item v-if="hasChildren" eager>  <!-- Children -->
-            <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded"></ItemsDataTable>
+            <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false"></ItemsDataTable>
           </v-tab-item>
         </v-tabs-items>
       </v-col>

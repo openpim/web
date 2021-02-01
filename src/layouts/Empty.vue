@@ -1,7 +1,7 @@
 <template>
   <v-container fluid fill-height>
     <ErrorBox />
-    <router-view></router-view>
+    <router-view :pathAfterLogin="pathAfterLogin"></router-view>
   </v-container>
 </template>
 
@@ -10,6 +10,11 @@ import ErrorBox from '../components/ErrorBox'
 
 export default {
   name: 'Empty',
+  props: {
+    pathAfterLogin: {
+      required: true
+    }
+  },
   components: { ErrorBox }
 }
 </script>

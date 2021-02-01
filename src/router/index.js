@@ -9,6 +9,18 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/login',
+    props: { pathAfterLogin: '/' },
+    component: () => import('../layouts/Empty.vue'),
+    children: [
+      { path: '', component: () => import('../views/Login.vue') }
+    ],
+    meta: {
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/export_login',
+    props: { pathAfterLogin: '/export_search' },
     component: () => import('../layouts/Empty.vue'),
     children: [
       { path: '', component: () => import('../views/Login.vue') }
@@ -67,6 +79,24 @@ const routes = [
   {
     path: '/search',
     component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/SearchMenu.vue'),
+          default: () => import('../views/SearchResults.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/export_search',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: true },
     children: [
       {
         path: '',
