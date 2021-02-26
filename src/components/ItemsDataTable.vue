@@ -2,8 +2,30 @@
 <div>
   <v-toolbar dense elevation="1" class="mt-2">
       <v-spacer></v-spacer>
-      <v-btn icon :disabled="!totalItemsRef" @click="exportData"><v-icon>mdi-application-export</v-icon></v-btn>
-      <v-btn icon @click="editHeaders"><v-icon>mdi-table-settings</v-icon></v-btn>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }" v-if="!talendExportSelection">
+          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportExcel"><v-icon>mdi-application-export</v-icon></v-btn>
+        </template>
+        <span>{{ $t('DataTable.ExportExcel') }}</span>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }" v-if="!talendExportSelection">
+          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="importExcel"><v-icon>mdi-application-import</v-icon></v-btn>
+        </template>
+        <span>{{ $t('DataTable.ImportExcel') }}</span>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
+        </template>
+        <span>{{  talendExportSelection ? $t('DataTable.TalendExportSelection') : $t('DataTable.ExportCSV') }}</span>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" @click="editHeaders"><v-icon>mdi-table-settings</v-icon></v-btn>
+        </template>
+        <span>{{ $t('DataTable.SelectColumns') }}</span>
+      </v-tooltip>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
       :options.sync="optionsRef"
@@ -107,6 +129,12 @@ export default {
         const ids = data.rows.map(elem => elem.id)
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
       })
+    }
+
+    function exportExcel () {
+    }
+
+    function importExcel () {
     }
 
     function exportData () {
@@ -219,7 +247,10 @@ export default {
       damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : '/',
       token: localStorage.getItem('token'),
       getThumbnail,
-      exportData
+      exportData,
+      exportExcel,
+      importExcel,
+      talendExportSelection: props.export
     }
   }
 }
