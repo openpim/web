@@ -216,12 +216,11 @@ const actions = {
     const path = []
     const node = findNodeByComparator(id, itemsTree, path, (id, item) => item.internalId === id)
 
-    if (node.internalId !== 0) {
-      const query = `
-        mutation { removeItem(id: "` + node.internalId + `") 
-      }`
-      await serverFetch(query)
-    }
+    const idToRemove = node ? node.internalId : id
+    const query = `
+      mutation { removeItem(id: "` + idToRemove + `") 
+    }`
+    await serverFetch(query)
 
     removeNodeByInternalId(id, itemsTree)
   },

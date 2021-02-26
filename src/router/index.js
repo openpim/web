@@ -32,6 +32,7 @@ const routes = [
   {
     path: '/',
     component: () => import('../layouts/Main.vue'),
+    props: { export: false },
     children: [
       {
         path: '',
@@ -48,6 +49,7 @@ const routes = [
   {
     path: '/selectUser',
     component: () => import('../layouts/Main.vue'),
+    props: { export: false },
     children: [
       {
         path: '',
@@ -63,6 +65,7 @@ const routes = [
   {
     path: '/item/:id',
     component: () => import('../layouts/Main.vue'),
+    props: { export: false },
     children: [
       {
         path: '',
@@ -113,6 +116,7 @@ const routes = [
   {
     path: '/search/:id',
     component: () => import('../layouts/Main.vue'),
+    props: { export: false },
     children: [
       {
         path: '',
@@ -129,6 +133,7 @@ const routes = [
   {
     path: '/config',
     component: () => import('../layouts/Main.vue'),
+    props: { export: false },
     children: [
       {
         path: 'home',

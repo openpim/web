@@ -41,7 +41,7 @@ function findNodeByComparator (id, children, path, comparator) {
     const item = children[i]
     if (comparator(id, item)) {
       return item
-    } else if (item.children) {
+    } else if (item.children && item.children.length > 0) {
       const found = findNodeByComparator(id, item.children, path, comparator)
       if (found) {
         if (path) path.unshift(item.id)
@@ -83,7 +83,7 @@ function removeNodeByInternalId (internalId, tree) {
   }
 
   const idx = arr.findIndex(item => item.internalId === internalId)
-  arr = arr.splice(idx, 1)
+  if (idx !== -1) arr = arr.splice(idx, 1)
 
   return node
 }
