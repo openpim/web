@@ -144,9 +144,10 @@ export default {
         searchLoadingRef.value = true
         searchItem(val).then(data => {
           searchResultsRef.value = data.rows.map(elem => {
-            elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier] + ')'
+            elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
             return elem
           })
+          debugger
           searchLoadingRef.value = false
         })
       }
