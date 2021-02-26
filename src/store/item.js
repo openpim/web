@@ -293,6 +293,7 @@ const actions = {
     return data.getMainImages || []
   },
   searchItem: async (text) => {
+    const txt = text.replaceAll('\\', '\\\\')
     const data = await serverFetch(
       `query { search(
         requests: [
@@ -300,7 +301,7 @@ const actions = {
                 entity: ITEM, 
                 offset: 0, 
                 limit: 100,
-                where: {OP_or: [{ identifier: { OP_iLike: "%` + text + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + text + `%"}}}] }
+                where: {OP_or: [{ identifier: { OP_iLike: "%` + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + `%"}}}] }
             }]
         ) {
         responses {
