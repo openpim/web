@@ -38,6 +38,7 @@
     "vue-i18n": "^8.15.5",
     "vue-router": "^3.1.5",
     "vuetify": "^2.3.10",
+    "xlsx": "^0.16.9",
     "xregexp": "^4.3.0"
   },
   "devDependencies": {

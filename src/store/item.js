@@ -160,6 +160,8 @@ const actions = {
       { 
         id 
         identifier
+        parentIdentifier
+        typeIdentifier
         name
         values
         fileOrigName
@@ -344,6 +346,8 @@ const actions = {
                 rows {
                   id 
                   identifier
+                  parentIdentifier
+                  typeIdentifier
                   name
                   values
                   fileOrigName

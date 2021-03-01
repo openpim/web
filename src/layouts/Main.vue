@@ -147,7 +147,6 @@ export default {
             elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
             return elem
           })
-          debugger
           searchLoadingRef.value = false
         })
       }

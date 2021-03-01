@@ -48,6 +48,34 @@
     </template>
   </v-data-table>
   <ColumnsSelectionDialog ref="columnsSelectionDialogRef" @selected="columnsSelected"/>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="excelDialogRef" persistent max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ excelDialogModeRef === 'import' ? $t('DataTable.ExcelDialog.TitleImport') : $t('DataTable.ExcelDialog.TitleExport') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-progress-linear v-model="excelDialogProgressRef" color="primary" height="25">
+                      <template v-slot:default="{ value }">
+                        <strong>{{ Math.ceil(value) }}%</strong>
+                      </template>
+                    </v-progress-linear>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="excelDialogClose">{{ $t('Cancel') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
 
 </div>
 </template>
@@ -59,6 +87,7 @@ import * as lovsStore from '../store/lovs'
 import i18n from '../i18n'
 import { ref, onMounted } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
+import XLSX from 'xlsx'
 
 export default {
   components: { ColumnsSelectionDialog },
@@ -87,6 +116,9 @@ export default {
 
     const columnsSelectionDialogRef = ref(null)
 
+    const excelDialogRef = ref(false)
+    const excelDialogProgressRef = ref(0)
+    const excelDialogModeRef = ref('import')
     const itemsRef = ref([])
     const totalItemsRef = ref(0)
     const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: [], sortDesc: [] })
@@ -131,10 +163,107 @@ export default {
       })
     }
 
-    function exportExcel () {
+    async function exportExcel () {
+      excelDialogModeRef.value = 'export'
+      excelDialogRef.value = true
+      const itemsPerPage = 1000
+      let total = 0
+      let page = 0
+      excelDialogProgressRef.value = 0
+
+      const columns = ['parent', 'type', 'Identifier']
+      headersRef.value.forEach(header => {
+        if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier') {
+          columns.push(header.text)
+        }
+      })
+      const ws = XLSX.utils.aoa_to_sheet([columns])
+      ws['!cols'] = []
+      ws['!cols'][0] = { hidden: true }
+      ws['!cols'][1] = { hidden: true }
+
+      let cell = ws[XLSX.utils.encode_cell({ c: 0, r: 0 })]
+      cell.c = []
+      cell.c.hidden = true
+      cell.c.push({ a: 'OpenPIM', t: 'parent' })
+
+      cell = ws[XLSX.utils.encode_cell({ c: 1, r: 0 })]
+      cell.c = []
+      cell.c.hidden = true
+      cell.c.push({ a: 'OpenPIM', t: 'type' })
+
+      cell = ws[XLSX.utils.encode_cell({ c: 2, r: 0 })]
+      cell.c = []
+      cell.c.hidden = true
+      cell.c.push({ a: 'OpenPIM', t: 'identifier' })
+
+      let idx = 3
+      headersRef.value.forEach(header => {
+        if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier') {
+          cell = ws[XLSX.utils.encode_cell({ c: idx, r: 0 })]
+          cell.c = []
+          cell.c.hidden = true
+          cell.c.push({ a: 'OpenPIM', t: header.identifier })
+          idx++
+        }
+      })
+
+      do {
+        page++
+        const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: [], sortDesc: [] })
+        total = data.count
+        data.rows.forEach(row => {
+          const rowData = []
+          rowData.push(row.parentIdentifier)
+          rowData.push(row.typeIdentifier)
+          rowData.push(row.identifier)
+          headersRef.value.forEach(header => {
+            if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier') {
+              const value = getValue(row, header)
+              rowData.push(value)
+            }
+          })
+          XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: -1 })
+        })
+        const tst = page * itemsPerPage * 100 / total
+        excelDialogProgressRef.value = tst > 100 ? 100 : tst
+      } while (page * itemsPerPage < total)
+
+      var wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Data')
+      var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+      excelDialogRef.value = false
+      saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'results.xlsx')
+    }
+    /* generate a download */
+    function s2ab (s) {
+      var buf = new ArrayBuffer(s.length)
+      var view = new Uint8Array(buf)
+      for (var i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF
+      return buf
     }
 
-    function importExcel () {
+    async function importExcel () {
+      excelDialogModeRef.value = 'import'
+      excelDialogRef.value = true
+      const itemsPerPage = 1000
+      let total = 0
+      let page = 0
+      excelDialogProgressRef.value = 0
+      do {
+        page++
+        const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: [], sortDesc: [] })
+        total = data.count
+        data.rows.forEach(row => {
+        })
+        const tst = page * itemsPerPage * 100 / total
+        excelDialogProgressRef.value = tst > 100 ? 100 : tst
+      } while (page * itemsPerPage < total)
+      excelDialogRef.value = false
+    }
+
+    function excelDialogClose () {
+      excelDialogRef.value = false
     }
 
     function exportData () {
@@ -250,6 +379,10 @@ export default {
       exportData,
       exportExcel,
       importExcel,
+      excelDialogRef,
+      excelDialogProgressRef,
+      excelDialogModeRef,
+      excelDialogClose,
       talendExportSelection: props.export
     }
   }

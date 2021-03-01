@@ -327,6 +327,8 @@
   "DataTable.ExportCSV" : "Export to CSV file",
   "DataTable.TalendExportSelection" : "Export",
   "DataTable.SelectColumns" : "Select columns to show in the table",
+  "DataTable.ExcelDialog.TitleImport" : "Import from Excel file",
+  "DataTable.ExcelDialog.TitleExport" : "Export to Excel file",
   "FileUploadDialog.Title" : "File upload",
   "FileUploadDialog.NewFile" : "File to upload",
   "FileUploadDialog.FileType" : "Type",
