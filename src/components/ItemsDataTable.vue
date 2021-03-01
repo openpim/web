@@ -212,6 +212,7 @@ export default {
         page++
         const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: [], sortDesc: [] })
         total = data.count
+        if (!excelDialogRef.value) return // exit if process was canceled
         data.rows.forEach(row => {
           const rowData = []
           rowData.push(row.parentIdentifier)
@@ -229,11 +230,14 @@ export default {
         excelDialogProgressRef.value = tst > 100 ? 100 : tst
       } while (page * itemsPerPage < total)
 
+      if (!excelDialogRef.value) return // exit if process was canceled
+
       var wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, 'Data')
       var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
-      excelDialogRef.value = false
       saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'results.xlsx')
+
+      excelDialogRef.value = false
     }
     /* generate a download */
     function s2ab (s) {
