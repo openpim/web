@@ -10,7 +10,8 @@
       </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }" v-if="!talendExportSelection">
-          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="importExcel"><v-icon>mdi-application-import</v-icon></v-btn>
+          <input ref="fileUploadRef" style="display: none" type="file" @change="importExcel"/>
+          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="fileUploadRef.click()"><v-icon>mdi-application-import</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ImportExcel') }}</span>
       </v-tooltip>
@@ -84,6 +85,7 @@ import { saveAs } from 'file-saver'
 import * as langStore from '../store/languages'
 import * as itemStore from '../store/item'
 import * as lovsStore from '../store/lovs'
+import * as errorStore from '../store/error'
 import i18n from '../i18n'
 import { ref, onMounted } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
@@ -101,13 +103,17 @@ export default {
     }
   },
   setup (props, { emit, root }) {
+    const { showError, showInfo } = errorStore.useStore()
+
     const {
+      languages,
       currentLanguage,
       defaultLanguageIdentifier
     } = langStore.useStore()
 
     const {
-      loadThumbnails
+      loadThumbnails,
+      importItems
     } = itemStore.useStore()
 
     const {
@@ -116,6 +122,7 @@ export default {
 
     const columnsSelectionDialogRef = ref(null)
 
+    const fileUploadRef = ref(null)
     const excelDialogRef = ref(false)
     const excelDialogProgressRef = ref(0)
     const excelDialogModeRef = ref('import')
@@ -247,23 +254,116 @@ export default {
       return buf
     }
 
-    async function importExcel () {
+    function importExcel (event) {
       excelDialogModeRef.value = 'import'
+      const pageSize = 100
+
+      const file = event.target.files[0]
+      if (!file) return
+
       excelDialogRef.value = true
-      const itemsPerPage = 1000
-      let total = 0
-      let page = 0
-      excelDialogProgressRef.value = 0
-      do {
-        page++
-        const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: [], sortDesc: [] })
-        total = data.count
-        data.rows.forEach(row => {
+      var reader = new FileReader()
+      reader.onload = function (evt) {
+        const data = evt.target.result
+
+        try {
+          const wb = XLSX.read(data, { type: 'binary' })
+          const ws = wb.Sheets[wb.SheetNames[0]]
+          const availableLangs = languages.map(lang => lang.identifier)
+
+          const range = XLSX.utils.decode_range(ws['!ref'])
+          let firstRow = true
+          const headers = []
+          let rows = []
+          const totalRows = range.e.r
+          let currentRow = 0
+          for (let rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
+            if (!excelDialogRef.value) return
+            if (firstRow) {
+              for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
+                const cell = ws[XLSX.utils.encode_cell({ r: rowNum, c: colNum })]
+                if (!cell.c || cell.c.length === 0) {
+                  showError(i18n.t('DataTable.ExcelImport.WrongFormat'))
+                  excelDialogRef.value = false
+                  return
+                } else {
+                  headers.push(cell.c[0].t)
+                }
+              }
+              firstRow = false
+            } else {
+              const item = {}
+              for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
+                const cell = ws[XLSX.utils.encode_cell({ r: rowNum, c: colNum })]
+                if (!cell) continue
+                const header = headers[colNum]
+                if (header === 'parent') {
+                  item.parentIdentifier = cell.v
+                } else if (header === 'type') {
+                  item.typeIdentifier = cell.v
+                } else if (header === 'identifier') {
+                  item.identifier = cell.v
+                } else if (header.startsWith('name')) {
+                  const arr = ('' + header).split('_')
+                  const lang = arr[1]
+                  if (!item.name) item.name = {}
+                  item.name[lang] = cell.v
+                } else if (header.startsWith('attr') && cell.v) {
+                  if (!item.values) item.values = {}
+                  const attr = header.substring(5)
+                  const idx = attr.lastIndexOf('_')
+                  if (idx !== -1) {
+                    const attrIdent = attr.substring(0, idx)
+                    const tst = attr.substring(idx + 1)
+                    if (availableLangs.includes(tst)) {
+                      if (!item.values[attrIdent]) item.values[attrIdent] = {}
+                      item.values[attrIdent][tst] = cell.v
+                    } else {
+                      item.values[attr] = cell.v
+                    }
+                  } else {
+                    item.values[attr] = cell.v
+                  }
+                }
+              }
+              rows.push(item)
+              if (rows.length === pageSize) {
+                importRows(rows)
+                rows = []
+              }
+              excelDialogProgressRef.value = currentRow++ * 100 / totalRows
+            }
+          }
+          if (rows.length > 0) importRows(rows)
+          excelDialogProgressRef.value = 100
+
+          setTimeout(() => {
+            DataChanged()
+            showInfo(i18n.t('DataTable.ExcelImport.Loaded'))
+          }, 500)
+        } catch (err) {
+          console.error('Error opening file', err)
+          showError(err.message)
+        }
+
+        excelDialogRef.value = false
+      }
+      reader.readAsBinaryString(file)
+      fileUploadRef.value.value = ''
+    }
+    function importRows (rows) {
+      importItems(rows).then(returnRows => {
+        let errors = ''
+        returnRows.forEach(row => {
+          if (row.errors.length > 0) {
+            errors += row.identifier + ': ' + row.errors[0].message
+          }
         })
-        const tst = page * itemsPerPage * 100 / total
-        excelDialogProgressRef.value = tst > 100 ? 100 : tst
-      } while (page * itemsPerPage < total)
-      excelDialogRef.value = false
+        if (errors.length > 0) {
+          showError(errors)
+          excelDialogRef.value = false
+        }
+      })
     }
 
     function excelDialogClose () {
@@ -383,6 +483,7 @@ export default {
       exportData,
       exportExcel,
       importExcel,
+      fileUploadRef,
       excelDialogRef,
       excelDialogProgressRef,
       excelDialogModeRef,

@@ -361,6 +361,32 @@ const actions = {
         }}}       
       `)
     return data.search.responses[0]
+  },
+  importItems: async (rows) => {
+    let query = `
+      mutation { import(
+        config: {
+            mode: CREATE_UPDATE
+            errors: PROCESS_WARN
+        },
+        items: [`
+
+    rows.forEach(row => {
+      query += objectToGraphgl(row)
+    })
+
+    query += `]
+        ) {
+        items {
+        identifier
+        result
+        id
+        errors { code message }
+        warnings { code message }
+      }}}    
+    `
+    const data = await serverFetch(query)
+    return data.import.items
   }
 }
 

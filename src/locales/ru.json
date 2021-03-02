@@ -329,6 +329,8 @@
   "DataTable.SelectColumns" : "Выбрать колонки для показа в таблице",
   "DataTable.ExcelDialog.TitleImport" : "Загрузка из файла Excel",
   "DataTable.ExcelDialog.TitleExport" : "Выгрузка в файл Excel",
+  "DataTable.ExcelImport.WrongFormat" : "Неверный формат данных, используйте для загрузки файл который был сперва выгружен",
+  "DataTable.ExcelImport.Loaded" : "Загрузка завершена",
   "FileUploadDialog.Title" : "Загрузка файла",
   "FileUploadDialog.NewFile" : "Файл для загрузки",
   "FileUploadDialog.FileType" : "Тип",
