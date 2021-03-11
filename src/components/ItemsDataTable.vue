@@ -315,7 +315,6 @@ export default {
                   let cellVal = cell.v
                   // check LOV
                   const tst = attr.indexOf('#')
-                  debugger
                   if (tst !== -1) {
                     const lov = parseInt(attr.substring(tst + 1))
                     attr = attr.substring(0, tst)
