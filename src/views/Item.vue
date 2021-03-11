@@ -48,7 +48,7 @@
             <v-card flat>
               <v-card-text class="pt-2 pl-0 pr-0">
 
-                <v-expansion-panels popout multiple>
+                <v-expansion-panels popout multiple focusable>
                   <v-expansion-panel v-for="(group,i) in attrGroups" :key="i">
                     <v-expansion-panel-header>{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
