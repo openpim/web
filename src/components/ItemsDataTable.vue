@@ -210,7 +210,7 @@ export default {
           cell = ws[XLSX.utils.encode_cell({ c: idx, r: 0 })]
           cell.c = []
           cell.c.hidden = true
-          cell.c.push({ a: 'OpenPIM', t: header.identifier })
+          cell.c.push({ a: 'OpenPIM', t: header.identifier + (header.lov ? '#' + header.lov : '') })
           idx++
         }
       })
@@ -310,19 +310,35 @@ export default {
                   item.name[lang] = cell.v
                 } else if (header.startsWith('attr') && cell.v) {
                   if (!item.values) item.values = {}
-                  const attr = header.substring(5)
+                  let attr = header.substring(5)
+
+                  let cellVal = cell.v
+                  // check LOV
+                  const tst = attr.indexOf('#')
+                  debugger
+                  if (tst !== -1) {
+                    const lov = parseInt(attr.substring(tst + 1))
+                    attr = attr.substring(0, tst)
+
+                    const lovValues = lovsMap[lov]
+                    if (lovValues) {
+                      const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === cell.v)
+                      if (tst2) cellVal = tst2.id
+                    }
+                  }
+
                   const idx = attr.lastIndexOf('_')
                   if (idx !== -1) {
                     const attrIdent = attr.substring(0, idx)
                     const tst = attr.substring(idx + 1)
                     if (availableLangs.includes(tst)) {
                       if (!item.values[attrIdent]) item.values[attrIdent] = {}
-                      item.values[attrIdent][tst] = cell.v
+                      item.values[attrIdent][tst] = cellVal
                     } else {
-                      item.values[attr] = cell.v
+                      item.values[attr] = cellVal
                     }
                   } else {
-                    item.values[attr] = cell.v
+                    item.values[attr] = cellVal
                   }
                 }
               }
