@@ -50,7 +50,8 @@ export default {
 
     const {
       typesTree,
-      loadAllTypes
+      loadAllTypes,
+      findType
     } = typesStore.useStore()
 
     const selectedItemsRef = ref([])
@@ -73,7 +74,8 @@ export default {
     }
 
     function selected () {
-      emit('selected', selectedItemsRef.value, initiator)
+      const result = selectedItemsRef.value.map(id => findType(id).node.internalId)
+      emit('selected', result, initiator)
     }
 
     function showDialog (init, itemsSelected) {
