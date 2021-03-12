@@ -1,5 +1,5 @@
 <template>
-    <v-row no-gutters>
+    <v-row no-gutters v-if="hasAccess('search')">
     <v-col cols="12">
       <v-toolbar dense flat>
         <v-toolbar-title class="subtitle-2">{{ selectedRef && selectedRef.extended ? $t('Home.Search.TitleExtended') : $t('Home.Search.Title') }}</v-toolbar-title>
@@ -101,7 +101,8 @@ export default {
     } = attrStore.useStore()
 
     const {
-      currentUserRef
+      currentUserRef,
+      hasAccess
     } = userStore.useStore()
 
     const {
@@ -312,6 +313,7 @@ export default {
       extendedSearchRef,
       fieldsSelection,
       lovsMap,
+      hasAccess,
       operationSelection: [
         { text: i18n.t('Search.Filter.Operation.Eq'), value: 1 },
         { text: i18n.t('Search.Filter.Operation.Ne'), value: 2 },

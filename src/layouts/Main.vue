@@ -9,7 +9,7 @@
             <span>{{ $t('Main.Work') }}</span>
             <v-icon>mdi-sitemap</v-icon>
         </v-btn>
-        <v-btn to="/search">
+        <v-btn to="/search" v-if="hasAccess('search')">
             <span>{{ $t('Main.Search') }}</span>
             <v-icon>mdi-magnify</v-icon>
         </v-btn>
@@ -120,7 +120,8 @@ export default {
       saveUser,
       canViewConfig,
       reloadModel,
-      isAdmin
+      isAdmin,
+      hasAccess
     } = userStore.useStore()
 
     const {
@@ -218,6 +219,7 @@ export default {
       searchLoadingRef,
       searchSelected,
       hasConfigRef,
+      hasAccess,
       isExportSearch: props.export,
       nameRules: [
         v => !!v || i18n.t('Config.Users.Error.NameRequired')

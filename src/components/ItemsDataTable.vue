@@ -2,20 +2,20 @@
 <div>
   <v-toolbar dense elevation="1" class="mt-2">
       <v-spacer></v-spacer>
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on }" v-if="!talendExportSelection">
+      <v-tooltip bottom v-if="!talendExportSelection && hasAccess('exportXLS')">
+        <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportExcel"><v-icon>mdi-application-export</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ExportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on }" v-if="!talendExportSelection">
+      <v-tooltip bottom v-if="!talendExportSelection && hasAccess('importXLS')">
+        <template v-slot:activator="{ on }">
           <input ref="fileUploadRef" style="display: none" type="file" @change="importExcel"/>
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="fileUploadRef.click()"><v-icon>mdi-application-import</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ImportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip bottom>
+      <v-tooltip bottom  v-if="talendExportSelection || hasAccess('exportCSV')">
         <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
         </template>
@@ -86,6 +86,7 @@ import * as langStore from '../store/languages'
 import * as itemStore from '../store/item'
 import * as lovsStore from '../store/lovs'
 import * as errorStore from '../store/error'
+import * as userStore from '../store/users'
 import i18n from '../i18n'
 import { ref, onMounted } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
@@ -104,6 +105,8 @@ export default {
   },
   setup (props, { emit, root }) {
     const { showError, showInfo } = errorStore.useStore()
+
+    const { hasAccess } = userStore.useStore()
 
     const {
       languages,
@@ -503,6 +506,7 @@ export default {
       excelDialogProgressRef,
       excelDialogModeRef,
       excelDialogClose,
+      hasAccess,
       talendExportSelection: props.export
     }
   }

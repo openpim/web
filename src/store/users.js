@@ -123,6 +123,18 @@ const actions = {
     }
     return !!currentRoles.find(role => role.identifier === 'admin')
   },
+  hasAccess: (item) => {
+    if (!currentUserRef.value) return false
+    if (currentRoles.length === 0) {
+      console.error('Roles are not loaded !!!')
+      return false
+    }
+    for (let i = 0; i < currentRoles.length; i++) {
+      const role = currentRoles[i]
+      if (role && role.otherAccess[item]) return true
+    }
+    return false
+  },
   canViewConfig: (item) => {
     if (!currentUserRef.value) return false
     if (currentRoles.length === 0) {
