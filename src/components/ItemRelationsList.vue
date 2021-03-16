@@ -1,6 +1,6 @@
 <template>
 <div v-if="sourceRelations && targetRelations"> <!-- this is necessary to refrech computed itemRelations right way -->
-  <v-expansion-panels popout multiple :model="panels">
+  <v-expansion-panels popout multiple focusable :model="panels">
     <v-expansion-panel v-for="(rel, identifier, i) in itemRelations" :key="i" :set="canEditItemRelation = canEditItemRelationByIdentifier(identifier)">
       <v-expansion-panel-header class="pb-0">{{ getRelationName(identifier) }}</v-expansion-panel-header>
       <v-expansion-panel-content>
