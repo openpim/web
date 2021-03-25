@@ -206,23 +206,31 @@ export default {
                 const attr = filter.attr.substring(5)
                 data.values = {}
                 data.values[attr] = {}
-                data.values[attr][operation] = isNaN(filter.value) ? filter.value : parseFloat(filter.value)
+                data.values[attr][operation] = parseValue(filter.value)
               } else {
                 const attr = filter.attr.substring(5, idx)
                 const lang = filter.attr.substring(idx + 1)
                 data.values = {}
                 data.values[attr] = {}
                 data.values[attr][lang] = {}
-                data.values[attr][lang][operation] = isNaN(filter.value) ? filter.value : parseFloat(filter.value)
+                data.values[attr][lang][operation] = parseValue(filter.value)
               }
             } else {
               data[filter.attr] = {}
-              data[filter.attr][operation] = isNaN(filter.value) ? filter.value : parseFloat(filter.value)
+              data[filter.attr][operation] = parseValue(filter.value)
             }
             where.OP_and.push(data)
           }
         })
         currentWhereRef.value = where
+      }
+    }
+
+    function parseValue (value) {
+      if (value.startsWith('"') && value.endsWith('"')) {
+        return value.substring(1, value.length - 1)
+      } else {
+        return isNaN(value) ? value : parseFloat(value)
       }
     }
 
