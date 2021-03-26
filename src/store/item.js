@@ -278,6 +278,7 @@ const actions = {
     const data = await serverFetch('query { getAssets(id: "' + id + `") { 
       id
       identifier
+      name
       mainImage
       image
       mimeType

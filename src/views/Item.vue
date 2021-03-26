@@ -91,12 +91,17 @@
           <v-tab-item v-if="!itemRef.typeFile && filesRef.length > 0">  <!-- MediaFiles -->
             <v-carousel height="500" show-arrows-on-hover>
               <v-carousel-item v-for="(file, i) in filesRef" :key="i">
-                <router-link v-if="file.image" :to="'/item/' + file.identifier">
-                  <v-img :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="500"></v-img>
-                </router-link>
+                <v-card v-if="file.image" class="ma-4" flat style="background: white">
+                  <v-card-text>
+                    <router-link :to="'/item/' + file.identifier">
+                      <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</div>
+                    </router-link>
+                    <v-img :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="600"></v-img>
+                  </v-card-text>
+                </v-card>
                 <v-card v-if="!file.image" class="ma-4" style="background: white;border:1px solid grey">
                   <v-card-title>
-                    <a :href="damUrl + 'asset/' + file.id + '?token=' + token">{{file.fileOrigName}}</a>
+                    <a :href="damUrl + 'asset/' + file.id + '?token=' + token">{{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</a>
                     <v-btn :to="'/item/' + file.identifier" icon color="black" class="ml-4"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
                   </v-card-title>
                 </v-card>
