@@ -27,6 +27,12 @@
         </template>
         <span>{{ $t('DataTable.SelectColumns') }}</span>
       </v-tooltip>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" @click="DataChanged()"><v-icon>mdi-refresh</v-icon></v-btn>
+        </template>
+        <span>{{ $t('DataTable.Refresh') }}</span>
+      </v-tooltip>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
       :options.sync="optionsRef"
