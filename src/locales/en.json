@@ -2,6 +2,7 @@
   "Close": "Close",
   "Save": "Save",
   "Move": "Move",
+  "Duplicate": "Duplicate",
   "Remove": "Remove",
   "Add": "Add",
   "Edit": "Edit",
@@ -15,6 +16,7 @@
   "Filter": "Filter",
   "Search": "Search",
   "Saved": "Saved successfully",
+  "Started": "Started",
   "Login.Login": "Login",
   "Login.UserName": "User name",
   "Login.Password": "Password",
@@ -333,6 +335,7 @@
   "DataTable.ExportCSV" : "Export to CSV file",
   "DataTable.TalendExportSelection" : "Export",
   "DataTable.SelectColumns" : "Select columns to show in the table",
+  "DataTable.Refresh" : "Refresh",
   "DataTable.ExcelDialog.TitleImport" : "Import from Excel file",
   "DataTable.ExcelDialog.TitleExport" : "Export to Excel file",
   "DataTable.ExcelImport.WrongFormat" : "Wrong data format, use the file that was exported first",
@@ -342,5 +345,6 @@
   "FileUploadDialog.FileType" : "Type",
   "FileUploadDialog.SelectParent.Button": "Select folder for file",
   "FileUploadDialog.SelectParent.WrongParent": "Can not select this folder to put file because this is not allowed by data model.",
-  "File.UploadFailed": "File upload failed because of server error"
+  "File.UploadFailed": "File upload failed because of server error",
+  "ItemDuplicationDialog.Title": "Copy"
 }

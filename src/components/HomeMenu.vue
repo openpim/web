@@ -24,7 +24,7 @@
   </v-row>
 </template>
 <script>
-import { ref, onMounted, computed } from '@vue/composition-api'
+import { ref, onMounted, computed, onUnmounted } from '@vue/composition-api'
 import * as itemStore from '../store/item'
 import * as typesStore from '../store/types'
 import * as langStore from '../store/languages'
@@ -32,6 +32,8 @@ import * as userStore from '../store/users'
 import { useRouter } from '../router/useRouter'
 
 import ItemCreationDialog from '../components/ItemCreationDialog'
+
+import eventBus from '../eventBus'
 
 export default {
   components: { ItemCreationDialog },
@@ -113,9 +115,16 @@ export default {
     }
 
     onMounted(() => {
+      eventBus.on('item_selected', item => {
+        activeRef.value = [item.id]
+      })
       loadAllTypes().then(() => {
         if (itemsTree.length === 0) loadItems()
       })
+    })
+
+    onUnmounted(() => {
+      eventBus.off('item_selected')
     })
 
     return {

@@ -2,6 +2,7 @@
   "Close": "Закрыть",
   "Save": "Сохранить",
   "Move": "Переместить",
+  "Duplicate": "Дублировать",
   "Remove": "Удалить",
   "Add": "Добавить",
   "Edit": "Изменить",
@@ -15,6 +16,7 @@
   "Filter": "Фильтр",
   "Search": "Поиск",
   "Saved": "Сохранено успешно",
+  "Started": "Запущено",
   "Login.Login": "Вход",
   "Login.UserName": "Имя пользователя",
   "Login.Password": "Пароль",
@@ -333,6 +335,7 @@
   "DataTable.ExportCSV" : "Выгрузить в CSV файл",
   "DataTable.TalendExportSelection" : "Выгрузить",
   "DataTable.SelectColumns" : "Выбрать колонки для показа в таблице",
+  "DataTable.Refresh" : "Обновить",
   "DataTable.ExcelDialog.TitleImport" : "Загрузка из файла Excel",
   "DataTable.ExcelDialog.TitleExport" : "Выгрузка в файл Excel",
   "DataTable.ExcelImport.WrongFormat" : "Неверный формат данных, используйте для загрузки файл который был сперва выгружен",
@@ -342,5 +345,6 @@
   "FileUploadDialog.FileType" : "Тип",
   "FileUploadDialog.SelectParent.Button": "Выберите папку для файла",
   "FileUploadDialog.SelectParent.WrongParent": "Нельзя выбрать эту папку для файла так как это не разрешено моделью данных",
-  "File.UploadFailed": "Произошла ошибка при загрузке файла"
+  "File.UploadFailed": "Произошла ошибка при загрузке файла",
+  "ItemDuplicationDialog.Title": "Копирование"
 }

@@ -4,7 +4,7 @@
       <v-col cols="12">
         <v-card class="mx-auto mb-1" outlined>
           <v-card-title class="pt-0 pb-0">
-            <v-breadcrumbs v-if="parents.length > 1" class="pa-1" dense :items="parents"></v-breadcrumbs>
+            <v-breadcrumbs v-if="parents.length > 0" class="pa-1" dense :items="parents"></v-breadcrumbs>
             <v-container fluid class="pt-0 pb-0">
               <v-row dense>
                 <v-col v-if="mainImage" cols="1">
@@ -23,6 +23,7 @@
           <v-card-actions>
             <v-btn v-if="canEditSelected" text @click="save" v-text="$t('Save')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
+            <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
             <template v-if="canEditSelected">
               <v-btn text @click="executeAction(trigger.itemButton)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
@@ -122,6 +123,7 @@
     </v-row>
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemToMoveSelected"/>
     <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
+    <ItemDuplicationDialog ref="itemDuplicationDialogRef" @duplicated="itemDuplicated"/>
   </v-container>
 </template>
 
@@ -146,9 +148,12 @@ import router from '../router'
 import AttributeType from '../constants/attributeTypes'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import FileUploadDialog from '../components/FileUploadDialog'
+import ItemDuplicationDialog from '../components/ItemDuplicationDialog'
+
+import eventBus from '../eventBus'
 
 export default {
-  components: { AttributeValue, ItemRelationsList, SystemInformation, LanguageDependentField, ItemsDataTable, ItemsSelectionDialog, FileUploadDialog },
+  components: { AttributeValue, ItemRelationsList, SystemInformation, LanguageDependentField, ItemsDataTable, ItemsSelectionDialog, FileUploadDialog, ItemDuplicationDialog },
   name: 'Home',
   setup (params, context) {
     const { route } = useRouter()
@@ -172,6 +177,7 @@ export default {
       loadItemsByIds,
       updateItem,
       moveItem,
+      createItem,
       removeItem,
       uploadFile,
       uploadAndCreateFile,
@@ -210,6 +216,7 @@ export default {
     const hasTargets = ref(true)
     const itemSelectionDialogRef = ref(null)
     const fileUploadDialogRef = ref(null)
+    const itemDuplicationDialogRef = ref(null)
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -358,6 +365,20 @@ export default {
       })
     }
 
+    function duplicate () {
+      itemDuplicationDialogRef.value.showDialog(itemRef.value)
+    }
+
+    function itemDuplicated (itemCopy) {
+      itemDuplicationDialogRef.value.closeDialog()
+      const parent = itemPathRef.value.length > 0 ? itemPathRef.value[itemPathRef.value.length - 1] : null
+
+      createItem(itemCopy, parent, true).then(() => {
+        router.push('/item/' + itemCopy.identifier)
+        eventBus.emit('item_selected', itemCopy)
+      })
+    }
+
     function move () {
       loadChildren(itemRef.value.internalId, { page: 1, itemsPerPage: 1 }).then(data => {
         if (data.count > 0) {
@@ -462,13 +483,13 @@ export default {
       const arr = path.split('.')
       if (arr.length > 1) {
         arr.pop()
-        loadItemsByIds(arr).then((data) => { itemPathRef.value = data })
+        loadItemsByIds(arr, true).then((data) => { itemPathRef.value = data })
       }
     }
 
     function executeAction (button) {
       executeButtonAction(itemRef.value.internalId, button).then(() => {
-        showInfo(i18n.t('Saved'))
+        showInfo(i18n.t('Started'))
       })
     }
 
@@ -528,6 +549,7 @@ export default {
       attrGroups,
       save,
       move,
+      duplicate,
       remove,
       isImage,
       isFile,
@@ -557,6 +579,8 @@ export default {
       fileUploadDialogRef,
       linkNewFile,
       hasFileUpload,
+      itemDuplicationDialogRef,
+      itemDuplicated,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]

@@ -19,6 +19,7 @@ function enrichItem (item) {
     let type = findType(item.typeId).node
     if (type.link !== 0) type = findType(type.link).node
     item.typeIcon = type.icon
+    item.typeIdentifier = type.identifier
     item.typeIconColor = type.iconColor
     item.typeFile = type.file
     item.children = []
@@ -177,9 +178,10 @@ const actions = {
     const data = await serverFetch('query { hasRelations(id: "' + id + '") }')
     return data.hasRelations
   },
-  createItem: async (item, parent) => {
+  createItem: async (item, parent, findParentForChildren) => {
     const query = `
       mutation { createItem(identifier: "` + item.identifier + '", name: ' + objectToGraphgl(item.name) +
+      ', values: ' + (item.values ? objectToGraphgl(item.values) : null) +
       ', parentId: "' + (parent && parent.id !== -1 ? '' + parent.internalId : '') +
       '", typeId: "' + item.typeId +
       `")
@@ -188,8 +190,16 @@ const actions = {
     const newId = parseInt(data.createItem)
     item.internalId = newId
 
-    const children = parent && parent.id !== -1 ? parent.children : itemsTree
-    children.push(item)
+    if (findParentForChildren && parent && parent.id !== -1) {
+      const path = []
+      parent = findNode(parent.internalId, itemsTree, path)
+      if (parent) {
+        if (parent.children.length > 0) parent.children.push(item)
+      }
+    } else {
+      const children = parent && parent.id !== -1 ? parent.children : itemsTree
+      children.push(item)
+    }
   },
   updateItem: async (item) => {
     const query = `
