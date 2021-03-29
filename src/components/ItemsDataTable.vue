@@ -1,6 +1,7 @@
 <template>
 <div>
   <v-toolbar dense elevation="1" class="mt-2">
+      <v-select dense v-if="savedOptionsVisible()" v-model="savedColumnsSelectionRef" :items="savedColumnsOptionsRef"></v-select>
       <v-spacer></v-spacer>
       <v-tooltip bottom v-if="!talendExportSelection && hasAccess('exportXLS')">
         <template v-slot:activator="{ on }">
@@ -93,8 +94,9 @@ import * as itemStore from '../store/item'
 import * as lovsStore from '../store/lovs'
 import * as errorStore from '../store/error'
 import * as userStore from '../store/users'
+import * as searchStore from '../store/search'
 import i18n from '../i18n'
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted, watch } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 import XLSX from 'xlsx'
 
@@ -113,6 +115,8 @@ export default {
     const { showError, showInfo } = errorStore.useStore()
 
     const { hasAccess } = userStore.useStore()
+
+    const { savedColumns, loadAllSavedColumns } = searchStore.useStore()
 
     const {
       languages,
@@ -144,12 +148,24 @@ export default {
       { identifier: 'name_en', text: 'Name (English)', align: 'start', sortable: false, filterable: false, value: ['name', 'en'] }])
     const thumbnailsRef = ref([])
     const lovsMap = {}
+    const savedColumnsSelectionRef = ref(null)
+    const savedColumnsOptionsRef = ref([])
+
+    watch(savedColumnsSelectionRef, (val) => {
+      if (val) {
+        const savedCols = savedColumns.find(elem => elem.id === val)
+
+        headersRef.value = savedCols.columns
+        loadLOVs()
+      }
+    })
 
     function editHeaders () {
       columnsSelectionDialogRef.value.showDialog([...headersRef.value])
     }
 
     function columnsSelected (arr) {
+      savedColumnsSelectionRef.value = null
       columnsSelectionDialogRef.value.closeDialog()
       headersRef.value = arr
       loadLOVs()
@@ -480,10 +496,21 @@ export default {
     // https://medium.com/javascript-inside/safely-accessing-deeply-nested-values-in-javascript-99bf72a0855a
     const getDeepValue = (path, obj) => path.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, obj)
 
+    function savedOptionsVisible () {
+      return savedColumnsOptionsRef.value && savedColumnsOptionsRef.value.find(elem => elem.text)
+    }
+
     onMounted(() => {
+      loadAllSavedColumns().then(() => {
+        const arr = savedColumns.map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
+        debugger
+        // arr.unshift({ header: 'admin:' })
+        // arr.push({ divider: true })
+        savedColumnsOptionsRef.value = arr
+      })
+      loadLOVs()
       const tst = localStorage.getItem('item_headers')
       if (tst) headersRef.value = JSON.parse(tst)
-      loadLOVs()
       DataChanged()
     })
 
@@ -513,6 +540,9 @@ export default {
       excelDialogModeRef,
       excelDialogClose,
       hasAccess,
+      savedColumnsOptionsRef,
+      savedColumnsSelectionRef,
+      savedOptionsVisible,
       talendExportSelection: props.export
     }
   }

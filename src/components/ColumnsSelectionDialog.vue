@@ -11,7 +11,7 @@
               <v-text-field v-model="leftFilterRef" :label="$t('Filter')" required></v-text-field>
               <div>{{$t('ColumnsSelection.AvailableColumns')}}</div>
               <v-list nav dense style="max-height: 300px" class="overflow-y-auto">
-                <v-list-item-group v-model="selectedLeftRef" color="primary">
+                <v-list-item-group multiple v-model="selectedLeftRef" color="primary">
                   <v-list-item v-for="(elem, i) in availableColumnsComputed" :key="i">
                     <v-list-item-content>
                       <v-list-item-title v-text="elem.text"></v-list-item-title>
@@ -23,12 +23,14 @@
             <v-col cols="2" align="center">
               <v-btn class="mt-10" @click="moveFromLeft" :disabled="selectedLeftRef == null"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
               <v-btn class="mt-3" @click="moveFromRight" :disabled="selectedRightRef == null"><v-icon>mdi-arrow-left-bold-circle-outline</v-icon></v-btn>
+              <v-btn class="mt-10" @click="moveFromLeftAll" :disabled="selectedLeftRef == null"><v-icon>mdi-arrow-right-bold-circle</v-icon></v-btn>
+              <v-btn class="mt-3" @click="moveFromRightAll" :disabled="selectedRightRef == null"><v-icon>mdi-arrow-left-bold-circle</v-icon></v-btn>
             </v-col>
             <v-col cols="5" class="pt-0">
               <v-text-field v-model="rightFilterRef" :label="$t('Filter')" required></v-text-field>
               <div>{{$t('ColumnsSelection.SelectedColumns')}}</div>
               <v-list nav dense style="max-height: 300px" class="overflow-y-auto">
-                <v-list-item-group v-model="selectedRightRef" color="primary">
+                <v-list-item-group multiple v-model="selectedRightRef" color="primary">
                   <v-list-item v-for="(elem, i) in selectedColumnsComputed" :key="i">
                     <v-list-item-content>
                       <v-list-item-title v-text="elem.text"></v-list-item-title>
@@ -69,8 +71,8 @@ export default {
 
     const leftFilterRef = ref('')
     const rightFilterRef = ref('')
-    const selectedLeftRef = ref(null)
-    const selectedRightRef = ref(null)
+    const selectedLeftRef = ref([])
+    const selectedRightRef = ref([])
     const availableColumnsRef = ref([])
     const selectedColumnsRef = ref([])
     const selectionDialogRef = ref(false)
@@ -92,19 +94,47 @@ export default {
     })
 
     function moveFromLeft () {
-      const save = availableColumnsComputed.value[selectedLeftRef.value]
-      const idx = availableColumnsRef.value.findIndex(elem => elem.identifier === save.identifier)
-      availableColumnsRef.value.splice(idx, 1)
-      selectedColumnsRef.value.push(save)
-      selectedLeftRef.value = null
+      const arrToMove = selectedLeftRef.value.map(idx => availableColumnsComputed.value[idx].identifier)
+      arrToMove.forEach(ident => {
+        const save = availableColumnsComputed.value.find(elem => elem.identifier === ident)
+        const idx = availableColumnsRef.value.findIndex(elem => elem.identifier === save.identifier)
+        availableColumnsRef.value.splice(idx, 1)
+        selectedColumnsRef.value.push(save)
+      })
+      selectedLeftRef.value = []
     }
 
     function moveFromRight () {
-      const save = selectedColumnsComputed.value[selectedRightRef.value]
-      const idx = selectedColumnsRef.value.findIndex(elem => elem.identifier === save.identifier)
-      selectedColumnsRef.value.splice(idx, 1)
-      availableColumnsRef.value.push(save)
-      selectedRightRef.value = null
+      const arrToMove = selectedRightRef.value.map(idx => selectedColumnsComputed.value[idx].identifier)
+      arrToMove.forEach(ident => {
+        const save = selectedColumnsComputed.value.find(elem => elem.identifier === ident)
+        const idx = selectedColumnsRef.value.findIndex(elem => elem.identifier === save.identifier)
+        selectedColumnsRef.value.splice(idx, 1)
+        availableColumnsRef.value.push(save)
+      })
+      selectedRightRef.value = []
+    }
+
+    function moveFromLeftAll () {
+      const arrToMove = availableColumnsComputed.value.map(elem => elem.identifier)
+      arrToMove.forEach(ident => {
+        const save = availableColumnsComputed.value.find(elem => elem.identifier === ident)
+        const idx = availableColumnsRef.value.findIndex(elem => elem.identifier === save.identifier)
+        availableColumnsRef.value.splice(idx, 1)
+        selectedColumnsRef.value.push(save)
+      })
+      selectedLeftRef.value = []
+    }
+
+    function moveFromRightAll () {
+      const arrToMove = selectedColumnsComputed.value.map(elem => elem.identifier)
+      arrToMove.forEach(ident => {
+        const save = selectedColumnsComputed.value.find(elem => elem.identifier === ident)
+        const idx = selectedColumnsRef.value.findIndex(elem => elem.identifier === save.identifier)
+        selectedColumnsRef.value.splice(idx, 1)
+        availableColumnsRef.value.push(save)
+      })
+      selectedRightRef.value = []
     }
 
     function selected () {
@@ -163,6 +193,8 @@ export default {
       closeDialog,
       moveFromLeft,
       moveFromRight,
+      moveFromLeftAll,
+      moveFromRightAll,
       leftFilterRef,
       rightFilterRef,
       availableColumnsComputed,

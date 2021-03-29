@@ -1,9 +1,22 @@
-import { ref, provide, inject } from '@vue/composition-api'
+import { ref, provide, inject, reactive } from '@vue/composition-api'
 import { serverFetch, objectToGraphgl } from './utils'
 
 const searchToOpenRef = ref(null)
 
+const savedColumns = reactive([])
+
 const actions = {
+  loadAllSavedColumns: async () => {
+    if (savedColumns.length > 0) return
+    const data = await serverFetch('query { getColumns(onlyMy: false) {id identifier name public columns user} }')
+    if (savedColumns.length > 0) return
+    if (data.getColumns) {
+      data.getColumns.forEach(element => {
+        element.internalId = element.id
+        savedColumns.push(element)
+      })
+    }
+  },
   loadSearches: async (onlyMy) => {
     const data = await serverFetch('query { getSearches(onlyMy: ' + onlyMy + ') {identifier name extended filters whereClause public user} }')
     return data.getSearches
@@ -43,6 +56,7 @@ const actions = {
 
 // eslint-disable-next-line no-unused-vars
 const store = {
+  savedColumns: savedColumns,
   searchToOpenRef: searchToOpenRef,
   ...actions
 }
