@@ -503,7 +503,6 @@ export default {
     onMounted(() => {
       loadAllSavedColumns().then(() => {
         const arr = savedColumns.map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
-        debugger
         // arr.unshift({ header: 'admin:' })
         // arr.push({ divider: true })
         savedColumnsOptionsRef.value = arr

@@ -227,6 +227,8 @@ export default {
     }
 
     function parseValue (value) {
+      if (Object.prototype.toString.call(value) !== '[object String]') return value
+
       if (value.startsWith('"') && value.endsWith('"')) {
         return value.substring(1, value.length - 1)
       } else {
