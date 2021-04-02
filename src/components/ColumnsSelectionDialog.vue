@@ -144,19 +144,19 @@ export default {
     function showDialog (selected) {
       selectedColumnsRef.value = selected
       const arr = [
-        { identifier: 'identifier', text: i18n.t('Item.identifier'), align: 'start', sortable: false, filterable: false, value: 'identifier' },
+        { identifier: 'identifier', text: i18n.t('Item.identifier'), align: 'start', sortable: true, filterable: false, value: 'identifier' },
         { identifier: '#thumbnail#', text: i18n.t('Item.thumbnail'), align: 'start', sortable: false, filterable: false, value: '#thumbnail#' },
-        { identifier: 'createdBy', text: i18n.t('CreatedBy'), align: 'start', sortable: false, filterable: false, value: 'createdBy' },
-        { identifier: 'createdAt', text: i18n.t('CreatedAt'), align: 'start', sortable: false, filterable: false, value: 'createdAt' },
-        { identifier: 'updatedBy', text: i18n.t('UpdatedBy'), align: 'start', sortable: false, filterable: false, value: 'updatedBy' },
-        { identifier: 'updatedAt', text: i18n.t('UpdatedAt'), align: 'start', sortable: false, filterable: false, value: 'updatedAt' },
-        { identifier: 'fileOrigName', text: i18n.t('Item.fileOrigName'), align: 'start', sortable: false, filterable: false, value: 'fileOrigName' },
-        { identifier: 'mimeType', text: i18n.t('Item.mimeType'), align: 'start', sortable: false, filterable: false, value: 'mimeType' }
+        { identifier: 'createdBy', text: i18n.t('CreatedBy'), align: 'start', sortable: true, filterable: false, value: 'createdBy' },
+        { identifier: 'createdAt', text: i18n.t('CreatedAt'), align: 'start', sortable: true, filterable: false, value: 'createdAt' },
+        { identifier: 'updatedBy', text: i18n.t('UpdatedBy'), align: 'start', sortable: true, filterable: false, value: 'updatedBy' },
+        { identifier: 'updatedAt', text: i18n.t('UpdatedAt'), align: 'start', sortable: true, filterable: false, value: 'updatedAt' },
+        { identifier: 'fileOrigName', text: i18n.t('Item.fileOrigName'), align: 'start', sortable: true, filterable: false, value: 'fileOrigName' },
+        { identifier: 'mimeType', text: i18n.t('Item.mimeType'), align: 'start', sortable: true, filterable: false, value: 'mimeType' }
       ]
       for (let i = 0; i < languages.length; i++) {
         const lang = languages[i]
         const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-        arr.push({ identifier: 'name_' + lang.identifier, text: i18n.t('Item.name') + langText, align: 'start', sortable: false, filterable: false, value: ['name', lang.identifier] })
+        arr.push({ identifier: 'name_' + lang.identifier, text: i18n.t('Item.name') + langText, align: 'start', sortable: true, filterable: false, value: { path: ['name', lang.identifier] } })
       }
       const attrs = getAllItemsAttributes()
       for (let i = 0; i < attrs.length; i++) {
@@ -166,12 +166,12 @@ export default {
           for (let i = 0; i < languages.length; i++) {
             const lang = languages[i]
             const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-            const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameText + langText, align: 'start', sortable: false, filterable: false, value: ['values', attr.identifier, lang.identifier] }
+            const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameText + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
             if (attr.lov) data.lov = attr.lov
             arr.push(data)
           }
         } else {
-          const data = { identifier: 'attr_' + attr.identifier, text: nameText, align: 'start', sortable: false, filterable: false, value: ['values', attr.identifier] }
+          const data = { identifier: 'attr_' + attr.identifier, text: nameText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
           if (attr.lov) data.lov = attr.lov
           arr.push(data)
         }

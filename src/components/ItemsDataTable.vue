@@ -144,8 +144,8 @@ export default {
     const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: [], sortDesc: [] })
     const loadingRef = ref(false)
     const headersRef = ref([{ identifier: '#thumbnail#', text: 'Thumbnail', align: 'start', sortable: false, filterable: false, value: '#thumbnail#' },
-      { identifier: 'identifier', text: 'Identifier', align: 'start', sortable: false, filterable: false, value: 'identifier' },
-      { identifier: 'name_en', text: 'Name (English)', align: 'start', sortable: false, filterable: false, value: ['name', 'en'] }])
+      { identifier: 'identifier', text: 'Identifier', align: 'start', sortable: true, filterable: false, value: 'identifier' },
+      { identifier: 'name_en', text: 'Name (English)', align: 'start', sortable: true, filterable: false, value: { path: ['name', 'en'] } }])
     const thumbnailsRef = ref([])
     const lovsMap = {}
     const savedColumnsSelectionRef = ref(null)
@@ -479,8 +479,8 @@ export default {
     }
 
     function getValue (item, header) {
-      if (Array.isArray(header.value)) {
-        let val = getDeepValue(header.value, item)
+      if (typeof header.value === 'object') {
+        let val = getDeepValue(header.value.path, item)
         if (header.lov) {
           const lovValues = lovsMap[header.lov]
           if (lovValues) {

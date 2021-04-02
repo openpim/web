@@ -27,6 +27,22 @@ function enrichItem (item) {
   return item
 }
 
+function generateSorting (options) {
+  const order = []
+  if (options.sortBy) {
+    for (let i = 0; i < options.sortBy.length; i++) {
+      const elem = options.sortBy[i]
+      if (typeof elem === 'object') {
+        const path = elem.path.reduce((accumulator, currentValue, index, arr) => accumulator + (index !== arr.length ? '.' : '') + currentValue)
+        order.push([path, options.sortDesc[i] ? 'DESC' : 'ASC'])
+      } else {
+        order.push([elem, options.sortDesc[i] ? 'DESC' : 'ASC'])
+      }
+    }
+  }
+  return order
+}
+
 const actions = {
   findItem: (id) => {
     const path = []
@@ -155,6 +171,7 @@ const actions = {
   },
   loadChildren: async (parentId, options) => {
     const offset = (options.page - 1) * options.itemsPerPage
+    // TODO const sort = generateSorting(options)
     const data = await serverFetch('query { getItems(parentId: "' + (parentId || '') + '", offset: ' + offset + ', limit: ' + options.itemsPerPage + `) { 
       count,
       rows 
@@ -341,6 +358,7 @@ const actions = {
     if (!where) return []
 
     const offset = (options.page - 1) * options.itemsPerPage
+    const order = generateSorting(options)
     const data = await serverFetch(
       `query { search(
         requests: [
@@ -348,7 +366,8 @@ const actions = {
                 entity: ITEM, 
                 offset: ` + offset + `, 
                 limit: ` + options.itemsPerPage + `,
-                where: ` + objectToGraphgl(where) + `
+                where: ` + objectToGraphgl(where) + `,
+                order: ` + objectToGraphgl(order) + `
             }]
         ) {
         responses {
