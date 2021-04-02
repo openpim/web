@@ -488,8 +488,17 @@ export default {
     }
 
     function executeAction (button) {
-      executeButtonAction(itemRef.value.internalId, button).then(() => {
-        showInfo(i18n.t('Started'))
+      executeButtonAction(itemRef.value.internalId, button).then((result) => {
+        console.log(result)
+        if (result.compileError) {
+          showError('Compile error: ' + result.compileError)
+        } else if (result.error) {
+          showError(result.error)
+        } else if (result.message) {
+          showInfo(result.message)
+        } else {
+          showInfo(i18n.t('Started'))
+        }
       })
     }
 

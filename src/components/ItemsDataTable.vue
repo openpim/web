@@ -507,9 +507,9 @@ export default {
         // arr.push({ divider: true })
         savedColumnsOptionsRef.value = arr
       })
-      loadLOVs()
       const tst = localStorage.getItem('item_headers')
       if (tst) headersRef.value = JSON.parse(tst)
+      loadLOVs()
       DataChanged()
     })
 

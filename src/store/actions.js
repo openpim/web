@@ -58,11 +58,12 @@ const actionList = {
     actions.splice(idx, 1)
   },
   executeButtonAction: async (itemId, buttonText) => {
-    const query = 'mutation { executeButtonAction(itemId: "' + itemId + '", buttonText: "' + buttonText + '")}'
-    await serverFetch(query)
+    const query = 'mutation { executeButtonAction(itemId: "' + itemId + '", buttonText: "' + buttonText + '") { error, compileError, message }}'
+    const response = await serverFetch(query)
+    return response.executeButtonAction
   },
   testAction: async (itemId, actionId) => {
-    const query = 'mutation { testAction(itemId: "' + itemId + '", actionId: "' + actionId + '") { failed, log, error, compileError }}'
+    const query = 'mutation { testAction(itemId: "' + itemId + '", actionId: "' + actionId + '") { failed, log, error, compileError, message }}'
     const response = await serverFetch(query)
     return response.testAction
   }

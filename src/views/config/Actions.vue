@@ -107,14 +107,16 @@
               <v-container>
                 <v-row>
                   <v-col cols="12">
-                    <template v-if="testResultRef && !testResultRef.failed">
+                    <template v-if="testResultRef && !testResultRef.failed && !testResultRef.error">
                       <v-alert type="success">{{ $t('Config.Actions.TestResult.Success') }}</v-alert>
                       <v-textarea v-model="testResultRef.log" readonly :label="$t('Config.Actions.TestResult.Log')"></v-textarea>
+                      <v-text-field v-if="testResultRef.message" v-model="testResultRef.message" readonly></v-text-field>
                     </template>
-                    <template v-if="testResultRef && testResultRef.failed">
+                    <template v-if="testResultRef && (testResultRef.failed || testResultRef.error)">
                       <v-alert type="error">{{ $t('Config.Actions.TestResult.Failed') }}</v-alert>
-                      <v-textarea v-if="testResultRef.compileError" v-model="testResultRef.compileError" readonly :label="$t('Config.Actions.TestResult.RunError')"></v-textarea>
-                      <v-textarea v-if="testResultRef.error" v-model="testResultRef.error" readonly :label="$t('Config.Actions.TestResult.CompileError')"></v-textarea>
+                      <v-textarea v-if="testResultRef.error" v-model="testResultRef.error" readonly :label="$t('Config.Actions.TestResult.RunError')"></v-textarea>
+                      <v-textarea v-if="testResultRef.compileError" v-model="testResultRef.compileError" readonly :label="$t('Config.Actions.TestResult.CompileError')"></v-textarea>
+                      <v-textarea v-if="testResultRef.message" v-model="testResultRef.message" readonly></v-textarea>
                     </template>
                   </v-col>
                 </v-row>
