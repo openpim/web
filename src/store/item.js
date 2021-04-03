@@ -171,8 +171,8 @@ const actions = {
   },
   loadChildren: async (parentId, options) => {
     const offset = (options.page - 1) * options.itemsPerPage
-    // TODO const sort = generateSorting(options)
-    const data = await serverFetch('query { getItems(parentId: "' + (parentId || '') + '", offset: ' + offset + ', limit: ' + options.itemsPerPage + `) { 
+    const order = generateSorting(options)
+    const data = await serverFetch('query { getItems(parentId: "' + (parentId || '') + '", offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) { 
       count,
       rows 
       { 
