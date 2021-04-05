@@ -507,8 +507,24 @@ export default {
         // arr.push({ divider: true })
         savedColumnsOptionsRef.value = arr
       })
-      const tst = localStorage.getItem('item_headers')
-      if (tst) headersRef.value = JSON.parse(tst)
+      let tst = localStorage.getItem('item_headers')
+      if (tst) {
+        // check for old format of headers list
+        let changed = false
+        tst = JSON.parse(tst)
+        tst = tst.map(header => {
+          if (Array.isArray(header.value)) {
+            changed = true
+            const arr = header.value
+            header.value = { path: arr }
+          }
+          if (header.identifier !== '#thumbnail#') header.sortable = true
+          return header
+        })
+        if (changed) localStorage.setItem('item_headers', JSON.stringify(tst))
+
+        headersRef.value = tst
+      }
       loadLOVs()
       DataChanged()
     })
