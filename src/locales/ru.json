@@ -252,6 +252,7 @@
   "ItemView.Tab.LinksFrom": "Связи",
   "ItemView.Tab.LinksTo": "Зависимости",
   "ItemView.Tab.Children": "Записи",
+  "ItemView.Tab.Audit": "История изменений",
   "ItemView.RemoveItem": "Удалить эту запись?",
   "ItemView.NewFile": "Загрузить новый файл",
   "ItemView.Upload": "Загрузить",

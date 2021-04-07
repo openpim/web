@@ -41,6 +41,7 @@
           <v-tab v-if="hasSources" v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
           <v-tab v-if="hasTargets" v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
           <v-tab v-if="hasChildren" v-text="$t('ItemView.Tab.Children')"></v-tab>
+          <v-tab v-if="auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
         </v-tabs>
         <v-tabs-items v-model="tabRef">
           <v-tab-item> <!-- Attributes -->
@@ -118,6 +119,9 @@
           <v-tab-item v-if="hasChildren" eager>  <!-- Children -->
             <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false"></ItemsDataTable>
           </v-tab-item>
+          <v-tab-item v-if="auditEnabled">  <!-- History -->
+            <HistoryTable :item="itemRef" componentType="item"></HistoryTable>
+          </v-tab-item>
         </v-tabs-items>
       </v-col>
     </v-row>
@@ -149,18 +153,19 @@ import AttributeType from '../constants/attributeTypes'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import FileUploadDialog from '../components/FileUploadDialog'
 import ItemDuplicationDialog from '../components/ItemDuplicationDialog'
+import HistoryTable from '../components/HistoryTable'
 
 import eventBus from '../eventBus'
 
 export default {
-  components: { AttributeValue, ItemRelationsList, SystemInformation, LanguageDependentField, ItemsDataTable, ItemsSelectionDialog, FileUploadDialog, ItemDuplicationDialog },
+  components: { AttributeValue, ItemRelationsList, SystemInformation, LanguageDependentField, ItemsDataTable, ItemsSelectionDialog, FileUploadDialog, ItemDuplicationDialog, HistoryTable },
   name: 'Home',
   setup (params, context) {
     const { route } = useRouter()
 
     const { showInfo, showError } = errorStore.useStore()
 
-    const { canEditItem } = userStore.useStore()
+    const { canEditItem, auditEnabled } = userStore.useStore()
 
     const {
       findType,
@@ -590,6 +595,7 @@ export default {
       hasFileUpload,
       itemDuplicationDialogRef,
       itemDuplicated,
+      auditEnabled,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]

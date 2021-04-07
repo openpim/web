@@ -252,6 +252,7 @@
   "ItemView.Tab.LinksFrom": "Links from",
   "ItemView.Tab.LinksTo": "Links to",
   "ItemView.Tab.Children": "Children",
+  "ItemView.Tab.Audit": "Changes History",
   "ItemView.RemoveItem": "Remove this item?",
   "ItemView.NewFile": "Upload new file",
   "ItemView.Upload": "Upload",

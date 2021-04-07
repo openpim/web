@@ -11,6 +11,7 @@ import * as lovStore from './lovs'
 import * as searchStore from './search'
 import * as actionsStore from './actions'
 import * as dashStore from './dashboards'
+import * as auditStore from './audit'
 
 export default () => {
   errorStore.provideStore()
@@ -26,4 +27,5 @@ export default () => {
   searchStore.provideStore()
   actionsStore.provideStore()
   dashStore.provideStore()
+  auditStore.provideStore()
 }
