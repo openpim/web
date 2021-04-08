@@ -126,7 +126,7 @@
             <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false"></ItemsDataTable>
           </v-tab-item>
           <v-tab-item v-if="auditEnabled">  <!-- History -->
-            <HistoryTable :item="itemRef" componentType="item"></HistoryTable>
+            <HistoryTable ref="historyTableRef" :item="itemRef" componentType="item"></HistoryTable>
           </v-tab-item>
         </v-tabs-items>
       </v-col>
@@ -218,6 +218,7 @@ export default {
     } = relStore.useStore()
 
     const itemsDataTableRef = ref(null)
+    const historyTableRef = ref(null)
     const itemRef = ref(null)
     const tabRef = ref(null)
     const attrGroups = ref([])
@@ -615,6 +616,7 @@ export default {
       itemDuplicated,
       auditEnabled,
       getOption,
+      historyTableRef,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]

@@ -25,7 +25,7 @@ import * as lovsStore from '../store/lovs'
 // import * as errorStore from '../store/error'
 import * as auditStore from '../store/audit'
 // import i18n from '../i18n'
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted, watch } from '@vue/composition-api'
 
 export default {
   props: {
@@ -59,6 +59,12 @@ export default {
       { identifier: 'name_en', text: 'Name (English)', align: 'start', sortable: true, filterable: false, value: { path: ['name', 'en'] } }])
     const lovsMap = {}
 
+    watch(() => props.item, (newItem, oldItem) => {
+      optionsRef.value.page = 1
+      totalItemsRef.value = 0
+      optionsUpdate(optionsRef.value)
+    })
+
     function loadLOVs () {
       headersRef.value.forEach(elem => {
         if (elem.lov) {
@@ -70,21 +76,8 @@ export default {
     }
 
     function optionsUpdate (options) {
-      /*
       loadingRef.value = true
-      totalItemsRef.value = 0
-      props.loadData(options).then(data => {
-        itemsRef.value = data.rows
-        totalItemsRef.value = data.count
-        loadingRef.value = false
-
-        const ids = data.rows.map(elem => elem.id)
-        loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
-      }) */
-    }
-
-    function LoadData () {
-      loadItemHistory(optionsRef.value).then(data => {
+      loadItemHistory(props.item.internalId, optionsRef.value).then(data => {
         itemsRef.value = data.rows
         totalItemsRef.value = data.count
         loadingRef.value = false
@@ -97,7 +90,7 @@ export default {
 
     onMounted(() => {
       loadLOVs()
-      LoadData()
+      optionsUpdate(optionsRef.value)
     })
 
     return {
@@ -106,7 +99,6 @@ export default {
       headersRef,
       currentLanguage,
       defaultLanguageIdentifier,
-      LoadData,
       optionsUpdate,
       optionsRef,
       loadingRef,
