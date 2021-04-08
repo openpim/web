@@ -357,7 +357,7 @@ export default {
         name[currentLanguage.value.identifier] = i18n.t('Config.Attributes.Attr.NewName')
         const errorMessage = {}
         errorMessage[currentLanguage.value.identifier] = ''
-        const newAttr = { id: Date.now(), internalId: 0, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name: name, errorMessage: errorMessage }
+        const newAttr = { id: Date.now(), internalId: 0, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name: name, errorMessage: errorMessage, options: [] }
         selectedRef.value.attributes.push(newAttr)
         openRef.value = [selectedRef.value.id]
         visible.value = []
