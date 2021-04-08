@@ -54,7 +54,13 @@
                   <v-expansion-panel v-for="(group,i) in attrGroups" :key="i">
                     <v-expansion-panel-header>{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
-                      <AttributeValue v-for="(attr,i) in group.itemAttributes" :key="i" :ref="el => { attributeValues[i] = el }" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
+                       <v-container class="pa-0">
+                        <v-row no-gutters>
+                          <v-col v-for="(attr,i) in group.itemAttributes" :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')">
+                            <AttributeValue :ref="el => { attributeValues[i] = el }" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
+                          </v-col>
+                        </v-row>
+                       </v-container>
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
@@ -507,6 +513,14 @@ export default {
       })
     }
 
+    function getOption (attr, name, defaultValue) {
+      if (attr.options) {
+        const tst = attr.options.find(elem => elem.name === name)
+        if (tst) return tst.value
+      }
+      return defaultValue
+    }
+
     watch(route, (current, previous) => {
       if (previous && current && current.params && current.params.id) {
         itemPathRef.value = []
@@ -596,6 +610,7 @@ export default {
       itemDuplicationDialogRef,
       itemDuplicated,
       auditEnabled,
+      getOption,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]
