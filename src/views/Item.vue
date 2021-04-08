@@ -147,6 +147,7 @@ import * as userStore from '../store/users'
 import * as typesStore from '../store/types'
 import * as actionsStore from '../store/actions'
 import * as relStore from '../store/relations'
+import * as auditStore from '../store/audit'
 import i18n from '../i18n'
 import * as langStore from '../store/languages'
 import AttributeValue from '../components/AttributeValue'
@@ -171,7 +172,9 @@ export default {
 
     const { showInfo, showError } = errorStore.useStore()
 
-    const { canEditItem, auditEnabled } = userStore.useStore()
+    const { canEditItem } = userStore.useStore()
+
+    const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
     const {
       findType,
@@ -535,6 +538,7 @@ export default {
 
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
+      checkAuditEnabled()
       loadAllActions()
       loadAllAttributes()
       loadAllRelations()

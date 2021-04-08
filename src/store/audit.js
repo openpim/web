@@ -1,5 +1,7 @@
-import { provide, inject } from '@vue/composition-api'
+import { provide, inject, ref } from '@vue/composition-api'
 import { serverFetch, objectToGraphgl } from './utils'
+
+const auditEnabled = ref(null)
 
 function generateSorting (options) {
   const order = []
@@ -24,11 +26,18 @@ const actions = {
     const data = await serverFetch('query { getItemHistory(id: ' + id + ', offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) { 
       count, rows {id, identifier, operation, user, changedAt, data {added, changed, old, deleted} } } }`)
     return data.getItemHistory
+  },
+  checkAuditEnabled: async () => {
+    if (auditEnabled.value === null) {
+      const data = await serverFetch('query { isAuditEnabled }')
+      auditEnabled.value = data.isAuditEnabled
+    }
   }
 }
 
 // eslint-disable-next-line no-unused-vars
 const store = {
+  auditEnabled: auditEnabled,
   ...actions
 }
 

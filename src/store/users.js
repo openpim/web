@@ -7,7 +7,6 @@ import * as rolesStore from './roles'
 const users = reactive([])
 const currentUserRef = ref(null)
 const currentRoles = reactive([])
-const auditEnabled = ref(false)
 
 async function userLogin (token, user, pathAfterLogin) {
   currentUserRef.value = user
@@ -94,11 +93,10 @@ const actions = {
           'Content-Type': 'application/json',
           Accept: 'application/json'
         },
-        body: JSON.stringify({ query: 'mutation {signIn(login: "' + login + '", password: "' + password + '") { token, user {id internalId login name email roles tenantId}, auditEnabled }}' })
+        body: JSON.stringify({ query: 'mutation {signIn(login: "' + login + '", password: "' + password + '") { token, user {id internalId login name email roles tenantId} }}' })
       })
       if (resp.ok) {
         const data = (await resp.json()).data
-        auditEnabled.value = data.signIn.auditEnabled
         await userLogin(data.signIn.token, data.signIn.user, pathAfterLogin)
       } else {
         localStorage.setItem('token', '')
@@ -111,8 +109,7 @@ const actions = {
     }
   },
   signInAs: async (id) => {
-    const data = await serverFetch('mutation {signInAs(id: "' + id + '") { token, user {id internalId login name email roles tenantId}, auditEnabled }}')
-    auditEnabled.value = data.signIn.auditEnabled
+    const data = await serverFetch('mutation {signInAs(id: "' + id + '") { token, user {id internalId login name email roles tenantId} }}')
     await userLogin(data.signInAs.token, data.signInAs.user, '/')
   },
   reloadModel: async () => {
@@ -223,7 +220,6 @@ const store = {
   currentUserRef: currentUserRef,
   users: users,
   currentRoles: currentRoles,
-  auditEnabled: auditEnabled,
   ...actions
 }
 
