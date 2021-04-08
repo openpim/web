@@ -131,6 +131,8 @@
             </v-tab-item>
           </v-tabs-items>
 
+          <OptionsTable :options="selectedRef.options" />
+
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-menu offset-y v-if="canEditConfigRef">
             <template v-slot:activator="{ on }"><v-btn class="mr-4" v-on="on"> {{ $t('Config.Attributes.Connect') }}</v-btn></template>
@@ -197,9 +199,10 @@ import * as userStore from '../../store/users'
 import * as lovStore from '../../store/lovs'
 import AttributeType from '../../constants/attributeTypes'
 import SystemInformation from '../../components/SystemInformation'
+import OptionsTable from '../../components/OptionsTable'
 
 export default {
-  components: { TypeSelectionDialog, ItemsSelectionDialog, LanguageDependentField, RelationsSelectionDialog, SystemInformation },
+  components: { TypeSelectionDialog, ItemsSelectionDialog, LanguageDependentField, RelationsSelectionDialog, SystemInformation, OptionsTable },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
 
@@ -354,7 +357,7 @@ export default {
         name[currentLanguage.value.identifier] = i18n.t('Config.Attributes.Attr.NewName')
         const errorMessage = {}
         errorMessage[currentLanguage.value.identifier] = ''
-        const newAttr = { id: Date.now(), internalId: 0, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name: name, errorMessage: errorMessage }
+        const newAttr = { id: Date.now(), internalId: 0, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name: name, errorMessage: errorMessage, options: [] }
         selectedRef.value.attributes.push(newAttr)
         openRef.value = [selectedRef.value.id]
         visible.value = []

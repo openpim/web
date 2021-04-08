@@ -98,7 +98,6 @@ const actions = {
       })
       if (resp.ok) {
         const data = (await resp.json()).data
-        debugger
         auditEnabled.value = data.signIn.auditEnabled
         await userLogin(data.signIn.token, data.signIn.user, pathAfterLogin)
       } else {

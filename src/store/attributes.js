@@ -72,7 +72,7 @@ const actions = {
           ', valid: [' + (item.valid || []) +
           '], visible: [' + (item.visible || []) +
           '], relations: [' + (item.relations || []) +
-          `])
+          '], options: ' + objectToGraphgl(item.options) + ` )
         }`
         const data = await serverFetch(query)
         newId = parseInt(data.createAttribute)
@@ -101,7 +101,7 @@ const actions = {
           ', valid: [' + (item.valid || []) +
           '], visible: [' + (item.visible || []) +
           '], relations: [' + (item.relations || []) +
-          `])
+          '], options: ' + objectToGraphgl(item.options) + ` )
         }`
       }
       await serverFetch(query)
