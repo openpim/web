@@ -350,5 +350,21 @@
   "ItemDuplicationDialog.Title": "Копирование",
   "OptionsTable.Title": "Опции",
   "OptionsTable.Name": "Наименование",
-  "OptionsTable.Value": "Значение"
+  "OptionsTable.Value": "Значение",
+  "HistoryTable.Operation": "Операция",
+  "HistoryTable.User": "Пользователь",
+  "HistoryTable.ChangedAt": "Время изменения",
+  "HistoryTable.Operation.Add": "Добавление",
+  "HistoryTable.Operation.Change": "Изменение",
+  "HistoryTable.Added": "Добавлено",
+  "HistoryTable.Changed": "Изменено",
+  "HistoryTable.Name": "Наименование",
+  "HistoryTable.Value": "Значение",
+  "HistoryTable.OldValue": "Предыдушее значение",
+  "HistoryTable.typeIdentifier": "Идентификатор типа",
+  "HistoryTable.parentIdentifier": "Идентификатор родительского объекта",
+  "HistoryTable.mimeType": "Mime тип",
+  "HistoryTable.fileOrigName": "Оригинальное имя файла",
+  "HistoryTable.ObjName": "Наименование объекта",
+  "HistoryTable.Values": "Значения"
 }

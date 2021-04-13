@@ -18,7 +18,11 @@ export async function serverFetch (query, variables) {
     body: JSON.stringify(req)
   })
   if (resp.ok) {
-    const data = (await resp.json()).data
+    const json = await resp.json()
+    if (json.errors && json.errors.length > 0) {
+      throw new Error(json.errors[0].message)
+    }
+    const data = json.data
     return data
   } else {
     const data = await resp.json()

@@ -24,7 +24,7 @@ const actions = {
     const offset = (options.page - 1) * options.itemsPerPage
     const order = generateSorting(options)
     const data = await serverFetch('query { getItemHistory(id: ' + id + ', offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) { 
-      count, rows {id, identifier, operation, user, changedAt, data {added, changed, old, deleted} } } }`)
+      count, rows {id, operation, user, changedAt, data {added, changed, old, deleted} } } }`)
     return data.getItemHistory
   },
   checkAuditEnabled: async () => {

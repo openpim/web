@@ -350,5 +350,21 @@
   "ItemDuplicationDialog.Title": "Copy",
   "OptionsTable.Title": "Options",
   "OptionsTable.Name": "Name",
-  "OptionsTable.Value": "Value"
+  "OptionsTable.Value": "Value",
+  "HistoryTable.Operation": "Operation",
+  "HistoryTable.User": "User",
+  "HistoryTable.ChangedAt": "Changed At",
+  "HistoryTable.Operation.Add": "Addition",
+  "HistoryTable.Operation.Change": "Changing",
+  "HistoryTable.Added": "Added",
+  "HistoryTable.Changed": "Changed",
+  "HistoryTable.Name": "Name",
+  "HistoryTable.Value": "Value",
+  "HistoryTable.OldValue": "Old Value",
+  "HistoryTable.typeIdentifier": "Type Identifier",
+  "HistoryTable.parentIdentifier": "Parent Identifier",
+  "HistoryTable.mimeType": "Mime Type",
+  "HistoryTable.fileOrigName": "File Original Name",
+  "HistoryTable.ObjName": "Name",
+  "HistoryTable.Values": "Values"
 }

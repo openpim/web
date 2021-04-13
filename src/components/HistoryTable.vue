@@ -6,14 +6,43 @@
       :loading="loadingRef"
       :headers="headersRef"
       :items="itemsRef"
+      show-expand
       :footer-props="{'items-per-page-options': [10, 20, 30, 40, 50] }"
       class="elevation-1">
-    <template v-slot:item="{ item, headers }">
-      <tr>
-        <td v-for="(header, i) in headers" :key="i">
-          <span>{{ getValue(item, header) }}</span>
-        </td>
-      </tr>
+    <template v-slot:item.operation="{ item, header }">
+        <td>{{ item[header.value] === 1 ? $t('HistoryTable.Operation.Add'): $t('HistoryTable.Operation.Change') }}</td>
+    </template>
+    <template v-slot:item.changedAt="{ item, header }">
+        <td>{{ dateFormat(new Date(Date.parse(item[header.value])), DATE_FORMAT) }}</td>
+    </template>
+    <template v-slot:expanded-item="{ headers, item }">
+      <td :colspan="headers.length">
+        <template v-if="!isObjectEmpty(item.data.added)">
+          <h4 class="teal--text mt-2">{{ $t('HistoryTable.Added') }}</h4>
+          <v-simple-table dense>
+            <template v-slot:default>
+              <thead>
+                <tr><th style="width:50%" class="text-left teal--text">{{ $t('HistoryTable.Name') }}</th>
+                <th style="width:50%" class="text-left teal--text">{{ $t('HistoryTable.Value') }}</th></tr>
+              </thead>
+              <HistoryTableRows :data="item.data.added" color="teal--text" :level="1" />
+            </template>
+          </v-simple-table>
+        </template>
+        <template v-if="!isObjectEmpty(item.data.changed)">
+          <h4 class="indigo--text mt-2">{{ $t('HistoryTable.Changed') }}</h4>
+          <v-simple-table dense>
+            <template v-slot:default>
+              <thead>
+                <tr><th style="width:30%" class="text-left indigo--text">{{ $t('HistoryTable.Name') }}</th>
+                <th style="width:30%" class="text-left indigo--text">{{ $t('HistoryTable.Value') }}</th>
+                <th style="width:30%" class="text-left indigo--text">{{ $t('HistoryTable.OldValue') }}</th></tr>
+              </thead>
+              <HistoryTableRows :data="item.data.changed" :old="item.data.old" color="indigo--text" :level="1" />
+            </template>
+          </v-simple-table>
+        </template>
+      </td>
     </template>
   </v-data-table>
 
@@ -22,12 +51,16 @@
 <script>
 import * as langStore from '../store/languages'
 import * as lovsStore from '../store/lovs'
-// import * as errorStore from '../store/error'
+import * as errorStore from '../store/error'
 import * as auditStore from '../store/audit'
-// import i18n from '../i18n'
+import dateFormat from 'dateformat'
+import i18n from '../i18n'
 import { ref, onMounted, watch } from '@vue/composition-api'
 
+import HistoryTableRows from './HistoryTableRows'
+
 export default {
+  components: { HistoryTableRows },
   props: {
     item: {
       required: true
@@ -50,13 +83,16 @@ export default {
       loadItemHistory
     } = auditStore.useStore()
 
+    const { showError } = errorStore.useStore()
+
     const itemsRef = ref([])
     const totalItemsRef = ref(0)
-    const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: [], sortDesc: [] })
+    const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: ['changedAt'], sortDesc: [true] })
     const loadingRef = ref(false)
-    const headersRef = ref([{ identifier: '#thumbnail#', text: 'Thumbnail', align: 'start', sortable: false, filterable: false, value: '#thumbnail#' },
-      { identifier: 'identifier', text: 'Identifier', align: 'start', sortable: true, filterable: false, value: 'identifier' },
-      { identifier: 'name_en', text: 'Name (English)', align: 'start', sortable: true, filterable: false, value: { path: ['name', 'en'] } }])
+    const headersRef = ref([{ identifier: 'operation', text: i18n.t('HistoryTable.Operation'), align: 'start', sortable: true, filterable: false, value: 'operation' },
+      { identifier: 'user', text: i18n.t('HistoryTable.User'), align: 'start', sortable: false, filterable: false, value: 'user' },
+      { identifier: 'changedAt', text: i18n.t('HistoryTable.ChangedAt'), align: 'start', sortable: true, filterable: false, value: 'changedAt' },
+      { text: '', value: 'data-table-expand' }])
     const lovsMap = {}
 
     watch(() => props.item, (newItem, oldItem) => {
@@ -77,15 +113,19 @@ export default {
 
     function optionsUpdate (options) {
       loadingRef.value = true
-      loadItemHistory(props.item.internalId, optionsRef.value).then(data => {
+      loadItemHistory(props.item.internalId, options).then(data => {
+        if (!data) return
         itemsRef.value = data.rows
         totalItemsRef.value = data.count
+        loadingRef.value = false
+      }).catch((error) => {
+        showError(error)
         loadingRef.value = false
       })
     }
 
-    function getValue (item, header) {
-      return ''
+    function isObjectEmpty (obj) {
+      return !obj || Object.keys(obj).length === 0
     }
 
     onMounted(() => {
@@ -102,7 +142,9 @@ export default {
       optionsUpdate,
       optionsRef,
       loadingRef,
-      getValue
+      isObjectEmpty,
+      dateFormat,
+      DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }
   }
 }
