@@ -80,7 +80,8 @@ export default {
     } = lovsStore.useStore()
 
     const {
-      loadItemHistory
+      loadItemHistory,
+      loadItemRelationHistory
     } = auditStore.useStore()
 
     const { showError } = errorStore.useStore()
@@ -112,16 +113,30 @@ export default {
     }
 
     function optionsUpdate (options) {
+      if (!props.item) return
+
       loadingRef.value = true
-      loadItemHistory(props.item.internalId, options).then(data => {
-        if (!data) return
-        itemsRef.value = data.rows
-        totalItemsRef.value = data.count
-        loadingRef.value = false
-      }).catch((error) => {
-        showError(error)
-        loadingRef.value = false
-      })
+      if (props.componentType === 'item') {
+        loadItemHistory(props.item.internalId, options).then(data => {
+          if (!data) return
+          itemsRef.value = data.rows
+          totalItemsRef.value = data.count
+          loadingRef.value = false
+        }).catch((error) => {
+          showError(error)
+          loadingRef.value = false
+        })
+      } else {
+        loadItemRelationHistory(props.item.id, options).then(data => {
+          if (!data) return
+          itemsRef.value = data.rows
+          totalItemsRef.value = data.count
+          loadingRef.value = false
+        }).catch((error) => {
+          showError(error)
+          loadingRef.value = false
+        })
+      }
     }
 
     function isObjectEmpty (obj) {

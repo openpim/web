@@ -60,6 +60,12 @@
                       <span>{{ $t('Remove') }}</span>
                     </v-tooltip>
                     <SystemInformation :data="itemRel"></SystemInformation>
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                      <v-btn v-on="on" class="pa-0 inline" icon @click="showHistory(itemRel)"><v-icon dark>mdi-history</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('ItemView.Tab.Audit') }}</span>
+                    </v-tooltip>
                   </td>
                 </tr>
               </tbody>
@@ -85,6 +91,30 @@
     </v-expansion-panel>
   </v-expansion-panels>
   <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
+    <template v-if="auditEnabled">
+      <v-row justify="center">
+        <v-dialog v-model="historyDialogRef" max-width="90%">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('ItemView.Tab.Audit') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <HistoryTable ref="historyTableRef" :item="historySelectedRef" componentType="itemRelation"></HistoryTable>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="historyDialogRef = false">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
 </div>
 </template>
 <script>
@@ -94,14 +124,16 @@ import * as langStore from '../store/languages'
 import * as relStore from '../store/relations'
 import * as itemRelStore from '../store/itemRelations'
 import * as itemStore from '../store/item'
+import * as auditStore from '../store/audit'
 import ItemsSelectionDialog from './ItemsSelectionDialog'
 import i18n from '../i18n'
 import * as userStore from '../store/users'
 import AttributeValue from './AttributeValue'
 import SystemInformation from './SystemInformation'
+import HistoryTable from '../components/HistoryTable'
 
 export default {
-  components: { ItemsSelectionDialog, AttributeValue, SystemInformation },
+  components: { ItemsSelectionDialog, AttributeValue, SystemInformation, HistoryTable },
   props: {
     item: {
       required: true
@@ -115,6 +147,8 @@ export default {
       showError,
       showInfo
     } = errorStore.useStore()
+
+    const { auditEnabled } = auditStore.useStore()
 
     const {
       canEditItemRelation
@@ -151,6 +185,8 @@ export default {
 
     const pageSize = ref(5)
     const itemSelectionDialogRef = ref(null)
+    const historyDialogRef = ref(false)
+    const historySelectedRef = ref(null)
 
     const pagesSource = reactive({})
     const pagesTarget = reactive({})
@@ -324,6 +360,12 @@ export default {
       return getAttributesForRelationId(rel.id)
     }
 
+    function showHistory (itemRel) {
+      if (itemRel.id === -1) return
+      historySelectedRef.value = itemRel
+      historyDialogRef.value = true
+    }
+
     return {
       currentLanguage,
       defaultLanguageIdentifier,
@@ -346,6 +388,10 @@ export default {
       getAttributesForRelation,
       canEditItemRelationByIdentifier,
       panels,
+      historyDialogRef,
+      historySelectedRef,
+      showHistory,
+      auditEnabled,
       pageSizeChanged,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive')

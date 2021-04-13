@@ -365,6 +365,9 @@
   "HistoryTable.parentIdentifier": "Идентификатор родительского объекта",
   "HistoryTable.mimeType": "Mime тип",
   "HistoryTable.fileOrigName": "Оригинальное имя файла",
+  "HistoryTable.relationIdentifier": "Идентификатор типа зависимости",
+  "HistoryTable.itemIdentifier": "Идентификатор исходного объекта",
+  "HistoryTable.targetIdentifier": "Идентификатор назначения",
   "HistoryTable.ObjName": "Наименование объекта",
   "HistoryTable.Values": "Значения"
 }

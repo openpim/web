@@ -67,6 +67,9 @@ export default {
         if (name === 'parentIdentifier') return i18n.t('HistoryTable.parentIdentifier')
         if (name === 'mimeType') return i18n.t('HistoryTable.mimeType')
         if (name === 'fileOrigName') return i18n.t('HistoryTable.fileOrigName')
+        if (name === 'relationIdentifier') return i18n.t('HistoryTable.relationIdentifier')
+        if (name === 'itemIdentifier') return i18n.t('HistoryTable.itemIdentifier')
+        if (name === 'targetIdentifier') return i18n.t('HistoryTable.targetIdentifier')
         if (name === 'name') return i18n.t('HistoryTable.ObjName')
         if (name === 'values') return i18n.t('HistoryTable.Values')
       } else if (props.level === 2) {

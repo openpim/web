@@ -365,6 +365,9 @@
   "HistoryTable.parentIdentifier": "Parent Identifier",
   "HistoryTable.mimeType": "Mime Type",
   "HistoryTable.fileOrigName": "File Original Name",
+  "HistoryTable.relationIdentifier": "Relation Identifier",
+  "HistoryTable.itemIdentifier": "Source Object Identifier",
+  "HistoryTable.targetIdentifier": "Target Object Identifier",
   "HistoryTable.ObjName": "Name",
   "HistoryTable.Values": "Values"
 }
