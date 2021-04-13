@@ -50,7 +50,6 @@
 </template>
 <script>
 import * as langStore from '../store/languages'
-import * as lovsStore from '../store/lovs'
 import * as errorStore from '../store/error'
 import * as auditStore from '../store/audit'
 import dateFormat from 'dateformat'
@@ -76,10 +75,6 @@ export default {
     } = langStore.useStore()
 
     const {
-      getLOVData
-    } = lovsStore.useStore()
-
-    const {
       loadItemHistory,
       loadItemRelationHistory
     } = auditStore.useStore()
@@ -94,23 +89,12 @@ export default {
       { identifier: 'user', text: i18n.t('HistoryTable.User'), align: 'start', sortable: false, filterable: false, value: 'user' },
       { identifier: 'changedAt', text: i18n.t('HistoryTable.ChangedAt'), align: 'start', sortable: true, filterable: false, value: 'changedAt' },
       { text: '', value: 'data-table-expand' }])
-    const lovsMap = {}
 
     watch(() => props.item, (newItem, oldItem) => {
       optionsRef.value.page = 1
       totalItemsRef.value = 0
       optionsUpdate(optionsRef.value)
     })
-
-    function loadLOVs () {
-      headersRef.value.forEach(elem => {
-        if (elem.lov) {
-          getLOVData(elem.lov).then(values => {
-            lovsMap[elem.lov] = values
-          })
-        }
-      })
-    }
 
     function optionsUpdate (options) {
       if (!props.item) return
@@ -144,7 +128,6 @@ export default {
     }
 
     onMounted(() => {
-      loadLOVs()
       optionsUpdate(optionsRef.value)
     })
 

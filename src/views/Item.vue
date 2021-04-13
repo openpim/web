@@ -41,7 +41,7 @@
           <v-tab v-if="hasSources" v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
           <v-tab v-if="hasTargets" v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
           <v-tab v-if="hasChildren" v-text="$t('ItemView.Tab.Children')"></v-tab>
-          <v-tab v-if="auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
+          <v-tab v-if="hasAccess('audit') && auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
         </v-tabs>
         <v-tabs-items v-model="tabRef">
           <v-tab-item> <!-- Attributes -->
@@ -125,7 +125,7 @@
           <v-tab-item v-if="hasChildren" eager>  <!-- Children -->
             <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false"></ItemsDataTable>
           </v-tab-item>
-          <v-tab-item v-if="auditEnabled">  <!-- History -->
+          <v-tab-item v-if="hasAccess('audit') && auditEnabled">  <!-- History -->
             <HistoryTable ref="historyTableRef" :item="itemRef" componentType="item"></HistoryTable>
           </v-tab-item>
         </v-tabs-items>
@@ -172,7 +172,7 @@ export default {
 
     const { showInfo, showError } = errorStore.useStore()
 
-    const { canEditItem } = userStore.useStore()
+    const { canEditItem, hasAccess } = userStore.useStore()
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
@@ -617,6 +617,7 @@ export default {
       auditEnabled,
       getOption,
       historyTableRef,
+      hasAccess,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]

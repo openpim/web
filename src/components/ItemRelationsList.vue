@@ -60,7 +60,7 @@
                       <span>{{ $t('Remove') }}</span>
                     </v-tooltip>
                     <SystemInformation :data="itemRel"></SystemInformation>
-                    <v-tooltip top>
+                    <v-tooltip top v-if="hasAccess('audit') && auditEnabled">
                       <template v-slot:activator="{ on }">
                       <v-btn v-on="on" class="pa-0 inline" icon @click="showHistory(itemRel)"><v-icon dark>mdi-history</v-icon></v-btn>
                       </template>
@@ -151,7 +151,8 @@ export default {
     const { auditEnabled } = auditStore.useStore()
 
     const {
-      canEditItemRelation
+      canEditItemRelation,
+      hasAccess
     } = userStore.useStore()
 
     const {
@@ -393,6 +394,7 @@ export default {
       showHistory,
       auditEnabled,
       pageSizeChanged,
+      hasAccess,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive')
     }
