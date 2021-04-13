@@ -193,7 +193,7 @@ export default {
 
     onMounted(() => {
       if (currentUserRef.value.tenantId !== '0') {
-        hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages')
+        hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards')
         loadAllLanguages()
       }
     })
