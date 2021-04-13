@@ -4,7 +4,7 @@
       <v-toolbar dense flat>
         <v-toolbar-title class="subtitle-2">{{ $t('Home.Menu.Title') }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-tooltip bottom v-if="canEditSelected">
+        <v-tooltip bottom>
           <template v-slot:activator="{ on }">
             <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
           </template>
