@@ -32,7 +32,7 @@
                     <v-list-item-group v-model="searchSelectedRef" color="primary">
                       <v-list-item v-for="(elem, i) in searchResultsRef" :key="i" dense>
                         <v-list-item-content>
-                          <v-list-item-title><router-link :to="'/item/'+elem.identifier">{{elem.identifier + ' (' +elem.type.identifier+')'}}</router-link></v-list-item-title>
+                          <v-list-item-title><a @click="selectItem(i)">{{elem.identifier + ' (' +elem.type.identifier+')'}}</a></v-list-item-title>
                           <v-list-item-subtitle>{{ elem.name[currentLanguage.identifier] || '[' + elem.name[defaultLanguageIdentifier] + ']' }}</v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
@@ -91,6 +91,11 @@ export default {
       }
     }
 
+    function selectItem (idx) {
+      searchSelectedRef.value = idx
+      selected()
+    }
+
     function selected () {
       if (selectedItemsRef.value[0]) {
         const id = selectedItemsRef.value[0]
@@ -133,6 +138,7 @@ export default {
       loadChildren,
       selectionDialogRef,
       selected,
+      selectItem,
       selectedItemsRef,
       onSelect,
       showDialog,
