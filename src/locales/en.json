@@ -294,6 +294,7 @@
   "Item.type": "Type",
   "Item.thumbnail": "Thumbnail",
   "Item.typeIdentifier": "Type identifier",
+  "Item.level": "Level",
   "Home.Search.Title": "Items search",
   "Home.Search.TitleExtended": "Extended search",
   "Search.Find": "Find",

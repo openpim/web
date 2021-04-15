@@ -294,6 +294,7 @@
   "Item.type": "Тип",
   "Item.thumbnail": "Иконка",
   "Item.typeIdentifier": "Идентификатор типа",
+  "Item.level": "Уровень",
   "Home.Search.Title": "Поиск объектов",
   "Home.Search.TitleExtended": "Расширенный поиск",
   "Search.Find": "Найти",

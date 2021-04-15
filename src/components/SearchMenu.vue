@@ -33,12 +33,29 @@
           <v-list-item v-for="(filter, i) in selectedRef.filters" :key="i" :three-line="filter.type === 'attr'">
             <v-list-item-icon><v-icon>{{filter.type === 'attr' ? 'mdi-alpha-a-box-outline' : ''}}</v-icon></v-list-item-icon>
             <v-list-item-content>
-              <v-autocomplete dense v-model="filter.attr" :items="fieldsSelection" :label="$t('Search.Filter.Attribute.Attr')"></v-autocomplete>
-              <v-select dense v-model="filter.operation" :items="operationSelection" :label="$t('Search.Filter.Attribute.Operation')"></v-select>
+              <v-container class="pa-0">
+                <v-row no-gutters>
+                  <v-col cols="12">
+                    <v-autocomplete dense v-model="filter.attr" :items="fieldsSelection" :label="$t('Search.Filter.Attribute.Attr')"></v-autocomplete>
+                  </v-col>
+                </v-row>
 
-              <v-select v-if="filter.attr && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-              <v-text-field v-else dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                <v-row no-gutters v-if="filter.attr !== '#level#'">
+                  <v-col cols="12">
+                    <v-select dense v-model="filter.operation" :items="operationSelection" :label="$t('Search.Filter.Attribute.Operation')"></v-select>
+                  </v-col>
+                </v-row>
 
+                <v-row no-gutters>
+                  <v-col cols="12">
+                    <template v-if="filter.attr === '#level#'">
+                      <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
+                    </template>
+                    <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
+                    <v-text-field v-if="filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-container>
             </v-list-item-content>
           </v-list-item>
         </v-list-item-group>
@@ -53,6 +70,7 @@
   </v-col>
   <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
   <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
+  <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
   </v-row>
 </template>
 <script>
@@ -68,10 +86,11 @@ import * as searchStore from '../store/search'
 import * as lovsStore from '../store/lovs'
 import SearchSaveDialog from '../components/SearchSaveDialog'
 import SearchLoadDialog from '../components/SearchLoadDialog'
+import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import router from '../router'
 
 export default {
-  components: { SearchSaveDialog, SearchLoadDialog },
+  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog },
   setup (props, context) {
     const { showError } = errorStore.useStore()
 
@@ -80,7 +99,8 @@ export default {
     } = typesStore.useStore()
 
     const {
-      currentWhereRef
+      currentWhereRef,
+      loadItemsByIds
     } = itemStore.useStore()
 
     const {
@@ -109,6 +129,7 @@ export default {
       getLOVData
     } = lovsStore.useStore()
 
+    const itemSelectionDialogRef = ref(null)
     const searchSaveDialogRef = ref(null)
     const searchLoadDialogRef = ref(null)
     const selectedFilterRef = ref(null)
@@ -195,7 +216,10 @@ export default {
                 break
             }
 
-            if (filter.attr.startsWith('name#')) {
+            if (filter.attr === '#level#') {
+              data.path = {}
+              data.path.OP_regexp = filter.path + '.*'
+            } else if (filter.attr.startsWith('name#')) {
               const lang = filter.attr.substring(5)
               data.name = {}
               data.name[lang] = {}
@@ -222,6 +246,7 @@ export default {
             where.OP_and.push(data)
           }
         })
+        console.log(JSON.stringify(where))
         currentWhereRef.value = where
       }
     }
@@ -248,6 +273,15 @@ export default {
       }
     }
 
+    function itemSelected (id, filter) {
+      itemSelectionDialogRef.value.closeDialog()
+      loadItemsByIds([id], false).then(items => {
+        const item = items[0]
+        filter.value = item.name[currentLanguage.value.identifier] || '[' + item.name[defaultLanguageIdentifier.value] + ']'
+        filter.path = item.path
+      })
+    }
+
     onMounted(() => {
       loadAllTypes()
 
@@ -261,6 +295,7 @@ export default {
             { value: 'id', text: i18n.t('Item.id') },
             { value: 'identifier', text: i18n.t('Item.identifier') },
             { value: 'typeIdentifier', text: i18n.t('Item.typeIdentifier') },
+            { value: '#level#', text: i18n.t('Item.level') },
             { value: 'createdBy', text: i18n.t('CreatedBy') },
             { value: 'createdAt', text: i18n.t('CreatedAt') },
             { value: 'updatedBy', text: i18n.t('UpdatedBy') },
@@ -317,6 +352,8 @@ export default {
       selectedRef,
       selectedFilterRef,
       searchSelected,
+      itemSelectionDialogRef,
+      itemSelected,
       add,
       remove,
       save,
