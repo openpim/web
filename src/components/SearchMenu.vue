@@ -206,18 +206,18 @@ export default {
                 const attr = filter.attr.substring(5)
                 data.values = {}
                 data.values[attr] = {}
-                data.values[attr][operation] = parseValue(filter.value)
+                data.values[attr][operation] = parseValue(filter.attr, filter.value)
               } else {
                 const attr = filter.attr.substring(5, idx)
                 const lang = filter.attr.substring(idx + 1)
                 data.values = {}
                 data.values[attr] = {}
                 data.values[attr][lang] = {}
-                data.values[attr][lang][operation] = parseValue(filter.value)
+                data.values[attr][lang][operation] = parseValue(filter.attr, filter.value)
               }
             } else {
               data[filter.attr] = {}
-              data[filter.attr][operation] = parseValue(filter.value)
+              data[filter.attr][operation] = parseValue(filter.attr, filter.value)
             }
             where.OP_and.push(data)
           }
@@ -226,7 +226,9 @@ export default {
       }
     }
 
-    function parseValue (value) {
+    function parseValue (attr, value) {
+      if (lovsMap[attr]) return '' + value
+
       if (Object.prototype.toString.call(value) !== '[object String]') return value
 
       if (value.startsWith('"') && value.endsWith('"')) {
