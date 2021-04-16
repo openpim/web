@@ -172,14 +172,17 @@ export default {
       localStorage.setItem('item_headers', JSON.stringify(arr))
     }
 
-    function loadLOVs () {
-      headersRef.value.forEach(elem => {
+    async function loadLOVs () {
+      let refresh = false
+      for (let i = 0; i < headersRef.value.length; i++) {
+        const elem = headersRef.value[i]
         if (elem.lov) {
-          getLOVData(elem.lov).then(values => {
-            lovsMap[elem.lov] = values
-          })
+          const values = await getLOVData(elem.lov)
+          lovsMap[elem.lov] = values
+          refresh = true
         }
-      })
+      }
+      if (refresh) DataChanged()
     }
 
     function optionsUpdate (options) {
