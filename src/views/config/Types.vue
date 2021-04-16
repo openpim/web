@@ -257,7 +257,7 @@ export default {
     })
 
     function identifierValidation (v) {
-      if (!/^[A-Za-z0-9_]*$/.test(v)) {
+      if (!/^[A-Za-z0-9_-]*$/.test(v)) {
         return i18n.t('Wrong.Identifier')
       }
       return (selectedRef.value.internalId !== 0 || findTypeByIdentifier(v).node.internalId === 0) || i18n.t('Config.Types.Error.IdentifierNotUnique')

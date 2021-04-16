@@ -119,7 +119,7 @@ export default {
       if (!v) {
         return i18n.t('Config.Languages.Error.IdentifierRequired')
       }
-      if (!/^[A-Za-z0-9_]*$/.test(v)) {
+      if (!/^[A-Za-z0-9_-]*$/.test(v)) {
         return i18n.t('Wrong.Identifier')
       }
       if (v && selectedRef.value.internalId === 0) {

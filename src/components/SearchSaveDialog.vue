@@ -139,7 +139,7 @@ export default {
     }
 
     function identifierValidation (v) {
-      if (!/^[A-Za-z0-9_]*$/.test(v)) {
+      if (!/^[A-Za-z0-9_-]*$/.test(v)) {
         return i18n.t('Wrong.Identifier')
       }
       if (!v) {

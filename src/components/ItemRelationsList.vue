@@ -283,7 +283,7 @@ export default {
       const itemRel = itemRels[identifier].find(elem => elem.id === id)
 
       // check identifier
-      if (!/^[A-Za-z0-9_]*$/.test(itemRel.identifier)) {
+      if (!/^[A-Za-z0-9_-]*$/.test(itemRel.identifier)) {
         showError(i18n.t('Wrong.Identifier'))
         return
       }
