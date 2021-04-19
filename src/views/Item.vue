@@ -56,9 +56,13 @@
                     <v-expansion-panel-content>
                        <v-container class="pa-0">
                         <v-row no-gutters>
-                          <v-col v-for="(attr,i) in group.itemAttributes" :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')">
-                            <AttributeValue :ref="el => { attributeValues[i] = el }" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
-                          </v-col>
+                          <template v-for="(attr,i) in group.itemAttributes">
+                            <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')">
+                              <AttributeValue :ref="el => { attributeValues[i] = el }" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
+                            </v-col>
+                            <v-col :key="i+1000" v-if="getOption(attr, 'space', null)" :cols="getOption(attr, 'space', null)">
+                            </v-col>
+                            </template>
                         </v-row>
                        </v-container>
                     </v-expansion-panel-content>
