@@ -338,6 +338,7 @@
   "DataTable.TalendExportSelection" : "Выгрузить",
   "DataTable.SelectColumns" : "Выбрать колонки для показа в таблице",
   "DataTable.Refresh" : "Обновить",
+  "DataTable.SaveColumns"  : "Сохранить настройки колонок",
   "DataTable.ExcelDialog.TitleImport" : "Загрузка из файла Excel",
   "DataTable.ExcelDialog.TitleExport" : "Выгрузка в файл Excel",
   "DataTable.ExcelImport.WrongFormat" : "Неверный формат данных, используйте для загрузки файл который был сперва выгружен",
@@ -370,5 +371,14 @@
   "HistoryTable.itemIdentifier": "Идентификатор исходного объекта",
   "HistoryTable.targetIdentifier": "Идентификатор назначения",
   "HistoryTable.ObjName": "Наименование объекта",
-  "HistoryTable.Values": "Значения"
+  "HistoryTable.Values": "Значения",
+  "ColumnsSaveDialog.Title": "Сохранение конфигурации колонок",
+  "ColumnsSaveDialog.Identifier": "Идентификатор",
+  "ColumnsSaveDialog.Name": "Наименование",
+  "ColumnsSaveDialog.Public": "Доступно всем",
+  "ColumnsSaveDialog.NameNew": "Конфигурация колонок",
+  "ColumnsSaveDialog.IdentifierRequired": "Не введен идентификатор",
+  "ColumnsSaveDialog.IdentifierNotUnique": "Такой идентификатор уже существует",
+  "ColumnsSaveDialog.NameRequired": "Не введено наименование",
+  "ColumnsSaveDialog.Confirm.Remove": "Вы хотите удалить эту конфигурацию?"
 }

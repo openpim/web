@@ -34,6 +34,12 @@
         </template>
         <span>{{ $t('DataTable.Refresh') }}</span>
       </v-tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" icon @click="columnsSaveDialogRef.showDialog(headersRef)"><v-icon>mdi-content-save</v-icon></v-btn>
+        </template>
+        <span>{{ $t('DataTable.SaveColumns') }}</span>
+      </v-tooltip>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
       :options.sync="optionsRef"
@@ -56,6 +62,7 @@
     </template>
   </v-data-table>
   <ColumnsSelectionDialog ref="columnsSelectionDialogRef" @selected="columnsSelected"/>
+  <ColumnsSaveDialog ref="columnsSaveDialogRef"/>
     <template>
       <v-row justify="center">
         <v-dialog v-model="excelDialogRef" persistent max-width="600px">
@@ -98,10 +105,11 @@ import * as searchStore from '../store/search'
 import i18n from '../i18n'
 import { ref, onMounted, watch } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
+import ColumnsSaveDialog from './ColumnsSaveDialog'
 import XLSX from 'xlsx'
 
 export default {
-  components: { ColumnsSelectionDialog },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog },
   props: {
     loadData: {
       required: true
@@ -114,9 +122,9 @@ export default {
   setup (props, { emit, root }) {
     const { showError, showInfo } = errorStore.useStore()
 
-    const { hasAccess } = userStore.useStore()
+    const { currentUserRef, hasAccess } = userStore.useStore()
 
-    const { savedColumns, loadAllSavedColumns } = searchStore.useStore()
+    const { savedColumnsRef, loadAllSavedColumns } = searchStore.useStore()
 
     const {
       languages,
@@ -134,6 +142,7 @@ export default {
     } = lovsStore.useStore()
 
     const columnsSelectionDialogRef = ref(null)
+    const columnsSaveDialogRef = ref(null)
 
     const fileUploadRef = ref(null)
     const excelDialogRef = ref(false)
@@ -153,9 +162,17 @@ export default {
 
     watch(savedColumnsSelectionRef, (val) => {
       if (val) {
-        const savedCols = savedColumns.find(elem => elem.id === val)
+        let savedCols = []
 
-        headersRef.value = savedCols.columns
+        for (const property in savedColumnsRef.value) {
+          const tst = savedColumnsRef.value[property].find(elem => elem.id === val)
+          if (tst) {
+            savedCols = tst.columns
+            break
+          }
+        }
+
+        headersRef.value = savedCols
         loadLOVs()
       }
     })
@@ -500,14 +517,29 @@ export default {
     const getDeepValue = (path, obj) => path.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, obj)
 
     function savedOptionsVisible () {
-      return savedColumnsOptionsRef.value && savedColumnsOptionsRef.value.find(elem => elem.text)
+      return savedColumnsOptionsRef.value && savedColumnsOptionsRef.value.length > 0
     }
 
     onMounted(() => {
       loadAllSavedColumns().then(() => {
-        const arr = savedColumns.map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
-        // arr.unshift({ header: 'admin:' })
-        // arr.push({ divider: true })
+        let arr = []
+        if (savedColumnsRef.value[currentUserRef.value.login]) {
+          arr.push({ header: currentUserRef.value.login + ':' })
+          const tmp = savedColumnsRef.value[currentUserRef.value.login].map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
+          arr = arr.concat(tmp)
+          arr.push({ divider: true })
+        }
+
+        for (const property in savedColumnsRef.value) {
+          if (property !== currentUserRef.value.login) {
+            const columns = savedColumnsRef.value[property]
+            arr.push({ header: property + ':' })
+            const tmp = columns.map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
+            arr = arr.concat(tmp)
+            arr.push({ divider: true })
+          }
+        }
+
         savedColumnsOptionsRef.value = arr
       })
       let tst = localStorage.getItem('item_headers')
@@ -534,6 +566,7 @@ export default {
 
     return {
       columnsSelectionDialogRef,
+      columnsSaveDialogRef,
       itemsRef,
       totalItemsRef,
       headersRef,

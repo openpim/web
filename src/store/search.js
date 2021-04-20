@@ -1,31 +1,50 @@
-import { ref, provide, inject, reactive } from '@vue/composition-api'
+import { ref, provide, inject } from '@vue/composition-api'
 import { serverFetch, objectToGraphgl } from './utils'
 
 const searchToOpenRef = ref(null)
 
-const savedColumns = reactive([])
+const savedColumnsRef = ref(null)
 
 const actions = {
   loadAllSavedColumns: async () => {
-    if (savedColumns.length > 0) return
+    if (savedColumnsRef.value) return
     const data = await serverFetch('query { getColumns(onlyMy: false) {id identifier name public columns user} }')
-    if (savedColumns.length > 0) return
+    if (savedColumnsRef.value) return
     if (data.getColumns) {
-      data.getColumns.forEach(element => {
-        element.internalId = element.id
-        savedColumns.push(element)
-      })
+      savedColumnsRef.value = data.getColumns.reduce((acc, col) => {
+        // Group initialization
+        if (!acc[col.user]) {
+          acc[col.user] = []
+        }
+        // Grouping
+        acc[col.user].push(col)
+        return acc
+      }, {})
     }
   },
   loadSearches: async (onlyMy) => {
     const data = await serverFetch('query { getSearches(onlyMy: ' + onlyMy + ') {identifier name extended filters whereClause public user} }')
     return data.getSearches
   },
+  loadColumns: async (onlyMy) => {
+    const data = await serverFetch('query { getColumns(onlyMy: ' + onlyMy + ') {id identifier name public columns user} }')
+    return data.getColumns
+  },
   identifierExists: async (identifier) => {
     const data = await serverFetch('query { getSearchByIdentifier(identifier: "' + identifier + `") { 
       id 
     } }`)
     if (data.getSearchByIdentifier) {
+      return true
+    } else {
+      return false
+    }
+  },
+  columnsIdentifierExists: async (identifier) => {
+    const data = await serverFetch('query { getColumnsByIdentifier(identifier: "' + identifier + `") { 
+      id 
+    } }`)
+    if (data.getColumnsByIdentifier) {
       return true
     } else {
       return false
@@ -48,15 +67,28 @@ const actions = {
     }`
     await serverFetch(query)
   },
+  saveColumns: async (config) => {
+    const query = `
+      mutation { saveColumns(identifier: "` + config.identifier + '", name: ' + (config.name ? objectToGraphgl(config.name) : '') +
+      ', publicAccess: ' + config.public +
+      ', columns: ' + (config.columns ? objectToGraphgl(config.columns) : '') +
+      `)
+    }`
+    await serverFetch(query)
+  },
   remove: async (identifier) => {
     const query = 'mutation { removeSearch(identifier: "' + identifier + '") }'
+    await serverFetch(query)
+  },
+  removeColumns: async (identifier) => {
+    const query = 'mutation { removeColumns(identifier: "' + identifier + '") }'
     await serverFetch(query)
   }
 }
 
 // eslint-disable-next-line no-unused-vars
 const store = {
-  savedColumns: savedColumns,
+  savedColumnsRef: savedColumnsRef,
   searchToOpenRef: searchToOpenRef,
   ...actions
 }
