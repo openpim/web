@@ -176,7 +176,7 @@ export default {
           arr.push(data)
         }
       }
-      availableColumnsRef.value = arr.filter(elem => !selected.find(elem2 => elem2.identifier === elem.identifier))
+      availableColumnsRef.value = arr.filter(elem => !selected.find(elem2 => elem2.identifier === elem.identifier)) // .sort((a, b) => a.identifier.localeCompare(b.identifier))
       selectionDialogRef.value = true
     }
 
