@@ -57,7 +57,7 @@
                        <v-container class="pa-0">
                         <v-row no-gutters>
                           <template v-for="(attr,i) in group.itemAttributes">
-                            <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')">
+                            <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
                               <AttributeValue :ref="el => { attributeValues[i] = el }" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
                             </v-col>
                             <v-col :key="i+1000" v-if="getOption(attr, 'space', null)" :cols="getOption(attr, 'space', null)">
