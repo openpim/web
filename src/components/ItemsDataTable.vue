@@ -521,7 +521,6 @@ export default {
     }
 
     function loadColumns (force) {
-      debugger
       loadAllSavedColumns(force).then(() => {
         let arr = []
         if (savedColumnsRef.value[currentUserRef.value.login]) {
