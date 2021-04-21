@@ -62,7 +62,7 @@
     </template>
   </v-data-table>
   <ColumnsSelectionDialog ref="columnsSelectionDialogRef" @selected="columnsSelected"/>
-  <ColumnsSaveDialog ref="columnsSaveDialogRef"/>
+  <ColumnsSaveDialog ref="columnsSaveDialogRef" @changed="loadColumns(true)"/>
     <template>
       <v-row justify="center">
         <v-dialog v-model="excelDialogRef" persistent max-width="600px">
@@ -520,8 +520,9 @@ export default {
       return savedColumnsOptionsRef.value && savedColumnsOptionsRef.value.length > 0
     }
 
-    onMounted(() => {
-      loadAllSavedColumns().then(() => {
+    function loadColumns (force) {
+      debugger
+      loadAllSavedColumns(force).then(() => {
         let arr = []
         if (savedColumnsRef.value[currentUserRef.value.login]) {
           arr.push({ header: currentUserRef.value.login + ':' })
@@ -542,6 +543,10 @@ export default {
 
         savedColumnsOptionsRef.value = arr
       })
+    }
+
+    onMounted(() => {
+      loadColumns(false)
       let tst = localStorage.getItem('item_headers')
       if (tst) {
         // check for old format of headers list
@@ -567,6 +572,7 @@ export default {
     return {
       columnsSelectionDialogRef,
       columnsSaveDialogRef,
+      loadColumns,
       itemsRef,
       totalItemsRef,
       headersRef,

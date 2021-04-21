@@ -52,7 +52,7 @@ import LanguageDependentField from './LanguageDependentField'
 export default {
   name: 'SaveColumnsDialog',
   components: { LanguageDependentField },
-  setup () {
+  setup (props, { emit }) {
     const {
       currentLanguage,
       defaultLanguageIdentifier
@@ -100,6 +100,7 @@ export default {
           columnsRef.value.splice(indexlInListRef.value, 1)
           indexlInListRef.value = null
           selectedRef.value = null
+          emit('changed')
         })
       }
     }
@@ -114,11 +115,13 @@ export default {
             }
             saveColumns(selectedRef.value).then(() => {
               dialogRef.value = false
+              emit('changed')
             })
           })
         } else {
           saveColumns(selectedRef.value).then(() => {
             dialogRef.value = false
+            emit('changed')
           })
         }
       }

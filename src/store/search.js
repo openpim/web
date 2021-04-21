@@ -6,10 +6,10 @@ const searchToOpenRef = ref(null)
 const savedColumnsRef = ref(null)
 
 const actions = {
-  loadAllSavedColumns: async () => {
-    if (savedColumnsRef.value) return
+  loadAllSavedColumns: async (force) => {
+    if (savedColumnsRef.value && !force) return
     const data = await serverFetch('query { getColumns(onlyMy: false) {id identifier name public columns user} }')
-    if (savedColumnsRef.value) return
+    if (savedColumnsRef.value && !force) return
     if (data.getColumns) {
       savedColumnsRef.value = data.getColumns.reduce((acc, col) => {
         // Group initialization
