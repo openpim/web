@@ -111,7 +111,6 @@ const actions = {
   },
   loadItems: async (id, parentId) => {
     const data = await serverFetch('query { getItems(parentId: "' + (parentId || '') + `", offset: 0, limit: 500) { 
-      count,
       rows 
       { 
         id 
@@ -140,7 +139,6 @@ const actions = {
   },
   loadItemRelationsChildren: async (id, parentId) => {
     const data = await serverFetch('query { getItemRelationsChildren(itemId: "' + (parentId || '') + `", offset: 0, limit: 500) { 
-      count,
       rows 
       { 
         id 
@@ -370,7 +368,7 @@ const actions = {
             }]
         ) {
         responses {
-            ... on ItemsResponse {
+            ... on ItemsSearchResponse {
                 count
                 rows {
                   id 
