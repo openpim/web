@@ -77,14 +77,21 @@ export default {
     const searchTextRef = ref('')
     const searchSelectedRef = ref(null)
     const searchResultsRef = ref([])
+    let awaitingSearch = false
 
     let initiator
 
     function searchChanged () {
       if (searchTextRef.value.length > 1) {
-        searchItem(searchTextRef.value).then(data => {
-          searchResultsRef.value = data.rows
-        })
+        if (!awaitingSearch) {
+          setTimeout(() => {
+            searchItem(searchTextRef.value).then(data => {
+              searchResultsRef.value = data.rows
+            })
+            awaitingSearch = false
+          }, 1000)
+        }
+        awaitingSearch = true
       }
     }
 
