@@ -139,23 +139,35 @@ export default {
     const searchResultsRef = ref([])
     const searchRef = ref('')
     const searchLoadingRef = ref(false)
+    let awaitingSearch = false
 
     watch(searchRef, (val) => {
       if (val && val.length > 1) {
-        searchLoadingRef.value = true
-        searchItem(val).then(data => {
-          searchResultsRef.value = data.rows.map(elem => {
-            elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
-            return elem
-          })
-          searchLoadingRef.value = false
-        })
+        if (!awaitingSearch) {
+          setTimeout(() => {
+            searchLoadingRef.value = true
+            searchItem(val).then(data => {
+              searchResultsRef.value = data.rows.map(elem => {
+                elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
+                return elem
+              })
+              searchLoadingRef.value = false
+            })
+            awaitingSearch = false
+          }, 1000)
+        }
+        awaitingSearch = true
       }
     })
 
     function searchSelected () {
+      awaitingSearch = true
+      setTimeout(() => {
+        awaitingSearch = false
+        searchTextRef.value = null
+      }, 500)
       const identifier = searchTextRef.value
-      searchTextRef.value = ''
+      searchTextRef.value = null
       router.push('/item/' + identifier)
     }
 
