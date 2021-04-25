@@ -335,8 +335,7 @@ const actions = {
             }]
         ) {
         responses {
-            ... on ItemsResponse {
-                count
+            ... on ItemsSearchResponse {
                 rows {
                     id
                     identifier

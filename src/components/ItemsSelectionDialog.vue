@@ -28,7 +28,6 @@
                 <v-tab-item> <!-- search -->
                   <v-text-field v-model="searchTextRef" @input="searchChanged" :label="$t('Search')" append-icon="mdi-magnify" class="ml-5 mr-5"></v-text-field>
                   <v-list dense v-if="searchResultsRef.length > 0" style="max-height: 300px" class="overflow-y-auto">
-                    <v-subheader>{{$t('Items.SelectionDialog.SearchResults', {count: searchResultsCountRef, shown: (searchResultsCountRef > 100 ? 100 : searchResultsCountRef)})}}</v-subheader>
                     <v-list-item-group v-model="searchSelectedRef" color="primary">
                       <v-list-item v-for="(elem, i) in searchResultsRef" :key="i" dense>
                         <v-list-item-content>
@@ -78,14 +77,12 @@ export default {
     const searchTextRef = ref('')
     const searchSelectedRef = ref(null)
     const searchResultsRef = ref([])
-    const searchResultsCountRef = ref(0)
 
     let initiator
 
     function searchChanged () {
       if (searchTextRef.value.length > 1) {
         searchItem(searchTextRef.value).then(data => {
-          searchResultsCountRef.value = data.count
           searchResultsRef.value = data.rows
         })
       }
@@ -149,8 +146,7 @@ export default {
       searchTextRef,
       searchSelectedRef,
       searchResultsRef,
-      searchChanged,
-      searchResultsCountRef
+      searchChanged
     }
   }
 }
