@@ -246,7 +246,6 @@ export default {
             where.OP_and.push(data)
           }
         })
-        console.log(JSON.stringify(where))
         currentWhereRef.value = where
       }
     }

@@ -511,7 +511,6 @@ export default {
 
     function executeAction (button) {
       executeButtonAction(itemRef.value.internalId, button).then((result) => {
-        console.log(result)
         if (result.compileError) {
           showError('Compile error: ' + result.compileError)
         } else if (result.error) {
