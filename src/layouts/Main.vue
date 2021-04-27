@@ -23,7 +23,7 @@
     <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark dense>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" v-if="currentUserRef.tenantId !== '0'"/>
       <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
-        <!-- span class="hidden-sm-and-down">App</span -->
+        <TitleComponent></TitleComponent>
       </v-toolbar-title>
       <v-spacer />
       <v-autocomplete v-if="currentUserRef.tenantId !== '0' && !isExportSearch" @input="searchSelected" @focus="searchResultsRef=[]" item-value="identifier" v-model="searchTextRef" :loading="searchLoadingRef" :items="searchResultsRef" :search-input.sync="searchRef" class="mr-2 hidden-sm-and-down" flat solo-inverted hide-no-data hide-details prepend-inner-icon="mdi-magnify" :label="$t('Search')">
@@ -94,9 +94,10 @@ import * as itemStore from '../store/item'
 import * as errorStore from '../store/error'
 import i18n from '../i18n'
 import router from '../router'
+import TitleComponent from '../_customizations/toolbar/title/TitleComponent'
 
 export default {
-  components: { ErrorBox },
+  components: { ErrorBox, TitleComponent },
   props: {
     export: {
       type: Boolean,
