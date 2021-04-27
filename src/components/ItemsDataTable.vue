@@ -584,7 +584,7 @@ export default {
       loadingRef,
       editHeaders,
       columnsSelected,
-      damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : '/',
+      damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
       token: localStorage.getItem('token'),
       getThumbnail,
       exportData,

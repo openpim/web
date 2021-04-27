@@ -256,7 +256,7 @@ const actions = {
     data.append('file', file)
     data.append('id', id)
 
-    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : '/') + 'asset-upload', {
+    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'asset-upload', {
       method: 'POST',
       headers: {
         'x-token': localStorage.getItem('token')
@@ -279,7 +279,7 @@ const actions = {
     data.append('relationId', relationId)
     data.append('lang', lang)
 
-    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : '/') + 'asset-create-upload', {
+    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'asset-create-upload', {
       method: 'POST',
       headers: {
         'x-token': localStorage.getItem('token')

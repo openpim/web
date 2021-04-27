@@ -1,0 +1,1 @@
+window.OPENPIM_SERVER_URL = ''

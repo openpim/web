@@ -86,7 +86,7 @@ const actions = {
   },
   signIn: async (login, password, pathAfterLogin) => {
     try {
-      const serverUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_SERVER_URL : '/graphql'
+      const serverUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_SERVER_URL : window.OPENPIM_SERVER_URL + '/graphql'
       const resp = await fetch(serverUrl, {
         method: 'POST',
         headers: {
