@@ -1,10 +1,10 @@
 <template>
   <div>
     <ErrorBox />
-    <v-navigation-drawer width="35%" v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
+    <v-navigation-drawer :width="drawerWidth" v-model="drawer" ref="drawerRef" :clipped="$vuetify.breakpoint.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
       <router-view name="menu"></router-view>
 
-      <v-bottom-navigation horizontal height="40" class="mt-2" v-model="activeBottom" v-if="!isExportSearch">
+      <v-bottom-navigation grow height="50" class="mt-2" v-model="activeBottom" v-if="!isExportSearch">
         <v-btn to="/">
             <span>{{ $t('Main.Work') }}</span>
             <v-icon>mdi-sitemap</v-icon>
@@ -134,6 +134,8 @@ export default {
     } = itemStore.useStore()
 
     const drawer = ref(null)
+    const drawerRef = ref(null)
+    const drawerWidth = ref(localStorage.getItem('drawerWidth') || '25%')
     const activeBottom = ref(0)
     const userDialogRef = ref(null)
     const passwordErrors = ref([])
@@ -208,7 +210,57 @@ export default {
       }
     }
 
+    function setBorderWidth () {
+      const i = drawerRef.value.$el.querySelector(
+        '.v-navigation-drawer__border'
+      )
+      i.style.width = '3px'
+      i.style.cursor = 'ew-resize'
+    }
+
+    function setResizeEvents () {
+      const el = drawerRef.value.$el
+      const drawerBorder = el.querySelector('.v-navigation-drawer__border')
+      const direction = el.classList.contains('v-navigation-drawer--right')
+        ? 'right'
+        : 'left'
+
+      function resize (e) {
+        if (e.screenX < 30) return
+
+        document.body.style.cursor = 'ew-resize'
+        const f = direction === 'right'
+          ? document.body.scrollWidth - e.clientX
+          : e.clientX
+        el.style.width = f + 'px'
+      }
+
+      drawerBorder.addEventListener(
+        'mousedown',
+        function (e) {
+          if (e.offsetX < 30) {
+            el.style.transition = 'initial'; document.addEventListener('mousemove', resize, false)
+          }
+        },
+        false
+      )
+
+      document.addEventListener(
+        'mouseup',
+        function () {
+          el.style.transition = ''
+          drawerWidth.value = el.style.width
+          localStorage.setItem('drawerWidth', el.style.width)
+          document.body.style.cursor = ''
+          document.removeEventListener('mousemove', resize, false)
+        },
+        false
+      )
+    }
+
     onMounted(() => {
+      setBorderWidth()
+      setResizeEvents()
       if (currentUserRef.value.tenantId !== '0') {
         hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards')
         loadAllLanguages()
@@ -220,6 +272,8 @@ export default {
       reload,
       isAdmin,
       drawer,
+      drawerRef,
+      drawerWidth,
       activeBottom,
       userDialogRef,
       currentUserRef,
