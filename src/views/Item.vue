@@ -28,6 +28,7 @@
             <template v-if="canEditSelected">
               <v-btn text @click="executeAction(trigger.itemButton)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
+            <AfterButtonsComponent></AfterButtonsComponent>
             <v-spacer></v-spacer>
             <v-btn v-if="!itemRef.typeFile && canEditSelected && hasFileUpload" text @click="fileUploadDialogRef.showDialog()" v-text="$t('ItemView.UploadFile')"></v-btn>
           </v-card-actions>
@@ -35,6 +36,7 @@
       </v-col>
       <v-col cols="12">
         <v-tabs v-model="tabRef">
+          <FirstTabsComponent></FirstTabsComponent>
           <v-tab v-text="$t('ItemView.Tab.Attributes')"></v-tab>
           <v-tab v-if="itemRef.typeFile" v-text="$t('ItemView.Tab.File')"></v-tab>
           <v-tab v-if="!itemRef.typeFile && filesRef.length > 0" v-text="$t('ItemView.Tab.MediaFiles')"></v-tab>
@@ -42,13 +44,17 @@
           <v-tab v-if="hasTargets" v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
           <v-tab v-if="hasChildren" v-text="$t('ItemView.Tab.Children')"></v-tab>
           <v-tab v-if="hasAccess('audit') && auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
+          <LastTabsComponent></LastTabsComponent>
         </v-tabs>
         <v-tabs-items v-model="tabRef">
+          <FirstTabsItemComponent></FirstTabsItemComponent>
           <v-tab-item> <!-- Attributes -->
             <v-text-field class="pt-4 pb-0 pr-5 pl-5" v-model="itemRef.identifier" readonly :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
             <LanguageDependentField class="pb-0 pr-5 pl-5" :values="itemRef.name" v-model="itemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')"></LanguageDependentField>
             <v-card flat>
               <v-card-text class="pt-2 pl-0 pr-0">
+
+                <BeforeAttributesComponent></BeforeAttributesComponent>
 
                 <v-expansion-panels popout multiple focusable>
                   <v-expansion-panel v-for="(group,i) in attrGroups" :key="i">
@@ -68,6 +74,8 @@
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
+
+                <AfterAttributesComponent></AfterAttributesComponent>
 
               </v-card-text>
             </v-card>
@@ -132,6 +140,7 @@
           <v-tab-item v-if="hasAccess('audit') && auditEnabled">  <!-- History -->
             <HistoryTable ref="historyTableRef" :item="itemRef" componentType="item"></HistoryTable>
           </v-tab-item>
+          <LastTabsItemComponent></LastTabsItemComponent>
         </v-tabs-items>
       </v-col>
     </v-row>
@@ -166,10 +175,36 @@ import FileUploadDialog from '../components/FileUploadDialog'
 import ItemDuplicationDialog from '../components/ItemDuplicationDialog'
 import HistoryTable from '../components/HistoryTable'
 
+import AfterButtonsComponent from '../_customizations/item/afterButtons/AfterButtonsComponent'
+import FirstTabsComponent from '../_customizations/item/tabs/firstTabs/TabsComponent'
+import FirstTabsItemComponent from '../_customizations/item/tabs/firstTabs/TabsItemComponent'
+import LastTabsComponent from '../_customizations/item/tabs/lastTabs/TabsComponent'
+import LastTabsItemComponent from '../_customizations/item/tabs/lastTabs/TabsItemComponent'
+
+import BeforeAttributesComponent from '../_customizations/item/beforeAttributes/BeforeAttributesComponent'
+import AfterAttributesComponent from '../_customizations/item/afterAttributes/AfterAttributesComponent'
+
 import eventBus from '../eventBus'
 
 export default {
-  components: { AttributeValue, ItemRelationsList, SystemInformation, LanguageDependentField, ItemsDataTable, ItemsSelectionDialog, FileUploadDialog, ItemDuplicationDialog, HistoryTable },
+  components: {
+    AttributeValue,
+    ItemRelationsList,
+    SystemInformation,
+    LanguageDependentField,
+    ItemsDataTable,
+    ItemsSelectionDialog,
+    FileUploadDialog,
+    ItemDuplicationDialog,
+    HistoryTable,
+    AfterButtonsComponent,
+    FirstTabsComponent,
+    FirstTabsItemComponent,
+    LastTabsComponent,
+    LastTabsItemComponent,
+    BeforeAttributesComponent,
+    AfterAttributesComponent
+  },
   name: 'Home',
   setup (params, context) {
     const { route } = useRouter()
