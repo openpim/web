@@ -34,6 +34,7 @@
           </v-list-item-content>
         </template>
       </v-autocomplete>
+      <AfterSearchComponent></AfterSearchComponent>
       <v-menu offset-y v-if="languages.length > 1">
         <template v-slot:activator="{ on }">
           <v-btn class="mr-2" dark text v-on="on">
@@ -47,6 +48,7 @@
         </v-list>
       </v-menu>
       <v-btn icon @click="userDialogRef = true"><v-icon>mdi-account</v-icon></v-btn>
+      <AfterButtonsComponent></AfterButtonsComponent>
     </v-app-bar>
     <v-content>
       <v-container class="fill-height" fluid>
@@ -95,9 +97,11 @@ import * as errorStore from '../store/error'
 import i18n from '../i18n'
 import router from '../router'
 import TitleComponent from '../_customizations/toolbar/title/TitleComponent'
+import AfterSearchComponent from '../_customizations/toolbar/afterSearch/AfterSearchComponent'
+import AfterButtonsComponent from '../_customizations/toolbar/afterButtons/AfterButtonsComponent'
 
 export default {
-  components: { ErrorBox, TitleComponent },
+  components: { ErrorBox, TitleComponent, AfterSearchComponent, AfterButtonsComponent },
   props: {
     export: {
       type: Boolean,
