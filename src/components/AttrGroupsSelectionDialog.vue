@@ -59,7 +59,7 @@ export default {
     let initiator
 
     function selected () {
-      const arr = selectedGroupsRef.value.map(idx => groups[idx].id)
+      const arr = selectedGroupsRef.value.map(idx => groups[idx].internalId)
       emit('selected', arr, initiator)
     }
 

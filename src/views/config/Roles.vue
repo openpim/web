@@ -386,7 +386,7 @@ export default {
       if (selectedRef.value.itemAccess.groups) {
         return selectedRef.value.itemAccess.groups.map(data => {
           const res = { groupId: data.groupId, access: data.access }
-          res.group = groups.find(group => group.id === data.groupId)
+          res.group = groups.find(group => group.internalId === data.groupId)
           return res
         })
       } else {
