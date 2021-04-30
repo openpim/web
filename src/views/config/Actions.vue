@@ -297,7 +297,7 @@ export default {
 
     function itemSelected (id) {
       itemSelectionDialogRef.value.closeDialog()
-      testAction(id, selectedRef.value.id).then(result => {
+      testAction(id, selectedRef.value.internalId).then(result => {
         testResultRef.value = result
         testDialogRef.value = true
       })
