@@ -77,14 +77,14 @@ const actions = {
     }
     return newType
   },
-  linkType: async (parentId, id) => {
+  linkType: async (parentId, id, internalId) => {
     const typeNode = actions.findType(id)
     const newType = { id: Date.now(), internalId: Date.now(), name: typeNode.node.name, link: id, icon: typeNode.node.icon, iconColor: typeNode.node.iconColor }
     const parent = findNode(parentId, typesTree)
     parent.children.push(newType)
 
     const query = `
-    mutation { linkType(id: "` + id + '", parentId: "' + parentId + `")
+    mutation { linkType(id: "` + internalId + '", parentId: "' + parentId + `")
     }`
     const data = await serverFetch(query)
     newType.internalId = parseInt(data.linkType)

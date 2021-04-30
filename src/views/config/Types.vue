@@ -223,7 +223,7 @@ export default {
       const parent = findType(parentId).node
       const tst = parent.children.findIndex((item) => item.link === selectedRef.value.id)
       if (tst === -1) { // if we do not have such link already
-        linkType(parentId, selectedRef.value.id).then((newType) => {
+        linkType(parentId, selectedRef.value.id, selectedRef.value.internalId).then((newType) => {
           selectedRef.value = newType
           openRef.value.push(parent)
           activeRef.value.pop()
