@@ -39,7 +39,7 @@
         <!-- attribute -->
         <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id != -1 && !selectedRef.group">
           <div class="d-inline-flex align-center">
-            <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Attributes.Identifier')" required></v-text-field>
+            <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :readonly="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Attributes.Identifier')" required></v-text-field>
             <SystemInformation :data="selectedRef"></SystemInformation>
           </div>
 

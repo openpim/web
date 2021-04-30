@@ -197,7 +197,11 @@ const actions = {
       if (group.visible) {
         group.attributes.forEach(attr => {
           if (attr.valid.length > 0) {
-            if (!attrArr.find(tst => tst.identifier === attr.identifier)) attrArr.push(attr)
+            if (!attrArr.find(tst => tst.identifier === attr.identifier)) {
+              const tmp = { ...attr }
+              tmp.linkToGroup = group
+              attrArr.push(tmp)
+            }
           }
         })
       }

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="selectionDialogRef" persistent max-width="800px">
+  <v-dialog v-model="selectionDialogRef" persistent max-width="1000px">
     <v-card>
       <v-card-title>
         <span class="headline">{{ $t('ColumnsSelection.Title') }}</span>
@@ -7,7 +7,7 @@
       <v-card-text>
         <v-container class="pt-0">
           <v-row>
-            <v-col cols="5"  class="pt-0">
+            <v-col cols="7"  class="pt-0">
               <v-text-field v-model="leftFilterRef" :label="$t('Filter')" required></v-text-field>
               <div>{{$t('ColumnsSelection.AvailableColumns')}}</div>
               <v-list nav dense style="max-height: 300px" class="overflow-y-auto">
@@ -20,13 +20,13 @@
                 </v-list-item-group>
               </v-list>
             </v-col>
-            <v-col cols="2" align="center">
+            <v-col cols="1" align="center">
               <v-btn class="mt-10" @click="moveFromLeft" :disabled="selectedLeftRef == null"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
               <v-btn class="mt-3" @click="moveFromRight" :disabled="selectedRightRef == null"><v-icon>mdi-arrow-left-bold-circle-outline</v-icon></v-btn>
               <v-btn class="mt-10" @click="moveFromLeftAll" :disabled="selectedLeftRef == null"><v-icon>mdi-arrow-right-bold-circle</v-icon></v-btn>
               <v-btn class="mt-3" @click="moveFromRightAll" :disabled="selectedRightRef == null"><v-icon>mdi-arrow-left-bold-circle</v-icon></v-btn>
             </v-col>
-            <v-col cols="5" class="pt-0">
+            <v-col cols="4" class="pt-0">
               <v-text-field v-model="rightFilterRef" :label="$t('Filter')" required></v-text-field>
               <div>{{$t('ColumnsSelection.SelectedColumns')}}</div>
               <v-list nav dense style="max-height: 300px" class="overflow-y-auto">
@@ -99,6 +99,7 @@ export default {
         const save = availableColumnsComputed.value.find(elem => elem.identifier === ident)
         const idx = availableColumnsRef.value.findIndex(elem => elem.identifier === save.identifier)
         availableColumnsRef.value.splice(idx, 1)
+        if (save.textShort) save.text = save.textShort
         selectedColumnsRef.value.push(save)
       })
       selectedLeftRef.value = []
@@ -110,6 +111,7 @@ export default {
         const save = selectedColumnsComputed.value.find(elem => elem.identifier === ident)
         const idx = selectedColumnsRef.value.findIndex(elem => elem.identifier === save.identifier)
         selectedColumnsRef.value.splice(idx, 1)
+        if (save.textLong) save.text = save.textLong
         availableColumnsRef.value.push(save)
       })
       selectedRightRef.value = []
@@ -121,6 +123,7 @@ export default {
         const save = availableColumnsComputed.value.find(elem => elem.identifier === ident)
         const idx = availableColumnsRef.value.findIndex(elem => elem.identifier === save.identifier)
         availableColumnsRef.value.splice(idx, 1)
+        if (save.textShort) save.text = save.textShort
         selectedColumnsRef.value.push(save)
       })
       selectedLeftRef.value = []
@@ -132,6 +135,7 @@ export default {
         const save = selectedColumnsComputed.value.find(elem => elem.identifier === ident)
         const idx = selectedColumnsRef.value.findIndex(elem => elem.identifier === save.identifier)
         selectedColumnsRef.value.splice(idx, 1)
+        if (save.textLong) save.text = save.textLong
         availableColumnsRef.value.push(save)
       })
       selectedRightRef.value = []
@@ -161,17 +165,18 @@ export default {
       const attrs = getAllItemsAttributes()
       for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i]
-        const nameText = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
+        const nameText = attr.identifier + ': ' + (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']') + ' [' + (attr.linkToGroup.name[currentLanguage.value.identifier] || attr.linkToGroup.name[defaultLanguageIdentifier.value]) + ']'
+        const nameShort = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
         if (attr.languageDependent) {
           for (let i = 0; i < languages.length; i++) {
             const lang = languages[i]
             const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-            const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameText + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
+            const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameText + langText, textLong: nameText + langText, textShort: nameShort + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
             if (attr.lov) data.lov = attr.lov
             arr.push(data)
           }
         } else {
-          const data = { identifier: 'attr_' + attr.identifier, text: nameText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
+          const data = { identifier: 'attr_' + attr.identifier, text: nameText, textLong: nameText, textShort: nameShort, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
           if (attr.lov) data.lov = attr.lov
           arr.push(data)
         }
