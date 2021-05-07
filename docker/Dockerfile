@@ -4,6 +4,7 @@ COPY ./src /web/src
 COPY ./public /web/public
 COPY ./package.json /web
 COPY ./package-lock.json /web
+COPY ./generate-buildno.js /web
 COPY ./vue.config.js /web
 COPY ./babel.config.js /web
 COPY ./.eslintrc.js /web
