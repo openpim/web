@@ -12,12 +12,13 @@
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
-        <v-treeview dense activatable hoverable :items="groups" item-children="attributes" @update:active="activeChanged" :active="activeRef" :open="openRef">
+        <v-text-field v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
+        <v-treeview :search="searchRef" :filter="filter" dense activatable hoverable :items="groups" item-children="attributes" @update:active="activeChanged" :active="activeRef" :open="openRef">
           <template v-slot:prepend="{ item }">
             <v-icon>{{ item.group ? 'mdi-format-list-bulleted-type' : 'mdi-alpha-a-box-outline' }}</v-icon>
           </template>
           <template v-slot:label="{ item }">
-            {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}
+            {{ (item.group ? '' : item.identifier + ' - ') + (item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' ) }}
          </template>
         </v-treeview>
       </v-col>
@@ -249,6 +250,8 @@ export default {
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
+    const searchRef = ref('')
+
     const attrDeletionRef = ref('link')
     const dialogRef = ref(false)
     const formRef = ref(null)
@@ -273,6 +276,11 @@ export default {
         return []
       }
     })
+
+    function filter (item, search, textKey) {
+      const s = search.toLowerCase()
+      return item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1))
+    }
 
     function editValid () {
       typeSelectionDialogRef.value.showDialog('valid', selectedRef.value.valid)
@@ -471,6 +479,8 @@ export default {
       tabRef,
       groups,
       activeChanged,
+      searchRef,
+      filter,
       add,
       remove,
       removeAttr,
