@@ -1,7 +1,7 @@
 <template>
 <div v-if="sourceRelations && targetRelations"> <!-- this is necessary to refrech computed itemRelations right way -->
   <v-expansion-panels popout multiple focusable :model="panels" class="mt-3">
-    <v-expansion-panel v-for="(rel, identifier, i) in itemRelations" :key="i" :set="canEditItemRelation = canEditItemRelationByIdentifier(identifier)">
+    <v-expansion-panel v-for="(rel, identifier, i) in itemRelations" :key="i">
       <v-expansion-panel-header class="pb-0">{{ getRelationName(identifier) }}</v-expansion-panel-header>
       <v-expansion-panel-content>
         <v-simple-table dense>
@@ -14,7 +14,7 @@
                   <th class="text-left" v-for="(attr, i) in getAttributesForRelation(identifier)" :key="i">
                     {{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}
                   </th>
-                  <th class="text-left" v-if="canEditItemRelation">
+                  <th class="text-left" v-if="canEditItemRelationByIdentifier(identifier)">
                     <v-tooltip top>
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" class="pa-0" icon color="primary" @click="add(identifier)"><v-icon dark>mdi-plus</v-icon></v-btn>
@@ -25,7 +25,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(itemRel, j) in rel" :key="j">
+                <tr v-for="(itemRel, j) in rel" :key="j" :set="canEditItemRelation = canEditItemRelationByIdentifier(identifier)">
                   <td class="pa-1"><input v-model="itemRel.identifier" :placeholder="$t('ItemRelationsList.Identifier')" :disabled="itemRel.id !== -1"></td>
                   <td class="pa-1">
                     <span v-if="componentType === 'source' && itemRel.target">
