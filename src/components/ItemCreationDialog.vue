@@ -77,7 +77,7 @@ export default {
       } else {
         const type = findType(selectedItemRef.value.typeId).node
         const types = type.children.map((type) => type.link !== 0 ? findType(type.link).node : type)
-        return types.filter(type => canEditItem(type.id))
+        return types.filter(type => canEditItem(type.id, selectedItemRef.value.path))
       }
     })
 
