@@ -9,7 +9,8 @@
           <v-row>
             <v-col cols="12">
               <!-- v-if here to force typesTree refresh, without this we have issues -->
-              <v-treeview v-if="typeSelectionDialogRef" dense selectable selection-type="independent" v-model="selectedItemsRef" @input="onSelect" hoverable :items="filteredTree">
+              <v-text-field v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
+              <v-treeview v-if="typeSelectionDialogRef" :search="searchRef" :filter="filter" dense selectable selection-type="independent" v-model="selectedItemsRef" @input="onSelect" hoverable :items="filteredTree">
                 <template v-slot:prepend="{ item }">
                     <v-icon v-if="item.icon" :color="item.iconColor">mdi-{{ item.icon }}</v-icon>
                 </template>
@@ -59,6 +60,13 @@ export default {
     const filteredTree = ref([])
     let initiator
 
+    const searchRef = ref('')
+
+    function filter (item, search, textKey) {
+      const s = search.toLowerCase()
+      return item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1))
+    }
+
     function filterData (arr) {
       var r = []
       arr.forEach((item) => {
@@ -106,6 +114,8 @@ export default {
     return {
       filteredTree,
       typeSelectionDialogRef,
+      searchRef,
+      filter,
       selected,
       selectedItemsRef,
       onSelect,

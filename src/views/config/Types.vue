@@ -12,7 +12,8 @@
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
-        <v-treeview dense activatable hoverable :items="typesTree" @update:active="activeChanged" :active="activeRef" :open="openRef">
+        <v-text-field v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
+        <v-treeview :search="searchRef" :filter="filter" dense activatable hoverable :items="typesTree" @update:active="activeChanged" :active="activeRef" :open="openRef">
           <template v-slot:prepend="{ item }">
             <v-icon v-if="item.icon" :color="item.iconColor">mdi-{{ item.icon }}</v-icon>
           </template>
@@ -140,6 +141,13 @@ export default {
     const openRef = ref([])
     const relSelectedRef = ref(null)
 
+    const searchRef = ref('')
+
+    function filter (item, search, textKey) {
+      const s = search.toLowerCase()
+      return item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1))
+    }
+
     const imageRelations = computed(() => {
       if (selectedRef.value.images) {
         return selectedRef.value.images.map(id => relations.find(rel => rel.id === id || rel.internalId === id))
@@ -266,6 +274,8 @@ export default {
     return {
       canViewConfigRef,
       canEditConfigRef,
+      searchRef,
+      filter,
       formRef,
       typesTree,
       selectedRef,
