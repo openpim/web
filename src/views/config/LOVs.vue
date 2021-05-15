@@ -12,9 +12,10 @@
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
+        <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
         <v-list nav dense>
           <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, i) in lovs" :key="i">
+            <v-list-item v-for="(item, i) in lovsFiltered" :key="i">
               <v-list-item-icon><v-icon>mdi-view-headline</v-icon></v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
@@ -23,7 +24,7 @@
           </v-list-item-group>
         </v-list>
       </v-col>
-      <v-col cols="9">
+      <v-col cols="9" v-if="selectedRef">
         <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id != -1">
           <div class="d-inline-flex align-center">
             <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Languages.Identifier')" required></v-text-field>
@@ -70,7 +71,7 @@
 </template>
 
 <script>
-import { ref, watch, onMounted } from '@vue/composition-api'
+import { ref, watch, onMounted, computed } from '@vue/composition-api'
 import * as langStore from '../../store/languages'
 import * as lovStore from '../../store/lovs'
 import * as errorStore from '../../store/error'
@@ -108,20 +109,21 @@ export default {
     const formRef = ref(null)
     const selectedRef = ref(empty)
     const itemRef = ref(null)
+    const searchRef = ref('')
 
     watch(itemRef, (selected, previous) => {
-      if (typeof (previous) === 'undefined') return
-
+      // if (typeof (previous) === 'undefined') return
       if (selected == null) {
         selectedRef.value = empty
         router.push('/config/lovs')
         return
       }
-      if (selected < lovs.length) {
-        if (previous && lovs[previous].internalId === 0) {
+      const arr = lovsFiltered.value
+      if (selected < arr.length) {
+        if (previous && arr[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
-        selectedRef.value = lovs[selected]
+        selectedRef.value = arr[selected]
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
           router.push('/config/lovs/' + selectedRef.value.identifier)
         } else {
@@ -129,6 +131,18 @@ export default {
         }
       }
     })
+
+    const lovsFiltered = computed(() => {
+      if (!searchRef.value) return lovs
+
+      const s = searchRef.value.toLowerCase()
+      return lovs.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
+    })
+
+    function clearSelection () {
+      selectedRef.value = null
+      itemRef.value = null
+    }
 
     function addValue () {
       const val = {}
@@ -195,6 +209,9 @@ export default {
       canEditConfigRef,
       formRef,
       lovs,
+      lovsFiltered,
+      clearSelection,
+      searchRef,
       selectedRef,
       itemRef,
       add,
