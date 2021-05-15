@@ -54,8 +54,8 @@
       </v-menu>
 
       <!-- LOV -->
-      <v-select v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"></v-select>
-      <v-select v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"></v-select>
+      <v-select @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"></v-select>
+      <v-select @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"></v-select>
 
       <!-- URL -->
       <template v-if="attr.type === AttributeType.URL && !attr.languageDependent">
@@ -134,10 +134,10 @@
       </v-menu>
 
       <!-- LOV -->
-      <select v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :disabled="attr.readonly" v-model="values[attr.identifier]">
+      <select @change="lovChanged" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :disabled="attr.readonly" v-model="values[attr.identifier]">
         <option v-for="(elem,i) in lovSelection" :key="i" :value="elem.value">{{elem.text}}</option>
       </select>
-      <select v-if="attr.type === AttributeType.LOV && attr.languageDependent" :disabled="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]">
+      <select @change="lovChanged" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :disabled="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]">
         <option v-for="(elem,i) in lovSelection" :key="i" :value="elem.value">{{elem.text}}</option>
       </select>
 
@@ -157,11 +157,12 @@
 <script>
 import * as langStore from '../store/languages'
 import * as lovStore from '../store/lovs'
-import { ref, computed, onMounted } from '@vue/composition-api'
+import { ref, computed, onMounted, onUnmounted } from '@vue/composition-api'
 import LanguageDependentField from './LanguageDependentField'
 import AttributeType from '../constants/attributeTypes'
 import i18n from '../i18n'
 import XRegExp from 'xregexp'
+import eventBus from '../eventBus'
 
 // NOTE: We don't use @ckeditor/ckeditor5-build-classic any more!
 // Since we're building CKEditor from source, we use the source version of ClassicEditor.
@@ -213,7 +214,12 @@ export default {
     } = lovStore.useStore()
 
     const lovSelection = computed(() => {
-      const arr = lovData.value.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
+      let values = lovData.value
+      if (lovFilterRef.value) {
+        debugger
+        values = values.filter(elem => elem.filter === lovFilterRef.value)
+      }
+      const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
       if (arr.length > 0) {
         arr.unshift({ value: 0, text: '' })
       }
@@ -226,6 +232,7 @@ export default {
     const time = ref(null)
     const errors = ref([])
     const validRef = ref(true)
+    const lovFilterRef = ref(null)
 
     const lovData = ref([])
 
@@ -270,12 +277,30 @@ export default {
       window.open(url)
     }
 
+    function lovChanged () {
+      const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
+      const data = { attr: props.attr.identifier, lov: props.attr.lov, value: val }
+      eventBus.emit('lov_value_changed', data)
+    }
+
     onMounted(() => {
+      const tst = props.attr.options.find(opt => opt.name === 'lovFilter')
+      const lovFilter = tst ? parseInt(tst.value) : null
+      eventBus.on('lov_value_changed', evt => {
+        if (lovFilter && evt.lov === lovFilter) {
+          lovFilterRef.value = evt.value
+        }
+      })
+
       if (props.attr.type === AttributeType.LOV && props.attr.lov) {
         getLOVData(props.attr.lov).then((data) => {
           lovData.value = data
         })
       }
+    })
+
+    onUnmounted(() => {
+      eventBus.off('lov_value_changed')
     })
 
     return {
@@ -290,6 +315,7 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       lovSelection,
+      lovChanged,
       AttributeType,
       editor: ClassicEditor,
       editorConfigReadonly: {

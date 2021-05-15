@@ -170,6 +170,7 @@
   "Config.LOV.Confirm.Delete": "Remove list of values {name}?",
   "Config.LOV.ID": "Id",
   "Config.LOV.Value": "Value",
+  "Config.LOV.Filter": "Filter",
   "Config.Actions": "Actions",
   "Config.Actions.Title": "Actions",
   "Config.Actions.NewName": "New action",

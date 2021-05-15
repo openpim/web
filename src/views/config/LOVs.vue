@@ -40,7 +40,8 @@
                   <th class="text-left">{{$t('Config.LOV.ID')}}</th>
                   <th class="text-left">{{$t('Config.LOV.Value')}}</th>
                   <th class="text-left">
-                    <v-tooltip top v-if="canEditConfigRef">
+                    {{$t('Config.LOV.Filter')}}
+                    <v-tooltip top v-if="canEditConfigRef" class="ml-4">
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" class="pa-0" icon color="primary" @click="addValue"><v-icon dark>mdi-plus</v-icon></v-btn>
                       </template>
@@ -54,8 +55,11 @@
                   <td class="pa-1">
                     <input v-model="elem.id" type="number" :placeholder="$t('Config.LOV.ID')">
                   </td>
-                  <td class="pa-1" colspan="2">
+                  <td class="pa-1">
                     <input v-model="elem.value[currentLanguage.identifier]" :placeholder="$t('Config.LOV.Value')">
+                  </td>
+                  <td class="pa-1">
+                    <input v-model="elem.filter" type="number" :placeholder="$t('Config.LOV.Filter')">
                   </td>
                 </tr>
               </tbody>
@@ -147,7 +151,7 @@ export default {
     function addValue () {
       const val = {}
       val[currentLanguage.value.identifier] = ''
-      selectedRef.value.values.push({ id: 0, value: val })
+      selectedRef.value.values.push({ id: 0, value: val, filter: null })
     }
 
     function add () {
