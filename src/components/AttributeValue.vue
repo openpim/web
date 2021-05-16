@@ -216,7 +216,6 @@ export default {
     const lovSelection = computed(() => {
       let values = lovData.value
       if (lovFilterRef.value) {
-        debugger
         values = values.filter(elem => elem.filter === lovFilterRef.value)
       }
       const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
