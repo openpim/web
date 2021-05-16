@@ -24,6 +24,7 @@
                   </td>
                   <td class="pa-1" colspan="2">
                     <input v-model="elem.value" :placeholder="$t('OptionsTable.Name')">
+                    <v-btn class="pa-0" icon color="primary" @click="removeValue(j)"><v-icon dark>mdi-close-circle-outline</v-icon></v-btn>
                   </td>
                 </tr>
               </tbody>
@@ -45,8 +46,13 @@ export default {
       props.options.push({ name: '', value: '' })
     }
 
+    function removeValue (idx) {
+      props.options.splice(idx, 1)
+    }
+
     return {
-      addValue
+      addValue,
+      removeValue
     }
   }
 }
