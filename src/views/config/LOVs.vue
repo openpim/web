@@ -53,13 +53,14 @@
               <tbody>
                 <tr v-for="(elem, j) in selectedRef.values" :key="j">
                   <td class="pa-1">
-                    <input v-model="elem.id" type="number" :placeholder="$t('Config.LOV.ID')">
+                    <input v-model="elem.id" type="number" :placeholder="$t('Config.LOV.ID')"/>
                   </td>
                   <td class="pa-1">
-                    <input v-model="elem.value[currentLanguage.identifier]" :placeholder="$t('Config.LOV.Value')">
+                    <input v-model="elem.value[currentLanguage.identifier]" :placeholder="$t('Config.LOV.Value')"/>
                   </td>
                   <td class="pa-1">
-                    <input v-model="elem.filter" type="number" :placeholder="$t('Config.LOV.Filter')">
+                    <input v-model="elem.filter" type="number" :placeholder="$t('Config.LOV.Filter')"/>
+                    <v-btn class="pa-0" icon color="primary" @click="removeValue(j)"><v-icon dark>mdi-close-circle-outline</v-icon></v-btn>
                   </td>
                 </tr>
               </tbody>
@@ -174,6 +175,10 @@ export default {
       }
     }
 
+    function removeValue (idx) {
+      selectedRef.value.values.splice(idx, 1)
+    }
+
     onMounted(() => {
       loadAllLOVs().then(() => {
         canViewConfigRef.value = canViewConfig('lovs')
@@ -222,6 +227,7 @@ export default {
       remove,
       save,
       addValue,
+      removeValue,
       currentLanguage,
       defaultLanguageIdentifier,
       identifierRules: [
