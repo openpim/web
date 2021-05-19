@@ -74,15 +74,23 @@ export default {
     })
 
     function activeChanged (active) {
+      const save = selectedRef.value
       if (active.length !== 0) {
         if (active[0] !== selectedRef.value.id) {
-          activeRef.value[0] = active[0]
-          selectedRef.value = findItem(active[0]).node
-          router.push((selectedRef.value.identifier ? '/item/' + selectedRef.value.identifier : ''))
+          const node = findItem(active[0]).node
+          router.push((node.identifier ? '/item/' + node.identifier : '')).then(() => {
+            selectedRef.value = node
+            activeRef.value = [active[0]]
+          }).catch((err) => {
+            if (err.message === 'NOT_SAVED') activeRef.value = save.identifier ? [save.id] : []
+          })
         }
       } else {
-        selectedRef.value = { id: -1 }
-        router.push('/')
+        router.push('/').then(() => {
+          selectedRef.value = { id: -1 }
+        }).catch((err) => {
+          if (err.message === 'NOT_SAVED') activeRef.value = save.identifier ? [save.id] : []
+        })
       }
     }
 
