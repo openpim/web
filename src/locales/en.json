@@ -385,5 +385,6 @@
   "Router.Changed.NotSaved": "You have the following data not saved:",
   "Router.Changed.Continue": "Do you want to continue (all changes can be lost)?",
   "Router.Changed.Name": "Name",
-  "Router.Changed.Attribute": "Changed attribute values"
+  "Router.Changed.Attribute": "Changed attribute values",
+  "Router.Changed.ItemRelation": "Changed relations with identifier: "
 }

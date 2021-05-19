@@ -385,5 +385,6 @@
   "Router.Changed.NotSaved": "Вы еще не сохранили следующие данные:",
   "Router.Changed.Continue": "Хотите продолжить (все изменения могут быть потеряны)?",
   "Router.Changed.Name": "Наименование",
-  "Router.Changed.Attribute": "Измененные значения атрибутов"
+  "Router.Changed.Attribute": "Измененные значения атрибутов",
+  "Router.Changed.ItemRelation": "Измененная зависимость с идентификатором: "
 }

@@ -38,13 +38,13 @@
                     </span>
                     <v-tooltip top v-if="canEditItemRelation">
                       <template v-slot:activator="{ on }">
-                      <v-btn v-on="on" class="pa-0 inline" icon @click="select(identifier, itemRel.id)"><v-icon dark>mdi-form-select</v-icon></v-btn>
+                      <v-btn v-on="on" class="pa-0 inline" icon @click="select(identifier, itemRel)"><v-icon dark>mdi-form-select</v-icon></v-btn>
                       </template>
                       <span>{{ $t('Select') }}</span>
                     </v-tooltip>
                   </td>
                   <td class="text-left" v-for="(attr, i) in getAttributesForRelation(identifier)" :key="i">
-                    <AttributeValue :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
+                    <AttributeValue @input="attrChange(itemRel.identifier)" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
                   </td>
                   <td class="pa-1" v-if="canEditItemRelation">
                     <v-tooltip top>
@@ -131,6 +131,7 @@ import * as userStore from '../store/users'
 import AttributeValue from './AttributeValue'
 import SystemInformation from './SystemInformation'
 import HistoryTable from '../components/HistoryTable'
+import router from '../router'
 
 export default {
   components: { ItemsSelectionDialog, AttributeValue, SystemInformation, HistoryTable },
@@ -311,6 +312,7 @@ export default {
           } else {
             // create
             saveItemRelation(itemRel).then(() => {
+              router.clearDataChanged(itemRel.identifier)
               showInfo(i18n.t('Saved'))
             })
           }
@@ -318,6 +320,7 @@ export default {
       } else {
         // update
         saveItemRelation(itemRel).then(() => {
+          router.clearDataChanged(itemRel.identifier)
           showInfo(i18n.t('Saved'))
         })
       }
@@ -329,8 +332,8 @@ export default {
       }
     }
 
-    function select (identifier, id) {
-      itemSelectionDialogRef.value.showDialog({ identifier: identifier, itemRelId: id })
+    function select (identifier, itemRel) {
+      itemSelectionDialogRef.value.showDialog({ identifier: identifier, itemRelId: itemRel.id, itemRelIdentifier: itemRel.identifier })
     }
 
     function itemsSelected (id, parameters) {
@@ -345,8 +348,13 @@ export default {
             itemRels[parameters.identifier].forEach(itemRel => {
               if (itemRel.id === parameters.itemRelId) {
                 root.$set(itemRel, props.componentType === 'source' ? 'target' : 'item', items[0])
-                const newIdentifier = props.componentType === 'source' ? props.item.identifier + '_' + items[0].identifier + '_' + nextId : items[0].identifier + '_' + props.item.identifier + '_' + nextId
-                root.$set(itemRel, 'identifier', newIdentifier)
+                if (!itemRel.identifier) {
+                  const newIdentifier = props.componentType === 'source' ? props.item.identifier + '_' + items[0].identifier + '_' + nextId : items[0].identifier + '_' + props.item.identifier + '_' + nextId
+                  root.$set(itemRel, 'identifier', newIdentifier)
+                  router.dataChanged(newIdentifier, i18n.t('Router.Changed.ItemRelation') + newIdentifier)
+                } else {
+                  router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
+                }
               }
             })
           } else {
@@ -354,6 +362,10 @@ export default {
           }
         })
       })
+    }
+
+    function attrChange (itemRelIdent) {
+      router.dataChanged(itemRelIdent, i18n.t('Router.Changed.ItemRelation') + itemRelIdent)
     }
 
     function getAttributesForRelation (identifier) {
@@ -382,6 +394,7 @@ export default {
       select,
       itemSelectionDialogRef,
       itemsSelected,
+      attrChange,
       pagesSource,
       pagesTarget,
       pageSize,
