@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import * as userStore from '../store/users'
 import * as rolesStore from '../store/roles'
+import i18n from '../i18n'
 // import jwtDecode from 'jwt-decode'
 
 Vue.use(VueRouter)
@@ -272,7 +273,29 @@ const router = new VueRouter({
   routes
 })
 
+router.preventRoute = {}
+router.dataChanged = function (dataId, text) {
+  router.preventRoute[dataId] = text
+}
+router.clearDataChanged = function (dataId) {
+  delete router.preventRoute[dataId]
+}
+
 router.beforeEach((to, from, next) => {
+  if (Object.keys(router.preventRoute).length > 0) {
+    let text = i18n.t('Router.Changed.NotSaved') + '\n'
+    let idx = 1
+    for (var prop in router.preventRoute) {
+      text += (idx++) + '. ' + router.preventRoute[prop] + '\n'
+    }
+    text += i18n.t('Router.Changed.Continue')
+
+    if (!window.confirm(text)) {
+      return
+    } else {
+      router.preventRoute = {}
+    }
+  }
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const item = localStorage.getItem('token')
     if (item) {

@@ -2,39 +2,39 @@
 <div>
     <div v-if="!dense">
       <!-- Text -->
-      <v-text-field @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
-      <LanguageDependentField  @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && attr.languageDependent" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :errors="errors"></LanguageDependentField>
+      <v-text-field @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
+      <LanguageDependentField @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && attr.languageDependent" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :errors="errors"></LanguageDependentField>
 
-      <v-textarea @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && !attr.languageDependent" :rows="3" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-textarea>
-      <v-textarea @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="3" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :error-messages="errors"></v-textarea>
+      <v-textarea @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && !attr.languageDependent" :rows="3" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-textarea>
+      <v-textarea @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="3" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :error-messages="errors"></v-textarea>
 
       <label v-if="attr.type === AttributeType.Text && attr.richText">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
-      <ckeditor v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :disabled="attr.readonly" :editor="editor" :config="attr.readonly?  editorConfigReadonly : editorConfig" v-model="values[attr.identifier]"></ckeditor>
-      <ckeditor v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent"  :disabled="attr.readonly" :editor="editor" :config="attr.readonly?  editorConfigReadonly : editorConfig" v-model="values[attr.identifier][currentLanguage.identifier]"></ckeditor>
+      <ckeditor @input="attrInput" v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :disabled="attr.readonly" :editor="editor" :config="attr.readonly?  editorConfigReadonly : editorConfig" v-model="values[attr.identifier]"></ckeditor>
+      <ckeditor @input="attrInput" v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent"  :disabled="attr.readonly" :editor="editor" :config="attr.readonly?  editorConfigReadonly : editorConfig" v-model="values[attr.identifier][currentLanguage.identifier]"></ckeditor>
       <br v-if="attr.type === AttributeType.Text && attr.richText"/>
 
       <!-- Boolean -->
-      <v-checkbox v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-checkbox>
-      <v-checkbox v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-checkbox>
+      <v-checkbox @input="attrInput" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-checkbox>
+      <v-checkbox @input="attrInput" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-checkbox>
 
       <!-- Integer -->
-      <v-text-field @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
-      <v-text-field @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
+      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
+      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
 
       <!-- Float -->
-      <v-text-field @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
-      <v-text-field @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
+      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
+      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
 
       <!-- Date -->
       <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && !attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+          <v-text-field @input="attrInput" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
         </template>
         <v-date-picker v-model="values[attr.identifier]" @input="dateMenu = false"></v-date-picker>
       </v-menu>
       <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+          <v-text-field  @input="attrInput" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
         </template>
         <v-date-picker v-model="values[attr.identifier][currentLanguage.identifier]" @input="dateMenu = false"></v-date-picker>
       </v-menu>
@@ -42,30 +42,30 @@
       <!-- Time -->
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && !attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
+          <v-text-field @input="attrInput" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
         </template>
         <v-time-picker v-if="timeMenu" v-model="values[attr.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
       </v-menu>
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
+          <v-text-field @input="attrInput" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
         </template>
         <v-time-picker v-if="timeMenu" v-model="values[attr.identifier][currentLanguage.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
       </v-menu>
 
       <!-- LOV -->
-      <v-select @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"></v-select>
-      <v-select @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"></v-select>
+      <v-select @input="attrInput" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"></v-select>
+      <v-select @input="attrInput" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"></v-select>
 
       <!-- URL -->
       <template v-if="attr.type === AttributeType.URL && !attr.languageDependent">
         <v-container v-if="!attr.readonly" class="pa-0">
           <v-row>
             <v-col cols="6">
-              <v-text-field @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier])" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-text-field>
+              <v-text-field @input="attrInput" @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier])" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-text-field>
             </v-col>
             <v-col cols="6">
-              <v-text-field @blur="attrBlur" v-model="values[attr.identifier + '_text']" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
+              <v-text-field @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier + '_text']" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
             </v-col>
           </v-row>
         </v-container>
@@ -76,10 +76,10 @@
         <v-container v-if="!attr.readonly" class="pa-0">
           <v-row>
             <v-col cols="6">
-              <v-text-field @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier][currentLanguage.identifier])" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-text-field>
+              <v-text-field @input="attrInput" @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier][currentLanguage.identifier])" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-text-field>
             </v-col>
             <v-col cols="6">
-              <v-text-field @blur="attrBlur" v-model="values[attr.identifier + '_text'][currentLanguage.identifier]" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
+              <v-text-field @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier + '_text'][currentLanguage.identifier]" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
             </v-col>
           </v-row>
         </v-container>
@@ -90,31 +90,31 @@
     </div>
     <div v-else>
       <!-- Text -->
-      <input @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
-      <input @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
 
       <!-- Boolean -->
-      <input type="checkbox" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
-      <input type="checkbox" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput" type="checkbox" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput" type="checkbox" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
 
       <!-- Integer -->
-      <input type="number" step="1" pattern="\d+" @blur="attrBlur"  v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
-      <input type="number" step="1" pattern="\d+" @blur="attrBlur"  v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput" type="number" step="1" pattern="\d+" @blur="attrBlur"  v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput" type="number" step="1" pattern="\d+" @blur="attrBlur"  v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
 
       <!-- Float -->
-      <input type="number" @blur="attrBlur"  v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
-      <input type="number" @blur="attrBlur"  v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput" type="number" @blur="attrBlur"  v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput" type="number" @blur="attrBlur"  v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
 
       <!-- Date -->
       <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && !attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
         <template v-slot:activator="{ on }">
-          <input v-model="values[attr.identifier]" readonly v-on="on">
+          <input @change="attrInput" v-model="values[attr.identifier]" readonly v-on="on">
         </template>
         <v-date-picker v-model="values[attr.identifier]" @input="dateMenu = false"></v-date-picker>
       </v-menu>
       <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
         <template v-slot:activator="{ on }">
-          <input v-model="values[attr.identifier][currentLanguage.identifier]" readonly v-on="on">
+          <input @change="attrInput" v-model="values[attr.identifier][currentLanguage.identifier]" readonly v-on="on">
         </template>
         <v-date-picker v-model="values[attr.identifier][currentLanguage.identifier]" @input="dateMenu = false"></v-date-picker>
       </v-menu>
@@ -122,13 +122,13 @@
       <!-- Time -->
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && !attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
         <template v-slot:activator="{ on }">
-          <input v-model="values[attr.identifier]" readonly v-on="on">
+          <input @change="attrInput" v-model="values[attr.identifier]" readonly v-on="on">
         </template>
         <v-time-picker v-if="timeMenu" v-model="values[attr.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
       </v-menu>
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
         <template v-slot:activator="{ on }">
-          <input v-model="values[attr.identifier][currentLanguage.identifier]" readonly v-on="on">
+          <input @change="attrInput" v-model="values[attr.identifier][currentLanguage.identifier]" readonly v-on="on">
         </template>
         <v-time-picker v-if="timeMenu" v-model="values[attr.identifier][currentLanguage.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
       </v-menu>
@@ -143,11 +143,11 @@
 
       <!-- URL -->
       <template v-if="attr.type === AttributeType.URL && !attr.languageDependent">
-        <input @blur="attrBlur" v-if="!attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+        <input @change="attrInput" @blur="attrBlur" v-if="!attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
         <a v-if="attr.readonly" :href="values[attr.identifier]" target="_blank">{{values[attr.identifier]}}</a>
       </template>
       <template v-if="attr.type === AttributeType.URL && attr.languageDependent">
-        <input @blur="attrBlur" v-if="!attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+        <input @change="attrInput" @blur="attrBlur" v-if="!attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
         <a v-if="attr.readonly" :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier][currentLanguage.identifier]}}</a>
       </template>
 
@@ -239,6 +239,10 @@ export default {
       return validRef.value
     }
 
+    function attrInput (val) {
+      emit('input', val)
+    }
+
     function attrBlur () {
       errors.value = []
       validRef.value = true
@@ -280,6 +284,7 @@ export default {
       const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
       const data = { attr: props.attr.identifier, lov: props.attr.lov, value: val }
       eventBus.emit('lov_value_changed', data)
+      attrInput(val)
     }
 
     onMounted(() => {
@@ -304,6 +309,7 @@ export default {
 
     return {
       attrBlur,
+      attrInput,
       errors,
       dateMenu,
       timeMenu,

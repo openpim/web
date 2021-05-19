@@ -50,7 +50,7 @@
           <FirstTabsItemComponent></FirstTabsItemComponent>
           <v-tab-item> <!-- Attributes -->
             <v-text-field class="pt-4 pb-0 pr-5 pl-5" v-model="itemRef.identifier" readonly :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
-            <LanguageDependentField class="pb-0 pr-5 pl-5" :values="itemRef.name" v-model="itemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')"></LanguageDependentField>
+            <LanguageDependentField class="pb-0 pr-5 pl-5" @input="nameInput" :values="itemRef.name" v-model="itemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')"></LanguageDependentField>
             <v-card flat>
               <v-card-text class="pt-2 pl-0 pr-0">
 
@@ -64,7 +64,7 @@
                         <v-row no-gutters>
                           <template v-for="(attr,i) in group.itemAttributes">
                             <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
-                              <AttributeValue :ref="el => { attributeValues[i] = el }" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
+                              <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
                             </v-col>
                             <v-col :key="i+1000" v-if="getOption(attr, 'space', null)" :cols="getOption(attr, 'space', null)">
                             </v-col>
@@ -408,6 +408,14 @@ export default {
       return arr
     })
 
+    function nameInput () {
+      router.dataChanged(itemRef.value.identifier + '_name', i18n.t('Router.Changed.Name'))
+    }
+
+    function attrInput () {
+      router.dataChanged(itemRef.value.identifier, i18n.t('Router.Changed.Attribute'))
+    }
+
     function save () {
       // TODO !!! not working yet https://composition-api.vuejs.org/api.html#template-refs
       for (let i = 0; i < attributeValues.value.length; i++) {
@@ -415,6 +423,8 @@ export default {
         if (!attrVal.isValid()) return
       }
       updateItem(itemRef.value).then(() => {
+        router.clearDataChanged(itemRef.value.identifier + '_name')
+        router.clearDataChanged(itemRef.value.identifier)
         showInfo(i18n.t('Saved'))
       })
     }
@@ -621,6 +631,8 @@ export default {
       parents,
       tabRef,
       attrGroups,
+      nameInput,
+      attrInput,
       save,
       move,
       duplicate,

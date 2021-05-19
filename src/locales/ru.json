@@ -381,5 +381,9 @@
   "ColumnsSaveDialog.IdentifierRequired": "Не введен идентификатор",
   "ColumnsSaveDialog.IdentifierNotUnique": "Такой идентификатор уже существует",
   "ColumnsSaveDialog.NameRequired": "Не введено наименование",
-  "ColumnsSaveDialog.Confirm.Remove": "Вы хотите удалить эту конфигурацию?"
+  "ColumnsSaveDialog.Confirm.Remove": "Вы хотите удалить эту конфигурацию?",
+  "Router.Changed.NotSaved": "Вы еще не сохранили следующие данные:",
+  "Router.Changed.Continue": "Хотите продолжить (все изменения могут быть потеряны)?",
+  "Router.Changed.Name": "Наименование",
+  "Router.Changed.Attribute": "Измененные значения атрибутов"
 }
