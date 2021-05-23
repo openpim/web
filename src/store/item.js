@@ -178,6 +178,8 @@ const actions = {
         identifier
         parentIdentifier
         typeIdentifier
+        typeId
+        path
         name
         values
         fileOrigName
@@ -218,7 +220,7 @@ const actions = {
   },
   updateItem: async (item) => {
     const query = `
-      mutation { updateItem(id: "` + item.internalId + '", name: ' + (item.name ? objectToGraphgl(item.name) : '') +
+      mutation { updateItem(id: "` + item.internalId + '" ' + (item.name ? ', name: ' + objectToGraphgl(item.name) : '') +
       ', values: ' + (item.values ? objectToGraphgl(item.values) : null) +
       `)
     }`
@@ -375,6 +377,8 @@ const actions = {
                   identifier
                   parentIdentifier
                   typeIdentifier
+                  typeId
+                  path
                   name
                   values
                   fileOrigName

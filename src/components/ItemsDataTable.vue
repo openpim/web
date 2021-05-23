@@ -51,12 +51,40 @@
       class="elevation-1">
     <template v-slot:item="{ item, headers }">
       <tr>
-        <td v-for="(header, i) in headers" :key="i">
+        <td v-for="(header, i) in headers" :key="i" @click="cellClicked(item, header)">
           <router-link v-if="header.identifier === 'identifier'" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
 
           <v-img v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="50" max-height="50"></v-img>
 
-          <span v-if="header.identifier !== 'identifier' &&  header.identifier !== '#thumbnail#'">{{ getValue(item, header) }}</span>
+          <template v-if="header.identifier !== 'identifier' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
+            <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
+            <span v-else>{{ getValue(item, header) }}</span>
+          </template>
+
+          <template v-if="inplaceItem && item.identifier === inplaceItem.identifier && header.identifier === inplaceHeader.identifier">
+            <!-- Text, Integer, Float, URL-->
+            <v-text-field v-if="!inplaceAttribute || (inplaceAttribute.type===AttributeType.Text || inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float || inplaceAttribute.type===AttributeType.URL)"
+              :type="inplaceAttribute && (inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float) ? 'number' : 'text'"
+              @blur="inplaceBlur" autofocus dense v-model="inplaceValue" required></v-text-field>
+            <!-- Boolean-->
+            <v-checkbox v-if="inplaceAttribute && inplaceAttribute.type===AttributeType.Boolean" @click.stop="inplaceBlur" autofocus dense v-model="inplaceValue" required></v-checkbox>
+            <!-- LOV-->
+            <v-select v-if="inplaceAttribute && inplaceAttribute.type===AttributeType.LOV" @blur="inplaceBlur" @click.stop="" autofocus dense v-model="inplaceValue" required :items="inplaceLovSelection"></v-select>
+            <!-- Date-->
+            <v-menu v-model="dateMenu" v-if="inplaceAttribute && inplaceAttribute.type===AttributeType.Date" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
+              <template v-slot:activator="{ on }">
+                <v-text-field v-model="inplaceValue" autofocus prepend-icon="mdi-calendar" readonly v-on="on"></v-text-field>
+              </template>
+              <v-date-picker v-model="inplaceValue" @input="dateMenu = false; inplaceBlur()"></v-date-picker>
+            </v-menu>
+            <!-- Time-->
+            <v-menu ref="timeMenuRef" v-if="inplaceAttribute && inplaceAttribute.type===AttributeType.Time" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
+              <template v-slot:activator="{ on }">
+                <v-text-field v-model="inplaceValue" autofocus prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
+              </template>
+              <v-time-picker v-if="timeMenu" v-model="values[attr.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time); inplaceBlur()"></v-time-picker>
+            </v-menu>
+          </template>
         </td>
       </tr>
     </template>
@@ -102,10 +130,12 @@ import * as lovsStore from '../store/lovs'
 import * as errorStore from '../store/error'
 import * as userStore from '../store/users'
 import * as searchStore from '../store/search'
+import * as attrStore from '../store/attributes'
 import i18n from '../i18n'
-import { ref, onMounted, watch } from '@vue/composition-api'
+import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 import ColumnsSaveDialog from './ColumnsSaveDialog'
+import AttributeType from '../constants/attributeTypes'
 import XLSX from 'xlsx'
 
 export default {
@@ -122,9 +152,11 @@ export default {
   setup (props, { emit, root }) {
     const { showError, showInfo } = errorStore.useStore()
 
-    const { currentUserRef, hasAccess } = userStore.useStore()
+    const { currentUserRef, hasAccess, canEditItem, canEditAttrGroup } = userStore.useStore()
 
     const { savedColumnsRef, loadAllSavedColumns } = searchStore.useStore()
+
+    const { findByIdentifier } = attrStore.useStore()
 
     const {
       languages,
@@ -134,7 +166,8 @@ export default {
 
     const {
       loadThumbnails,
-      importItems
+      importItems,
+      updateItem
     } = itemStore.useStore()
 
     const {
@@ -159,6 +192,73 @@ export default {
     const lovsMap = {}
     const savedColumnsSelectionRef = ref(null)
     const savedColumnsOptionsRef = ref([])
+
+    // dor inplace editing
+    const inplaceItem = ref(null)
+    const inplaceHeader = ref(null)
+    const inplaceValue = ref(null)
+    let inplaceValueSave = null
+    const inplaceAttribute = ref(null)
+    const dateMenu = ref(false)
+    const timeMenu = ref(false)
+    const timeMenuRef = ref(null)
+    const time = ref(null)
+
+    function cellClicked (item, header) {
+      if (!canEditItem(item.typeId, item.path)) return
+
+      if (typeof header.value === 'object') { // name or values
+        if (header.value.path[0] === 'values') {
+          const node = findByIdentifier(header.value.path[1])
+          if (!canEditAttrGroup(node.groups[0].id)) return
+          inplaceAttribute.value = node.item
+        } else {
+          inplaceAttribute.value = null
+        }
+        inplaceItem.value = item
+        inplaceHeader.value = header
+        inplaceValue.value = getValue(item, header, true)
+        inplaceValueSave = inplaceValue.value
+      }
+    }
+
+    function inplaceBlur () {
+      if (inplaceValueSave !== inplaceValue.value) {
+        const itemToUpdate = { internalId: inplaceItem.value.id }
+        const valPath = inplaceHeader.value.value.path
+        if (valPath[0] === 'values') {
+          itemToUpdate.values = {}
+          if (valPath.length === 3) {
+            if (!inplaceItem.value.values[valPath[1]]) inplaceItem.value.values[valPath[1]] = {}
+            inplaceItem.value.values[valPath[1]][valPath[2]] = inplaceValue.value
+            itemToUpdate.values[valPath[1]] = {}
+            itemToUpdate.values[valPath[1]][valPath[2]] = inplaceValue.value
+          } else {
+            inplaceItem.value.values[valPath[1]] = inplaceValue.value
+            itemToUpdate.values[valPath[1]] = inplaceValue.value
+          }
+        } else {
+          // name
+          inplaceItem.value.name[valPath[1]] = inplaceValue.value
+          itemToUpdate.name = {}
+          itemToUpdate.name[valPath[1]] = inplaceValue.value
+        }
+        updateItem(itemToUpdate)
+      }
+      inplaceAttribute.value = null
+      inplaceItem.value = null
+      inplaceHeader.value = null
+      inplaceValue.value = null
+    }
+
+    const inplaceLovSelection = computed(() => {
+      if (inplaceAttribute.value && inplaceAttribute.value.lov) {
+        const lovValues = lovsMap[inplaceAttribute.value.lov]
+        return lovValues.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
+      } else {
+        return []
+      }
+    })
 
     watch(savedColumnsSelectionRef, (val) => {
       if (val) {
@@ -498,10 +598,10 @@ export default {
       return thumbnailsRef.value.find(elem => elem.itemId === ('' + id))
     }
 
-    function getValue (item, header) {
+    function getValue (item, header, skipLOV) {
       if (typeof header.value === 'object') {
         let val = getDeepValue(header.value.path, item)
-        if (header.lov) {
+        if (header.lov && !skipLOV) {
           const lovValues = lovsMap[header.lov]
           if (lovValues) {
             const tst = lovValues.find(elem => elem.id === val)
@@ -571,6 +671,18 @@ export default {
     return {
       columnsSelectionDialogRef,
       columnsSaveDialogRef,
+      cellClicked,
+      inplaceItem,
+      inplaceHeader,
+      inplaceAttribute,
+      inplaceValue,
+      inplaceBlur,
+      inplaceLovSelection,
+      dateMenu,
+      timeMenu,
+      timeMenuRef,
+      time,
+      AttributeType,
       loadColumns,
       itemsRef,
       totalItemsRef,

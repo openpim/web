@@ -213,7 +213,26 @@ const actions = {
       }
     }
     return access === -1 || access > 1
+  },
+  canEditAttrGroup: (attrGroupId) => {
+    if (!currentUserRef.value) return false
+    if (currentRoles.length === 0) {
+      console.error('Roles are not loaded !!!')
+      return false
+    }
+
+    let access = -1
+    for (let i = 0; i < currentRoles.length; i++) {
+      const role = currentRoles[i]
+      if (role.itemAccess.groups) {
+        role.itemAccess.groups.forEach(grp => {
+          if (grp.groupId === attrGroupId && grp.access > access) access = grp.access
+        })
+      }
+    }
+    return access === -1 || access > 1
   }
+
 }
 
 const store = {
