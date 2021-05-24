@@ -152,7 +152,9 @@ export default {
     function addValue () {
       const val = {}
       val[currentLanguage.value.identifier] = ''
-      selectedRef.value.values.push({ id: 0, value: val, filter: null })
+      let max = selectedRef.value.values.reduce((accumulator, currentValue) => Math.max(accumulator, currentValue.id), 0)
+      if (!max) max = 0
+      selectedRef.value.values.push({ id: ++max, value: val, filter: null })
     }
 
     function add () {
