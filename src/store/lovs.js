@@ -7,7 +7,7 @@ const lovs = reactive([])
 
 const actions = {
   getLOVData: async (id) => {
-    const data = await serverFetch('query { getLOV(id: "' + id + '") { values { id value filter } } }')
+    const data = await serverFetch('query { getLOV(id: "' + id + '") { values { id value filter level } } }')
     if (data.getLOV) {
       return data.getLOV.values
     } else {
@@ -25,7 +25,7 @@ const actions = {
   },
   loadAllLOVs: async () => {
     if (lovs.length > 0) return
-    const data = await serverFetch('query { getLOVs {id identifier name values { id value filter } } }')
+    const data = await serverFetch('query { getLOVs {id identifier name values { id value filter level } } }')
     if (data.getLOVs) {
       data.getLOVs.forEach(element => {
         element.internalId = element.id
@@ -44,7 +44,7 @@ const actions = {
     if (lov.internalId === 0) {
       const query = `
         mutation { createLOV(identifier: "` + lov.identifier + '", name: ' + objectToGraphgl(lov.name) +
-        ', values: ' + (lov.values ? '' + objectToGraphgl(lov.values.map(elem => { return { id: parseInt(elem.id), value: elem.value } })) : '[]') +
+        ', values: ' + (lov.values ? '' + objectToGraphgl(lov.values.map(elem => { return { id: parseInt(elem.id), value: elem.value, level: elem.level, filter: elem.filter ? parseInt(elem.filter) : null } })) : '[]') +
         `)
       }`
       const data = await serverFetch(query)
@@ -53,7 +53,7 @@ const actions = {
     } else {
       const query = `
         mutation { updateLOV(id: "` + lov.internalId + '", name: ' + (lov.name ? '' + objectToGraphgl(lov.name) : '') +
-        ', values: ' + (lov.values ? '' + objectToGraphgl(lov.values.map(elem => { return { id: parseInt(elem.id), value: elem.value, filter: elem.filter ? parseInt(elem.filter) : null } })) : '[]') +
+        ', values: ' + (lov.values ? '' + objectToGraphgl(lov.values.map(elem => { return { id: parseInt(elem.id), value: elem.value, level: elem.level, filter: elem.filter ? parseInt(elem.filter) : null } })) : '[]') +
         `)
       }`
       await serverFetch(query)

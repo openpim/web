@@ -39,6 +39,7 @@
                 <tr>
                   <th class="text-left">{{$t('Config.LOV.ID')}}</th>
                   <th class="text-left">{{$t('Config.LOV.Value')}}</th>
+                  <th class="text-left">{{$t('Config.LOV.Level')}}</th>
                   <th class="text-left">
                     {{$t('Config.LOV.Filter')}}
                     <v-tooltip top v-if="canEditConfigRef" class="ml-4">
@@ -59,6 +60,9 @@
                     <input v-model="elem.value[currentLanguage.identifier]" :placeholder="$t('Config.LOV.Value')"/>
                   </td>
                   <td class="pa-1">
+                    <v-chip @click="editLevels(elem)"><v-icon left>mdi-form-select</v-icon>{{elem.level && elem.level.length > 0 ? '...' : ''}}</v-chip>
+                  </td>
+                  <td class="pa-1">
                     <input v-model="elem.filter" type="number" :placeholder="$t('Config.LOV.Filter')"/>
                     <v-btn class="pa-0" icon color="primary" @click="removeValue(j)"><v-icon dark>mdi-close-circle-outline</v-icon></v-btn>
                   </td>
@@ -72,6 +76,57 @@
         </v-form>
       </v-col>
     </v-row>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="dialogRef" persistent max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('Config.LOV.Level') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-card class="mb-5">
+                      <v-card-title class="subtitle-2 font-weight-bold" >
+                        <div style="width:80%">{{ $t('Config.LOV.Visible') }}</div>
+                        <v-tooltip bottom v-if="canEditConfigRef">
+                          <template v-slot:activator="{ on }">
+                            <v-btn icon v-on="on" @click="addVisible"><v-icon>mdi-plus</v-icon></v-btn>
+                          </template>
+                          <span>{{ $t('Add') }}</span>
+                        </v-tooltip>
+                        <v-tooltip bottom v-if="canEditConfigRef">
+                          <template v-slot:activator="{ on }">
+                            <v-btn icon v-on="on" @click="removeVisible" :disabled="visibleSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
+                          </template>
+                          <span>{{ $t('Remove') }}</span>
+                        </v-tooltip>
+                      </v-card-title>
+                      <v-divider></v-divider>
+                      <v-list dense class="pt-0 pb-0">
+                        <v-list-item-group v-model="visibleSelectedRef" color="primary">
+                          <v-list-item dense class="pt-0 pb-0"  v-for="(item, i) in visible" :key="i">
+                            <v-list-item-content class="pt-0 pb-0" style="display: inline">
+                            <router-link :to="'/item/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="dialogClose">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
   </v-container>
 </template>
 
@@ -80,15 +135,18 @@ import { ref, watch, onMounted, computed } from '@vue/composition-api'
 import * as langStore from '../../store/languages'
 import * as lovStore from '../../store/lovs'
 import * as errorStore from '../../store/error'
+import * as itemStore from '../../store/item'
+import * as typesStore from '../../store/types'
 import i18n from '../../i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import router from '../../router'
 import SystemInformation from '../../components/SystemInformation'
+import ItemsSelectionDialog from '../../components/ItemsSelectionDialog'
 
 export default {
-  components: { LanguageDependentField, SystemInformation },
-  setup () {
+  components: { LanguageDependentField, SystemInformation, ItemsSelectionDialog },
+  setup (props, { root }) {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
       showInfo
@@ -107,6 +165,10 @@ export default {
       removeLOV
     } = lovStore.useStore()
 
+    const { loadItemsByIds } = itemStore.useStore()
+
+    const { loadAllTypes } = typesStore.useStore()
+
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
@@ -115,6 +177,49 @@ export default {
     const selectedRef = ref(empty)
     const itemRef = ref(null)
     const searchRef = ref('')
+
+    const dialogRef = ref(false)
+    const visible = ref([])
+    const visibleSelectedRef = ref(null)
+    const itemSelectionDialogRef = ref(null)
+    let dialogElem = null
+
+    function editLevels (elem) {
+      dialogElem = elem
+      if (elem.level.length === 0) {
+        visible.value = []
+      } else {
+        const ids = elem.level.map(path => {
+          const arr = path.split('.')
+          return parseInt(arr[arr.length - 1])
+        })
+        loadItemsByIds(ids, false).then(items => {
+          visible.value = items
+        })
+      }
+      dialogRef.value = true
+    }
+
+    function addVisible () {
+      itemSelectionDialogRef.value.showDialog()
+    }
+
+    function itemsSelected (id) {
+      itemSelectionDialogRef.value.closeDialog()
+      loadItemsByIds([id], false).then(items => {
+        visible.value.push(items[0])
+      })
+    }
+
+    function removeVisible () {
+      visible.value.splice(visibleSelectedRef.value, 1)
+      visibleSelectedRef.value = null
+    }
+
+    function dialogClose () {
+      dialogRef.value = false
+      dialogElem.level = visible.value.map(item => item.path)
+    }
 
     watch(itemRef, (selected, previous) => {
       // if (typeof (previous) === 'undefined') return
@@ -129,6 +234,7 @@ export default {
           showInfo(i18n.t('Config.NotSaved'))
         }
         selectedRef.value = arr[selected]
+        checkOldValues()
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
           router.push('/config/lovs/' + selectedRef.value.identifier)
         } else {
@@ -136,6 +242,13 @@ export default {
         }
       }
     })
+
+    function checkOldValues () {
+      selectedRef.value.values.forEach(elem => {
+        if (!elem.filter) root.$set(elem, 'filter', null)
+        if (!elem.level) root.$set(elem, 'level', [])
+      })
+    }
 
     const lovsFiltered = computed(() => {
       if (!searchRef.value) return lovs
@@ -154,7 +267,7 @@ export default {
       val[currentLanguage.value.identifier] = ''
       let max = selectedRef.value.values.reduce((accumulator, currentValue) => Math.max(accumulator, currentValue.id), 0)
       if (!max) max = 0
-      selectedRef.value.values.push({ id: ++max, value: val, filter: null })
+      selectedRef.value.values.push({ id: ++max, value: val, filter: null, level: [] })
     }
 
     function add () {
@@ -182,6 +295,7 @@ export default {
     }
 
     onMounted(() => {
+      loadAllTypes()
       loadAllLOVs().then(() => {
         canViewConfigRef.value = canViewConfig('lovs')
         canEditConfigRef.value = canEditConfig('lovs')
@@ -191,6 +305,7 @@ export default {
           const idx = lovs.findIndex((elem) => elem.identifier === id)
           if (idx !== -1) {
             selectedRef.value = lovs[idx]
+            checkOldValues()
             itemRef.value = idx
           } else {
             router.push('/config/lovs')
@@ -219,6 +334,15 @@ export default {
       canViewConfigRef,
       canEditConfigRef,
       formRef,
+      dialogRef,
+      dialogClose,
+      visibleSelectedRef,
+      visible,
+      addVisible,
+      removeVisible,
+      itemSelectionDialogRef,
+      itemsSelected,
+      editLevels,
       lovs,
       lovsFiltered,
       clearSelection,

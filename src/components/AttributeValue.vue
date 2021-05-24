@@ -191,6 +191,9 @@ import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64u
 export default {
   components: { LanguageDependentField },
   props: {
+    item: {
+      required: true
+    },
     values: {
       required: true
     },
@@ -218,6 +221,11 @@ export default {
       if (lovFilterRef.value) {
         values = values.filter(elem => elem.filter === lovFilterRef.value)
       }
+      if (props.item) {
+        if (props.attr.identifier === 'prodTypeSkin') debugger
+        values = values.filter(elem => !elem.level || elem.level.length === 0 || elem.level.find(path => props.item.path.startsWith(path)))
+      }
+
       const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
       if (arr.length > 0) {
         arr.unshift({ value: 0, text: '' })

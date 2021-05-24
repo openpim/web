@@ -172,6 +172,8 @@
   "Config.LOV.Value": "Значение",
   "Config.Actions": "Действия",
   "Config.LOV.Filter": "Фильтр", 
+  "Config.LOV.Level": "Уровень",
+  "Config.LOV.Visible": "Видимо от:",
   "Config.Actions.Title": "Действия",
   "Config.Actions.NewName": "Новое действие",
   "Config.Actions.Code": "Исходный код",

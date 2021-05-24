@@ -44,7 +44,7 @@
                     </v-tooltip>
                   </td>
                   <td class="text-left" v-for="(attr, i) in getAttributesForRelation(identifier)" :key="i">
-                    <AttributeValue @input="attrChange(itemRel.identifier)" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
+                    <AttributeValue @input="attrChange(itemRel.identifier)" :item="item" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
                   </td>
                   <td class="pa-1" v-if="canEditItemRelation">
                     <v-tooltip top>
