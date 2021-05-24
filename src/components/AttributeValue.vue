@@ -222,7 +222,6 @@ export default {
         values = values.filter(elem => elem.filter === lovFilterRef.value)
       }
       if (props.item) {
-        if (props.attr.identifier === 'prodTypeSkin') debugger
         values = values.filter(elem => !elem.level || elem.level.length === 0 || elem.level.find(path => props.item.path.startsWith(path)))
       }
 
