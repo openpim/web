@@ -254,7 +254,8 @@ export default {
     const inplaceLovSelection = computed(() => {
       if (inplaceAttribute.value && inplaceAttribute.value.lov) {
         const lovValues = lovsMap[inplaceAttribute.value.lov]
-        return lovValues.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
+        const values = lovValues.filter(elem => !elem.level || elem.level.length === 0 || elem.level.find(path => inplaceItem.value.path.startsWith(path)))
+        return values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
       } else {
         return []
       }
