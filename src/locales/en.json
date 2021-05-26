@@ -403,5 +403,6 @@
   "Router.Changed.ItemRelation": "Changed relations with identifier: ",
   "Channels.Type.External": "External",
   "Channels.Type.WB": "Wildberries (Russia)",
-  "Channels.Type.YM": "Yandex market (Russia)"
+  "Channels.Type.YM": "Yandex market (Russia)",
+  "Channels.Ext.cmd": "Command to run"
 }
