@@ -241,7 +241,7 @@ const routes = [
         }
       },
       {
-        path: 'channel/:id',
+        path: 'channels/:id',
         components: {
           menu: () => import('../components/ConfigMenu.vue'),
           default: () => import('../views/config/Channels.vue')

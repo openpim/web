@@ -31,6 +31,9 @@
           </div>
 
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Channels.Name')"></LanguageDependentField>
+          <v-checkbox :readonly="!canEditConfigRef" v-model="selectedRef.active" :label="$t('Config.Channels.Active')" required></v-checkbox>
+          <v-select v-model="selectedRef.type" :items="types" :readonly="!canEditConfigRef" :label="$t('Config.Channels.Type')"></v-select>
+
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
@@ -48,6 +51,7 @@ import i18n from '../../i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
+import router from '../../router'
 
 export default {
   components: { LanguageDependentField, SystemInformation },
@@ -89,6 +93,9 @@ export default {
         }
         selectedRef.value = channels[selected]
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
+          router.push('/config/channels/' + selectedRef.value.identifier)
+        } else {
+          router.push('/config/channels')
         }
       }
     })
@@ -113,10 +120,31 @@ export default {
       }
     }
 
+    let types = [
+      { value: 1, text: i18n.t('Channels.Type.External') },
+      { value: 2, text: i18n.t('Channels.Type.WB') },
+      { value: 3, text: i18n.t('Channels.Type.YM') }
+    ]
+    if (process.env.VUE_APP_CHANNELS) {
+      const arr = process.env.VUE_APP_CHANNELS.split(',').map(elem => parseInt(elem))
+      types = types.filter(elem => arr.includes(elem.value))
+    }
+
     onMounted(() => {
-      loadAllChannels()
       canViewConfigRef.value = canViewConfig('channels')
       canEditConfigRef.value = canEditConfig('channels')
+      loadAllChannels().then(() => {
+        const id = router.currentRoute.params.id
+        if (id) {
+          const idx = channels.findIndex((elem) => elem.identifier === id)
+          if (idx !== -1) {
+            selectedRef.value = channels[idx]
+            itemRef.value = idx
+          } else {
+            router.push('/config/channels')
+          }
+        }
+      })
     })
 
     function identifierValidation (v) {
@@ -147,6 +175,7 @@ export default {
       save,
       currentLanguage,
       defaultLanguageIdentifier,
+      types,
       identifierRules: [
         v => identifierValidation(v)
       ],

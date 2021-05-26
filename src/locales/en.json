@@ -178,6 +178,8 @@
   "Config.Channels.Channels": "Channels:",
   "Config.Channels.Identifier": "Identifier",
   "Config.Channels.Name": "Name",
+  "Config.Channels.Active": "Active",
+  "Config.Channels.Type": "Type",
   "Config.Channels.Confirm.Delete": "Remove channel?",
   "Config.Channels.Error.IdentifierRequired": "Identifier required",
   "Config.Channels.Error.IdentifierNotUnique": "Such identifier already exists",
@@ -398,5 +400,8 @@
   "Router.Changed.Continue": "Do you want to continue (all changes can be lost)?",
   "Router.Changed.Name": "Name",
   "Router.Changed.Attribute": "Changed attribute values",
-  "Router.Changed.ItemRelation": "Changed relations with identifier: "
+  "Router.Changed.ItemRelation": "Changed relations with identifier: ",
+  "Channels.Type.External": "External",
+  "Channels.Type.WB": "Wildberries (Russia)",
+  "Channels.Type.YM": "Yandex market (Russia)"
 }
