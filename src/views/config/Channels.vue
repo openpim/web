@@ -34,6 +34,8 @@
           <v-checkbox :readonly="!canEditConfigRef" v-model="selectedRef.active" :label="$t('Config.Channels.Active')" required></v-checkbox>
           <v-select v-model="selectedRef.type" :items="types" :readonly="!canEditConfigRef" :label="$t('Config.Channels.Type')"></v-select>
 
+          <component v-if="configComponent" :is="configComponent" :channel="selectedRef"></component>
+
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
@@ -43,7 +45,7 @@
 </template>
 
 <script>
-import { ref, watch, onMounted } from '@vue/composition-api'
+import { ref, watch, onMounted, computed } from '@vue/composition-api'
 import * as langStore from '../../store/languages'
 import * as channelsStore from '../../store/channels'
 import * as errorStore from '../../store/error'
@@ -52,9 +54,13 @@ import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
 import router from '../../router'
+import getChannelFactory from '../../channels'
+
+import ExtConfigCompoment from '../../channels/ext/ExtConfigCompoment'
+import WBConfigCompoment from '../../channels/wb/WBConfigCompoment'
 
 export default {
-  components: { LanguageDependentField, SystemInformation },
+  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
@@ -98,6 +104,10 @@ export default {
           router.push('/config/channels')
         }
       }
+    })
+
+    const configComponent = computed(() => {
+      return getChannelFactory(selectedRef.value.type).getConfigCompoment()
     })
 
     function add () {
@@ -176,6 +186,7 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       types,
+      configComponent,
       identifierRules: [
         v => identifierValidation(v)
       ],
