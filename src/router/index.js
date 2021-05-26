@@ -132,6 +132,40 @@ const routes = [
     }
   },
   {
+    path: '/channels',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/ChannelsMenu.vue'),
+          default: () => import('../views/Channel.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/channels/:id',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/ChannelsMenu.vue'),
+          default: () => import('../views/Channel.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/config',
     component: () => import('../layouts/Main.vue'),
     props: { export: false },

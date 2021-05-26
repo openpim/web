@@ -27,6 +27,7 @@
   "Main.Work": "Work",
   "Main.Search": "Search",
   "Main.Settings": "Settings",
+  "Main.Channels": "Channels",
   "Wrong.Identifier": "Identifier must not has spaces and must be in English only",
   "Config.Types": "Types",
   "Config.Attributes": "Attributes",

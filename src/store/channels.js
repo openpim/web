@@ -7,15 +7,17 @@ const channels = reactive([])
 
 const actions = {
   loadAllChannels: async () => {
-    if (channels.length > 0) return
+    if (channels.length > 0) return channels
     const data = await serverFetch('query { getChannels {id identifier name active type config mappings createdAt createdBy updatedAt updatedBy} }')
-    if (channels.length > 0) return
+    if (channels.length > 0) return channels
     if (data.getChannels) {
       data.getChannels.forEach(element => {
         element.internalId = element.id
         channels.push(element)
       })
     }
+
+    return channels
   },
   addChannel: () => {
     const name = {}
