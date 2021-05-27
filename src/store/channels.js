@@ -2,6 +2,7 @@ import { reactive, provide, inject } from '@vue/composition-api'
 import i18n from '../i18n'
 import { serverFetch, objectToGraphgl } from './utils'
 import { currentLanguage } from './languages'
+import * as userStore from './users'
 
 const channels = reactive([])
 
@@ -61,6 +62,27 @@ const actions = {
       await serverFetch(query)
     }
     channels.splice(idx, 1)
+  },
+  getAwailableChannels (fullAccessOnly) {
+    const res = []
+    for (var i = 0; i < channels.length; i++) {
+      const channel = channels[i]
+
+      const roles = userStore.store.currentRoles
+      let access = 2
+      for (let i = 0; i < roles.length; i++) {
+        const role = roles[i]
+        const tst = role.channelAccess.find(data => data.channelId === channel.internalId)
+        if (tst && tst.access < access) access = tst.access
+      }
+      console.log(channel, access)
+      if (fullAccessOnly) {
+        if (access === 2) res.push(channel)
+      } else {
+        if (access >= 1) res.push(channel)
+      }
+    }
+    return res
   }
 }
 
