@@ -75,7 +75,6 @@ const actions = {
         const tst = role.channelAccess.find(data => data.channelId === channel.internalId)
         if (tst && tst.access < access) access = tst.access
       }
-      console.log(channel, access)
       if (fullAccessOnly) {
         if (access === 2) res.push(channel)
       } else {

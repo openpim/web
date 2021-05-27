@@ -44,6 +44,7 @@
           <v-tab v-if="hasSources" v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
           <v-tab v-if="hasTargets" v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
           <v-tab v-if="hasChildren" v-text="$t('ItemView.Tab.Children')"></v-tab>
+          <v-tab v-if="hasChannelsRef" v-text="$t('ItemView.Tab.Channels')"></v-tab>
           <v-tab v-if="hasAccess('audit') && auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
           <LastTabsComponent></LastTabsComponent>
         </v-tabs>
@@ -138,6 +139,35 @@
           <v-tab-item v-if="hasChildren" eager>  <!-- Children -->
             <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false"></ItemsDataTable>
           </v-tab-item>
+          <v-tab-item v-if="awailableChannelsRef.length > 0" eager>  <!-- Channels -->
+            <div v-for="(channel, i) in awailableChannelsRef" :key="i">
+              <v-card v-if="itemRef.channels && itemRef.channels[channel.identifier]">
+                <v-card-title class="text-subtitle-2">{{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}</v-card-title>
+                <v-card-text class="text-body-1">
+                  <v-row no-gutters>
+                    <v-col cols="3">
+                      <div>{{$t('ItemView.Channels.Status')}}: <v-chip class="ma-2" :color="itemRef.channels[channel.identifier].status === 1 ? '' : itemRef.channels[channel.identifier].status === 2 ? 'green' : 'red'"
+                        :text-color="itemRef.channels[channel.identifier].status === 1 ? 'black' : 'white'">
+                        {{ itemRef.channels[channel.identifier].status === 1 ? $t('ItemView.Channels.Submitted') : itemRef.channels[channel.identifier].status === 2 ? $t('ItemView.Channels.Synced') : $t('ItemView.Channels.Error') }}</v-chip>
+                      </div>
+                    </v-col>
+                    <v-col cols="3">
+                      <div>{{$t('ItemView.Channels.SubmittedAt')}}: {{ dateFormat(new Date(itemRef.channels[channel.identifier].submittedAt), DATE_FORMAT) }}</div>
+                    </v-col>
+                    <v-col cols="3">
+                      <div>{{$t('ItemView.Channels.SubmittedBy')}}: {{ itemRef.channels[channel.identifier].submittedBy }}</div>
+                    </v-col>
+                    <v-col cols="3">
+                      <div>{{$t('ItemView.Channels.SyncedAt')}}: {{ itemRef.channels[channel.identifier].syncedAt ? dateFormat(new Date(itemRef.channels[channel.identifier].syncedAt), DATE_FORMAT) : '' }}</div>
+                    </v-col>
+                    <v-col cols="12" v-if="itemRef.channels[channel.identifier].message">
+                      <div>{{$t('ItemView.Channels.Message')}}: {{itemRef.channels[channel.identifier].message}}</div>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </div>
+          </v-tab-item>
           <v-tab-item v-if="hasAccess('audit') && auditEnabled">  <!-- History -->
             <HistoryTable ref="historyTableRef" :item="itemRef" componentType="item"></HistoryTable>
           </v-tab-item>
@@ -189,6 +219,7 @@ import BeforeAttributesComponent from '../_customizations/item/beforeAttributes/
 import AfterAttributesComponent from '../_customizations/item/afterAttributes/AfterAttributesComponent'
 
 import eventBus from '../eventBus'
+import dateFormat from 'dateformat'
 
 export default {
   components: {
@@ -279,6 +310,7 @@ export default {
     const fileUploadDialogRef = ref(null)
     const itemDuplicationDialogRef = ref(null)
     const chanSelectionDialogRef = ref(null)
+    const awailableChannelsRef = ref([])
     const hasChannelsRef = ref([])
 
     const attributeValues = ref([])
@@ -613,6 +645,7 @@ export default {
       window.addEventListener('keydown', hotkey)
       loadAllChannels().then(() => {
         hasChannelsRef.value = getAwailableChannels(true).length > 0
+        awailableChannelsRef.value = getAwailableChannels(false)
       })
       checkAuditEnabled()
       loadAllActions()
@@ -695,10 +728,13 @@ export default {
       getOption,
       historyTableRef,
       hasAccess,
+      awailableChannelsRef,
       hasChannelsRef,
       submit,
       chanSelectionDialogRef,
       channelsSelected,
+      dateFormat,
+      DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]

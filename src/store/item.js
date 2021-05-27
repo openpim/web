@@ -76,6 +76,7 @@ const actions = {
       name
       typeId
       values
+      channels
       mimeType
       fileOrigName
       createdBy
@@ -182,6 +183,7 @@ const actions = {
         path
         name
         values
+        channels
         fileOrigName
         mimeType
         createdBy
@@ -381,6 +383,7 @@ const actions = {
                   path
                   name
                   values
+                  channels
                   fileOrigName
                   mimeType
                   createdBy
