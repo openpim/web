@@ -3,32 +3,32 @@
   <v-toolbar dense elevation="1" class="mt-2">
       <v-select dense v-if="savedOptionsVisible()" v-model="savedColumnsSelectionRef" :items="savedColumnsOptionsRef"></v-select>
       <v-spacer></v-spacer>
-      <v-tooltip bottom v-if="!talendExportSelection && hasAccess('exportXLS')">
+      <v-tooltip top v-if="!talendExportSelection && hasAccess('exportXLS')">
         <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportExcel"><v-icon>mdi-application-export</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ExportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip bottom v-if="!talendExportSelection && hasAccess('importXLS')">
+      <v-tooltip top v-if="!talendExportSelection && hasAccess('importXLS')">
         <template v-slot:activator="{ on }">
           <input ref="fileUploadRef" style="display: none" type="file" @change="importExcel"/>
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="fileUploadRef.click()"><v-icon>mdi-application-import</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ImportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip bottom  v-if="talendExportSelection || hasAccess('exportCSV')">
+      <v-tooltip top  v-if="talendExportSelection || hasAccess('exportCSV')">
         <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
         </template>
         <span>{{  talendExportSelection ? $t('DataTable.TalendExportSelection') : $t('DataTable.ExportCSV') }}</span>
       </v-tooltip>
-      <v-tooltip bottom>
+      <v-tooltip top>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="editHeaders"><v-icon>mdi-table-settings</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.SelectColumns') }}</span>
       </v-tooltip>
-      <v-tooltip bottom>
+      <v-tooltip top>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="DataChanged()"><v-icon>mdi-refresh</v-icon></v-btn>
         </template>
@@ -39,6 +39,12 @@
           <v-btn v-on="on" icon @click="columnsSaveDialogRef.showDialog(headersRef)"><v-icon>mdi-content-save</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.SaveColumns') }}</span>
+      </v-tooltip>
+      <v-tooltip top v-if="hasChannelsRef">
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" icon @click="chanSelectionDialogRef.showDialog()"><v-icon>mdi-access-point</v-icon></v-btn>
+        </template>
+        <span>{{ $t('Submit') }}</span>
       </v-tooltip>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
@@ -90,13 +96,14 @@
     </template>
   </v-data-table>
   <ColumnsSelectionDialog ref="columnsSelectionDialogRef" @selected="columnsSelected"/>
+  <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
   <ColumnsSaveDialog ref="columnsSaveDialogRef" @changed="loadColumns(true)"/>
     <template>
       <v-row justify="center">
         <v-dialog v-model="excelDialogRef" persistent max-width="600px">
           <v-card>
             <v-card-title>
-              <span class="headline">{{ excelDialogModeRef === 'import' ? $t('DataTable.ExcelDialog.TitleImport') : $t('DataTable.ExcelDialog.TitleExport') }}</span>
+              <span class="headline">{{ excelDialogTitleRef }}</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -131,15 +138,17 @@ import * as errorStore from '../store/error'
 import * as userStore from '../store/users'
 import * as searchStore from '../store/search'
 import * as attrStore from '../store/attributes'
+import * as channelsStore from '../store/channels'
 import i18n from '../i18n'
 import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 import ColumnsSaveDialog from './ColumnsSaveDialog'
+import ChannelsSelectionDialog from './ChannelsSelectionDialog'
 import AttributeType from '../constants/attributeTypes'
 import XLSX from 'xlsx'
 
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog },
   props: {
     loadData: {
       required: true
@@ -157,6 +166,8 @@ export default {
     const { savedColumnsRef, loadAllSavedColumns } = searchStore.useStore()
 
     const { findByIdentifier } = attrStore.useStore()
+
+    const { loadAllChannels, getAwailableChannels, submitItem } = channelsStore.useStore()
 
     const {
       languages,
@@ -180,7 +191,7 @@ export default {
     const fileUploadRef = ref(null)
     const excelDialogRef = ref(false)
     const excelDialogProgressRef = ref(0)
-    const excelDialogModeRef = ref('import')
+    const excelDialogTitleRef = ref('import')
     const itemsRef = ref([])
     const totalItemsRef = ref(0)
     const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: [], sortDesc: [] })
@@ -192,6 +203,8 @@ export default {
     const lovsMap = {}
     const savedColumnsSelectionRef = ref(null)
     const savedColumnsOptionsRef = ref([])
+    const chanSelectionDialogRef = ref(null)
+    const hasChannelsRef = ref([])
 
     // dor inplace editing
     const inplaceItem = ref(null)
@@ -317,7 +330,7 @@ export default {
     }
 
     async function exportExcel () {
-      excelDialogModeRef.value = 'export'
+      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleExport')
       excelDialogRef.value = true
       const itemsPerPage = 1000
       let total = 0
@@ -401,7 +414,7 @@ export default {
     }
 
     function importExcel (event) {
-      excelDialogModeRef.value = 'import'
+      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleImport')
       const pageSize = 100
 
       const file = event.target.files[0]
@@ -645,7 +658,35 @@ export default {
       })
     }
 
+    async function channelsSelected (arr) {
+      chanSelectionDialogRef.value.closeDialog()
+      if (arr.length === 0) return
+      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleExport')
+      excelDialogRef.value = true
+      const itemsPerPage = 1000
+      let total = 0
+      let page = 0
+      excelDialogProgressRef.value = 0
+
+      do {
+        page++
+        const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: [], sortDesc: [] })
+        total = data.count
+        if (!excelDialogRef.value) return // exit if process was canceled
+        data.rows.forEach(row => {
+          submitItem(row.id, arr)
+        })
+        const tst = page * itemsPerPage * 100 / total
+        excelDialogProgressRef.value = tst > 100 ? 100 : tst
+      } while (page * itemsPerPage < total)
+      excelDialogRef.value = false
+      showInfo(i18n.t('Submitted'))
+    }
+
     onMounted(() => {
+      loadAllChannels().then(() => {
+        hasChannelsRef.value = getAwailableChannels(true).length > 0
+      })
       loadColumns(false)
       let tst = localStorage.getItem('item_headers')
       if (tst) {
@@ -706,13 +747,16 @@ export default {
       fileUploadRef,
       excelDialogRef,
       excelDialogProgressRef,
-      excelDialogModeRef,
+      excelDialogTitleRef,
       excelDialogClose,
       hasAccess,
       savedColumnsOptionsRef,
       savedColumnsSelectionRef,
       savedOptionsVisible,
-      talendExportSelection: props.export
+      talendExportSelection: props.export,
+      hasChannelsRef,
+      chanSelectionDialogRef,
+      channelsSelected
     }
   }
 }

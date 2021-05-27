@@ -83,6 +83,21 @@ const actions = {
       }
     }
     return res
+  },
+  async submitItem (itemId, channelIds) {
+    if (channelIds.length === 0) return
+    const channelsData = {}
+    channels.forEach(channel => {
+      if (channelIds.includes(channel.internalId)) {
+        channelsData[channel.identifier] = { status: 1 }
+      }
+    })
+    const query = `
+      mutation { updateItem(id: "` + itemId +
+      '", channels: ' + objectToGraphgl(channelsData) +
+      `)
+    }`
+    await serverFetch(query)
   }
 }
 

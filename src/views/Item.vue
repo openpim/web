@@ -25,6 +25,7 @@
             <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
+            <v-btn v-if="hasChannelsRef" text @click="submit" v-text="$t('Submit')"></v-btn>
             <template v-if="canEditSelected">
               <v-btn text @click="executeAction(trigger.itemButton)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
@@ -147,6 +148,7 @@
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemToMoveSelected"/>
     <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
     <ItemDuplicationDialog ref="itemDuplicationDialogRef" @duplicated="itemDuplicated"/>
+    <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
   </v-container>
 </template>
 
@@ -161,6 +163,7 @@ import * as typesStore from '../store/types'
 import * as actionsStore from '../store/actions'
 import * as relStore from '../store/relations'
 import * as auditStore from '../store/audit'
+import * as channelsStore from '../store/channels'
 import i18n from '../i18n'
 import * as langStore from '../store/languages'
 import AttributeValue from '../components/AttributeValue'
@@ -173,6 +176,7 @@ import AttributeType from '../constants/attributeTypes'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import FileUploadDialog from '../components/FileUploadDialog'
 import ItemDuplicationDialog from '../components/ItemDuplicationDialog'
+import ChannelsSelectionDialog from '../components/ChannelsSelectionDialog'
 import HistoryTable from '../components/HistoryTable'
 
 import AfterButtonsComponent from '../_customizations/item/afterButtons/AfterButtonsComponent'
@@ -203,7 +207,8 @@ export default {
     LastTabsComponent,
     LastTabsItemComponent,
     BeforeAttributesComponent,
-    AfterAttributesComponent
+    AfterAttributesComponent,
+    ChannelsSelectionDialog
   },
   name: 'Home',
   setup (params, context) {
@@ -214,6 +219,8 @@ export default {
     const { canEditItem, hasAccess } = userStore.useStore()
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
+
+    const { loadAllChannels, getAwailableChannels, submitItem } = channelsStore.useStore()
 
     const {
       findType,
@@ -271,6 +278,8 @@ export default {
     const itemSelectionDialogRef = ref(null)
     const fileUploadDialogRef = ref(null)
     const itemDuplicationDialogRef = ref(null)
+    const chanSelectionDialogRef = ref(null)
+    const hasChannelsRef = ref([])
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -588,8 +597,23 @@ export default {
       }
     })
 
+    function submit () {
+      chanSelectionDialogRef.value.showDialog()
+    }
+
+    function channelsSelected (arr) {
+      chanSelectionDialogRef.value.closeDialog()
+      if (arr.length === 0) return
+      submitItem(itemRef.value.internalId, arr).then(() => {
+        showInfo(i18n.t('Submitted'))
+      })
+    }
+
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
+      loadAllChannels().then(() => {
+        hasChannelsRef.value = getAwailableChannels(true).length > 0
+      })
       checkAuditEnabled()
       loadAllActions()
       loadAllAttributes()
@@ -671,6 +695,10 @@ export default {
       getOption,
       historyTableRef,
       hasAccess,
+      hasChannelsRef,
+      submit,
+      chanSelectionDialogRef,
+      channelsSelected,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]

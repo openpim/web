@@ -10,7 +10,7 @@
             <v-col cols="12">
             <v-list nav dense>
               <v-list-item-group v-model="selectedChannelsRef" color="primary" :multiple="multiselect">
-                <v-list-item v-for="(item, i) in channels" :key="i">
+                <v-list-item v-for="(item, i) in channelsListRef" :key="i">
                   <v-list-item-icon><v-icon>mdi-access-point</v-icon></v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
@@ -41,6 +41,10 @@ export default {
     multiselect: {
       type: Boolean,
       required: true
+    },
+    editAccessOnly: {
+      type: Boolean,
+      required: false
     }
   },
   setup (props, { emit }) {
@@ -51,19 +55,21 @@ export default {
 
     const {
       channels,
-      loadAllChanels
+      getAwailableChannels,
+      loadAllChannels
     } = channelsStore.useStore()
 
     const selectedChannelsRef = ref([])
     const selectionDialogRef = ref(false)
+    const channelsListRef = ref([])
     let initiator
 
     function selected () {
       let arr
       if (props.multiselect) {
-        arr = selectedChannelsRef.value.map(idx => channels[idx].internalId)
+        arr = selectedChannelsRef.value.map(idx => channelsListRef.value[idx].internalId)
       } else {
-        arr = [channels[selectedChannelsRef.value].internalId]
+        arr = [channelsListRef.value[selectedChannelsRef.value].internalId]
       }
       emit('selected', arr, initiator)
     }
@@ -71,14 +77,16 @@ export default {
     function showDialog (init, selected) {
       initiator = init
       if (channels.length === 0) {
-        loadAllChanels().then(() => {
+        loadAllChannels().then(() => {
           selectionDialogRef.value = true
-          const arr = selected ? selected.map(id => channels.findIndex(rel => rel.id === id || rel.internalId === id)) : []
+          channelsListRef.value = getAwailableChannels(props.editAccessOnly)
+          const arr = selected ? selected.map(id => channelsListRef.value.findIndex(rel => rel.id === id || rel.internalId === id)) : []
           selectedChannelsRef.value = arr
         })
       } else {
         selectionDialogRef.value = true
-        const arr = selected ? selected.map(id => channels.findIndex(rel => rel.id === id || rel.internalId === id)) : []
+        channelsListRef.value = getAwailableChannels(props.editAccessOnly)
+        const arr = selected ? selected.map(id => channelsListRef.value.findIndex(rel => rel.id === id || rel.internalId === id)) : []
         selectedChannelsRef.value = arr
       }
     }
@@ -88,7 +96,7 @@ export default {
     }
 
     return {
-      channels,
+      channelsListRef,
       selectionDialogRef,
       selected,
       selectedChannelsRef,
