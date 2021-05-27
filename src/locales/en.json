@@ -145,6 +145,8 @@
   "Config.Roles.RestrictionsAttributes": "Restrictions for attributes",
   "Config.Roles.RestrictionsTypes": "Restrictions for types",
   "Config.Roles.RestrictionsFromItems": "Starting from",
+  "Config.Roles.Channels": "Channels",
+  "Config.Roles.RestrictionsChannels": "Restrictions for channels",
   "Config.Users.Users": "Users:",
   "Config.Users.Login": "Login",
   "Config.Users.Name": "Name",
@@ -405,5 +407,6 @@
   "Channels.Type.External": "External",
   "Channels.Type.WB": "Wildberries (Russia)",
   "Channels.Type.YM": "Yandex market (Russia)",
-  "Channels.Ext.cmd": "Command to run"
+  "Channels.Ext.cmd": "Command to run",
+  "Channels.SelectionDialog.Title": "Channels selection"
 }

@@ -6,7 +6,7 @@ const roles = reactive([])
 const actions = {
   loadAllRoles: async () => {
     if (roles.length > 0) return
-    const data = await serverFetch('query { getRoles {id, internalId, identifier, name, configAccess, relAccess, itemAccess, otherAccess, updatedAt, updatedBy, createdAt, createdBy } }')
+    const data = await serverFetch('query { getRoles {id, internalId, identifier, name, configAccess, relAccess, itemAccess, channelAccess, otherAccess, updatedAt, updatedBy, createdAt, createdBy } }')
     if (data.getRoles) {
       if (roles.length > 0) return
       data.getRoles.forEach(element => {
@@ -22,6 +22,7 @@ const actions = {
       configAccess: { types: 0, attributes: 0, relations: 0, users: 0, roles: 0, languages: 0, lovs: 0, actions: 0, dashboards: 0, channels: 0 },
       relAccess: { relations: [], access: 0, groups: [] },
       itemAccess: { valid: [], fromItems: [], access: 0, groups: [] },
+      channelAccess: [],
       otherAccess: { audit: false, search: false, exportCSV: false, exportXLS: false, importXLS: false }
     }
     roles.push(newRole)
@@ -34,6 +35,7 @@ const actions = {
         '", configAccess: ' + objectToGraphgl(role.configAccess) +
         ', relAccess: ' + objectToGraphgl(role.relAccess) +
         ', itemAccess: ' + objectToGraphgl(role.itemAccess) +
+        ', channelAccess: ' + objectToGraphgl(role.channelAccess) +
         ', otherAccess: ' + objectToGraphgl(role.otherAccess) +
         `)
       }`
@@ -46,6 +48,7 @@ const actions = {
         '", configAccess: ' + (role.configAccess ? objectToGraphgl(role.configAccess) : '') +
         ', relAccess: ' + objectToGraphgl(role.relAccess) +
         ', itemAccess: ' + objectToGraphgl(role.itemAccess) +
+        ', channelAccess: ' + objectToGraphgl(role.channelAccess) +
         ', otherAccess: ' + objectToGraphgl(role.otherAccess) +
         `)
       }`

@@ -36,6 +36,7 @@
             <v-tab v-text="$t('Config.Roles.Data')"></v-tab>
             <v-tab v-text="$t('Config.Roles.Relation')"></v-tab>
             <v-tab v-text="$t('Config.Roles.Configuration')"></v-tab>
+            <v-tab v-text="$t('Config.Roles.Channels')"></v-tab>
             <v-tab v-text="$t('Config.Roles.Other')"></v-tab>
           </v-tabs>
           <v-tabs-items v-model="tabRef">
@@ -179,6 +180,36 @@
               <v-select prepend-icon="mdi-web" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.languages" :items="configSelection" :label="$t('Config.Roles.Config.Languages')"></v-select>
             </v-tab-item>
 
+            <!-- channels restrictions -->
+            <v-tab-item>
+              <v-card class="mb-5 mt-2">
+                <v-card-title class="subtitle-2 font-weight-bold" >
+                  <div style="width:90%">{{ $t('Config.Roles.RestrictionsChannels') }}</div>
+                  <v-tooltip bottom v-if="canEditChannels">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon v-on="on" @click="editChannels"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Edit') }}</span>
+                  </v-tooltip>
+                </v-card-title>
+                <v-list dense class="pt-0 pb-0">
+                  <v-list-item v-for="(item, i) in channelAccess" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0">
+                    <v-container>
+                      <v-row align="center" no-gutters>
+                        <v-col cols="6">
+                          <router-link :to="'/config/channel/' + item.channel.identifier">{{ item.channel.identifier }}</router-link>
+                          <span class="ml-2">- {{ item.channel.name[currentLanguage.identifier] || '[' + item.channel.name[defaultLanguageIdentifier] + ']' }}</span>
+                        </v-col>
+                        <v-col cols="6">
+                          <v-select v-model="selectedRef.channelAccess[i].access" :items="accessSelection" :label="$t('Config.Roles.Access')"></v-select>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-list-item-content></v-list-item>
+                </v-list>
+              </v-card>
+            </v-tab-item>
+
             <!-- other restrictions -->
             <v-tab-item>
               <div class="ml-4">
@@ -200,6 +231,7 @@
     <AttrGroupsSelectionDialog ref="attrSelectionDialogRef" :multiselect="true" @selected="attrSelected"/>
     <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="true" @selected="typesSelected"/>
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
+    <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" @selected="channelsSelected"/>
   </v-container>
 </template>
 
@@ -215,14 +247,16 @@ import RelationsSelectionDialog from '../../components/RelationsSelectionDialog'
 import AttrGroupsSelectionDialog from '../../components/AttrGroupsSelectionDialog'
 import TypeSelectionDialog from '../../components/TypeSelectionDialog'
 import ItemsSelectionDialog from '../../components/ItemsSelectionDialog'
+import ChannelsSelectionDialog from '../../components/ChannelsSelectionDialog'
 import * as langStore from '../../store/languages'
 import * as attrStore from '../../store/attributes'
 import * as typesStore from '../../store/types'
 import * as itemStore from '../../store/item'
+import * as channelsStore from '../../store/channels'
 import SystemInformation from '../../components/SystemInformation'
 
 export default {
-  components: { RelationsSelectionDialog, AttrGroupsSelectionDialog, TypeSelectionDialog, ItemsSelectionDialog, SystemInformation },
+  components: { RelationsSelectionDialog, AttrGroupsSelectionDialog, TypeSelectionDialog, ItemsSelectionDialog, SystemInformation, ChannelsSelectionDialog },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
@@ -246,6 +280,11 @@ export default {
       relations,
       loadAllRelations
     } = relStore.useStore()
+
+    const {
+      channels,
+      loadAllChannels
+    } = channelsStore.useStore()
 
     const {
       groups,
@@ -273,6 +312,7 @@ export default {
     const attrSelectionDialogRef = ref(null)
     const typeSelectionDialogRef = ref(null)
     const itemSelectionDialogRef = ref(null)
+    const chanSelectionDialogRef = ref(null)
 
     watch(itemRef, (selected, previous) => {
       if (selected == null) {
@@ -395,6 +435,18 @@ export default {
       }
     })
 
+    const channelAccess = computed(() => {
+      if (selectedRef.value.channelAccess) {
+        return selectedRef.value.channelAccess.map(data => {
+          const res = { channelId: data.channelId, access: data.access }
+          res.channel = channels.find(chan => chan.internalId === data.channelId)
+          return res
+        })
+      } else {
+        return []
+      }
+    })
+
     function editRelations () {
       relSelectionDialogRef.value.showDialog('', selectedRef.value.relAccess.relations)
     }
@@ -431,7 +483,22 @@ export default {
       }
     }
 
+    function editChannels () {
+      chanSelectionDialogRef.value.showDialog('', selectedRef.value.channelAccess.map(data => data.channelId))
+    }
+
+    function channelsSelected (arr) {
+      chanSelectionDialogRef.value.closeDialog()
+      selectedRef.value.channelAccess = selectedRef.value.channelAccess.filter(data => arr.find(id => id === data.channelId))
+      arr.forEach(id => {
+        if (!selectedRef.value.channelAccess.find(data => data.channelId === id)) {
+          selectedRef.value.channelAccess.push({ channelId: id, access: 0 })
+        }
+      })
+    }
+
     onMounted(() => {
+      loadAllChannels()
       loadAllTypes()
       loadAllAttributes()
       loadAllRelations().then(() => {
@@ -476,6 +543,12 @@ export default {
     return {
       canViewConfigRef,
       canEditConfigRef,
+      canViewChannels: canViewConfig('channels'),
+      canEditChannels: canEditConfig('channels'),
+      editChannels,
+      chanSelectionDialogRef,
+      channelsSelected,
+      channelAccess,
       formRef,
       tabRef,
       roles,
