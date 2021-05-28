@@ -429,8 +429,14 @@
   "Channels.SelectionDialog.Title": "Выбор каналов",
   "ChannelView.Dashboard": "Дашборд",
   "ChannelView.Executions": "Запуски",
-  "ChannelView.LastStartAt": "Последние запуск в",
-  "ChannelView.Duration": "Продалжительность",
-  "ChannelView.NextStartAt": "Следующий запуск в",
-  "ChannelView.Status": "Статус"
+  "ChannelView.LastStartAt": "Последний запуск",
+  "ChannelView.Duration": "Продолжительность",
+  "ChannelView.NextStartAt": "Следующий запуск",
+  "ChannelView.Status": "Статус",
+  "ChannelView.TriggerNow": "Запустить",
+  "ChannelView.Never": "еще не запускался",
+  "ChannelView.Active": "Работает",
+  "ChannelView.Stopped": "Остановлен",
+  "ChannelView.Manual": "в ручную",
+  "ChannelView.InMinutes": "в течении {num} мин."
 }

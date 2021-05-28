@@ -429,8 +429,14 @@
   "Channels.SelectionDialog.Title": "Channels selection",
   "ChannelView.Dashboard": "Dashboard",
   "ChannelView.Executions": "Executions",
-  "ChannelView.LastStartAt": "Last start at",
+  "ChannelView.LastStartAt": "Last start",
   "ChannelView.Duration": "Duration",
-  "ChannelView.NextStartAt": "Next start at",
-  "ChannelView.Status": "Status"
+  "ChannelView.NextStartAt": "Next start",
+  "ChannelView.Status": "Status",
+  "ChannelView.TriggerNow": "Trigger Now",
+  "ChannelView.Never": "not started yet",
+  "ChannelView.Active": "Active",
+  "ChannelView.Stopped": "Stopped",
+  "ChannelView.Manual": "manual",
+  "ChannelView.InMinutes": "in {num} min."
 }
