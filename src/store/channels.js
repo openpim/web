@@ -23,7 +23,7 @@ const actions = {
   addChannel: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Channels.NewName')
-    const newChan = { id: Date.now(), internalId: 0, name: name, active: false, type: 0, config: {}, mappings: {} }
+    const newChan = { id: Date.now(), internalId: 0, name: name, active: false, type: 0, valid: [], visible: [], config: { start: 1 }, mappings: {}, runtime: {} }
     channels.push(newChan)
     return newChan
   },

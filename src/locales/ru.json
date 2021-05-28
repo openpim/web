@@ -190,6 +190,12 @@
   "Config.Channels.Error.IdentifierNotUnique": "Такой идентификатор уже существует",
   "Config.Channels.Error.NameRequired": "Не введено наименование",
   "Config.Channels.NewName": "Новый канал",
+  "Config.Channels.StartManual": "Запуск канала в ручную",
+  "Config.Channels.StartInterval": "Запуск канала через интервал",
+  "Config.Channels.StartAt": "Запуск канала в определенное время",
+  "Config.Channels.Interval": "Интервал",
+  "Config.Channels.IntervalUOM": "мин.",
+  "Config.Channels.Time": "Время",
   "Config.Actions": "Действия",
   "Config.Actions.Title": "Действия",
   "Config.Actions.NewName": "Новое действие",
@@ -420,5 +426,11 @@
   "Channels.Type.WB": "Wildberries",
   "Channels.Type.YM": "Яндекс Маркет",
   "Channels.Ext.cmd": "Запускаемая программа",
-  "Channels.SelectionDialog.Title": "Выбор каналов"
+  "Channels.SelectionDialog.Title": "Выбор каналов",
+  "ChannelView.Dashboard": "Дашборд",
+  "ChannelView.Executions": "Запуски",
+  "ChannelView.LastStartAt": "Последние запуск в",
+  "ChannelView.Duration": "Продалжительность",
+  "ChannelView.NextStartAt": "Следующий запуск в",
+  "ChannelView.Status": "Статус"
 }

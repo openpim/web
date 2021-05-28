@@ -190,6 +190,12 @@
   "Config.Channels.Error.IdentifierNotUnique": "Such identifier already exists",
   "Config.Channels.Error.NameRequired": "Name required",
   "Config.Channels.NewName": "New channel",
+  "Config.Channels.StartManual": "Trigger channel manually",
+  "Config.Channels.StartInterval": "Trigger channel by interval",
+  "Config.Channels.StartAt": "Trigger channel at specified time",
+  "Config.Channels.Interval": "Interval",
+  "Config.Channels.IntervalUOM": "min.",
+  "Config.Channels.Time": "Time",
   "Config.Actions": "Actions",
   "Config.Actions.Title": "Actions",
   "Config.Actions.NewName": "New action",
@@ -420,5 +426,11 @@
   "Channels.Type.WB": "Wildberries (Russia)",
   "Channels.Type.YM": "Yandex market (Russia)",
   "Channels.Ext.cmd": "Command to run",
-  "Channels.SelectionDialog.Title": "Channels selection"
+  "Channels.SelectionDialog.Title": "Channels selection",
+  "ChannelView.Dashboard": "Dashboard",
+  "ChannelView.Executions": "Executions",
+  "ChannelView.LastStartAt": "Last start at",
+  "ChannelView.Duration": "Duration",
+  "ChannelView.NextStartAt": "Next start at",
+  "ChannelView.Status": "Status"
 }

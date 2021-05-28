@@ -15,9 +15,12 @@ import * as langStore from '../store/languages'
 import * as channelsStore from '../store/channels'
 import router from '../router'
 import { ref, watch, onMounted } from '@vue/composition-api'
+import { useRouter } from '../router/useRouter'
 
 export default {
   setup () {
+    const { route } = useRouter()
+
     const {
       currentLanguage,
       defaultLanguageIdentifier
@@ -33,6 +36,7 @@ export default {
 
     watch(itemRef, (selected, previous) => {
       if (selected == null) {
+        if (previous != null) router.push('/channels')
         return
       }
       if (selected < channelsRef.value.length) {
@@ -46,7 +50,12 @@ export default {
     })
 
     onMounted(() => {
-      loadAllChannels().then(() => { channelsRef.value = getAwailableChannels() })
+      loadAllChannels().then(() => {
+        channelsRef.value = getAwailableChannels()
+        if (route.value && route.value.params && route.value.params.id) {
+          itemRef.value = channelsRef.value.findIndex(elem => elem.identifier === route.value.params.id)
+        }
+      })
     })
 
     return {
