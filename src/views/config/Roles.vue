@@ -441,7 +441,7 @@ export default {
           const res = { channelId: data.channelId, access: data.access }
           res.channel = channels.find(chan => chan.internalId === data.channelId)
           return res
-        })
+        }).filter(elem => elem.channel)
       } else {
         return []
       }

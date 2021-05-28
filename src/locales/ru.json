@@ -288,7 +288,7 @@
   "ItemView.Channels.SubmittedBy": "Послано",
   "ItemView.Channels.SyncedAt": "Синхронизировано в",
   "ItemView.Channels.Message": "Сообщение",
-  "ItemView.Channels.Submitted": "Послано",
+  "ItemView.Channels.Submitted": "В очереди",
   "ItemView.Channels.Synced": "Синхронизировано",
   "ItemView.Channels.Error": "Ошибка",
   "Items.SelectionDialog.Title": "Выбор объекта",

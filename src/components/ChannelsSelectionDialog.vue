@@ -67,7 +67,7 @@ export default {
     function selected () {
       let arr
       if (props.multiselect) {
-        arr = selectedChannelsRef.value.map(idx => channelsListRef.value[idx].internalId)
+        arr = selectedChannelsRef.value.filter(idx => idx !== -1).map(idx => channelsListRef.value[idx].internalId)
       } else {
         arr = [channelsListRef.value[selectedChannelsRef.value].internalId]
       }
