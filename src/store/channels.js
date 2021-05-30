@@ -6,6 +6,22 @@ import * as userStore from './users'
 
 const channels = reactive([])
 
+function hasChannelAccess (channel, fullAccess) {
+  const roles = userStore.store.currentRoles
+  let access = 2
+  for (let i = 0; i < roles.length; i++) {
+    const role = roles[i]
+    const tst = role.channelAccess.find(data => data.channelId === channel.internalId)
+    if (tst && tst.access < access) access = tst.access
+  }
+  if (fullAccess) {
+    if (access === 2) return true
+  } else {
+    if (access >= 1) return true
+  }
+  return false
+}
+
 const actions = {
   loadAllChannels: async () => {
     if (channels.length > 0) return channels
@@ -67,27 +83,16 @@ const actions = {
     const data = await serverFetch('query { getChannelStatus(id: "' + channelId + '") {status count} }')
     return data.getChannelStatus
   },
-  getAwailableChannels (fullAccessOnly) {
+  hasChannelAccess: hasChannelAccess,
+  getAwailableChannels: (fullAccessOnly) => {
     const res = []
     for (var i = 0; i < channels.length; i++) {
       const channel = channels[i]
-
-      const roles = userStore.store.currentRoles
-      let access = 2
-      for (let i = 0; i < roles.length; i++) {
-        const role = roles[i]
-        const tst = role.channelAccess.find(data => data.channelId === channel.internalId)
-        if (tst && tst.access < access) access = tst.access
-      }
-      if (fullAccessOnly) {
-        if (access === 2) res.push(channel)
-      } else {
-        if (access >= 1) res.push(channel)
-      }
+      if (hasChannelAccess(channel, fullAccessOnly)) res.push(channel)
     }
     return res
   },
-  async submitItem (itemId, channelIds) {
+  submitItem: async (itemId, channelIds) => {
     if (channelIds.length === 0) return
     const channelsData = {}
     channels.forEach(channel => {
@@ -100,6 +105,12 @@ const actions = {
       '", channels: ' + objectToGraphgl(channelsData) +
       `)
     }`
+    await serverFetch(query)
+  },
+  triggerChannel: async (id) => {
+    const query = `
+        mutation { triggerChannel(id: "` + id + `")
+      }`
     await serverFetch(query)
   }
 }

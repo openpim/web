@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="channelRef" class="pa-0">
+  <v-container v-if="channelRef && channelReadAccess" class="pa-0">
     <v-row no-gutters>
       <v-col cols="12">
         <v-card class="mx-auto mb-1" outlined>
@@ -27,7 +27,7 @@
               </v-row>
           </v-card-title>
           <v-card-actions>
-            <v-btn v-if="true" text @click="triggerNow" v-text="$t('ChannelView.TriggerNow')"></v-btn>
+            <v-btn v-if="channelWriteAccess" text @click="triggerNow" v-text="$t('ChannelView.TriggerNow')"></v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -77,7 +77,9 @@ export default {
     const {
       channels,
       loadAllChannels,
-      getChannelStatus
+      getChannelStatus,
+      hasChannelAccess,
+      triggerChannel
     } = channelsStore.useStore()
 
     const {
@@ -142,6 +144,14 @@ export default {
       router.push('/search/')
     }
 
+    const channelReadAccess = computed(() => {
+      return channelRef.value ? hasChannelAccess(channelRef.value, false) : false
+    })
+
+    const channelWriteAccess = computed(() => {
+      return channelRef.value ? hasChannelAccess(channelRef.value, true) : false
+    })
+
     watch(route, (current, previous) => {
       if (current && current.params && current.params.id) {
         channelSelected(channels.find(elem => elem.identifier === current.params.id))
@@ -175,6 +185,7 @@ export default {
     })
 
     function triggerNow () {
+      triggerChannel(channelRef.value.internalId)
     }
 
     return {
@@ -190,7 +201,9 @@ export default {
       synckedRef,
       errorRef,
       chartClick,
-      categoryClick
+      categoryClick,
+      channelReadAccess,
+      channelWriteAccess
     }
   }
 }
