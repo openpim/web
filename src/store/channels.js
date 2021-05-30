@@ -63,6 +63,10 @@ const actions = {
     }
     channels.splice(idx, 1)
   },
+  getChannelStatus: async (channelId) => {
+    const data = await serverFetch('query { getChannelStatus(id: "' + channelId + '") {status count} }')
+    return data.getChannelStatus
+  },
   getAwailableChannels (fullAccessOnly) {
     const res = []
     for (var i = 0; i < channels.length; i++) {

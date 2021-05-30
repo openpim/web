@@ -39,8 +39,12 @@
         <v-tabs-items v-model="tabRef">
           <v-tab-item> <!-- Dashboard -->
               <v-row dense>
-                <v-col cols="3">
-                  <PieChart :data="pieData" :options="{onClick: function(event, item){chartClick(event, item)},title: {display: true, text: 'Items by status'}}"></PieChart>
+                <v-col cols="4">
+                  <PieChart v-if="loadedRef" :data="pieData" :options="{onClick: function(event, item){chartClick(event, item)},title: {display: true, text: 'Items by status'}}"></PieChart>
+                </v-col>
+                <v-col cols="8">
+                  <h6>All items by statuses</h6>
+                  <ChannelCategoryStatuses @click="categoryClick" :submitted="submittedRef || 0" :syncked="synckedRef || 0" :error="errorRef || 0"/>
                 </v-col>
               </v-row>
           </v-tab-item>
@@ -57,19 +61,23 @@
 import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import * as channelsStore from '../store/channels'
 import * as langStore from '../store/languages'
+import * as searchStore from '../store/search'
 import { useRouter } from '../router/useRouter'
 import SystemInformation from '../components/SystemInformation'
 import PieChart from '../components/PieChart'
+import ChannelCategoryStatuses from '../components/ChannelCategoryStatuses'
 import i18n from '../i18n'
+import router from '../router'
 
 export default {
-  components: { SystemInformation, PieChart },
+  components: { SystemInformation, PieChart, ChannelCategoryStatuses },
   setup (params, context) {
     const { route } = useRouter()
 
     const {
       channels,
-      loadAllChannels
+      loadAllChannels,
+      getChannelStatus
     } = channelsStore.useStore()
 
     const {
@@ -77,12 +85,66 @@ export default {
       defaultLanguageIdentifier
     } = langStore.useStore()
 
+    const {
+      searchToOpenRef
+    } = searchStore.useStore()
+
     const channelRef = ref(null)
     const tabRef = ref(null)
+    const pieData = ref({ labels: ['Submitted', 'Syncked', 'Error'], datasets: [{ data: [5, 5, 0], backgroundColor: ['#78909C', '#66BB6A', '#EF5350'] }] })
+    const loadedRef = ref(false)
+
+    const submittedRef = ref(0)
+    const synckedRef = ref(0)
+    const errorRef = ref(0)
+
+    function channelSelected (selected) {
+      channelRef.value = selected
+      if (selected) {
+        loadedRef.value = false
+        getChannelStatus(selected.internalId).then(records => {
+          const data = [0, 0, 0]
+          submittedRef.value = 0
+          synckedRef.value = 0
+          errorRef.value = 0
+          records.forEach(elem => {
+            if (elem.status === 1) {
+              data[0] = elem.count
+              submittedRef.value = elem.count
+            }
+            if (elem.status === 2) {
+              data[1] = elem.count
+              synckedRef.value = elem.count
+            }
+            if (elem.status === 3) {
+              data[2] = elem.count
+              errorRef.value = elem.count
+            }
+          })
+          pieData.value.datasets[0].data = data
+          loadedRef.value = true
+        })
+      }
+    }
+
+    function chartClick (event, item) {
+      const status = item[0]._index + 1
+      const where = { channels: {} }
+      where.channels[channelRef.value.identifier] = { status: status }
+      searchToOpenRef.value = { whereClause: where, extended: true }
+      router.push('/search/')
+    }
+
+    function categoryClick (status) {
+      const where = { channels: {} }
+      where.channels[channelRef.value.identifier] = { status: status }
+      searchToOpenRef.value = { whereClause: where, extended: true }
+      router.push('/search/')
+    }
 
     watch(route, (current, previous) => {
       if (current && current.params && current.params.id) {
-        channelRef.value = channels.find(elem => elem.identifier === current.params.id)
+        channelSelected(channels.find(elem => elem.identifier === current.params.id))
       } else {
         channelRef.value = null
       }
@@ -91,7 +153,7 @@ export default {
     onMounted(() => {
       loadAllChannels().then(() => {
         if (route.value && route.value.params && route.value.params.id) {
-          channelRef.value = channels.find(elem => elem.identifier === route.value.params.id)
+          channelSelected(channels.find(elem => elem.identifier === route.value.params.id))
         }
       })
     })
@@ -122,7 +184,13 @@ export default {
       defaultLanguageIdentifier,
       triggerNow,
       nextStart,
-      pieData: { labels: ['Submitted', 'Syncked', 'Error'], datasets: [{ data: ['15', '55', '30'], backgroundColor: ['#78909C', '#388E3C', '#D32F2F'] }] }
+      pieData,
+      loadedRef,
+      submittedRef,
+      synckedRef,
+      errorRef,
+      chartClick,
+      categoryClick
     }
   }
 }
