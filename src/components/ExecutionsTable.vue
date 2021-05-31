@@ -39,7 +39,7 @@
     </template>
     <template v-slot:item.file="{ item }">
         <td>
-          <a v-if="item.storagePath" :href="damUrl + 'asset-channel/' + item.id + '?token=' + token">{{ channel.config.extFile ? channel.config.extFile : 'application/octet-stream' }}</a>
+          <a v-if="item.storagePath" :href="damUrl + 'asset-channel/' + item.id + '?token=' + token">{{ channel.config.file ? channel.config.file : 'application/octet-stream' }}</a>
         </td>
     </template>
     <template v-slot:item.log="{ item }">
