@@ -426,6 +426,8 @@
   "Channels.Type.WB": "Wildberries",
   "Channels.Type.YM": "Яндекс Маркет",
   "Channels.Ext.cmd": "Запускаемая программа",
+  "Channels.Ext.File": "Генерируемое имя файла",
+  "Channels.Ext.Mime": "Mime тип генерированного файла",
   "Channels.SelectionDialog.Title": "Выбор каналов",
   "ChannelView.Dashboard": "Дашборд",
   "ChannelView.Executions": "Запуски",
@@ -438,5 +440,14 @@
   "ChannelView.Active": "Работает",
   "ChannelView.Stopped": "Остановлен",
   "ChannelView.Manual": "в ручную",
-  "ChannelView.InMinutes": "в течении {num} мин."
+  "ChannelView.InMinutes": "в течении {num} мин.",
+  "ExecutionsTable.StartTime": "Время запуска",
+  "ExecutionsTable.EndTime": "Время окончания",
+  "ExecutionsTable.Status": "Статус",
+  "ExecutionsTable.File": "Файл",
+  "ExecutionsTable.Log": "Ход выполнения",
+  "ExecutionsTable.Status.Running": "Работает",
+  "ExecutionsTable.Status.Finished": "Закончено",
+  "ExecutionsTable.Status.Error": "Ошибка",
+  "ExecutionsTable.ViewDetails": "Подробнее"
 }

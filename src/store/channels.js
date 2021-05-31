@@ -1,6 +1,6 @@
 import { reactive, provide, inject } from '@vue/composition-api'
 import i18n from '../i18n'
-import { serverFetch, objectToGraphgl } from './utils'
+import { serverFetch, objectToGraphgl, generateSorting } from './utils'
 import { currentLanguage } from './languages'
 import * as userStore from './users'
 
@@ -112,6 +112,13 @@ const actions = {
         mutation { triggerChannel(id: "` + id + `")
       }`
     await serverFetch(query)
+  },
+  loadExecutions: async (channelId, options) => {
+    const offset = (options.page - 1) * options.itemsPerPage
+    const order = generateSorting(options)
+    const data = await serverFetch('query { getExecutions(channelId: "' + channelId + '", offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) { 
+      count, rows {id, status, startTime, finishTime, storagePath, log }}}`)
+    return data.getExecutions
   }
 }
 

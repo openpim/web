@@ -426,6 +426,8 @@
   "Channels.Type.WB": "Wildberries (Russia)",
   "Channels.Type.YM": "Yandex market (Russia)",
   "Channels.Ext.cmd": "Command to run",
+  "Channels.Ext.File": "Generated file name",
+  "Channels.Ext.Mime": "Mime type of generated file",
   "Channels.SelectionDialog.Title": "Channels selection",
   "ChannelView.Dashboard": "Dashboard",
   "ChannelView.Executions": "Executions",
@@ -438,5 +440,14 @@
   "ChannelView.Active": "Active",
   "ChannelView.Stopped": "Stopped",
   "ChannelView.Manual": "manual",
-  "ChannelView.InMinutes": "in {num} min."
+  "ChannelView.InMinutes": "in {num} min.",
+  "ExecutionsTable.StartTime": "Start Time",
+  "ExecutionsTable.EndTime": "End Time",
+  "ExecutionsTable.Status": "Status",
+  "ExecutionsTable.File": "File",
+  "ExecutionsTable.Log": "Log",
+  "ExecutionsTable.Status.Running": "Running",
+  "ExecutionsTable.Status.Finished": "Finished",
+  "ExecutionsTable.Status.Error": "Error",
+  "ExecutionsTable.ViewDetails": "Details"
 }

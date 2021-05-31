@@ -42,7 +42,7 @@
       </v-tooltip>
       <v-tooltip top v-if="hasChannelsRef">
         <template v-slot:activator="{ on }">
-          <v-btn v-on="on" icon @click="chanSelectionDialogRef.showDialog()"><v-icon>mdi-access-point</v-icon></v-btn>
+          <v-btn v-on="on" icon @click="chanSelectionDialogRef.showDialog()"><v-icon>mdi-access-point-plus</v-icon></v-btn>
         </template>
         <span>{{ $t('Submit') }}</span>
       </v-tooltip>

@@ -49,7 +49,7 @@
               </v-row>
           </v-tab-item>
           <v-tab-item> <!-- Executions -->
-          Executions
+            <ExecutionsTable :channel="channelRef"></ExecutionsTable>
           </v-tab-item>
         </v-tabs-items>
       </v-col>
@@ -66,11 +66,12 @@ import { useRouter } from '../router/useRouter'
 import SystemInformation from '../components/SystemInformation'
 import PieChart from '../components/PieChart'
 import ChannelCategoryStatuses from '../components/ChannelCategoryStatuses'
+import ExecutionsTable from '../components/ExecutionsTable'
 import i18n from '../i18n'
 import router from '../router'
 
 export default {
-  components: { SystemInformation, PieChart, ChannelCategoryStatuses },
+  components: { SystemInformation, PieChart, ChannelCategoryStatuses, ExecutionsTable },
   setup (params, context) {
     const { route } = useRouter()
 
