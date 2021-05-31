@@ -25,7 +25,7 @@
             <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
-            <v-btn v-if="hasChannelsRef" text @click="submit" v-text="$t('Submit')"></v-btn>
+            <v-btn v-if="hasChannels" text @click="submit" v-text="$t('Submit')"></v-btn>
             <template v-if="canEditSelected">
               <v-btn text @click="executeAction(trigger.itemButton)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
@@ -44,7 +44,7 @@
           <v-tab v-if="hasSources" v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
           <v-tab v-if="hasTargets" v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
           <v-tab v-if="hasChildren" v-text="$t('ItemView.Tab.Children')"></v-tab>
-          <v-tab v-if="hasChannelsRef" v-text="$t('ItemView.Tab.Channels')"></v-tab>
+          <v-tab v-if="hasChannels" v-text="$t('ItemView.Tab.Channels')"></v-tab>
           <v-tab v-if="hasAccess('audit') && auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
           <LastTabsComponent></LastTabsComponent>
         </v-tabs>
@@ -139,7 +139,7 @@
           <v-tab-item v-if="hasChildren" eager>  <!-- Children -->
             <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false"></ItemsDataTable>
           </v-tab-item>
-          <v-tab-item v-if="awailableChannelsRef.length > 0" eager>  <!-- Channels -->
+          <v-tab-item v-if="hasChannels" eager>  <!-- Channels -->
             <div v-for="(channel, i) in awailableChannelsRef" :key="i">
               <v-card v-if="itemRef.channels && itemRef.channels[channel.identifier]">
                 <v-card-title class="text-subtitle-2">{{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}</v-card-title>
@@ -311,7 +311,6 @@ export default {
     const itemDuplicationDialogRef = ref(null)
     const chanSelectionDialogRef = ref(null)
     const awailableChannelsRef = ref([])
-    const hasChannelsRef = ref([])
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -636,15 +635,27 @@ export default {
     function channelsSelected (arr) {
       chanSelectionDialogRef.value.closeDialog()
       if (arr.length === 0) return
-      submitItem(itemRef.value.internalId, arr).then(() => {
+      submitItem(itemRef.value.internalId, itemRef.value.typeId, itemRef.value.path, arr).then(() => {
         showInfo(i18n.t('Submitted'))
       })
     }
 
+    const hasChannels = computed(() => {
+      if (itemRef.value) {
+        const pathArr = itemRef.value.path.split('.')
+
+        for (let i = 0; i < awailableChannelsRef.value.length; i++) {
+          const channel = awailableChannelsRef.value[i]
+          const result = channel.valid.includes(itemRef.value.typeId) && channel.visible.find(elem => pathArr.includes(elem))
+          if (result) return true
+        }
+      }
+      return false
+    })
+
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
       loadAllChannels().then(() => {
-        hasChannelsRef.value = getAwailableChannels(true).length > 0
         awailableChannelsRef.value = getAwailableChannels(false)
       })
       checkAuditEnabled()
@@ -729,7 +740,7 @@ export default {
       historyTableRef,
       hasAccess,
       awailableChannelsRef,
-      hasChannelsRef,
+      hasChannels,
       submit,
       chanSelectionDialogRef,
       channelsSelected,

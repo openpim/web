@@ -53,6 +53,51 @@
             </template>
           </v-radio-group>
 
+              <v-card class="mb-5 mt-2">
+                <v-card-title class="subtitle-2 font-weight-bold" >
+                  <div style="width:90%">{{ $t('Config.Attributes.Valid') }}</div>
+                  <v-tooltip bottom v-if="canEditConfigRef">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon v-on="on" @click="editValid"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Edit') }}</span>
+                  </v-tooltip>
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-list dense class="pt-0 pb-0">
+                  <v-list-item v-for="(item, i) in valid" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                    <router-link :to="'/config/types/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
+                  </v-list-item-content></v-list-item>
+                </v-list>
+              </v-card>
+
+              <v-card class="mb-5">
+                <v-card-title class="subtitle-2 font-weight-bold" >
+                  <div style="width:80%">{{ $t('Config.Attributes.Visible') }}</div>
+                  <v-tooltip bottom v-if="canEditConfigRef">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon v-on="on" @click="addVisible"><v-icon>mdi-plus</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Add') }}</span>
+                  </v-tooltip>
+                  <v-tooltip bottom v-if="canEditConfigRef">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon v-on="on" @click="removeVisible" :disabled="visibleSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Remove') }}</span>
+                  </v-tooltip>
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-list dense class="pt-0 pb-0">
+                  <v-list-item-group v-model="visibleSelectedRef" color="primary">
+                    <v-list-item dense class="pt-0 pb-0"  v-for="(item, i) in visible" :key="i">
+                      <v-list-item-content class="pt-0 pb-0" style="display: inline">
+                      <router-link :to="'/item/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list-item-group>
+                </v-list>
+              </v-card>
           <component v-if="configComponent" :is="configComponent" :channel="selectedRef" :readonly="!canEditConfigRef" ></component>
 
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
@@ -60,6 +105,8 @@
         </v-form>
       </v-col>
     </v-row>
+    <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="true" @selected="typesSelected"/>
+    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
   </v-container>
 </template>
 
@@ -68,18 +115,22 @@ import { ref, watch, onMounted, computed } from '@vue/composition-api'
 import * as langStore from '../../store/languages'
 import * as channelsStore from '../../store/channels'
 import * as errorStore from '../../store/error'
+import * as typesStore from '../../store/types'
+import * as itemStore from '../../store/item'
 import i18n from '../../i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
 import router from '../../router'
 import getChannelFactory from '../../channels'
+import TypeSelectionDialog from '../../components/TypeSelectionDialog'
+import ItemsSelectionDialog from '../../components/ItemsSelectionDialog'
 
 import ExtConfigCompoment from '../../channels/ext/ExtConfigCompoment'
 import WBConfigCompoment from '../../channels/wb/WBConfigCompoment'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment },
+  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, TypeSelectionDialog, ItemsSelectionDialog },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
@@ -98,6 +149,21 @@ export default {
       removeChannel,
       loadAllChannels
     } = channelsStore.useStore()
+
+    const {
+      findType,
+      loadAllTypes
+    } = typesStore.useStore()
+
+    const {
+      loadItemsByIds
+    } = itemStore.useStore()
+
+    const typeSelectionDialogRef = ref(null)
+    const itemSelectionDialogRef = ref(null)
+
+    const visible = ref([])
+    const visibleSelectedRef = ref(null)
 
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
@@ -121,6 +187,7 @@ export default {
           showInfo(i18n.t('Config.NotSaved'))
         }
         selectedRef.value = channels[selected]
+        newChannelSelected(selectedRef.value)
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
           router.push('/config/channels/' + selectedRef.value.identifier)
         } else {
@@ -163,7 +230,55 @@ export default {
       types = types.filter(elem => arr.includes(elem.value))
     }
 
+    const valid = computed(() => {
+      if (selectedRef.value.valid) {
+        return selectedRef.value.valid.map((id) => findType(id).node)
+      } else {
+        return []
+      }
+    })
+
+    function editValid () {
+      typeSelectionDialogRef.value.showDialog('valid', selectedRef.value.valid)
+    }
+
+    function typesSelected (arr) {
+      typeSelectionDialogRef.value.closeDialog()
+      selectedRef.value.valid = arr
+    }
+
+    function addVisible () {
+      itemSelectionDialogRef.value.showDialog('visible', selectedRef.value.visible)
+    }
+
+    function itemsSelected (id) {
+      itemSelectionDialogRef.value.closeDialog()
+      const tst = selectedRef.value.visible.find(elem => elem === id)
+      if (!tst) {
+        selectedRef.value.visible.push(id)
+        loadItemsByIds([id], false).then(items => {
+          visible.value.push(items[0])
+        })
+      }
+    }
+
+    function removeVisible () {
+      visible.value.splice(visibleSelectedRef.value, 1)
+      selectedRef.value.visible.splice(visibleSelectedRef.value, 1)
+      visibleSelectedRef.value = null
+    }
+
+    function newChannelSelected (chan) {
+      visible.value = []
+      if (chan && !chan.group && chan.visible && chan.visible.length > 0) {
+        loadItemsByIds(chan.visible, false).then(items => {
+          visible.value = items
+        })
+      }
+    }
+
     onMounted(() => {
+      loadAllTypes()
       canViewConfigRef.value = canViewConfig('channels')
       canEditConfigRef.value = canEditConfig('channels')
       loadAllChannels().then(() => {
@@ -172,6 +287,7 @@ export default {
           const idx = channels.findIndex((elem) => elem.identifier === id)
           if (idx !== -1) {
             selectedRef.value = channels[idx]
+            newChannelSelected(selectedRef.value)
             itemRef.value = idx
           } else {
             router.push('/config/channels')
@@ -213,6 +329,16 @@ export default {
       timeMenuRef,
       timeMenu,
       time,
+      typeSelectionDialogRef,
+      itemSelectionDialogRef,
+      editValid,
+      valid,
+      typesSelected,
+      addVisible,
+      removeVisible,
+      visible,
+      visibleSelectedRef,
+      itemsSelected,
       identifierRules: [
         v => identifierValidation(v)
       ],

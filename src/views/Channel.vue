@@ -12,8 +12,8 @@
                 <v-col cols="10">
             <div class="text-body-2 ml-5 mt-3">
               <div>
-                <span style="font-weight: bold;">{{$t('ChannelView.LastStartAt')}}:</span> {{ channelRef.runtime.lastStart ? 'TODO' : $t('ChannelView.Never')  }}
-                <span class="ml-3" style="font-weight: bold;">{{$t('ChannelView.Duration')}}:</span> {{ channelRef.runtime.duration ? 'TODO' : ''  }}
+                <span style="font-weight: bold;">{{$t('ChannelView.LastStartAt')}}:</span> {{ channelRef.runtime.lastStart ? dateFormat(new Date(Date.parse(channelRef.runtime.lastStart)), DATE_FORMAT) : $t('ChannelView.Never')  }}
+                <span class="ml-3" style="font-weight: bold;">{{$t('ChannelView.Duration')}}:</span> {{ channelRef.runtime.duration ? channelRef.runtime.duration/1000 + ' ' + $t('ChannelView.Seconds') : ''  }}
                 <span class="ml-3" style="font-weight: bold;">{{$t('ChannelView.Status')}}:</span>
                   <v-chip class="ma-2" :color="channelRef.active ? 'green' : ''" :text-color="channelRef.active ? 'white' : 'black'">
                     {{ channelRef.active ? $t('ChannelView.Active') : $t('ChannelView.Stopped')  }}
@@ -69,6 +69,7 @@ import ChannelCategoryStatuses from '../components/ChannelCategoryStatuses'
 import ExecutionsTable from '../components/ExecutionsTable'
 import i18n from '../i18n'
 import router from '../router'
+import dateFormat from 'dateformat'
 
 export default {
   components: { SystemInformation, PieChart, ChannelCategoryStatuses, ExecutionsTable },
@@ -204,7 +205,9 @@ export default {
       chartClick,
       categoryClick,
       channelReadAccess,
-      channelWriteAccess
+      channelWriteAccess,
+      dateFormat,
+      DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }
   }
 }

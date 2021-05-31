@@ -49,7 +49,9 @@ const actions = {
         mutation { createChannel(identifier: "` + channel.identifier + '", name: ' + objectToGraphgl(channel.name) +
         ', active: ' + channel.active +
         ', type: ' + channel.type +
-        ', config: ' + objectToGraphgl(channel.config) +
+        ', valid: [' + (channel.valid || []) +
+        '], visible: [' + (channel.visible || []) +
+        '], config: ' + objectToGraphgl(channel.config) +
         ', mappings: ' + objectToGraphgl(channel.mappings) +
         `)
       }`
@@ -61,7 +63,9 @@ const actions = {
         mutation { updateChannel(id: "` + channel.internalId + '", name: ' + (channel.name ? '' + objectToGraphgl(channel.name) : '') +
         ', active: ' + channel.active +
         ', type: ' + channel.type +
-        ', config: ' + objectToGraphgl(channel.config) +
+        ', valid: [' + (channel.valid || []) +
+        '], visible: [' + (channel.visible || []) +
+        '], config: ' + objectToGraphgl(channel.config) +
         ', mappings: ' + objectToGraphgl(channel.mappings) +
         `)
       }`
@@ -92,20 +96,29 @@ const actions = {
     }
     return res
   },
-  submitItem: async (itemId, channelIds) => {
+  submitItem: async (itemId, itemTypeId, itemPath, channelIds) => {
     if (channelIds.length === 0) return
     const channelsData = {}
+    let wasData = false
+    const pathArr = itemPath.split('.')
+
     channels.forEach(channel => {
       if (channelIds.includes(channel.internalId)) {
-        channelsData[channel.identifier] = { status: 1 }
+        const tst = channel.valid.includes(itemTypeId) && channel.visible.find(elem => pathArr.includes(elem))
+        if (tst) {
+          channelsData[channel.identifier] = { status: 1 }
+          wasData = true
+        }
       }
     })
-    const query = `
-      mutation { updateItem(id: "` + itemId +
-      '", channels: ' + objectToGraphgl(channelsData) +
-      `)
-    }`
-    await serverFetch(query)
+    if (wasData) {
+      const query = `
+        mutation { updateItem(id: "` + itemId +
+        '", channels: ' + objectToGraphgl(channelsData) +
+        `)
+      }`
+      await serverFetch(query)
+    }
   },
   triggerChannel: async (id) => {
     const query = `

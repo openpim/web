@@ -441,6 +441,7 @@
   "ChannelView.Stopped": "Остановлен",
   "ChannelView.Manual": "в ручную",
   "ChannelView.InMinutes": "в течении {num} мин.",
+  "ChannelView.Seconds": "сек.",
   "ExecutionsTable.StartTime": "Время запуска",
   "ExecutionsTable.EndTime": "Время окончания",
   "ExecutionsTable.Status": "Статус",
