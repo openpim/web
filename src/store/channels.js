@@ -132,6 +132,10 @@ const actions = {
     const data = await serverFetch('query { getExecutions(channelId: "' + channelId + '", offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) { 
       count, rows {id, status, startTime, finishTime, storagePath, log }}}`)
     return data.getExecutions
+  },
+  getChannelCategories: async (channelId) => {
+    const data = await serverFetch('query { getChannelCategories(id: "' + channelId + '") {id name} }')
+    return data.getChannelCategories
   }
 }
 

@@ -1,7 +1,7 @@
 <template>
   <v-container v-if="canViewConfigRef">
     <v-row no-gutters>
-      <v-col cols="3">
+      <v-col cols="3" lg="2" xl="2">
         <v-toolbar dense flat>
           <v-toolbar-title>{{ $t('Config.Channels.Channels') }}</v-toolbar-title>
           <v-spacer></v-spacer>
@@ -23,7 +23,7 @@
           </v-list-item-group>
         </v-list>
       </v-col>
-      <v-col cols="9">
+      <v-col cols="9" lg="10" xl="10">
         <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id != -1">
           <div class="d-inline-flex align-center">
             <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Channels.Identifier')" required></v-text-field>
@@ -99,7 +99,6 @@
                 </v-list>
               </v-card>
           <component v-if="configComponent" :is="configComponent" :channel="selectedRef" :readonly="!canEditConfigRef" ></component>
-
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>

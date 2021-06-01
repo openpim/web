@@ -27,6 +27,7 @@
               </v-row>
           </v-card-title>
           <v-card-actions>
+            <v-btn v-if="channelReadAccess" text @click="channelSelected(channelRef)" v-text="$t('DataTable.Refresh')"></v-btn>
             <v-btn v-if="channelWriteAccess" text @click="triggerNow" v-text="$t('ChannelView.TriggerNow')"></v-btn>
           </v-card-actions>
         </v-card>
@@ -206,6 +207,7 @@ export default {
       categoryClick,
       channelReadAccess,
       channelWriteAccess,
+      channelSelected,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }
