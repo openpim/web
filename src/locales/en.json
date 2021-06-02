@@ -196,6 +196,8 @@
   "Config.Channels.Interval": "Interval",
   "Config.Channels.IntervalUOM": "min.",
   "Config.Channels.Time": "Time",
+  "Config.Channels.TabProperties": "Properties",
+  "Config.Channels.TabConfiguration": "Configuration",
   "Config.Actions": "Actions",
   "Config.Actions.Title": "Actions",
   "Config.Actions.NewName": "New action",

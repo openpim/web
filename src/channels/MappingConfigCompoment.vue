@@ -5,7 +5,7 @@
 </template>
 <script>
 import { ref, watch, onMounted } from '@vue/composition-api'
-import * as channelsStore from '../store/channels'
+// import * as channelsStore from '../store/channels'
 
 export default {
   props: {
@@ -18,9 +18,9 @@ export default {
     }
   },
   setup (props, { root }) {
-    const {
+    /* const {
       getChannelCategories
-    } = channelsStore.useStore()
+    } = channelsStore.useStore() */
 
     watch(() => props.channel, (chan, previousValue) => {
       // loadCategories(chan)
@@ -30,7 +30,7 @@ export default {
 
     function loadCategories () {
       if (props.channel) {
-        getChannelCategories(props.channel.internalId).then(data => { categoriesRef.value = data })
+        // getChannelCategories(props.channel.internalId).then(data => { categoriesRef.value = data })
       }
     }
 
