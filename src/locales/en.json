@@ -453,5 +453,8 @@
   "ExecutionsTable.Status.Running": "Running",
   "ExecutionsTable.Status.Finished": "Finished",
   "ExecutionsTable.Status.Error": "Error",
-  "ExecutionsTable.ViewDetails": "Details"
+  "ExecutionsTable.ViewDetails": "Details",
+  "MappingConfigComponent.Category": "Select mapped category",
+  "MappingConfigComponent.Add.Category": "Category",
+  "MappingConfigComponent.Add.Title": "Select category from available in channel"
 }

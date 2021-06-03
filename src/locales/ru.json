@@ -453,5 +453,8 @@
   "ExecutionsTable.Status.Running": "Работает",
   "ExecutionsTable.Status.Finished": "Закончено",
   "ExecutionsTable.Status.Error": "Ошибка",
-  "ExecutionsTable.ViewDetails": "Подробнее"
+  "ExecutionsTable.ViewDetails": "Подробнее",
+  "MappingConfigComponent.Category": "Выбор категории",
+  "MappingConfigComponent.Add.Category": "Категория",
+  "MappingConfigComponent.Add.Title": "Выбор категории из доступных в канале"
 }
