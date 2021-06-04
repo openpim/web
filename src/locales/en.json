@@ -456,5 +456,10 @@
   "ExecutionsTable.ViewDetails": "Details",
   "MappingConfigComponent.Category": "Select mapped category",
   "MappingConfigComponent.Add.Category": "Category",
-  "MappingConfigComponent.Add.Title": "Select category from available in channel"
+  "MappingConfigComponent.Add.Title": "Select category from available in channel",
+  "MappingConfigComponent.Remove.Confirm": "Delete this category mapping?",
+  "MappingConfigComponent.Table.ChannelAttribute": "Channel attribute",
+  "MappingConfigComponent.Table.Attribute": "Attribute",
+  "MappingConfigComponent.Table.Expression": "Expression",
+  "MappingConfigComponent.Table.DictionaryLink": "Details about dictionary for this channel attribute"
 }

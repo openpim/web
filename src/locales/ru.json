@@ -456,5 +456,10 @@
   "ExecutionsTable.ViewDetails": "Подробнее",
   "MappingConfigComponent.Category": "Выбор категории",
   "MappingConfigComponent.Add.Category": "Категория",
-  "MappingConfigComponent.Add.Title": "Выбор категории из доступных в канале"
+  "MappingConfigComponent.Add.Title": "Выбор категории из доступных в канале",
+  "MappingConfigComponent.Remove.Confirm": "Удалить настройки этой категории?",
+  "MappingConfigComponent.Table.ChannelAttribute": "Атрибут из канала",
+  "MappingConfigComponent.Table.Attribute": "Атрибут",
+  "MappingConfigComponent.Table.Expression": "Выражение",
+  "MappingConfigComponent.Table.DictionaryLink": "Описание словара для этого атрибута"
 }

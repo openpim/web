@@ -316,7 +316,7 @@ export default {
                 const lang = languages[i]
                 const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
                 const val = 'attr#' + attr.identifier + '#' + lang.identifier
-                arr.push({ value: val, text: nameText + langText })
+                arr.push({ value: val, text: nameText + langText, lov: attr.lov })
                 checkLOV(attr, val)
               }
             } else {
