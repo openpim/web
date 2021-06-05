@@ -44,8 +44,14 @@
                   <PieChart v-if="loadedRef" :data="pieData" :options="{onClick: function(event, item){chartClick(event, item)},title: {display: true, text: 'Items by status'}}"></PieChart>
                 </v-col>
                 <v-col cols="8">
-                  <h6>All items by statuses</h6>
-                  <ChannelCategoryStatuses @click="categoryClick" :submitted="submittedRef || 0" :syncked="synckedRef || 0" :error="errorRef || 0"/>
+                  <div v-for="(status,i) in statusByCategoriesRef" :key="i">
+                    <h6 :class="i > 0 ? 'mt-8' : ''">{{status.name ? status.name : $t('ChannelView.NoCategory') }}</h6>
+                    <ChannelCategoryStatuses @click="categoryClick" :key="Date.now()"
+                      :category="status.id"
+                      :submitted="status.statuses.find(elem => elem.status === 1).count"
+                      :syncked="status.statuses.find(elem => elem.status === 2).count"
+                      :error="status.statuses.find(elem => elem.status === 3).count"/>
+                  </div>
                 </v-col>
               </v-row>
           </v-tab-item>
@@ -81,6 +87,7 @@ export default {
       channels,
       loadAllChannels,
       getChannelStatus,
+      getChannelStatusByCategories,
       hasChannelAccess,
       triggerChannel
     } = channelsStore.useStore()
@@ -102,6 +109,8 @@ export default {
     const submittedRef = ref(0)
     const synckedRef = ref(0)
     const errorRef = ref(0)
+
+    const statusByCategoriesRef = ref([])
 
     function channelSelected (selected) {
       channelRef.value = selected
@@ -129,6 +138,13 @@ export default {
           pieData.value.datasets[0].data = data
           loadedRef.value = true
         })
+        getChannelStatusByCategories(selected.internalId).then(records => {
+          statusByCategoriesRef.value = records.sort((a, b) => {
+            if (!a.id) return -1
+            if (!b.id) return 1
+            return 0
+          })
+        })
       }
     }
 
@@ -140,9 +156,9 @@ export default {
       router.push('/search/')
     }
 
-    function categoryClick (status) {
+    function categoryClick (status, category) {
       const where = { channels: {} }
-      where.channels[channelRef.value.identifier] = { status: status }
+      where.channels[channelRef.value.identifier] = { status: status, category: category }
       searchToOpenRef.value = { whereClause: where, extended: true }
       router.push('/search/')
     }
@@ -203,6 +219,7 @@ export default {
       submittedRef,
       synckedRef,
       errorRef,
+      statusByCategoriesRef,
       chartClick,
       categoryClick,
       channelReadAccess,

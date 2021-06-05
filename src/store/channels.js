@@ -87,6 +87,10 @@ const actions = {
     const data = await serverFetch('query { getChannelStatus(id: "' + channelId + '") {status count} }')
     return data.getChannelStatus
   },
+  getChannelStatusByCategories: async (channelId) => {
+    const data = await serverFetch('query { getChannelStatusByCategories(id: "' + channelId + '") { id name statuses {status count} } }')
+    return data.getChannelStatusByCategories
+  },
   hasChannelAccess: hasChannelAccess,
   getAwailableChannels: (fullAccessOnly) => {
     const res = []

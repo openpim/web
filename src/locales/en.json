@@ -445,6 +445,7 @@
   "ChannelView.Manual": "manual",
   "ChannelView.InMinutes": "in {num} min.",
   "ChannelView.Seconds": "sec.",
+  "ChannelView.NoCategory": "Without category",
   "ExecutionsTable.StartTime": "Start Time",
   "ExecutionsTable.EndTime": "End Time",
   "ExecutionsTable.Status": "Status",
