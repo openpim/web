@@ -54,6 +54,8 @@
 import { ref, computed } from '@vue/composition-api'
 import * as attrStore from '../store/attributes'
 import * as langStore from '../store/languages'
+import * as channelsStore from '../store/channels'
+
 import i18n from '../i18n'
 
 export default {
@@ -68,6 +70,8 @@ export default {
     const {
       getAllItemsAttributes
     } = attrStore.useStore()
+
+    const { getAwailableChannels } = channelsStore.useStore()
 
     const leftFilterRef = ref('')
     const rightFilterRef = ref('')
@@ -157,6 +161,50 @@ export default {
         { identifier: 'fileOrigName', text: i18n.t('Item.fileOrigName'), align: 'start', sortable: true, filterable: false, value: 'fileOrigName' },
         { identifier: 'mimeType', text: i18n.t('Item.mimeType'), align: 'start', sortable: true, filterable: false, value: 'mimeType' }
       ]
+      const channels = getAwailableChannels()
+      for (let i = 0; i < channels.length; i++) {
+        const channel = channels[i]
+        arr.push({
+          identifier: '#channel_' + channel.identifier + '_status',
+          text: i18n.t('ColumnsSelection.ChannelStatus') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          align: 'start',
+          sortable: true,
+          filterable: false,
+          value: { path: ['channels', channel.identifier, 'status'] }
+        })
+        arr.push({
+          identifier: '#channel_' + channel.identifier + '_submittedAt',
+          text: i18n.t('ColumnsSelection.SubmittedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          align: 'start',
+          sortable: true,
+          filterable: false,
+          value: { path: ['channels', channel.identifier, 'submittedAt'] }
+        })
+        arr.push({
+          identifier: '#channel_' + channel.identifier + '_submittedBy',
+          text: i18n.t('ColumnsSelection.SubmittedBy') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          align: 'start',
+          sortable: true,
+          filterable: false,
+          value: { path: ['channels', channel.identifier, 'submittedBy'] }
+        })
+        arr.push({
+          identifier: '#channel_' + channel.identifier + '_syncedAt',
+          text: i18n.t('ColumnsSelection.SyncedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          align: 'start',
+          sortable: true,
+          filterable: false,
+          value: { path: ['channels', channel.identifier, 'syncedAt'] }
+        })
+        arr.push({
+          identifier: '#channel_' + channel.identifier + '_message',
+          text: i18n.t('ColumnsSelection.ChannelMessage') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          align: 'start',
+          sortable: true,
+          filterable: false,
+          value: { path: ['channels', channel.identifier, 'message'] }
+        })
+      }
       for (let i = 0; i < languages.length; i++) {
         const lang = languages[i]
         const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'

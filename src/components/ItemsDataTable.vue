@@ -62,12 +62,27 @@
 
           <v-img v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="50" max-height="50"></v-img>
 
-          <template v-if="header.identifier !== 'identifier' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
+          <template v-if="!header.identifier.startsWith('#channel_') && header.identifier !== 'identifier' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
             <span v-else>{{ getValue(item, header) }}</span>
           </template>
 
-          <template v-if="inplaceItem && item.identifier === inplaceItem.identifier && header.identifier === inplaceHeader.identifier">
+          <template v-if="header.identifier.startsWith('#channel_')">
+            <template v-if="!getValue(item, header)"></template>
+            <template v-else>
+              <v-chip v-if="header.identifier.endsWith('_status')" :set="status = getValue(item, header)" class="ma-2"
+                :color="status === 1 ? '' : status === 2 ? 'green' : 'red'"
+                :text-color="status === 1 ? 'black' : 'white'">
+                  {{ status === 1 ? $t('ItemView.Channels.Submitted') : status === 2 ? $t('ItemView.Channels.Synced') : $t('ItemView.Channels.Error') }}</v-chip>
+
+              <span v-if="header.identifier.endsWith('_submittedAt')  || header.identifier.endsWith('_syncedAt')">{{ dateFormat(new Date(getValue(item, header)), DATE_FORMAT) }}</span>
+
+              <span v-if="header.identifier.endsWith('_submittedBy')">{{ getValue(item, header) }}</span>
+              <span v-if="header.identifier.endsWith('_message')">{{ getValue(item, header) }}</span>
+            </template>
+          </template>
+
+          <template v-if="!header.identifier.startsWith('#channel_') && inplaceItem && item.identifier === inplaceItem.identifier && header.identifier === inplaceHeader.identifier">
             <!-- Text, Integer, Float, URL-->
             <v-text-field v-if="!inplaceAttribute || (inplaceAttribute.type===AttributeType.Text || inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float || inplaceAttribute.type===AttributeType.URL)"
               :type="inplaceAttribute && (inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float) ? 'number' : 'text'"
@@ -146,6 +161,7 @@ import ColumnsSaveDialog from './ColumnsSaveDialog'
 import ChannelsSelectionDialog from './ChannelsSelectionDialog'
 import AttributeType from '../constants/attributeTypes'
 import XLSX from 'xlsx'
+import dateFormat from 'dateformat'
 
 export default {
   components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog },
@@ -386,8 +402,7 @@ export default {
           rowData.push(row.identifier)
           headersRef.value.forEach(header => {
             if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier') {
-              const value = getValue(row, header)
-              rowData.push(value)
+              rowData.push(getValueWithChannels(header, row, false))
             }
           })
           XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: -1 })
@@ -405,6 +420,28 @@ export default {
 
       excelDialogRef.value = false
     }
+
+    function getValueWithChannels (header, row, formatDate) {
+      let value
+      if (!header.identifier.startsWith('#channel_')) {
+        value = getValue(row, header)
+      } else {
+        if (getValue(row, header)) {
+          if (header.identifier.endsWith('_status')) {
+            const status = getValue(row, header)
+            value = status === 1 ? i18n.t('ItemView.Channels.Submitted') : status === 2 ? i18n.t('ItemView.Channels.Synced') : i18n.t('ItemView.Channels.Error')
+          } else if (header.identifier.endsWith('_submittedAt') || header.identifier.endsWith('_syncedAt')) {
+            value = formatDate ? dateFormat(new Date(getValue(row, header)), process.env.VUE_APP_DATE_FORMAT) : new Date(getValue(row, header))
+          } else {
+            value = getValue(row, header)
+          }
+        } else {
+          value = ''
+        }
+      }
+      return value
+    }
+
     /* generate a download */
     function s2ab (s) {
       var buf = new ArrayBuffer(s.length)
@@ -576,7 +613,7 @@ export default {
           data.rows.forEach(row => {
             headersRef.value.forEach(header => {
               if (header.identifier !== '#thumbnail#') {
-                const value = '' + getValue(row, header)
+                const value = '' + getValueWithChannels(header, row, true)
                 csv += '"' + value.replaceAll('"', '""') + '",'
               }
             })
@@ -756,7 +793,9 @@ export default {
       talendExportSelection: props.export,
       hasChannelsRef,
       chanSelectionDialogRef,
-      channelsSelected
+      channelsSelected,
+      dateFormat,
+      DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }
   }
 }
