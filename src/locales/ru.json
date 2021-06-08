@@ -436,7 +436,6 @@
   "Channels.Ext.File": "Генерируемое имя файла",
   "Channels.Ext.Mime": "Mime тип генерированного файла",
   "Channels.Type.WB": "Wildberries",
-  "Channels.WB.token": "API Токен",
   "Channels.SelectionDialog.Title": "Выбор каналов",
   "ChannelView.Dashboard": "Дашборд",
   "ChannelView.Executions": "Запуски",

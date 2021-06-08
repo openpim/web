@@ -436,7 +436,6 @@
   "Channels.Ext.File": "Generated file name",
   "Channels.Ext.Mime": "Mime type of generated file",
   "Channels.Type.WB": "Wildberries (Russia)",
-  "Channels.WB.token": "API Token",
   "Channels.SelectionDialog.Title": "Channels selection",
   "ChannelView.Dashboard": "Dashboard",
   "ChannelView.Executions": "Executions",

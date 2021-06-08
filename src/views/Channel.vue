@@ -41,7 +41,7 @@
           <v-tab-item> <!-- Dashboard -->
               <v-row dense>
                 <v-col cols="4">
-                  <PieChart v-if="loadedRef" :data="pieData" :options="{onClick: function(event, item){chartClick(event, item)},title: {display: true, text: 'Items by status'}}"></PieChart>
+                  <PieChart v-if="loadedRef" :data="pieData" :options="{onClick: function(event, item){chartClick(event, item)},title: {display: true, text: ''}}"></PieChart>
                 </v-col>
                 <v-col cols="8">
                   <div v-for="(status,i) in statusByCategoriesRef" :key="i">
@@ -103,7 +103,7 @@ export default {
 
     const channelRef = ref(null)
     const tabRef = ref(null)
-    const pieData = ref({ labels: ['Submitted', 'Syncked', 'Error'], datasets: [{ data: [5, 5, 0], backgroundColor: ['#78909C', '#66BB6A', '#EF5350'] }] })
+    const pieData = ref({ labels: [i18n.t('ItemView.Channels.Submitted'), i18n.t('ItemView.Channels.Synced'), i18n.t('ItemView.Channels.Error')], datasets: [{ data: [5, 5, 0], backgroundColor: ['#78909C', '#66BB6A', '#EF5350'] }] })
     const loadedRef = ref(false)
 
     const submittedRef = ref(0)

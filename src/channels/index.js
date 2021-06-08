@@ -2,8 +2,10 @@ import ExtFactory from './ext'
 import WBFactory from './wb'
 
 function getConfigCompoment () { return null }
+function getStandardAttributes () { return null }
 const empty = {
-  getConfigCompoment
+  getConfigCompoment,
+  getStandardAttributes
 }
 
 export default function getChannelFactory (type) {

@@ -110,6 +110,7 @@ import * as attrStore from '../store/attributes'
 import * as langStore from '../store/languages'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import i18n from '../i18n'
+import getChannelFactory from '../channels'
 
 export default {
   props: {
@@ -195,6 +196,8 @@ export default {
     }
 
     function loadAttributes () {
+      if (!props.channel.type) return
+
       attributesLoadedRef.value = false
       getChannelAttributes(props.channel.internalId, categoryRef.value.id).then(arr => {
         channelAttributes = arr.sort((a, b) => {
@@ -202,6 +205,10 @@ export default {
           if (!a.required && b.required) return 1
           return 0
         })
+
+        const stAttributes = getChannelFactory(props.channel.type).getStandardAttributes()
+        channelAttributes = stAttributes.concat(channelAttributes)
+
         channelAttributes.forEach(attr => {
           if (!categoryRef.value.attributes.find(elem => elem.id === attr.id)) {
             categoryRef.value.attributes.push({ id: attr.id, attrIdent: '', expr: '' })
