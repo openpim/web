@@ -60,7 +60,7 @@
                     <input v-model="elem.value[currentLanguage.identifier]" :placeholder="$t('Config.LOV.Value')"/>
                   </td>
                   <td class="pa-1" v-for="(channel, i) in awailableChannelsRef" :key="i">
-                    <input v-model="elem[channel.identifier]"/>
+                    <input v-model="elem[channel.identifier][currentLanguage.identifier]"/>
                   </td>
                   <td class="pa-1">
                     <v-chip @click="editLevels(elem)"><v-icon left>mdi-form-select</v-icon>{{elem.level && elem.level.length > 0 ? '...' : ''}}</v-chip>
@@ -255,7 +255,7 @@ export default {
         if (!elem.filter) root.$set(elem, 'filter', null)
         if (!elem.level) root.$set(elem, 'level', [])
         awailableChannelsRef.value.forEach(channel => {
-          if (!elem[channel.identifier]) root.$set(elem, channel.identifier, null)
+          if (!elem[channel.identifier]) root.$set(elem, channel.identifier, {})
         })
       })
     }

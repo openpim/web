@@ -39,7 +39,7 @@ const actions = {
   addChannel: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Channels.NewName')
-    const newChan = { id: Date.now(), internalId: 0, name: name, active: false, type: 0, valid: [], visible: [], config: { start: 1 }, mappings: {}, runtime: {} }
+    const newChan = { id: Date.now(), language: currentLanguage.value.identifier, internalId: 0, name: name, active: false, type: 0, valid: [], visible: [], config: { start: 1 }, mappings: {}, runtime: {} }
     channels.push(newChan)
     return newChan
   },
@@ -126,7 +126,7 @@ const actions = {
   },
   triggerChannel: async (id) => {
     const query = `
-        mutation { triggerChannel(id: "` + id + `")
+        mutation { triggerChannel(id: "` + id + '", language:"' + currentLanguage.value.identifier + `")
       }`
     await serverFetch(query)
   },
