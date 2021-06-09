@@ -4,6 +4,7 @@ import WBFactory from './wb'
 function getConfigCompoment () { return null }
 function getStandardAttributes () { return null }
 const empty = {
+  hasExecutions: () => false,
   getConfigCompoment,
   getStandardAttributes
 }

@@ -35,7 +35,7 @@
       <v-col cols="12">
         <v-tabs v-model="tabRef">
           <v-tab v-text="$t('ChannelView.Dashboard')"></v-tab>
-          <v-tab v-text="$t('ChannelView.Executions')"></v-tab>
+          <v-tab v-text="$t('ChannelView.Executions')" v-if="channelHasExecutions"></v-tab>
         </v-tabs>
         <v-tabs-items v-model="tabRef">
           <v-tab-item> <!-- Dashboard -->
@@ -55,7 +55,7 @@
                 </v-col>
               </v-row>
           </v-tab-item>
-          <v-tab-item> <!-- Executions -->
+          <v-tab-item v-if="channelHasExecutions"> <!-- Executions -->
             <ExecutionsTable :channel="channelRef"></ExecutionsTable>
           </v-tab-item>
         </v-tabs-items>
@@ -77,6 +77,7 @@ import ExecutionsTable from '../components/ExecutionsTable'
 import i18n from '../i18n'
 import router from '../router'
 import dateFormat from 'dateformat'
+import getChannelFactory from '../channels'
 
 export default {
   components: { SystemInformation, PieChart, ChannelCategoryStatuses, ExecutionsTable },
@@ -163,6 +164,10 @@ export default {
       router.push('/search/')
     }
 
+    const channelHasExecutions = computed(() => {
+      return channelRef.value ? getChannelFactory(channelRef.value.type).hasExecutions() : false
+    })
+
     const channelReadAccess = computed(() => {
       return channelRef.value ? hasChannelAccess(channelRef.value, false) : false
     })
@@ -225,6 +230,7 @@ export default {
       channelReadAccess,
       channelWriteAccess,
       channelSelected,
+      channelHasExecutions,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }
