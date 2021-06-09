@@ -209,9 +209,9 @@ export default {
         const stAttributes = getChannelFactory(props.channel.type).getStandardAttributes()
         channelAttributes = stAttributes.concat(channelAttributes)
 
-        channelAttributes.forEach(attr => {
+        channelAttributes.forEach((attr, idx) => {
           if (!categoryRef.value.attributes.find(elem => elem.id === attr.id)) {
-            categoryRef.value.attributes.push({ id: attr.id, attrIdent: '', expr: '' })
+            categoryRef.value.attributes.splice(idx, 0, { id: attr.id, attrIdent: '', expr: '' })
           }
         })
         attributesLoadedRef.value = true
