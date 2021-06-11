@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="mb-10">
   <v-toolbar dense elevation="1" class="mt-2">
       <v-select dense v-if="savedOptionsVisible()" v-model="savedColumnsSelectionRef" :items="savedColumnsOptionsRef"></v-select>
       <v-spacer></v-spacer>
@@ -638,7 +638,7 @@ export default {
         totalItemsRef.value = data.count
         loadingRef.value = false
 
-        emit('dataLoaded', itemsRef.value)
+        emit('dataLoaded', itemsRef.value, totalItemsRef.value)
 
         const ids = data.rows.map(elem => elem.id)
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })

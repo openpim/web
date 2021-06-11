@@ -43,7 +43,7 @@
           <v-tab v-if="!itemRef.typeFile && filesRef.length > 0" v-text="$t('ItemView.Tab.MediaFiles')"></v-tab>
           <v-tab v-if="hasSources" v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
           <v-tab v-if="hasTargets" v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
-          <v-tab v-if="hasChildren" v-text="$t('ItemView.Tab.Children')"></v-tab>
+          <v-tab v-if="totalChildrenRef === -1 || totalChildrenRef > 0">{{$t('ItemView.Tab.Children') + (totalChildrenRef > 0 ? ' (' + totalChildrenRef + ')' : '')}}</v-tab>
           <v-tab v-if="hasChannels" v-text="$t('ItemView.Tab.Channels')"></v-tab>
           <v-tab v-if="hasAccess('audit') && auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
           <LastTabsComponent></LastTabsComponent>
@@ -136,7 +136,7 @@
           <v-tab-item v-if="hasTargets" eager>  <!-- Links to -->
             <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded"></ItemRelationsList>
           </v-tab-item>
-          <v-tab-item v-if="hasChildren" eager>  <!-- Children -->
+          <v-tab-item v-if="totalChildrenRef === -1 || totalChildrenRef > 0" eager>  <!-- Children -->
             <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false"></ItemsDataTable>
           </v-tab-item>
           <v-tab-item v-if="hasChannels" eager>  <!-- Channels -->
@@ -303,7 +303,7 @@ export default {
     const fileRef = ref(null)
     const imageKeyRef = ref(1)
     const filesRef = ref([])
-    const hasChildren = ref(true)
+    const totalChildrenRef = ref(-1)
     const hasSources = ref(true)
     const hasTargets = ref(true)
     const itemSelectionDialogRef = ref(null)
@@ -384,8 +384,8 @@ export default {
       }
     })
 
-    function childrenLoaded (rows) {
-      hasChildren.value = rows && rows.length > 0
+    function childrenLoaded (rows, total) {
+      totalChildrenRef.value = total || 0
     }
 
     function sourcesLoaded (links) {
@@ -532,7 +532,7 @@ export default {
     }
 
     function itemSelected (item) {
-      hasChildren.value = true
+      totalChildrenRef.value = -1
       hasSources.value = true
       hasTargets.value = true
 
@@ -724,7 +724,7 @@ export default {
       itemType,
       hasSources,
       hasTargets,
-      hasChildren,
+      totalChildrenRef,
       childrenLoaded,
       sourcesLoaded,
       targetsLoaded,
