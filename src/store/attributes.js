@@ -155,6 +155,20 @@ const actions = {
       grp.attributes.splice(idx, 1)
     })
   },
+  getAttributesForSearch: () => {
+    const res = []
+    groups.forEach(group => {
+      if (group.visible) {
+        group.attributes.forEach(attr => {
+          if (attr.options) {
+            const tst = attr.options.find(elem => elem.name === 'search')
+            if (tst && tst.value === 'true' && !res.find(elem => elem.id === attr.id)) res.push(attr)
+          }
+        })
+      }
+    })
+    return res
+  },
   getAttributesForItem: (typeId, path) => {
     typeId = parseInt(typeId)
     const groupsArr = []
