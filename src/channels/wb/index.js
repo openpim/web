@@ -29,7 +29,7 @@ function getStandardAttributes () {
 }
 
 export default {
-  hasExecutions: () => false,
+  hasExecutions: () => true,
   getConfigCompoment,
   getStandardAttributes
 }
