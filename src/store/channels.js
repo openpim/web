@@ -124,9 +124,9 @@ const actions = {
       await serverFetch(query)
     }
   },
-  triggerChannel: async (id) => {
+  triggerChannel: async (id, data) => {
     const query = `
-        mutation { triggerChannel(id: "` + id + '", language:"' + currentLanguage.value.identifier + `")
+        mutation { triggerChannel(id: "` + id + '", language:"' + currentLanguage.value.identifier + '" ' + (data ? ', data: ' + objectToGraphgl(data) : '') + `)
       }`
     await serverFetch(query)
   },
