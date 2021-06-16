@@ -353,6 +353,7 @@ const actions = {
                     identifier
                     name
                     typeId
+                    values
                 }
             }
         }}}       

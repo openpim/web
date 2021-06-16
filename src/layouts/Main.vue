@@ -35,6 +35,9 @@
           <v-list-item-content>
             <v-list-item-title><router-link :to="'/item/'+item.identifier">{{item.identifier + ' (' +item.type.identifier+')'}}</router-link></v-list-item-title>
             <v-list-item-subtitle>{{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</v-list-item-subtitle>
+            <v-list-item-subtitle v-for="(attr, idx) in searchAttributesRef" :key="idx">
+              {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}: {{item.values[attr.identifier]}}
+            </v-list-item-subtitle>
           </v-list-item-content>
         </template>
       </v-autocomplete>
@@ -99,6 +102,7 @@ import * as userStore from '../store/users'
 import * as itemStore from '../store/item'
 import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
+import * as attrStore from '../store/attributes'
 import i18n from '../i18n'
 import router from '../router'
 import TitleComponent from '../_customizations/toolbar/title/TitleComponent'
@@ -139,6 +143,11 @@ export default {
     } = itemStore.useStore()
 
     const {
+      loadAllAttributes,
+      getAttributesForSearch
+    } = attrStore.useStore()
+
+    const {
       loadAllChannels
     } = channelsStore.useStore()
 
@@ -156,6 +165,7 @@ export default {
     const searchResultsRef = ref([])
     const searchRef = ref('')
     const searchLoadingRef = ref(false)
+    const searchAttributesRef = ref([])
     let awaitingSearch = false
 
     watch(searchRef, (val) => {
@@ -272,6 +282,9 @@ export default {
       setBorderWidth()
       setResizeEvents()
       if (currentUserRef.value.tenantId !== '0') {
+        loadAllAttributes().then(() => {
+          searchAttributesRef.value = getAttributesForSearch()
+        })
         loadAllChannels().then(channels => {
           if (channels && channels.length > 0) hasChannelsRef.value = true
         })
@@ -302,6 +315,7 @@ export default {
       searchResultsRef,
       searchLoadingRef,
       searchSelected,
+      searchAttributesRef,
       hasConfigRef,
       hasChannelsRef,
       hasAccess,
