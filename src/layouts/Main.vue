@@ -176,6 +176,7 @@ export default {
             searchItem(val).then(data => {
               searchResultsRef.value = data.rows.map(elem => {
                 elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
+                searchAttributesRef.value.forEach(attr => { elem.text += ' ' + elem.values[attr.identifier] })
                 return elem
               })
               searchLoadingRef.value = false
