@@ -30,7 +30,7 @@
       </v-row>
     </template>
 
-    <v-btn v-if="!readonly" class="mb-4" text @click="sync">Синхронизация данных</v-btn>
+    <v-btn v-if="!readonly" class="mb-5 mt-5" text @click="sync">Синхронизация данных</v-btn>
   </div>
 </template>
 <script>
@@ -65,6 +65,9 @@ export default {
       }
       if (chan && !chan.config.wbKeyAttribute) {
         root.$set(chan.config, 'wbKeyAttribute', '')
+      }
+      if (chan && !chan.config.imgRelations) {
+        root.$set(chan.config, 'imgRelations', [])
       }
     })
 

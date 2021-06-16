@@ -2,6 +2,25 @@
   <div>
     <v-row>
       <v-col cols="11">
+
+              <v-card class="mb-5 mt-2">
+                <v-card-title class="subtitle-2 font-weight-bold" >
+                  <div style="width:90%">Зависимости для изображений</div>
+                  <v-tooltip bottom v-if="!readonly">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon v-on="on" @click="editRelations"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Edit') }}</span>
+                  </v-tooltip>
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-list dense class="pt-0 pb-0">
+                  <v-list-item v-for="(item, i) in imgRelations" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                    <router-link :to="'/config/relations/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
+                  </v-list-item-content></v-list-item>
+                </v-list>
+              </v-card>
+
         <v-select v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')"></v-select>
 
         <div v-if="categoryIdRef">
@@ -101,6 +120,7 @@
         </v-dialog>
       </v-row>
     </template>
+    <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="true" @selected="relationsSelected"/>
   </div>
 </template>
 <script>
@@ -108,7 +128,9 @@ import { ref, onMounted, computed } from '@vue/composition-api'
 import * as channelsStore from '../store/channels'
 import * as attrStore from '../store/attributes'
 import * as langStore from '../store/languages'
+import * as relStore from '../store/relations'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
+import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
 import i18n from '../i18n'
 import getChannelFactory from '../channels'
 
@@ -122,7 +144,7 @@ export default {
       required: true
     }
   },
-  components: { ValidVisibleComponent },
+  components: { ValidVisibleComponent, RelationsSelectionDialog },
   setup (props, { root }) {
     const {
       languages,
@@ -139,6 +161,11 @@ export default {
       loadAllAttributes,
       getAllItemsAttributes
     } = attrStore.useStore()
+
+    const {
+      relations,
+      loadAllRelations
+    } = relStore.useStore()
 
     const mappedCategories = computed(() => {
       if (props.channel && props.channel.mappings) {
@@ -162,6 +189,8 @@ export default {
     const pimAttributesRef = ref([])
     const exprDialogRef = ref(null)
     const exprAttrRef = ref(null)
+    const relSelectionDialogRef = ref(null)
+    const relationsLoadedRef = ref(false)
 
     function loadCategories () {
       if (props.channel) {
@@ -233,7 +262,25 @@ export default {
       exprDialogRef.value = true
     }
 
+    const imgRelations = computed(() => {
+      if (relationsLoadedRef.value && props.channel && props.channel.config.imgRelations) {
+        return props.channel.config.imgRelations.map(id => relations.find(rel => rel.id === id))
+      } else {
+        return []
+      }
+    })
+
+    function editRelations () {
+      relSelectionDialogRef.value.showDialog('', props.channel.config.imgRelations)
+    }
+
+    function relationsSelected (arr) {
+      relSelectionDialogRef.value.closeDialog()
+      props.channel.config.imgRelations = arr
+    }
+
     onMounted(() => {
+      loadAllRelations().then(() => { relationsLoadedRef.value = true })
       loadAllAttributes().then(() => {
         const arr = []
         const attrs = getAllItemsAttributes()
@@ -274,6 +321,12 @@ export default {
       showExpression,
       exprDialogRef,
       exprAttrRef,
+      imgRelations,
+      relSelectionDialogRef,
+      relationsSelected,
+      editRelations,
+      currentLanguage,
+      defaultLanguageIdentifier,
       add,
       remove
     }
