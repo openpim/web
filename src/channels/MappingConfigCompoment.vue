@@ -2,7 +2,6 @@
   <div>
     <v-row>
       <v-col cols="11">
-
               <v-card class="mb-5 mt-2">
                 <v-card-title class="subtitle-2 font-weight-bold" >
                   <div style="width:90%">Зависимости для изображений</div>
@@ -20,7 +19,10 @@
                   </v-list-item-content></v-list-item>
                 </v-list>
               </v-card>
-
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="11">
         <v-select v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')"></v-select>
 
         <div v-if="categoryIdRef">
@@ -38,12 +40,20 @@
                 <tbody>
                   <tr v-for="(elem, i) in categoryRef.attributes" :key="i" :set="attr = getAttribute(elem.id)">
                     <td class="pa-1">
-                      <span :class="attr.required ? 'font-weight-bold' : ''">{{ attr.name }}</span>
+                      <v-tooltip bottom v-if="attr.description" color="blue-grey darken-4">
+                        <template v-slot:activator="{ on }">
+                          <v-icon v-on="on" class="mr-2">mdi-information-outline</v-icon>
+                        </template>
+                        <span>{{ attributeByIndex(i).description }}</span>
+                      </v-tooltip>
+
+                      <span v-on="on" :class="attr.required ? 'font-weight-bold' : ''">{{ attr.name }}</span>
+
                       <v-tooltip bottom v-if="attr.dictionaryLink">
                         <template v-slot:activator="{ on }">
                           <v-btn icon v-on="on" @click="openWindow(i)"><v-icon>mdi-arrow-top-right</v-icon></v-btn>
                         </template>
-                        <span>{{ $t('MappingConfigComponent.Table.DictionaryLink') }}</span>
+                        <span>{{ $t('MappingConfigComponent.Table.DictionaryLink') + ' - ' + attr.dictionaryLink}}</span>
                       </v-tooltip>
                     </td>
                     <td class="pa-1">
@@ -129,6 +139,7 @@ import * as channelsStore from '../store/channels'
 import * as attrStore from '../store/attributes'
 import * as langStore from '../store/languages'
 import * as relStore from '../store/relations'
+import * as errorStore from '../store/error'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
 import i18n from '../i18n'
@@ -146,6 +157,10 @@ export default {
   },
   components: { ValidVisibleComponent, RelationsSelectionDialog },
   setup (props, { root }) {
+    const {
+      showError
+    } = errorStore.useStore()
+
     const {
       languages,
       currentLanguage,
@@ -194,7 +209,11 @@ export default {
 
     function loadCategories () {
       if (props.channel) {
-        getChannelCategories(props.channel.internalId).then(data => { categoriesRef.value = data })
+        getChannelCategories(props.channel.internalId)
+          .then(data => { categoriesRef.value = data })
+          .catch((error) => {
+            showError(error.message)
+          })
       }
     }
 
@@ -247,6 +266,9 @@ export default {
         // remove attributes not in channel
         categoryRef.value.attributes = categoryRef.value.attributes.filter(elem => channelAttributes.find(attr => elem.id === attr.id))
       })
+        .catch((error) => {
+          showError(error.message)
+        })
     }
 
     function getAttribute (id) {
@@ -254,7 +276,24 @@ export default {
     }
 
     function openWindow (i) {
-      window.open(channelAttributes[i].dictionaryLink, '_blank').focus()
+      const attr = channelAttributes[i]
+      if (!attr.dictionaryLinkPost) {
+        window.open(attr.dictionaryLink, '_blank').focus()
+      } else {
+        fetch(attr.dictionaryLink, {
+          method: 'POST',
+          headers: attr.dictionaryLinkPost.headers,
+          body: JSON.stringify(attr.dictionaryLinkPost.body)
+        }).then(response => response.json()).then(json => {
+          const newWin = window.open('', '_blank')
+          newWin.document.write('<pre>' + JSON.stringify(json, null, 2) + '</pre>')
+          newWin.focus()
+        })
+      }
+    }
+
+    function attributeByIndex (i) {
+      return channelAttributes[i]
     }
 
     function showExpression (attr) {
@@ -317,6 +356,7 @@ export default {
       getAttribute,
       attributesLoadedRef,
       openWindow,
+      attributeByIndex,
       pimAttributesRef,
       showExpression,
       exprDialogRef,

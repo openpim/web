@@ -142,7 +142,7 @@ const actions = {
     return data.getChannelCategories
   },
   getChannelAttributes: async (channelId, categoryId) => {
-    const data = await serverFetch('query { getChannelAttributes(channelId: "' + channelId + '", categoryId: "' + categoryId + '") {id name required dictionary dictionaryLink} }')
+    const data = await serverFetch('query { getChannelAttributes(channelId: "' + channelId + '", categoryId: "' + categoryId + '") {id name required dictionary description dictionaryLink dictionaryLinkPost} }')
     return data.getChannelAttributes
   }
 }
