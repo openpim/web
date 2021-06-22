@@ -26,6 +26,7 @@ const actions = {
     if (rel.internalId === 0) {
       const query = `
         mutation { createRelation(identifier: "` + rel.identifier + '", name: ' + objectToGraphgl(rel.name) +
+        ', order: ' + rel.order +
         ', sources: [' + rel.sources +
         '], targets: [' + rel.targets +
         '], child: ' + rel.child +
@@ -38,6 +39,7 @@ const actions = {
     } else {
       const query = `
         mutation { updateRelation(id: "` + rel.internalId + '", name: ' + (rel.name ? objectToGraphgl(rel.name) : '') +
+        ', order: ' + rel.order +
         ', sources: [' + rel.sources +
         '], targets: [' + rel.targets +
         '], child: ' + rel.child +

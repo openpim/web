@@ -104,6 +104,7 @@
   "Config.Relations.Targets": "Назначение",
   "Config.Relations.Child": "Показывается в виде ребенка",
   "Config.Relations.Multi": "Может быть больше чем одна",
+  "Config.Relations.Order": "Порядковый номер",
   "Config.Languages.Languages": "Языки:",
   "Config.Languages.NewName": "Новый язык",
   "Config.Languages.Identifier": "Идентификатор",

@@ -102,6 +102,7 @@
   "Config.Relations.Confirm.Delete": "Remove relation?",
   "Config.Relations.Sources": "Sources",
   "Config.Relations.Targets": "Targets",
+  "Config.Relations.Order": "Order",
   "Config.Relations.Child": "Visible as child",
   "Config.Relations.Multi": "Can be more than one",
   "Config.Languages.Languages": "Languages:",
