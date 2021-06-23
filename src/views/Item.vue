@@ -247,7 +247,7 @@ export default {
 
     const { showInfo, showError } = errorStore.useStore()
 
-    const { canEditItem, hasAccess } = userStore.useStore()
+    const { currentUserRef, currentRoles, canEditItem, hasAccess } = userStore.useStore()
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
@@ -540,7 +540,24 @@ export default {
         filesRef.value = arr
       })
 
-      attrGroups.value = getAttributesForItem(item.typeId, item.path)
+      const arr = getAttributesForItem(item.typeId, item.path)
+
+      attrGroups.value = arr.filter(group => {
+        const expr = getOption(group, 'visible', null)
+        if (expr) {
+          try {
+            // eslint-disable-next-line no-new-func
+            const func = new Function('item', 'group', 'user', 'roles', '"use strict"; return (' + expr + ')')
+            return func(item, group, currentUserRef.value, currentRoles)
+          } catch (err) {
+            console.error('Failed to evaluate expression: "' + expr + '" for group: ' + group.identifier, err)
+            return false
+          }
+        } else {
+          return true
+        }
+      })
+
       if (!item.values) item.values = {}
       attrGroups.value.forEach(group => {
         group.itemAttributes.forEach(attr => {

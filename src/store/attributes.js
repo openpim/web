@@ -52,7 +52,7 @@ const actions = {
           mutation { createAttributeGroup(identifier: "` + item.identifier + '", name: ' + objectToGraphgl(item.name) +
           ', visible: ' + item.visible +
           ', order: ' + item.order +
-          `)
+          ', options: ' + objectToGraphgl(item.options) + ` )
         }`
         const data = await serverFetch(query)
         newId = parseInt(data.createAttributeGroup)
@@ -85,7 +85,7 @@ const actions = {
           mutation { updateAttributeGroup(id: "` + item.internalId + '", name: ' + (item.name ? objectToGraphgl(item.name) : '') +
           ', visible: ' + item.visible +
           ', order: ' + item.order +
-          `)
+          ', options: ' + objectToGraphgl(item.options) + ` )
         }`
       } else {
         query = `
