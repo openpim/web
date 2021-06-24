@@ -586,7 +586,8 @@ export default {
       ],
       accessSelection: [
         { text: i18n.t('Config.Roles.Select.Config1'), value: 0 },
-        { text: i18n.t('Config.Roles.Select.Config2'), value: 1 }
+        { text: i18n.t('Config.Roles.Select.Config2'), value: 1 },
+        { text: i18n.t('Config.Roles.Select.Config3'), value: 2 }
       ],
       identifierRules: [
         v => identifierValidation(v)

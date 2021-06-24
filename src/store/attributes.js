@@ -176,16 +176,16 @@ const actions = {
     groups.forEach(group => {
       if (group.visible) {
         const roles = userStore.store.currentRoles
-        let access = 2
+        let access = -1
         for (let i = 0; i < roles.length; i++) {
           const role = roles[i]
           if (role.itemAccess.valid.find(tId => tId === typeId)) {
             const tst = role.itemAccess.groups.find(data => data.groupId === group.id)
-            if (tst && tst.access < access) access = tst.access
+            if (tst && tst.access > access) access = tst.access
           }
         }
 
-        if (access !== 0) {
+        if (access === -1 || access > 0) {
           const attrArr = []
           group.attributes.forEach(attr => {
             if (attr.valid.includes(typeId)) {

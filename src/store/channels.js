@@ -8,16 +8,16 @@ const channels = reactive([])
 
 function hasChannelAccess (channel, fullAccess) {
   const roles = userStore.store.currentRoles
-  let access = 2
+  let access = -1
   for (let i = 0; i < roles.length; i++) {
     const role = roles[i]
     const tst = role.channelAccess.find(data => data.channelId === channel.internalId)
-    if (tst && tst.access < access) access = tst.access
+    if (tst && tst.access > access) access = tst.access
   }
   if (fullAccess) {
-    if (access === 2) return true
+    if (access === -1 || access === 2) return true
   } else {
-    if (access >= 1) return true
+    if (access === -1 || access >= 1) return true
   }
   return false
 }
