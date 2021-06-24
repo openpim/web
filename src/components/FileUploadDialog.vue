@@ -9,7 +9,7 @@
           <v-row>
             <v-col cols="12">
               <v-form ref="formRef" lazy-validation class="ml-7">
-                <v-file-input show-size v-model="fileRef" :label="$t('FileUploadDialog.NewFile')"></v-file-input>
+                <v-file-input chips multiple show-size v-model="fileRef" :label="$t('FileUploadDialog.NewFile')"></v-file-input>
                 <v-select v-model="relationRef" :items="relationsWithFiles" :label="$t('FileUploadDialog.FileType')"></v-select>
                 <div class="d-inline-flex align-center">
                   <div v-if="selectedParentRef">
@@ -117,7 +117,8 @@ export default {
     }
 
     function upload () {
-      emit('upload', { file: fileRef.value, fileItemTypeId: fileItemTypeId, parentId: selectedParentRef.value.id, relationId: relationRef.value }, initiator)
+      const arr = fileRef.value.map(fileRef => { return { file: fileRef, fileItemTypeId: fileItemTypeId, parentId: selectedParentRef.value.id, relationId: relationRef.value } })
+      emit('upload', arr, initiator)
     }
 
     function showDialog (init, selected) {
@@ -131,9 +132,7 @@ export default {
       selectedParentRef.value = null
       const tstParent = localStorage.getItem('upload_parent')
       if (tstParent) {
-        loadItemsByIds([parseInt(tstParent)], false).then(items => {
-          if (items.length > 0) selectedParentRef.value = items[0]
-        })
+        parentSelected(parseInt(tstParent))
       }
     }
 

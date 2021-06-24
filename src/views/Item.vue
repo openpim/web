@@ -407,16 +407,22 @@ export default {
       })
     }
 
-    function linkNewFile (fileData) {
+    function linkNewFile (filesData) {
       fileUploadDialogRef.value.closeDialog()
-      uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier).then((ok) => {
-        if (ok) {
-          showInfo(i18n.t('Saved'))
-          loadAssets(itemRef.value.id).then(arr => {
-            filesRef.value = arr
-          })
-        }
-      })
+      let result = true
+      debugger
+      for (let i = 0; i < filesData.length; i++) {
+        const fileData = filesData[i]
+        uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier).then((ok) => {
+          if (!ok) result = false
+        })
+      }
+      if (result) {
+        showInfo(i18n.t('Saved'))
+        loadAssets(itemRef.value.id).then(arr => {
+          filesRef.value = arr
+        })
+      }
     }
 
     function removeFile () {
