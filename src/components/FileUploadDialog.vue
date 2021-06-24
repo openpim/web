@@ -24,7 +24,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Cancel') }}</v-btn>
+        <v-btn color="blue darken-1" text @click="closeDialog">{{ $t('Cancel') }}</v-btn>
         <v-btn color="blue darken-1" text @click="upload" :disabled="!fileRef || !relationRef || !selectedParentRef">{{ $t('ItemView.Upload') }}</v-btn>
       </v-card-actions>
     </v-card>
@@ -125,12 +125,25 @@ export default {
       dialogRef.value = true
 
       fileItemTypeId = null
-      relationRef.value = relationsWithFiles.value[0].value
+      const tst = localStorage.getItem('upload_relation')
+      relationRef.value = tst ? parseInt(tst) : relationsWithFiles.value[0].value
       fileRef.value = null
       selectedParentRef.value = null
+      const tstParent = localStorage.getItem('upload_parent')
+      if (tstParent) {
+        loadItemsByIds([parseInt(tstParent)], false).then(items => {
+          if (items.length > 0) selectedParentRef.value = items[0]
+        })
+      }
     }
 
     function closeDialog () {
+      if (relationRef.value) {
+        localStorage.setItem('upload_relation', relationRef.value)
+      }
+      if (selectedParentRef.value) {
+        localStorage.setItem('upload_parent', selectedParentRef.value.id)
+      }
       dialogRef.value = false
     }
 
