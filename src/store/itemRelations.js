@@ -58,12 +58,14 @@ const actions = {
               id
               identifier
               name
+              updatedAt
             }
             target {
                 id
                 identifier
                 name
-            }
+                updatedAt
+              }
             values
           }
         } }`)
@@ -104,12 +106,14 @@ const actions = {
               id
               identifier
               name
+              updatedAt
             }
             target {
                 id
                 identifier
                 name
-            }
+                updatedAt
+              }
             values
           }
         } }`)
@@ -151,12 +155,14 @@ const actions = {
               id
               identifier
               name
+              updatedAt
             }
             target {
                 id
                 identifier
                 name
-            }
+                updatedAt
+              }
             values
           }
         } }`)
@@ -197,12 +203,14 @@ const actions = {
               id
               identifier
               name
+              updatedAt
             }
             target {
                 id
                 identifier
                 name
-            }
+                updatedAt
+              }
             values
           }
         } }`)

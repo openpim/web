@@ -317,6 +317,8 @@
   "ItemRelationsList.RowsPerPage": "Rows per page:",
   "ItemRelationsList.TotalRows": "Total rows:",
   "ItemRelationsList.Required": "Required",
+  "ItemRelationsList.TargetDate": "Target modification date",
+  "ItemRelationsList.SourceDate": "Source modification date",
   "ItemRelationsList.MustBePositive": "Must be positive",
   "User.Details": "User details",
   "AttrGroups.SelectionDialog.Title": "Attribute groups selection",
