@@ -335,7 +335,7 @@ export default {
       lovSelection,
       lovChanged,
       AttributeType,
-      joditConfig: { readonly: props.attr.readonly, toolbarButtonSize: 'small' },
+      joditConfig: { readonly: props.attr.readonly, toolbarAdaptive: false, toolbarButtonSize: 'small' },
       editor: ClassicEditor,
       editorConfigReadonly: {
         plugins: [
