@@ -410,7 +410,6 @@ export default {
     function linkNewFile (filesData) {
       fileUploadDialogRef.value.closeDialog()
       let result = true
-      debugger
       for (let i = 0; i < filesData.length; i++) {
         const fileData = filesData[i]
         uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier).then((ok) => {
