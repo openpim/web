@@ -9,8 +9,13 @@
               <thead>
                 <tr>
                   <th class="text-left">{{$t('ItemRelationsList.Identifier')}}</th>
+
                   <th class="text-left" v-if="componentType === 'source'">{{$t('ItemRelationsList.Target')}}</th>
                   <th class="text-left" v-if="componentType === 'target'">{{$t('ItemRelationsList.Source')}}</th>
+
+                  <th class="text-left" v-if="componentType === 'source'">{{$t('ItemRelationsList.TargetDate')}}</th>
+                  <th class="text-left" v-if="componentType === 'target'">{{$t('ItemRelationsList.SourceDate')}}</th>
+
                   <th class="text-left" v-for="(attr, i) in getAttributesForRelation(identifier)" :key="i">
                     {{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}
                   </th>
@@ -42,6 +47,14 @@
                       </template>
                       <span>{{ $t('Select') }}</span>
                     </v-tooltip>
+                  </td>
+                  <td class="pa-1">
+                    <span v-if="componentType === 'source' && itemRel.target">
+                      {{  dateFormat(new Date(itemRel.target.updatedAt), DATE_FORMAT) }}
+                    </span>
+                    <span v-if="componentType === 'target' && itemRel.item">
+                      {{  dateFormat(new Date(itemRel.item.updatedAt), DATE_FORMAT) }}
+                    </span>
                   </td>
                   <td class="text-left" v-for="(attr, i) in getAttributesForRelation(identifier)" :key="i">
                     <AttributeValue @input="attrChange(itemRel.identifier)" :item="item" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
@@ -131,6 +144,7 @@ import * as userStore from '../store/users'
 import AttributeValue from './AttributeValue'
 import SystemInformation from './SystemInformation'
 import HistoryTable from '../components/HistoryTable'
+import dateFormat from 'dateformat'
 import router from '../router'
 
 export default {
@@ -216,6 +230,8 @@ export default {
 
     function pageSizeChanged (identifier) {
       if (pageSize.value > 0) {
+        if (props.componentType === 'source') pagesSource[identifier] = 1
+        else pagesTarget[identifier] = 1
         pageChanged(identifier)
       }
     }
@@ -409,7 +425,9 @@ export default {
       pageSizeChanged,
       hasAccess,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
-      pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive')
+      pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive'),
+      dateFormat,
+      DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }
   }
 }

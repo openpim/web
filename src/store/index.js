@@ -12,6 +12,7 @@ import * as searchStore from './search'
 import * as actionsStore from './actions'
 import * as dashStore from './dashboards'
 import * as auditStore from './audit'
+import * as channelsStore from './channels'
 
 export default () => {
   errorStore.provideStore()
@@ -28,4 +29,5 @@ export default () => {
   actionsStore.provideStore()
   dashStore.provideStore()
   auditStore.provideStore()
+  channelsStore.provideStore()
 }

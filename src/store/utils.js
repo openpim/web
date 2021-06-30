@@ -97,4 +97,20 @@ function objectToGraphgl (value) {
   return JSON.stringify(value).replace(/"([^(")"]+)":/g, '$1:')
 }
 
-export { findNode, findNodeByComparator, removeNode, removeNodeByInternalId, objectToGraphgl }
+function generateSorting (options) {
+  const order = []
+  if (options.sortBy) {
+    for (let i = 0; i < options.sortBy.length; i++) {
+      const elem = options.sortBy[i]
+      if (typeof elem === 'object') {
+        const path = elem.path.reduce((accumulator, currentValue, index, arr) => accumulator + (index !== arr.length ? '.' : '') + currentValue)
+        order.push([path, options.sortDesc[i] ? 'DESC' : 'ASC'])
+      } else {
+        order.push([elem, options.sortDesc[i] ? 'DESC' : 'ASC'])
+      }
+    }
+  }
+  return order
+}
+
+export { findNode, findNodeByComparator, removeNode, removeNodeByInternalId, objectToGraphgl, generateSorting }

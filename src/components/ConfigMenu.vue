@@ -16,6 +16,10 @@
           <v-list-item-icon><v-icon>mdi-view-headline</v-icon></v-list-item-icon>
           <v-list-item-content><v-list-item-title>{{ $t('Config.LOVs') }}</v-list-item-title></v-list-item-content>
         </v-list-item>
+        <v-list-item link to="/config/channels" v-if="canViewConfig('channels')">
+          <v-list-item-icon><v-icon>mdi-access-point</v-icon></v-list-item-icon>
+          <v-list-item-content><v-list-item-title>{{ $t('Config.Channels') }}</v-list-item-title></v-list-item-content>
+        </v-list-item>
         <v-list-item link to="/config/actions" v-if="canViewConfig('actions')">
           <v-list-item-icon><v-icon>mdi-file-code-outline</v-icon></v-list-item-icon>
           <v-list-item-content><v-list-item-title>{{ $t('Config.Actions') }}</v-list-item-title></v-list-item-content>

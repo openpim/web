@@ -32,13 +32,13 @@
           </div>
 
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Languages.Name')"></LanguageDependentField>
-
         <v-simple-table dense class="mb-4">
             <template v-slot:default>
               <thead>
                 <tr>
                   <th class="text-left">{{$t('Config.LOV.ID')}}</th>
                   <th class="text-left">{{$t('Config.LOV.Value')}}</th>
+                  <th class="text-left" v-for="(channel, i) in awailableChannelsRef" :key="i">{{channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']'}}</th>
                   <th class="text-left">{{$t('Config.LOV.Level')}}</th>
                   <th class="text-left">
                     {{$t('Config.LOV.Filter')}}
@@ -58,6 +58,9 @@
                   </td>
                   <td class="pa-1">
                     <input v-model="elem.value[currentLanguage.identifier]" :placeholder="$t('Config.LOV.Value')"/>
+                  </td>
+                  <td class="pa-1" v-for="(channel, i) in awailableChannelsRef" :key="i">
+                    <input v-model="elem[channel.identifier][currentLanguage.identifier]"/>
                   </td>
                   <td class="pa-1">
                     <v-chip @click="editLevels(elem)"><v-icon left>mdi-form-select</v-icon>{{elem.level && elem.level.length > 0 ? '...' : ''}}</v-chip>
@@ -137,6 +140,7 @@ import * as lovStore from '../../store/lovs'
 import * as errorStore from '../../store/error'
 import * as itemStore from '../../store/item'
 import * as typesStore from '../../store/types'
+import * as channelsStore from '../../store/channels'
 import i18n from '../../i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
@@ -165,6 +169,8 @@ export default {
       removeLOV
     } = lovStore.useStore()
 
+    const { loadAllChannels, getAwailableChannels } = channelsStore.useStore()
+
     const { loadItemsByIds } = itemStore.useStore()
 
     const { loadAllTypes } = typesStore.useStore()
@@ -182,6 +188,7 @@ export default {
     const visible = ref([])
     const visibleSelectedRef = ref(null)
     const itemSelectionDialogRef = ref(null)
+    const awailableChannelsRef = ref([])
     let dialogElem = null
 
     function editLevels (elem) {
@@ -247,6 +254,9 @@ export default {
       selectedRef.value.values.forEach(elem => {
         if (!elem.filter) root.$set(elem, 'filter', null)
         if (!elem.level) root.$set(elem, 'level', [])
+        awailableChannelsRef.value.forEach(channel => {
+          if (!elem[channel.identifier]) root.$set(elem, channel.identifier, {})
+        })
       })
     }
 
@@ -296,7 +306,9 @@ export default {
 
     onMounted(() => {
       loadAllTypes()
-      loadAllLOVs().then(() => {
+      Promise.all([loadAllLOVs(), loadAllChannels()]).then(() => {
+        awailableChannelsRef.value = getAwailableChannels(true).filter(channel => channel.type !== 1)
+
         canViewConfigRef.value = canViewConfig('lovs')
         canEditConfigRef.value = canEditConfig('lovs')
 
@@ -356,6 +368,7 @@ export default {
       removeValue,
       currentLanguage,
       defaultLanguageIdentifier,
+      awailableChannelsRef,
       identifierRules: [
         v => identifierValidation(v)
       ],

@@ -1,34 +1,34 @@
 <template>
-<div>
+<div class="mb-10">
   <v-toolbar dense elevation="1" class="mt-2">
       <v-select dense v-if="savedOptionsVisible()" v-model="savedColumnsSelectionRef" :items="savedColumnsOptionsRef"></v-select>
       <v-spacer></v-spacer>
-      <v-tooltip bottom v-if="!talendExportSelection && hasAccess('exportXLS')">
+      <v-tooltip top v-if="!talendExportSelection && hasAccess('exportXLS')">
         <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportExcel"><v-icon>mdi-application-export</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ExportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip bottom v-if="!talendExportSelection && hasAccess('importXLS')">
+      <v-tooltip top v-if="!talendExportSelection && hasAccess('importXLS')">
         <template v-slot:activator="{ on }">
           <input ref="fileUploadRef" style="display: none" type="file" @change="importExcel"/>
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="fileUploadRef.click()"><v-icon>mdi-application-import</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ImportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip bottom  v-if="talendExportSelection || hasAccess('exportCSV')">
+      <v-tooltip top  v-if="talendExportSelection || hasAccess('exportCSV')">
         <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
         </template>
         <span>{{  talendExportSelection ? $t('DataTable.TalendExportSelection') : $t('DataTable.ExportCSV') }}</span>
       </v-tooltip>
-      <v-tooltip bottom>
+      <v-tooltip top>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="editHeaders"><v-icon>mdi-table-settings</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.SelectColumns') }}</span>
       </v-tooltip>
-      <v-tooltip bottom>
+      <v-tooltip top>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="DataChanged()"><v-icon>mdi-refresh</v-icon></v-btn>
         </template>
@@ -39,6 +39,12 @@
           <v-btn v-on="on" icon @click="columnsSaveDialogRef.showDialog(headersRef)"><v-icon>mdi-content-save</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.SaveColumns') }}</span>
+      </v-tooltip>
+      <v-tooltip top v-if="hasChannelsRef">
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" icon @click="chanSelectionDialogRef.showDialog()"><v-icon>mdi-access-point-plus</v-icon></v-btn>
+        </template>
+        <span>{{ $t('Submit') }}</span>
       </v-tooltip>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
@@ -56,12 +62,27 @@
 
           <v-img v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="50" max-height="50"></v-img>
 
-          <template v-if="header.identifier !== 'identifier' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
+          <template v-if="!header.identifier.startsWith('#channel_') && header.identifier !== 'identifier' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
             <span v-else>{{ getValue(item, header) }}</span>
           </template>
 
-          <template v-if="inplaceItem && item.identifier === inplaceItem.identifier && header.identifier === inplaceHeader.identifier">
+          <template v-if="header.identifier.startsWith('#channel_')">
+            <template v-if="!getValue(item, header)"></template>
+            <template v-else>
+              <v-chip v-if="header.identifier.endsWith('_status')" :set="status = getValue(item, header)" class="ma-2"
+                :color="status === 1 ? '' : status === 2 ? 'green' : 'red'"
+                :text-color="status === 1 ? 'black' : 'white'">
+                  {{ status === 1 ? $t('ItemView.Channels.Submitted') : status === 2 ? $t('ItemView.Channels.Synced') : $t('ItemView.Channels.Error') }}</v-chip>
+
+              <span v-if="header.identifier.endsWith('_submittedAt')  || header.identifier.endsWith('_syncedAt')">{{ dateFormat(new Date(getValue(item, header)), DATE_FORMAT) }}</span>
+
+              <span v-if="header.identifier.endsWith('_submittedBy')">{{ getValue(item, header) }}</span>
+              <span v-if="header.identifier.endsWith('_message')">{{ getValue(item, header) }}</span>
+            </template>
+          </template>
+
+          <template v-if="!header.identifier.startsWith('#channel_') && inplaceItem && item.identifier === inplaceItem.identifier && header.identifier === inplaceHeader.identifier">
             <!-- Text, Integer, Float, URL-->
             <v-text-field v-if="!inplaceAttribute || (inplaceAttribute.type===AttributeType.Text || inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float || inplaceAttribute.type===AttributeType.URL)"
               :type="inplaceAttribute && (inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float) ? 'number' : 'text'"
@@ -90,13 +111,14 @@
     </template>
   </v-data-table>
   <ColumnsSelectionDialog ref="columnsSelectionDialogRef" @selected="columnsSelected"/>
+  <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
   <ColumnsSaveDialog ref="columnsSaveDialogRef" @changed="loadColumns(true)"/>
     <template>
       <v-row justify="center">
         <v-dialog v-model="excelDialogRef" persistent max-width="600px">
           <v-card>
             <v-card-title>
-              <span class="headline">{{ excelDialogModeRef === 'import' ? $t('DataTable.ExcelDialog.TitleImport') : $t('DataTable.ExcelDialog.TitleExport') }}</span>
+              <span class="headline">{{ excelDialogTitleRef }}</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -131,15 +153,18 @@ import * as errorStore from '../store/error'
 import * as userStore from '../store/users'
 import * as searchStore from '../store/search'
 import * as attrStore from '../store/attributes'
+import * as channelsStore from '../store/channels'
 import i18n from '../i18n'
 import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 import ColumnsSaveDialog from './ColumnsSaveDialog'
+import ChannelsSelectionDialog from './ChannelsSelectionDialog'
 import AttributeType from '../constants/attributeTypes'
 import XLSX from 'xlsx'
+import dateFormat from 'dateformat'
 
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog },
   props: {
     loadData: {
       required: true
@@ -157,6 +182,8 @@ export default {
     const { savedColumnsRef, loadAllSavedColumns } = searchStore.useStore()
 
     const { findByIdentifier } = attrStore.useStore()
+
+    const { loadAllChannels, getAwailableChannels, submitItem } = channelsStore.useStore()
 
     const {
       languages,
@@ -180,7 +207,7 @@ export default {
     const fileUploadRef = ref(null)
     const excelDialogRef = ref(false)
     const excelDialogProgressRef = ref(0)
-    const excelDialogModeRef = ref('import')
+    const excelDialogTitleRef = ref('import')
     const itemsRef = ref([])
     const totalItemsRef = ref(0)
     const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: [], sortDesc: [] })
@@ -192,6 +219,8 @@ export default {
     const lovsMap = {}
     const savedColumnsSelectionRef = ref(null)
     const savedColumnsOptionsRef = ref([])
+    const chanSelectionDialogRef = ref(null)
+    const hasChannelsRef = ref([])
 
     // dor inplace editing
     const inplaceItem = ref(null)
@@ -317,7 +346,7 @@ export default {
     }
 
     async function exportExcel () {
-      excelDialogModeRef.value = 'export'
+      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleExport')
       excelDialogRef.value = true
       const itemsPerPage = 1000
       let total = 0
@@ -373,8 +402,7 @@ export default {
           rowData.push(row.identifier)
           headersRef.value.forEach(header => {
             if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier') {
-              const value = getValue(row, header)
-              rowData.push(value)
+              rowData.push(getValueWithChannels(header, row, false))
             }
           })
           XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: -1 })
@@ -392,6 +420,28 @@ export default {
 
       excelDialogRef.value = false
     }
+
+    function getValueWithChannels (header, row, formatDate) {
+      let value
+      if (!header.identifier.startsWith('#channel_')) {
+        value = getValue(row, header)
+      } else {
+        if (getValue(row, header)) {
+          if (header.identifier.endsWith('_status')) {
+            const status = getValue(row, header)
+            value = status === 1 ? i18n.t('ItemView.Channels.Submitted') : status === 2 ? i18n.t('ItemView.Channels.Synced') : i18n.t('ItemView.Channels.Error')
+          } else if (header.identifier.endsWith('_submittedAt') || header.identifier.endsWith('_syncedAt')) {
+            value = formatDate ? dateFormat(new Date(getValue(row, header)), process.env.VUE_APP_DATE_FORMAT) : new Date(getValue(row, header))
+          } else {
+            value = getValue(row, header)
+          }
+        } else {
+          value = ''
+        }
+      }
+      return value
+    }
+
     /* generate a download */
     function s2ab (s) {
       var buf = new ArrayBuffer(s.length)
@@ -401,7 +451,7 @@ export default {
     }
 
     function importExcel (event) {
-      excelDialogModeRef.value = 'import'
+      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleImport')
       const pageSize = 100
 
       const file = event.target.files[0]
@@ -563,7 +613,7 @@ export default {
           data.rows.forEach(row => {
             headersRef.value.forEach(header => {
               if (header.identifier !== '#thumbnail#') {
-                const value = '' + getValue(row, header)
+                const value = '' + getValueWithChannels(header, row, true)
                 csv += '"' + value.replaceAll('"', '""') + '",'
               }
             })
@@ -588,7 +638,7 @@ export default {
         totalItemsRef.value = data.count
         loadingRef.value = false
 
-        emit('dataLoaded', itemsRef.value)
+        emit('dataLoaded', itemsRef.value, totalItemsRef.value)
 
         const ids = data.rows.map(elem => elem.id)
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
@@ -645,7 +695,35 @@ export default {
       })
     }
 
+    async function channelsSelected (arr) {
+      chanSelectionDialogRef.value.closeDialog()
+      if (arr.length === 0) return
+      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleExport')
+      excelDialogRef.value = true
+      const itemsPerPage = 1000
+      let total = 0
+      let page = 0
+      excelDialogProgressRef.value = 0
+
+      do {
+        page++
+        const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: [], sortDesc: [] })
+        total = data.count
+        if (!excelDialogRef.value) return // exit if process was canceled
+        data.rows.forEach(row => {
+          submitItem(row.id, row.typeId, row.path, arr)
+        })
+        const tst = page * itemsPerPage * 100 / total
+        excelDialogProgressRef.value = tst > 100 ? 100 : tst
+      } while (page * itemsPerPage < total)
+      excelDialogRef.value = false
+      showInfo(i18n.t('Submitted'))
+    }
+
     onMounted(() => {
+      loadAllChannels().then(() => {
+        hasChannelsRef.value = getAwailableChannels(true).length > 0
+      })
       loadColumns(false)
       let tst = localStorage.getItem('item_headers')
       if (tst) {
@@ -706,13 +784,18 @@ export default {
       fileUploadRef,
       excelDialogRef,
       excelDialogProgressRef,
-      excelDialogModeRef,
+      excelDialogTitleRef,
       excelDialogClose,
       hasAccess,
       savedColumnsOptionsRef,
       savedColumnsSelectionRef,
       savedOptionsVisible,
-      talendExportSelection: props.export
+      talendExportSelection: props.export,
+      hasChannelsRef,
+      chanSelectionDialogRef,
+      channelsSelected,
+      dateFormat,
+      DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }
   }
 }

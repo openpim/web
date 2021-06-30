@@ -1,6 +1,7 @@
 import { ref, reactive, provide, inject } from '@vue/composition-api'
 import { serverFetch, findNode, removeNodeByInternalId, findNodeByComparator, objectToGraphgl } from './utils'
 import * as typesStore from './types'
+import * as attrStore from './attributes'
 import * as err from './error'
 import i18n from '../i18n'
 import { currentLanguage } from './languages'
@@ -11,6 +12,10 @@ const currentWhereRef = ref(null)
 const {
   findType
 } = typesStore.store
+
+const {
+  getAttributesForSearch
+} = attrStore.store
 
 function enrichItem (item) {
   if (item) {
@@ -76,6 +81,7 @@ const actions = {
       name
       typeId
       values
+      channels
       mimeType
       fileOrigName
       createdBy
@@ -182,6 +188,7 @@ const actions = {
         path
         name
         values
+        channels
         fileOrigName
         mimeType
         createdBy
@@ -324,6 +331,11 @@ const actions = {
   },
   searchItem: async (text) => {
     const txt = text.replaceAll('\\', '\\\\')
+    const attrs = getAttributesForSearch()
+    let attrExpr = ''
+    attrs.forEach(attr => {
+      attrExpr += '{ values: { ' + attr.identifier + ': { OP_iLike:"%' + txt + '%"}}},'
+    })
     const data = await serverFetch(
       `query { search(
         requests: [
@@ -331,7 +343,7 @@ const actions = {
                 entity: ITEM, 
                 offset: 0, 
                 limit: 100,
-                where: {OP_or: [{ identifier: { OP_iLike: "%` + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + `%"}}}] }
+                where: {OP_or: [` + attrExpr + '{ identifier: { OP_iLike: "%' + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + `%"}}}] }
             }]
         ) {
         responses {
@@ -341,6 +353,7 @@ const actions = {
                     identifier
                     name
                     typeId
+                    values
                 }
             }
         }}}       
@@ -381,6 +394,7 @@ const actions = {
                   path
                   name
                   values
+                  channels
                   fileOrigName
                   mimeType
                   createdBy

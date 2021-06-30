@@ -52,7 +52,7 @@ const actions = {
           mutation { createAttributeGroup(identifier: "` + item.identifier + '", name: ' + objectToGraphgl(item.name) +
           ', visible: ' + item.visible +
           ', order: ' + item.order +
-          `)
+          ', options: ' + objectToGraphgl(item.options) + ` )
         }`
         const data = await serverFetch(query)
         newId = parseInt(data.createAttributeGroup)
@@ -85,7 +85,7 @@ const actions = {
           mutation { updateAttributeGroup(id: "` + item.internalId + '", name: ' + (item.name ? objectToGraphgl(item.name) : '') +
           ', visible: ' + item.visible +
           ', order: ' + item.order +
-          `)
+          ', options: ' + objectToGraphgl(item.options) + ` )
         }`
       } else {
         query = `
@@ -155,6 +155,20 @@ const actions = {
       grp.attributes.splice(idx, 1)
     })
   },
+  getAttributesForSearch: () => {
+    const res = []
+    groups.forEach(group => {
+      if (group.visible) {
+        group.attributes.forEach(attr => {
+          if (attr.options) {
+            const tst = attr.options.find(elem => elem.name === 'search')
+            if (tst && tst.value === 'true' && !res.find(elem => elem.id === attr.id)) res.push(attr)
+          }
+        })
+      }
+    })
+    return res
+  },
   getAttributesForItem: (typeId, path) => {
     typeId = parseInt(typeId)
     const groupsArr = []
@@ -162,16 +176,18 @@ const actions = {
     groups.forEach(group => {
       if (group.visible) {
         const roles = userStore.store.currentRoles
-        let access = 2
+        let access = -1
         for (let i = 0; i < roles.length; i++) {
           const role = roles[i]
           if (role.itemAccess.valid.find(tId => tId === typeId)) {
-            const tst = role.itemAccess.groups.find(data => data.groupId === group.id)
-            if (tst && tst.access < access) access = tst.access
+            if (pathArr.some(r => role.itemAccess.fromItems.indexOf(r) !== -1)) {
+              const tst = role.itemAccess.groups.find(data => data.groupId === group.id)
+              if (tst && tst.access > access) access = tst.access
+            }
           }
         }
 
-        if (access !== 0) {
+        if (access === -1 || access > 0) {
           const attrArr = []
           group.attributes.forEach(attr => {
             if (attr.valid.includes(typeId)) {

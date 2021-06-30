@@ -70,6 +70,8 @@
               </v-list>
             </v-card>
 
+          <v-text-field v-model="selectedRef.order" type="number" :label="$t('Config.Relations.Order')" required></v-text-field>
+
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>

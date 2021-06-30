@@ -33,6 +33,7 @@
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Attributes.Name')"></LanguageDependentField>
           <v-text-field v-model="selectedRef.order" type="number" :label="$t('Config.Attributes.Order')" required></v-text-field>
           <v-checkbox v-model="selectedRef.visible" :label="$t('Config.Attributes.Group.Visible')"></v-checkbox>
+          <OptionsTable :options="selectedRef.options" />
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
@@ -65,51 +66,7 @@
           </v-tabs>
           <v-tabs-items v-model="tabRef">
             <v-tab-item>
-              <v-card class="mb-5 mt-2">
-                <v-card-title class="subtitle-2 font-weight-bold" >
-                  <div style="width:90%">{{ $t('Config.Attributes.Valid') }}</div>
-                  <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="editValid"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
-                    </template>
-                    <span>{{ $t('Edit') }}</span>
-                  </v-tooltip>
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-list dense class="pt-0 pb-0">
-                  <v-list-item v-for="(item, i) in valid" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
-                    <router-link :to="'/config/types/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
-                  </v-list-item-content></v-list-item>
-                </v-list>
-              </v-card>
-
-              <v-card class="mb-5">
-                <v-card-title class="subtitle-2 font-weight-bold" >
-                  <div style="width:80%">{{ $t('Config.Attributes.Visible') }}</div>
-                  <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="addVisible"><v-icon>mdi-plus</v-icon></v-btn>
-                    </template>
-                    <span>{{ $t('Add') }}</span>
-                  </v-tooltip>
-                  <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="removeVisible" :disabled="visibleSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
-                    </template>
-                    <span>{{ $t('Remove') }}</span>
-                  </v-tooltip>
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-list dense class="pt-0 pb-0">
-                  <v-list-item-group v-model="visibleSelectedRef" color="primary">
-                    <v-list-item dense class="pt-0 pb-0"  v-for="(item, i) in visible" :key="i">
-                      <v-list-item-content class="pt-0 pb-0" style="display: inline">
-                      <router-link :to="'/item/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list-item-group>
-                </v-list>
-              </v-card>
+              <ValidVisibleComponent :elem="selectedRef" :canEditConfig="canEditConfigRef"/>
             </v-tab-item>
             <v-tab-item>
               <v-card class="mb-5 mt-2">
@@ -176,23 +133,17 @@
         </v-dialog>
       </v-row>
     </template>
-    <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="true" @selected="typesSelected"/>
-    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
     <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="true" @selected="relationsSelected"/>
   </v-container>
 </template>
 
 <script>
 import * as attrStore from '../../store/attributes'
-import * as typesStore from '../../store/types'
-import * as itemStore from '../../store/item'
 import * as relStore from '../../store/relations'
 import { ref, computed, onMounted } from '@vue/composition-api'
 import i18n from '../../i18n'
 import router from '../../router'
 import * as errorStore from '../../store/error'
-import TypeSelectionDialog from '../../components/TypeSelectionDialog'
-import ItemsSelectionDialog from '../../components/ItemsSelectionDialog'
 import * as langStore from '../../store/languages'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import RelationsSelectionDialog from '../../components/RelationsSelectionDialog'
@@ -201,9 +152,10 @@ import * as lovStore from '../../store/lovs'
 import AttributeType from '../../constants/attributeTypes'
 import SystemInformation from '../../components/SystemInformation'
 import OptionsTable from '../../components/OptionsTable'
+import ValidVisibleComponent from '../../components/ValidVisibleComponent'
 
 export default {
-  components: { TypeSelectionDialog, ItemsSelectionDialog, LanguageDependentField, RelationsSelectionDialog, SystemInformation, OptionsTable },
+  components: { LanguageDependentField, RelationsSelectionDialog, SystemInformation, OptionsTable, ValidVisibleComponent },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
 
@@ -237,15 +189,6 @@ export default {
       removeAttribute
     } = attrStore.useStore()
 
-    const {
-      findType,
-      loadAllTypes
-    } = typesStore.useStore()
-
-    const {
-      loadItemsByIds
-    } = itemStore.useStore()
-
     const tabRef = ref(null)
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
@@ -259,8 +202,6 @@ export default {
     const selectedRef = ref(empty)
     const activeRef = ref([])
     const openRef = ref([])
-    const typeSelectionDialogRef = ref(null)
-    const itemSelectionDialogRef = ref(null)
     const relSelectionDialogRef = ref(null)
     const connectGroups = computed(() => {
       const item = findByIdentifier(selectedRef.value.identifier)
@@ -269,50 +210,9 @@ export default {
 
     const lovSelection = ref([])
 
-    const valid = computed(() => {
-      if (selectedRef.value.valid) {
-        return selectedRef.value.valid.map((id) => findType(id).node)
-      } else {
-        return []
-      }
-    })
-
     function filter (item, search, textKey) {
       const s = search.toLowerCase()
       return item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1))
-    }
-
-    function editValid () {
-      typeSelectionDialogRef.value.showDialog('valid', selectedRef.value.valid)
-    }
-
-    function typesSelected (arr) {
-      typeSelectionDialogRef.value.closeDialog()
-      selectedRef.value.valid = arr
-    }
-
-    const visible = ref([])
-    const visibleSelectedRef = ref(null)
-
-    function addVisible () {
-      itemSelectionDialogRef.value.showDialog('visible', selectedRef.value.visible)
-    }
-
-    function itemsSelected (id) {
-      itemSelectionDialogRef.value.closeDialog()
-      const tst = selectedRef.value.visible.find(elem => elem === id)
-      if (!tst) {
-        selectedRef.value.visible.push(id)
-        loadItemsByIds([id], false).then(items => {
-          visible.value.push(items[0])
-        })
-      }
-    }
-
-    function removeVisible () {
-      visible.value.splice(visibleSelectedRef.value, 1)
-      selectedRef.value.visible.splice(visibleSelectedRef.value, 1)
-      visibleSelectedRef.value = null
     }
 
     const attrRelations = computed(() => {
@@ -332,15 +232,6 @@ export default {
       selectedRef.value.relations = arr
     }
 
-    function newAttrSelected (attr) {
-      visible.value = []
-      if (attr && !attr.group && attr.visible && attr.visible.length > 0) {
-        loadItemsByIds(attr.visible, false).then(items => {
-          visible.value = items
-        })
-      }
-    }
-
     function activeChanged (active) {
       if (active.length !== 0) {
         if (selectedRef.value.internalId === 0 && active[0] !== selectedRef.value.id) {
@@ -351,7 +242,6 @@ export default {
           activeRef.value[0] = active[0]
           selectedRef.value = findById(active[0]).item
           router.push('/config/attributes' + (selectedRef.value.identifier ? '/' + selectedRef.value.identifier : ''))
-          newAttrSelected(selectedRef.value)
         }
       } else {
         selectedRef.value = empty
@@ -368,7 +258,6 @@ export default {
         const newAttr = { id: Date.now(), internalId: 0, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name: name, errorMessage: errorMessage, options: [] }
         selectedRef.value.attributes.push(newAttr)
         openRef.value = [selectedRef.value.id]
-        visible.value = []
         selectedRef.value = newAttr
       } else {
         const name = {}
@@ -434,7 +323,6 @@ export default {
           lovSelection.value = arr
         })
       )
-      loadAllTypes()
       loadAllRelations()
       loadAllAttributes().then(() => {
         canViewConfigRef.value = canViewConfig('attributes')
@@ -449,7 +337,6 @@ export default {
             if (!result.item.group) {
               openRef.value = result.groups.map(grp => grp.id)
             }
-            newAttrSelected(selectedRef.value)
           } else {
             router.push('/config/attributes')
           }
@@ -492,17 +379,7 @@ export default {
       connectGroups,
       assign,
       dialogRef,
-      editValid,
-      valid,
       attrDeletionRef,
-      typeSelectionDialogRef,
-      typesSelected,
-      addVisible,
-      removeVisible,
-      visible,
-      itemsSelected,
-      itemSelectionDialogRef,
-      visibleSelectedRef,
       currentLanguage,
       defaultLanguageIdentifier,
       attrRelations,

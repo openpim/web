@@ -13,6 +13,10 @@
             <span>{{ $t('Main.Search') }}</span>
             <v-icon>mdi-magnify</v-icon>
         </v-btn>
+        <v-btn to="/channels" v-if="hasChannelsRef">
+            <span>{{ $t('Main.Channels') }}</span>
+            <v-icon>mdi-access-point</v-icon>
+        </v-btn>
         <v-btn to="/config/home" v-if="hasConfigRef">
             <span>{{ $t('Main.Settings') }}</span>
             <v-icon>mdi-cog-outline</v-icon>
@@ -31,6 +35,9 @@
           <v-list-item-content>
             <v-list-item-title><router-link :to="'/item/'+item.identifier">{{item.identifier + ' (' +item.type.identifier+')'}}</router-link></v-list-item-title>
             <v-list-item-subtitle>{{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</v-list-item-subtitle>
+            <v-list-item-subtitle v-for="(attr, idx) in searchAttributesRef" :key="idx">
+              {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}: {{item.values[attr.identifier]}}
+            </v-list-item-subtitle>
           </v-list-item-content>
         </template>
       </v-autocomplete>
@@ -94,6 +101,8 @@ import * as langStore from '../store/languages'
 import * as userStore from '../store/users'
 import * as itemStore from '../store/item'
 import * as errorStore from '../store/error'
+import * as channelsStore from '../store/channels'
+import * as attrStore from '../store/attributes'
 import i18n from '../i18n'
 import router from '../router'
 import TitleComponent from '../_customizations/toolbar/title/TitleComponent'
@@ -133,6 +142,15 @@ export default {
       searchItem
     } = itemStore.useStore()
 
+    const {
+      loadAllAttributes,
+      getAttributesForSearch
+    } = attrStore.useStore()
+
+    const {
+      loadAllChannels
+    } = channelsStore.useStore()
+
     const drawer = ref(null)
     const drawerRef = ref(null)
     const drawerWidth = ref(localStorage.getItem('drawerWidth') || '25%')
@@ -141,11 +159,13 @@ export default {
     const passwordErrors = ref([])
     const formRef = ref(null)
     const hasConfigRef = ref(false)
+    const hasChannelsRef = ref(false)
 
     const searchTextRef = ref('')
     const searchResultsRef = ref([])
     const searchRef = ref('')
     const searchLoadingRef = ref(false)
+    const searchAttributesRef = ref([])
     let awaitingSearch = false
 
     watch(searchRef, (val) => {
@@ -156,6 +176,7 @@ export default {
             searchItem(val).then(data => {
               searchResultsRef.value = data.rows.map(elem => {
                 elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
+                searchAttributesRef.value.forEach(attr => { elem.text += ' ' + elem.values[attr.identifier] })
                 return elem
               })
               searchLoadingRef.value = false
@@ -262,6 +283,12 @@ export default {
       setBorderWidth()
       setResizeEvents()
       if (currentUserRef.value.tenantId !== '0') {
+        loadAllAttributes().then(() => {
+          searchAttributesRef.value = getAttributesForSearch()
+        })
+        loadAllChannels().then(channels => {
+          if (channels && channels.length > 0) hasChannelsRef.value = true
+        })
         hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards')
         loadAllLanguages()
       }
@@ -289,7 +316,9 @@ export default {
       searchResultsRef,
       searchLoadingRef,
       searchSelected,
+      searchAttributesRef,
       hasConfigRef,
+      hasChannelsRef,
       hasAccess,
       isExportSearch: props.export,
       nameRules: [

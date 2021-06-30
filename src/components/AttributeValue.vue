@@ -9,8 +9,10 @@
       <v-textarea @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="3" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :error-messages="errors"></v-textarea>
 
       <label v-if="attr.type === AttributeType.Text && attr.richText">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
-      <ckeditor @input="attrInput" v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :disabled="attr.readonly" :editor="editor" :config="attr.readonly?  editorConfigReadonly : editorConfig" v-model="values[attr.identifier]"></ckeditor>
-      <ckeditor @input="attrInput" v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent"  :disabled="attr.readonly" :editor="editor" :config="attr.readonly?  editorConfigReadonly : editorConfig" v-model="values[attr.identifier][currentLanguage.identifier]"></ckeditor>
+      <jodit-editor v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :config="joditConfig" v-model="values[attr.identifier]" />
+      <jodit-editor v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent" :config="joditConfig" v-model="values[attr.identifier][currentLanguage.identifier]" />
+      <!-- ckeditor @input="attrInput" v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :disabled="attr.readonly" :editor="editor" :config="attr.readonly?  editorConfigReadonly : editorConfig" v-model="values[attr.identifier]"></ckeditor>
+      <ckeditor @input="attrInput" v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent"  :disabled="attr.readonly" :editor="editor" :config="attr.readonly?  editorConfigReadonly : editorConfig" v-model="values[attr.identifier][currentLanguage.identifier]"></ckeditor -->
       <br v-if="attr.type === AttributeType.Text && attr.richText"/>
 
       <!-- Boolean -->
@@ -164,6 +166,10 @@ import i18n from '../i18n'
 import XRegExp from 'xregexp'
 import eventBus from '../eventBus'
 
+// Jodit
+import 'jodit/build/jodit.min.css'
+import { JoditEditor } from 'jodit-vue'
+
 // NOTE: We don't use @ckeditor/ckeditor5-build-classic any more!
 // Since we're building CKEditor from source, we use the source version of ClassicEditor.
 import ClassicEditor from '@ckeditor/ckeditor5-editor-classic/src/classiceditor'
@@ -189,7 +195,7 @@ import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize'
 import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64uploadadapter'
 
 export default {
-  components: { LanguageDependentField },
+  components: { LanguageDependentField, JoditEditor },
   props: {
     item: {
       required: true
@@ -329,6 +335,7 @@ export default {
       lovSelection,
       lovChanged,
       AttributeType,
+      joditConfig: { readonly: props.attr.readonly, toolbarAdaptive: false, toolbarButtonSize: 'small' },
       editor: ClassicEditor,
       editorConfigReadonly: {
         plugins: [

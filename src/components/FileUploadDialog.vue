@@ -9,7 +9,7 @@
           <v-row>
             <v-col cols="12">
               <v-form ref="formRef" lazy-validation class="ml-7">
-                <v-file-input show-size v-model="fileRef" :label="$t('FileUploadDialog.NewFile')"></v-file-input>
+                <v-file-input chips multiple show-size v-model="fileRef" :label="$t('FileUploadDialog.NewFile')"></v-file-input>
                 <v-select v-model="relationRef" :items="relationsWithFiles" :label="$t('FileUploadDialog.FileType')"></v-select>
                 <div class="d-inline-flex align-center">
                   <div v-if="selectedParentRef">
@@ -24,7 +24,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Cancel') }}</v-btn>
+        <v-btn color="blue darken-1" text @click="closeDialog">{{ $t('Cancel') }}</v-btn>
         <v-btn color="blue darken-1" text @click="upload" :disabled="!fileRef || !relationRef || !selectedParentRef">{{ $t('ItemView.Upload') }}</v-btn>
       </v-card-actions>
     </v-card>
@@ -117,7 +117,8 @@ export default {
     }
 
     function upload () {
-      emit('upload', { file: fileRef.value, fileItemTypeId: fileItemTypeId, parentId: selectedParentRef.value.id, relationId: relationRef.value }, initiator)
+      const arr = fileRef.value.map(fileRef => { return { file: fileRef, fileItemTypeId: fileItemTypeId, parentId: selectedParentRef.value.id, relationId: relationRef.value } })
+      emit('upload', arr, initiator)
     }
 
     function showDialog (init, selected) {
@@ -125,12 +126,23 @@ export default {
       dialogRef.value = true
 
       fileItemTypeId = null
-      relationRef.value = relationsWithFiles.value[0].value
+      const tst = localStorage.getItem('upload_relation')
+      relationRef.value = tst ? parseInt(tst) : relationsWithFiles.value[0].value
       fileRef.value = null
       selectedParentRef.value = null
+      const tstParent = localStorage.getItem('upload_parent')
+      if (tstParent) {
+        parentSelected(parseInt(tstParent))
+      }
     }
 
     function closeDialog () {
+      if (relationRef.value) {
+        localStorage.setItem('upload_relation', relationRef.value)
+      }
+      if (selectedParentRef.value) {
+        localStorage.setItem('upload_parent', selectedParentRef.value.id)
+      }
       dialogRef.value = false
     }
 

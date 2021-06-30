@@ -1,23 +1,7 @@
 import { provide, inject, ref } from '@vue/composition-api'
-import { serverFetch, objectToGraphgl } from './utils'
+import { serverFetch, objectToGraphgl, generateSorting } from './utils'
 
 const auditEnabled = ref(null)
-
-function generateSorting (options) {
-  const order = []
-  if (options.sortBy) {
-    for (let i = 0; i < options.sortBy.length; i++) {
-      const elem = options.sortBy[i]
-      if (typeof elem === 'object') {
-        const path = elem.path.reduce((accumulator, currentValue, index, arr) => accumulator + (index !== arr.length ? '.' : '') + currentValue)
-        order.push([path, options.sortDesc[i] ? 'DESC' : 'ASC'])
-      } else {
-        order.push([elem, options.sortDesc[i] ? 'DESC' : 'ASC'])
-      }
-    }
-  }
-  return order
-}
 
 const actions = {
   loadItemHistory: async (id, options) => {

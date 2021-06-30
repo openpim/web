@@ -25,6 +25,7 @@
             <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
+            <v-btn v-if="hasChannels" text @click="submit" v-text="$t('Submit')"></v-btn>
             <template v-if="canEditSelected">
               <v-btn text @click="executeAction(trigger.itemButton)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
@@ -42,7 +43,8 @@
           <v-tab v-if="!itemRef.typeFile && filesRef.length > 0" v-text="$t('ItemView.Tab.MediaFiles')"></v-tab>
           <v-tab v-if="hasSources" v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
           <v-tab v-if="hasTargets" v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
-          <v-tab v-if="hasChildren" v-text="$t('ItemView.Tab.Children')"></v-tab>
+          <v-tab v-if="totalChildrenRef === -1 || totalChildrenRef > 0">{{$t('ItemView.Tab.Children') + (totalChildrenRef > 0 ? ' (' + totalChildrenRef + ')' : '')}}</v-tab>
+          <v-tab v-if="hasChannels" v-text="$t('ItemView.Tab.Channels')"></v-tab>
           <v-tab v-if="hasAccess('audit') && auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
           <LastTabsComponent></LastTabsComponent>
         </v-tabs>
@@ -134,8 +136,37 @@
           <v-tab-item v-if="hasTargets" eager>  <!-- Links to -->
             <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded"></ItemRelationsList>
           </v-tab-item>
-          <v-tab-item v-if="hasChildren" eager>  <!-- Children -->
+          <v-tab-item v-if="totalChildrenRef === -1 || totalChildrenRef > 0" eager>  <!-- Children -->
             <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false"></ItemsDataTable>
+          </v-tab-item>
+          <v-tab-item v-if="hasChannels" eager>  <!-- Channels -->
+            <div v-for="(channel, i) in awailableChannelsRef" :key="i">
+              <v-card v-if="itemRef.channels && itemRef.channels[channel.identifier]">
+                <v-card-title class="text-subtitle-2">{{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}</v-card-title>
+                <v-card-text class="text-body-1">
+                  <v-row no-gutters>
+                    <v-col cols="3">
+                      <div>{{$t('ItemView.Channels.Status')}}: <v-chip class="ma-2" :color="itemRef.channels[channel.identifier].status === 1 ? '' : itemRef.channels[channel.identifier].status === 2 ? 'green' : 'red'"
+                        :text-color="itemRef.channels[channel.identifier].status === 1 ? 'black' : 'white'">
+                        {{ itemRef.channels[channel.identifier].status === 1 ? $t('ItemView.Channels.Submitted') : itemRef.channels[channel.identifier].status === 2 ? $t('ItemView.Channels.Synced') : $t('ItemView.Channels.Error') }}</v-chip>
+                      </div>
+                    </v-col>
+                    <v-col cols="3">
+                      <div>{{$t('ItemView.Channels.SubmittedAt')}}: {{ dateFormat(new Date(itemRef.channels[channel.identifier].submittedAt), DATE_FORMAT) }}</div>
+                    </v-col>
+                    <v-col cols="3">
+                      <div>{{$t('ItemView.Channels.SubmittedBy')}}: {{ itemRef.channels[channel.identifier].submittedBy }}</div>
+                    </v-col>
+                    <v-col cols="3">
+                      <div>{{$t('ItemView.Channels.SyncedAt')}}: {{ itemRef.channels[channel.identifier].syncedAt ? dateFormat(new Date(itemRef.channels[channel.identifier].syncedAt), DATE_FORMAT) : '' }}</div>
+                    </v-col>
+                    <v-col cols="12" v-if="itemRef.channels[channel.identifier].message">
+                      <div>{{$t('ItemView.Channels.Message')}}: {{itemRef.channels[channel.identifier].message}}</div>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </div>
           </v-tab-item>
           <v-tab-item v-if="hasAccess('audit') && auditEnabled">  <!-- History -->
             <HistoryTable ref="historyTableRef" :item="itemRef" componentType="item"></HistoryTable>
@@ -147,6 +178,7 @@
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemToMoveSelected"/>
     <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
     <ItemDuplicationDialog ref="itemDuplicationDialogRef" @duplicated="itemDuplicated"/>
+    <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
   </v-container>
 </template>
 
@@ -161,6 +193,7 @@ import * as typesStore from '../store/types'
 import * as actionsStore from '../store/actions'
 import * as relStore from '../store/relations'
 import * as auditStore from '../store/audit'
+import * as channelsStore from '../store/channels'
 import i18n from '../i18n'
 import * as langStore from '../store/languages'
 import AttributeValue from '../components/AttributeValue'
@@ -173,6 +206,7 @@ import AttributeType from '../constants/attributeTypes'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import FileUploadDialog from '../components/FileUploadDialog'
 import ItemDuplicationDialog from '../components/ItemDuplicationDialog'
+import ChannelsSelectionDialog from '../components/ChannelsSelectionDialog'
 import HistoryTable from '../components/HistoryTable'
 
 import AfterButtonsComponent from '../_customizations/item/afterButtons/AfterButtonsComponent'
@@ -185,6 +219,7 @@ import BeforeAttributesComponent from '../_customizations/item/beforeAttributes/
 import AfterAttributesComponent from '../_customizations/item/afterAttributes/AfterAttributesComponent'
 
 import eventBus from '../eventBus'
+import dateFormat from 'dateformat'
 
 export default {
   components: {
@@ -203,7 +238,8 @@ export default {
     LastTabsComponent,
     LastTabsItemComponent,
     BeforeAttributesComponent,
-    AfterAttributesComponent
+    AfterAttributesComponent,
+    ChannelsSelectionDialog
   },
   name: 'Home',
   setup (params, context) {
@@ -211,9 +247,11 @@ export default {
 
     const { showInfo, showError } = errorStore.useStore()
 
-    const { canEditItem, hasAccess } = userStore.useStore()
+    const { currentUserRef, currentRoles, canEditItem, hasAccess } = userStore.useStore()
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
+
+    const { loadAllChannels, getAwailableChannels, submitItem } = channelsStore.useStore()
 
     const {
       findType,
@@ -265,12 +303,14 @@ export default {
     const fileRef = ref(null)
     const imageKeyRef = ref(1)
     const filesRef = ref([])
-    const hasChildren = ref(true)
+    const totalChildrenRef = ref(-1)
     const hasSources = ref(true)
     const hasTargets = ref(true)
     const itemSelectionDialogRef = ref(null)
     const fileUploadDialogRef = ref(null)
     const itemDuplicationDialogRef = ref(null)
+    const chanSelectionDialogRef = ref(null)
+    const awailableChannelsRef = ref([])
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -344,8 +384,8 @@ export default {
       }
     })
 
-    function childrenLoaded (rows) {
-      hasChildren.value = rows && rows.length > 0
+    function childrenLoaded (rows, total) {
+      totalChildrenRef.value = total || 0
     }
 
     function sourcesLoaded (links) {
@@ -367,16 +407,21 @@ export default {
       })
     }
 
-    function linkNewFile (fileData) {
+    function linkNewFile (filesData) {
       fileUploadDialogRef.value.closeDialog()
-      uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier).then((ok) => {
-        if (ok) {
-          showInfo(i18n.t('Saved'))
-          loadAssets(itemRef.value.id).then(arr => {
-            filesRef.value = arr
-          })
-        }
-      })
+      let result = true
+      for (let i = 0; i < filesData.length; i++) {
+        const fileData = filesData[i]
+        uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier).then((ok) => {
+          if (!ok) result = false
+        })
+      }
+      if (result) {
+        showInfo(i18n.t('Saved'))
+        loadAssets(itemRef.value.id).then(arr => {
+          filesRef.value = arr
+        })
+      }
     }
 
     function removeFile () {
@@ -492,7 +537,7 @@ export default {
     }
 
     function itemSelected (item) {
-      hasChildren.value = true
+      totalChildrenRef.value = -1
       hasSources.value = true
       hasTargets.value = true
 
@@ -500,7 +545,24 @@ export default {
         filesRef.value = arr
       })
 
-      attrGroups.value = getAttributesForItem(item.typeId, item.path)
+      const arr = getAttributesForItem(item.typeId, item.path)
+
+      attrGroups.value = arr.filter(group => {
+        const expr = getOption(group, 'visible', null)
+        if (expr) {
+          try {
+            // eslint-disable-next-line no-new-func
+            const func = new Function('item', 'group', 'user', 'roles', '"use strict"; return (' + expr + ')')
+            return func(item, group, currentUserRef.value, currentRoles)
+          } catch (err) {
+            console.error('Failed to evaluate expression: "' + expr + '" for group: ' + group.identifier, err)
+            return false
+          }
+        } else {
+          return true
+        }
+      })
+
       if (!item.values) item.values = {}
       attrGroups.value.forEach(group => {
         group.itemAttributes.forEach(attr => {
@@ -588,8 +650,36 @@ export default {
       }
     })
 
+    function submit () {
+      chanSelectionDialogRef.value.showDialog()
+    }
+
+    function channelsSelected (arr) {
+      chanSelectionDialogRef.value.closeDialog()
+      if (arr.length === 0) return
+      submitItem(itemRef.value.internalId, itemRef.value.typeId, itemRef.value.path, arr).then(() => {
+        showInfo(i18n.t('Submitted'))
+      })
+    }
+
+    const hasChannels = computed(() => {
+      if (itemRef.value) {
+        const pathArr = itemRef.value.path.split('.')
+
+        for (let i = 0; i < awailableChannelsRef.value.length; i++) {
+          const channel = awailableChannelsRef.value[i]
+          const result = channel.valid.includes(itemRef.value.typeId) && channel.visible.find(elem => pathArr.includes(elem))
+          if (result) return true
+        }
+      }
+      return false
+    })
+
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
+      loadAllChannels().then(() => {
+        awailableChannelsRef.value = getAwailableChannels(false)
+      })
       checkAuditEnabled()
       loadAllActions()
       loadAllAttributes()
@@ -656,7 +746,7 @@ export default {
       itemType,
       hasSources,
       hasTargets,
-      hasChildren,
+      totalChildrenRef,
       childrenLoaded,
       sourcesLoaded,
       targetsLoaded,
@@ -671,6 +761,13 @@ export default {
       getOption,
       historyTableRef,
       hasAccess,
+      awailableChannelsRef,
+      hasChannels,
+      submit,
+      chanSelectionDialogRef,
+      channelsSelected,
+      dateFormat,
+      DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
       ]

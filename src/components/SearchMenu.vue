@@ -46,7 +46,7 @@
                   </v-col>
                 </v-row>
 
-                <v-row no-gutters>
+                <v-row no-gutters v-if="filter.attr && !filter.attr.endsWith('#status')">
                   <v-col cols="12">
                     <template v-if="filter.attr === '#level#'">
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
@@ -55,6 +55,13 @@
                     <v-text-field v-if="filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
                   </v-col>
                 </v-row>
+
+                <v-row no-gutters v-if="filter.attr && filter.attr.endsWith('#status')">
+                  <v-col cols="12">
+                    <v-select dense v-model="filter.value" :items="statusSelection" :label="$t('ColumnsSelection.ChannelStatus')"></v-select>
+                  </v-col>
+                </v-row>
+
               </v-container>
             </v-list-item-content>
           </v-list-item>
@@ -84,6 +91,7 @@ import * as errorStore from '../store/error'
 import * as userStore from '../store/users'
 import * as searchStore from '../store/search'
 import * as lovsStore from '../store/lovs'
+import * as channelsStore from '../store/channels'
 import SearchSaveDialog from '../components/SearchSaveDialog'
 import SearchLoadDialog from '../components/SearchLoadDialog'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
@@ -128,6 +136,8 @@ export default {
     const {
       getLOVData
     } = lovsStore.useStore()
+
+    const { loadAllChannels, getAwailableChannels } = channelsStore.useStore()
 
     const itemSelectionDialogRef = ref(null)
     const searchSaveDialogRef = ref(null)
@@ -216,7 +226,16 @@ export default {
                 break
             }
 
-            if (filter.attr === '#level#') {
+            if (filter.attr.startsWith('channel#')) {
+              const tmp = filter.attr.substring(8)
+              const idx = tmp.indexOf('#')
+              const channelIdentifier = tmp.substring(0, idx)
+              const field = tmp.substring(idx + 1)
+              data.channels = {}
+              data.channels[channelIdentifier] = {}
+              data.channels[channelIdentifier][field] = {}
+              data.channels[channelIdentifier][field][operation] = parseValue(filter.attr, filter.value)
+            } else if (filter.attr === '#level#') {
               data.path = {}
               data.path.OP_regexp = filter.path + '.*'
             } else if (filter.attr.startsWith('name#')) {
@@ -284,64 +303,86 @@ export default {
     onMounted(() => {
       loadAllTypes()
 
-      loadAllLanguages().then(() => {
-        loadAllAttributes().then(() => {
-          const name = {}
-          name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
-          selectedRef.value = { identifier: '', name: name, filters: [], whereClause: {}, extended: false, public: false }
+      Promise.all([loadAllLanguages(), loadAllAttributes(), loadAllChannels()]).then(() => {
+        const name = {}
+        name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
+        selectedRef.value = { identifier: '', name: name, filters: [], whereClause: {}, extended: false, public: false }
 
-          const arr = [
-            { value: 'id', text: i18n.t('Item.id') },
-            { value: 'identifier', text: i18n.t('Item.identifier') },
-            { value: 'typeIdentifier', text: i18n.t('Item.typeIdentifier') },
-            { value: '#level#', text: i18n.t('Item.level') },
-            { value: 'createdBy', text: i18n.t('CreatedBy') },
-            { value: 'createdAt', text: i18n.t('CreatedAt') },
-            { value: 'updatedBy', text: i18n.t('UpdatedBy') },
-            { value: 'updatedAt', text: i18n.t('UpdatedAt') },
-            { value: 'fileOrigName', text: i18n.t('Item.fileOrigName') },
-            { value: 'mimeType', text: i18n.t('Item.mimeType') }
-          ]
-          for (let i = 0; i < languages.length; i++) {
-            const lang = languages[i]
-            const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-            arr.push({ value: 'name#' + lang.identifier, text: i18n.t('Item.name') + langText })
-          }
-          const attrs = getAllItemsAttributes()
-          for (let i = 0; i < attrs.length; i++) {
-            const attr = attrs[i]
-            const nameText = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
-            if (attr.languageDependent) {
-              for (let i = 0; i < languages.length; i++) {
-                const lang = languages[i]
-                const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-                const val = 'attr#' + attr.identifier + '#' + lang.identifier
-                arr.push({ value: val, text: nameText + langText })
-                checkLOV(attr, val)
-              }
-            } else {
-              const val = 'attr#' + attr.identifier
-              arr.push({ value: val, text: nameText, lov: attr.lov })
-              if (attr.lov) lovsMap[val] = attr.lov
+        const arr = [
+          { value: 'id', text: i18n.t('Item.id') },
+          { value: 'identifier', text: i18n.t('Item.identifier') },
+          { value: 'typeIdentifier', text: i18n.t('Item.typeIdentifier') },
+          { value: '#level#', text: i18n.t('Item.level') },
+          { value: 'createdBy', text: i18n.t('CreatedBy') },
+          { value: 'createdAt', text: i18n.t('CreatedAt') },
+          { value: 'updatedBy', text: i18n.t('UpdatedBy') },
+          { value: 'updatedAt', text: i18n.t('UpdatedAt') },
+          { value: 'fileOrigName', text: i18n.t('Item.fileOrigName') },
+          { value: 'mimeType', text: i18n.t('Item.mimeType') }
+        ]
+        const channels = getAwailableChannels()
+        for (let i = 0; i < channels.length; i++) {
+          const channel = channels[i]
+          arr.push({
+            value: 'channel#' + channel.identifier + '#status',
+            text: i18n.t('ColumnsSelection.ChannelStatus') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+          })
+          arr.push({
+            value: 'channel#' + channel.identifier + '#submittedAt',
+            text: i18n.t('ColumnsSelection.SubmittedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+          })
+          arr.push({
+            value: 'channel#' + channel.identifier + '#submittedBy',
+            text: i18n.t('ColumnsSelection.SubmittedBy') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+          })
+          arr.push({
+            value: 'channel#' + channel.identifier + '#syncedAt',
+            text: i18n.t('ColumnsSelection.SyncedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+          })
+          arr.push({
+            value: 'channel#' + channel.identifier + '#message',
+            text: i18n.t('ColumnsSelection.ChannelMessage') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+          })
+        }
+        for (let i = 0; i < languages.length; i++) {
+          const lang = languages[i]
+          const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
+          arr.push({ value: 'name#' + lang.identifier, text: i18n.t('Item.name') + langText })
+        }
+        const attrs = getAllItemsAttributes()
+        for (let i = 0; i < attrs.length; i++) {
+          const attr = attrs[i]
+          const nameText = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
+          if (attr.languageDependent) {
+            for (let i = 0; i < languages.length; i++) {
+              const lang = languages[i]
+              const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
+              const val = 'attr#' + attr.identifier + '#' + lang.identifier
+              arr.push({ value: val, text: nameText + langText, lov: attr.lov })
               checkLOV(attr, val)
             }
-          }
-
-          fieldsSelection.value = arr
-
-          // process current route
-          const id = router.currentRoute.params.id
-          if (id) {
-            loadByIdentifier(id).then(data => searchSelected(data))
           } else {
-            if (searchToOpenRef.value) {
-              searchToOpenRef.value.user = ''
-              searchSelected(searchToOpenRef.value)
-              searchToOpenRef.value = null
-              search()
-            }
+            const val = 'attr#' + attr.identifier
+            arr.push({ value: val, text: nameText, lov: attr.lov })
+            if (attr.lov) lovsMap[val] = attr.lov
+            checkLOV(attr, val)
           }
-        })
+        }
+
+        fieldsSelection.value = arr
+
+        // process current route
+        const id = router.currentRoute.params.id
+        if (id) {
+          loadByIdentifier(id).then(data => searchSelected(data))
+        } else {
+          if (searchToOpenRef.value) {
+            searchToOpenRef.value.user = ''
+            searchSelected(searchToOpenRef.value)
+            searchToOpenRef.value = null
+            search()
+          }
+        }
       })
     })
 
@@ -362,6 +403,11 @@ export default {
       fieldsSelection,
       lovsMap,
       hasAccess,
+      statusSelection: [
+        { text: i18n.t('ItemView.Channels.Submitted'), value: 1 },
+        { text: i18n.t('ItemView.Channels.Synced'), value: 2 },
+        { text: i18n.t('ItemView.Channels.Error'), value: 3 }
+      ],
       operationSelection: [
         { text: i18n.t('Search.Filter.Operation.Eq'), value: 1 },
         { text: i18n.t('Search.Filter.Operation.Ne'), value: 2 },

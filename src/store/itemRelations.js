@@ -34,6 +34,7 @@ const actions = {
       await relStore.store.loadAllRelations()
     }
     relations = relations.filter(relation => userStore.store.canViewItemRelation(relation.internalId))
+    relations.sort((a, b) => a.order - b.order)
 
     for (let i = 0; i < relations.length; i++) {
       const rel = relations[i]
@@ -57,12 +58,14 @@ const actions = {
               id
               identifier
               name
+              updatedAt
             }
             target {
                 id
                 identifier
                 name
-            }
+                updatedAt
+              }
             values
           }
         } }`)
@@ -103,12 +106,14 @@ const actions = {
               id
               identifier
               name
+              updatedAt
             }
             target {
                 id
                 identifier
                 name
-            }
+                updatedAt
+              }
             values
           }
         } }`)
@@ -126,6 +131,7 @@ const actions = {
       await relStore.store.loadAllRelations()
     }
     relations = relations.filter(relation => userStore.store.canViewItemRelation(relation.internalId))
+    relations.sort((a, b) => a.order - b.order)
 
     for (let i = 0; i < relations.length; i++) {
       const rel = relations[i]
@@ -149,12 +155,14 @@ const actions = {
               id
               identifier
               name
+              updatedAt
             }
             target {
                 id
                 identifier
                 name
-            }
+                updatedAt
+              }
             values
           }
         } }`)
@@ -195,12 +203,14 @@ const actions = {
               id
               identifier
               name
+              updatedAt
             }
             target {
                 id
                 identifier
                 name
-            }
+                updatedAt
+              }
             values
           }
         } }`)
