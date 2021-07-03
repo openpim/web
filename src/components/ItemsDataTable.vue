@@ -90,7 +90,7 @@
             <!-- Boolean-->
             <v-checkbox v-if="inplaceAttribute && inplaceAttribute.type===AttributeType.Boolean" @click.stop="inplaceBlur" autofocus dense v-model="inplaceValue" required></v-checkbox>
             <!-- LOV-->
-            <v-select v-if="inplaceAttribute && inplaceAttribute.type===AttributeType.LOV" @blur="inplaceBlur" @click.stop="" autofocus dense v-model="inplaceValue" required :items="inplaceLovSelection"></v-select>
+            <v-autocomplete :chips="inplaceMultivalue" :deletable-chips="inplaceMultivalue" :multiple="inplaceMultivalue" v-if="inplaceAttribute && inplaceAttribute.type===AttributeType.LOV" @blur="inplaceBlur" @click.stop="" autofocus dense v-model="inplaceValue" required :items="inplaceLovSelection"></v-autocomplete>
             <!-- Date-->
             <v-menu v-model="dateMenu" v-if="inplaceAttribute && inplaceAttribute.type===AttributeType.Date" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
               <template v-slot:activator="{ on }">
@@ -226,6 +226,7 @@ export default {
     const inplaceItem = ref(null)
     const inplaceHeader = ref(null)
     const inplaceValue = ref(null)
+    const inplaceMultivalue = ref(false)
     let inplaceValueSave = null
     const inplaceAttribute = ref(null)
     const dateMenu = ref(false)
@@ -247,6 +248,7 @@ export default {
         inplaceItem.value = item
         inplaceHeader.value = header
         inplaceValue.value = getValue(item, header, true)
+        inplaceMultivalue.value = inplaceAttribute.value && inplaceAttribute.value.options.some(opt => opt.name === 'multivalue' && opt.value === 'true')
         inplaceValueSave = inplaceValue.value
       }
     }
@@ -517,8 +519,18 @@ export default {
 
                     const lovValues = lovsMap[lov]
                     if (lovValues) {
-                      const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === cell.v)
-                      if (tst2) cellVal = tst2.id
+                      const val = cell.v
+                      if (val.includes(',')) { // multivalue lov
+                        cellVal = val.split(',').reduce((accumulator, currentValue) => {
+                          const tmp = currentValue.trim()
+                          const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === tmp)
+                          if (tst2) accumulator.push(tst2.id)
+                          return accumulator
+                        }, [])
+                      } else {
+                        const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === val)
+                        if (tst2) cellVal = tst2.id
+                      }
                     }
                   }
 
@@ -652,20 +664,40 @@ export default {
     function getValue (item, header, skipLOV) {
       if (typeof header.value === 'object') {
         let val = getDeepValue(header.value.path, item)
-        if (header.lov && !skipLOV) {
-          const lovValues = lovsMap[header.lov]
-          if (lovValues) {
-            const tst = lovValues.find(elem => elem.id === val)
-            if (tst) val = tst.value[currentLanguage.value.identifier] || '[' + tst.value[defaultLanguageIdentifier.value] + ']'
+        if (header.lov) {
+          if (!skipLOV) {
+            const lovValues = lovsMap[header.lov]
+            if (lovValues) {
+              if (typeof val === 'object' && val) { // multivalue lov
+                return Object.values(val).reduce((accumulator, currentValue, currentIndex, array) => {
+                  const tst = lovValues.find(elem => elem.id === currentValue)
+                  if (tst) accumulator += tst.value[currentLanguage.value.identifier] || '[' + tst.value[defaultLanguageIdentifier.value] + ']'
+                  else accumulator += currentValue
+
+                  if (currentIndex !== array.length - 1) accumulator += ', '
+                  return accumulator
+                }, '')
+              } else {
+                const tst = lovValues.find(elem => elem.id === val)
+                if (tst) val = tst.value[currentLanguage.value.identifier] || '[' + tst.value[defaultLanguageIdentifier.value] + ']'
+                return val
+              }
+            } else {
+              return val
+            }
+          } else {
+            return typeof val === 'object' && val ? Object.values(val) : val
           }
+        } else {
+          return val
         }
-        return val
       } else {
         return item[header.value]
       }
     }
+
     // https://medium.com/javascript-inside/safely-accessing-deeply-nested-values-in-javascript-99bf72a0855a
-    const getDeepValue = (path, obj) => path.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, obj)
+    const getDeepValue = (path, obj) => path.reduce((accumulator, currentValue) => (accumulator && accumulator[currentValue]) ? accumulator[currentValue] : null, obj)
 
     function savedOptionsVisible () {
       return savedColumnsOptionsRef.value && savedColumnsOptionsRef.value.length > 0
@@ -757,6 +789,7 @@ export default {
       inplaceValue,
       inplaceBlur,
       inplaceLovSelection,
+      inplaceMultivalue,
       dateMenu,
       timeMenu,
       timeMenuRef,

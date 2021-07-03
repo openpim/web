@@ -566,7 +566,7 @@ export default {
       if (!item.values) item.values = {}
       attrGroups.value.forEach(group => {
         group.itemAttributes.forEach(attr => {
-          let attrValue = getOption(attr, 'default', '')
+          let attrValue = getOption(attr, 'default', null)
           if (attrValue && attr.lov) attrValue = parseInt(attrValue)
 
           if (!item.values[attr.identifier]) {
@@ -580,7 +580,7 @@ export default {
             // attr was changed to languageDependent and it has old data that must be cleared
             item.values[attr.identifier] = {}
             item.values[attr.identifier][currentLanguage.value.identifier] = attrValue
-          } else if (!attr.languageDependent && typeof item.values[attr.identifier] === 'object') {
+          } else if (!attr.languageDependent && !Array.isArray(item.values[attr.identifier]) && typeof item.values[attr.identifier] === 'object') {
             // attr was changed to NOT languageDependent and it has old data that must be cleared
             item.values[attr.identifier] = null
           }
@@ -633,7 +633,12 @@ export default {
     function getOption (attr, name, defaultValue) {
       if (attr.options) {
         const tst = attr.options.find(elem => elem.name === name)
-        if (tst) return tst.value
+        if (tst) {
+          if (tst.value === 'null') return null
+          if (tst.value === 'true') return true
+          if (tst.value === 'false') return false
+          return tst.value
+        }
       }
       return defaultValue
     }

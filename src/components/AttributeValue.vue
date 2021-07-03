@@ -56,8 +56,8 @@
       </v-menu>
 
       <!-- LOV -->
-      <v-select @input="attrInput" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"></v-select>
-      <v-select @input="attrInput" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"></v-select>
+      <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable></v-autocomplete>
+      <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable></v-autocomplete>
 
       <!-- URL -->
       <template v-if="attr.type === AttributeType.URL && !attr.languageDependent">
@@ -245,6 +245,7 @@ export default {
     const errors = ref([])
     const validRef = ref(true)
     const lovFilterRef = ref(null)
+    const multivalueRef = ref(false)
 
     const lovData = ref([])
 
@@ -310,6 +311,7 @@ export default {
       })
 
       if (props.attr.type === AttributeType.LOV && props.attr.lov) {
+        multivalueRef.value = getOption('multivalue', false)
         getLOVData(props.attr.lov).then((data) => {
           lovData.value = data
         })
@@ -320,7 +322,16 @@ export default {
       eventBus.off('lov_value_changed')
     })
 
+    function getOption (name, defaultValue) {
+      if (props.attr.options) {
+        const tst = props.attr.options.find(elem => elem.name === name)
+        if (tst) return tst.value === 'true'
+      }
+      return defaultValue
+    }
+
     return {
+      multivalueRef,
       attrBlur,
       attrInput,
       errors,
