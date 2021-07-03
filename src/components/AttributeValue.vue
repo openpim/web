@@ -232,9 +232,6 @@ export default {
       }
 
       const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
-      if (arr.length > 0) {
-        arr.unshift({ value: 0, text: '' })
-      }
       return arr
     })
 
