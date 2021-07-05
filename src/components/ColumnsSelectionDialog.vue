@@ -21,10 +21,12 @@
               </v-list>
             </v-col>
             <v-col cols="1" align="center">
-              <v-btn class="mt-10" @click="moveFromLeft" :disabled="selectedLeftRef == null"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
-              <v-btn class="mt-3" @click="moveFromRight" :disabled="selectedRightRef == null"><v-icon>mdi-arrow-left-bold-circle-outline</v-icon></v-btn>
-              <v-btn class="mt-10" @click="moveFromLeftAll" :disabled="selectedLeftRef == null"><v-icon>mdi-arrow-right-bold-circle</v-icon></v-btn>
-              <v-btn class="mt-3" @click="moveFromRightAll" :disabled="selectedRightRef == null"><v-icon>mdi-arrow-left-bold-circle</v-icon></v-btn>
+              <v-btn class="mt-10" @click="moveFromLeft" :disabled="selectedLeftRef.length===0"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
+              <v-btn class="mt-3" @click="moveFromRight" :disabled="selectedRightRef.length===0"><v-icon>mdi-arrow-left-bold-circle-outline</v-icon></v-btn>
+              <v-btn class="mt-10" @click="moveUp" :disabled="selectedRightRef.length!==1"><v-icon>mdi-arrow-up-bold-circle-outline</v-icon></v-btn>
+              <v-btn class="mt-3" @click="moveDown" :disabled="selectedRightRef.length!==1"><v-icon>mdi-arrow-down-bold-circle-outline</v-icon></v-btn>
+              <v-btn class="mt-10" @click="moveFromLeftAll"><v-icon>mdi-arrow-right-bold-circle</v-icon></v-btn>
+              <v-btn class="mt-3" @click="moveFromRightAll"><v-icon>mdi-arrow-left-bold-circle</v-icon></v-btn>
             </v-col>
             <v-col cols="4" class="pt-0">
               <v-text-field v-model="rightFilterRef" :label="$t('Filter')" required></v-text-field>
@@ -119,6 +121,26 @@ export default {
         availableColumnsRef.value.push(save)
       })
       selectedRightRef.value = []
+    }
+
+    function moveUp () {
+      const idx = selectedRightRef.value[0]
+      if (idx !== 0) {
+        const newIdx = idx - 1
+        const elem = selectedColumnsRef.value.splice(idx, 1)[0]
+        selectedColumnsRef.value.splice(newIdx, 0, elem)
+        selectedRightRef.value = [newIdx]
+      }
+    }
+
+    function moveDown () {
+      const idx = selectedRightRef.value[0]
+      if (idx !== selectedColumnsRef.value.length - 1) {
+        const newIdx = idx + 1
+        const elem = selectedColumnsRef.value.splice(idx, 1)[0]
+        selectedColumnsRef.value.splice(newIdx, 0, elem)
+        selectedRightRef.value = [newIdx]
+      }
     }
 
     function moveFromLeftAll () {
@@ -246,6 +268,8 @@ export default {
       closeDialog,
       moveFromLeft,
       moveFromRight,
+      moveUp,
+      moveDown,
       moveFromLeftAll,
       moveFromRightAll,
       leftFilterRef,
