@@ -23,7 +23,13 @@
     </v-row>
     <v-row>
       <v-col cols="11">
-        <v-select v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')"></v-select>
+        <v-checkbox v-model="channel.config.variantsSupport" label="Поддержка вариантов" required></v-checkbox>
+        <v-text-field v-if= "channel.config.variantsSupport" v-model="channel.config.variantExpr" dense class="ml-5" label="Выражение для определения вариант или нет" />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="11">
+        <v-select v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')" clearable></v-select>
 
         <div v-if="categoryIdRef">
           <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>

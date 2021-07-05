@@ -14,6 +14,12 @@ function getStandardAttributes () {
       dictionary: false
     },
     {
+      id: '#productCode',
+      name: 'Артикул товара',
+      required: true,
+      dictionary: false
+    },
+    {
       id: '#barcode',
       name: 'Баркод',
       required: true,
