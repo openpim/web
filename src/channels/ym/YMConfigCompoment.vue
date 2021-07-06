@@ -187,7 +187,7 @@ export default {
         for (let i = 0; i < languages.length; i++) {
           const lang = languages[i]
           const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-          arr.push({ value: '$name#' + lang, text: 'Наименование объекта' + langText })
+          arr.push({ value: '$name#' + lang.identifier, text: 'Наименование объекта' + langText })
         }
         const attrs = getAllItemsAttributes()
         for (let i = 0; i < attrs.length; i++) {
