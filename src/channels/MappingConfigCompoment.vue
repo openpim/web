@@ -239,6 +239,12 @@ export default {
       loadAllRelations().then(() => { relationsLoadedRef.value = true })
       loadAllAttributes().then(() => {
         const arr = []
+        for (let i = 0; i < languages.length; i++) {
+          const lang = languages[i]
+          const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
+          arr.push({ value: '$name#' + lang, text: 'Наименование объекта' + langText })
+        }
+
         const attrs = getAllItemsAttributes()
         for (let i = 0; i < attrs.length; i++) {
           const attr = attrs[i]
