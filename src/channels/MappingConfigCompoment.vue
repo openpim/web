@@ -34,7 +34,7 @@
         <div v-if="categoryIdRef">
           <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>
 
-          <MappingAttributesCompoment v-if="attributesLoadedRef" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
+          <MappingAttributesCompoment v-if="pimAttributesRef && pimAttributesRef.length > 0" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
         </div>
       </v-col>
       <v-col cols="1">
@@ -149,7 +149,6 @@ export default {
     const categoryIdRef = ref(null)
     const newCategoryIdRef = ref(null)
     const categoryRef = ref(null)
-    const attributesLoadedRef = ref(false)
     const channelAttributesRef = ref([])
     const pimAttributesRef = ref([])
     const exprDialogRef = ref(null)
@@ -196,7 +195,6 @@ export default {
     function loadAttributes () {
       if (!props.channel.type) return
 
-      attributesLoadedRef.value = false
       getChannelAttributes(props.channel.internalId, categoryRef.value.id).then(arr => {
         channelAttributesRef.value = arr.sort((a, b) => {
           if (a.required && !b.required) return -1
@@ -212,7 +210,6 @@ export default {
             categoryRef.value.attributes.splice(idx, 0, { id: attr.id, attrIdent: '', expr: '' })
           }
         })
-        attributesLoadedRef.value = true
         // remove attributes not in channel
         categoryRef.value.attributes = categoryRef.value.attributes.filter(elem => channelAttributesRef.value.find(attr => elem.id === attr.id))
       })
@@ -273,7 +270,6 @@ export default {
       dialogRef,
       addCategory,
       categoryChanged,
-      attributesLoadedRef,
       pimAttributesRef,
       channelAttributesRef,
       exprDialogRef,
