@@ -91,9 +91,10 @@ import ValidVisibleComponent from '../../components/ValidVisibleComponent'
 import ExtConfigCompoment from '../../channels/ext/ExtConfigCompoment'
 import WBConfigCompoment from '../../channels/wb/WBConfigCompoment'
 import OzonConfigCompoment from '../../channels/ozon/OzonConfigCompoment'
+import YMConfigCompoment from '../../channels/ym/YMConfigCompoment'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment },
+  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment, YMConfigCompoment },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
@@ -171,7 +172,8 @@ export default {
     let types = [
       { value: 1, text: i18n.t('Channels.Type.External') },
       { value: 2, text: i18n.t('Channels.Type.WB') },
-      { value: 3, text: i18n.t('Channels.Type.Ozon') }
+      { value: 3, text: i18n.t('Channels.Type.Ozon') },
+      { value: 4, text: i18n.t('Channels.Type.YM') }
     ]
     if (process.env.VUE_APP_CHANNELS) {
       const arr = process.env.VUE_APP_CHANNELS.split(',').map(elem => parseInt(elem))

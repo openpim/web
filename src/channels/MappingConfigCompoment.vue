@@ -34,44 +34,7 @@
         <div v-if="categoryIdRef">
           <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>
 
-          <v-simple-table v-if="attributesLoadedRef" dense class="mb-4">
-              <template v-slot:default>
-                <thead>
-                  <tr>
-                    <th class="text-left" style="width:30%">{{$t('MappingConfigComponent.Table.ChannelAttribute')}}</th>
-                    <th class="text-left" style="width:30%">{{$t('MappingConfigComponent.Table.Attribute')}}</th>
-                    <th class="text-left">{{$t('MappingConfigComponent.Table.Expression')}}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(elem, i) in categoryRef.attributes" :key="i" :set="attr = getAttribute(elem.id)">
-                    <td class="pa-1">
-                      <v-tooltip bottom v-if="attr.description" color="blue-grey darken-4">
-                        <template v-slot:activator="{ on }">
-                          <v-icon v-on="on" class="mr-2">mdi-information-outline</v-icon>
-                        </template>
-                        <span>{{ attributeByIndex(i).description }}</span>
-                      </v-tooltip>
-
-                      <span v-on="on" :class="attr.required ? 'font-weight-bold' : ''">{{ attr.name }}</span>
-
-                      <v-tooltip bottom v-if="attr.dictionaryLink">
-                        <template v-slot:activator="{ on }">
-                          <v-btn icon v-on="on" @click="openWindow(i)"><v-icon>mdi-arrow-top-right</v-icon></v-btn>
-                        </template>
-                        <span>{{ $t('MappingConfigComponent.Table.DictionaryLink') + ' - ' + attr.dictionaryLink}}</span>
-                      </v-tooltip>
-                    </td>
-                    <td class="pa-1">
-                      <v-autocomplete dense :readonly="readonly" v-model="categoryRef.attributes[i].attrIdent" :items="pimAttributesRef" clearable></v-autocomplete>
-                    </td>
-                    <td class="pa-1">
-                      <v-text-field v-model="categoryRef.attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(categoryRef.attributes[i])" />
-                    </td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
+          <MappingAttributesCompoment v-if="attributesLoadedRef" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
         </div>
       </v-col>
       <v-col cols="1">
@@ -115,27 +78,6 @@
         </v-dialog>
       </v-row>
     </template>
-    <template>
-      <v-row justify="center" v-if="exprAttrRef">
-        <v-dialog v-model="exprDialogRef" persistent max-width="90%">
-          <v-card>
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-textarea :rows="15" :readonly="readonly" v-model="exprAttrRef.expr"></v-textarea>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="exprDialogRef = false">{{ $t('Close') }}</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-row>
-    </template>
     <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="true" @selected="relationsSelected"/>
   </div>
 </template>
@@ -148,6 +90,8 @@ import * as relStore from '../store/relations'
 import * as errorStore from '../store/error'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
+import MappingAttributesCompoment from './MappingAttributesCompoment'
+
 import i18n from '../i18n'
 import getChannelFactory from '../channels'
 
@@ -161,7 +105,7 @@ export default {
       required: true
     }
   },
-  components: { ValidVisibleComponent, RelationsSelectionDialog },
+  components: { ValidVisibleComponent, RelationsSelectionDialog, MappingAttributesCompoment },
   setup (props, { root }) {
     const {
       showError
@@ -206,7 +150,7 @@ export default {
     const newCategoryIdRef = ref(null)
     const categoryRef = ref(null)
     const attributesLoadedRef = ref(false)
-    let channelAttributes = []
+    const channelAttributesRef = ref([])
     const pimAttributesRef = ref([])
     const exprDialogRef = ref(null)
     const exprAttrRef = ref(null)
@@ -254,57 +198,27 @@ export default {
 
       attributesLoadedRef.value = false
       getChannelAttributes(props.channel.internalId, categoryRef.value.id).then(arr => {
-        channelAttributes = arr.sort((a, b) => {
+        channelAttributesRef.value = arr.sort((a, b) => {
           if (a.required && !b.required) return -1
           if (!a.required && b.required) return 1
           return 0
         })
 
         const stAttributes = getChannelFactory(props.channel.type).getStandardAttributes()
-        channelAttributes = stAttributes.concat(channelAttributes)
+        channelAttributesRef.value = stAttributes.concat(channelAttributesRef.value)
 
-        channelAttributes.forEach((attr, idx) => {
+        channelAttributesRef.value.forEach((attr, idx) => {
           if (!categoryRef.value.attributes.find(elem => elem.id === attr.id)) {
             categoryRef.value.attributes.splice(idx, 0, { id: attr.id, attrIdent: '', expr: '' })
           }
         })
         attributesLoadedRef.value = true
         // remove attributes not in channel
-        categoryRef.value.attributes = categoryRef.value.attributes.filter(elem => channelAttributes.find(attr => elem.id === attr.id))
+        categoryRef.value.attributes = categoryRef.value.attributes.filter(elem => channelAttributesRef.value.find(attr => elem.id === attr.id))
       })
         .catch((error) => {
           showError(error.message)
         })
-    }
-
-    function getAttribute (id) {
-      return channelAttributes.find(elem => elem.id === id)
-    }
-
-    function openWindow (i) {
-      const attr = channelAttributes[i]
-      if (!attr.dictionaryLinkPost) {
-        window.open(attr.dictionaryLink, '_blank').focus()
-      } else {
-        fetch(attr.dictionaryLink, {
-          method: 'POST',
-          headers: attr.dictionaryLinkPost.headers,
-          body: JSON.stringify(attr.dictionaryLinkPost.body)
-        }).then(response => response.json()).then(json => {
-          const newWin = window.open('', '_blank')
-          newWin.document.write('<pre>' + JSON.stringify(json, null, 2) + '</pre>')
-          newWin.focus()
-        })
-      }
-    }
-
-    function attributeByIndex (i) {
-      return channelAttributes[i]
-    }
-
-    function showExpression (attr) {
-      exprAttrRef.value = attr
-      exprDialogRef.value = true
     }
 
     const imgRelations = computed(() => {
@@ -359,12 +273,9 @@ export default {
       dialogRef,
       addCategory,
       categoryChanged,
-      getAttribute,
       attributesLoadedRef,
-      openWindow,
-      attributeByIndex,
       pimAttributesRef,
-      showExpression,
+      channelAttributesRef,
       exprDialogRef,
       exprAttrRef,
       imgRelations,
