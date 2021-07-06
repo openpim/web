@@ -19,7 +19,7 @@
                         <span>{{ attributeByIndex(i).description }}</span>
                       </v-tooltip>
 
-                      <span v-on="on" :class="attr.required ? 'font-weight-bold' : ''">{{ attr.name }}</span>
+                      <span :class="attr.required ? 'font-weight-bold' : ''">{{ attr.name }}</span>
 
                       <v-tooltip bottom v-if="attr.dictionaryLink">
                         <template v-slot:activator="{ on }">
@@ -73,6 +73,10 @@ export default {
       required: true
     },
     channelAttributes: {
+      required: true
+    },
+    readonly: {
+      type: Boolean,
       required: true
     }
   },

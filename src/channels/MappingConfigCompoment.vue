@@ -34,7 +34,7 @@
         <div v-if="categoryIdRef">
           <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>
 
-          <MappingAttributesCompoment v-if="pimAttributesRef && pimAttributesRef.length > 0" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
+          <MappingAttributesCompoment v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
         </div>
       </v-col>
       <v-col cols="1">
