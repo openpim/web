@@ -16,7 +16,7 @@
                         <template v-slot:activator="{ on }">
                           <v-icon v-on="on" class="mr-2">mdi-information-outline</v-icon>
                         </template>
-                        <span>{{ attributeByIndex(i).description }}</span>
+                        <span>{{ attr.description }}</span>
                       </v-tooltip>
 
                       <span :class="attr.required ? 'font-weight-bold' : ''">{{ attr.name }}</span>
@@ -105,10 +105,6 @@ export default {
       }
     }
 
-    function attributeByIndex (i) {
-      return props.channelAttributes[i]
-    }
-
     function showExpression (attr) {
       exprAttrRef.value = attr
       exprDialogRef.value = true
@@ -117,7 +113,6 @@ export default {
     return {
       getAttribute,
       openWindow,
-      attributeByIndex,
       showExpression,
       exprDialogRef,
       exprAttrRef

@@ -41,6 +41,7 @@
 
       </v-tab-item>
       <v-tab-item>
+        <YMMappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly ></YMMappingConfigCompoment>
       </v-tab-item>
       <v-tab-item>
         <div class="ml-5">
@@ -63,6 +64,7 @@ import * as itemStore from '../../store/item'
 import MappingAttributesCompoment from '../MappingAttributesCompoment'
 import TypeSelectionDialog from '../../components/TypeSelectionDialog'
 import ItemsSelectionDialog from '../../components/ItemsSelectionDialog'
+import YMMappingConfigCompoment from './YMMappingConfigCompoment'
 
 export default {
   props: {
@@ -74,7 +76,7 @@ export default {
       required: true
     }
   },
-  components: { MappingAttributesCompoment, TypeSelectionDialog, ItemsSelectionDialog },
+  components: { MappingAttributesCompoment, TypeSelectionDialog, ItemsSelectionDialog, YMMappingConfigCompoment },
   setup (props, { root }) {
     const {
       loadAllAttributes,
@@ -183,7 +185,7 @@ export default {
     onMounted(() => {
       loadAllTypes().then(() => { typesLoadedRef.value = true })
       loadAllAttributes().then(() => {
-        const arr = []
+        const arr = [{ value: '$id', text: 'Внутренний номер объекта' }, { value: '$parentId', text: 'Внутренний номер родительского объекта' }]
         for (let i = 0; i < languages.length; i++) {
           const lang = languages[i]
           const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
