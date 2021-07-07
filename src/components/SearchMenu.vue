@@ -301,9 +301,7 @@ export default {
     }
 
     onMounted(() => {
-      loadAllTypes()
-
-      Promise.all([loadAllLanguages(), loadAllAttributes(), loadAllChannels()]).then(() => {
+      Promise.all([loadAllTypes(), loadAllLanguages(), loadAllAttributes(), loadAllChannels()]).then(() => {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
         selectedRef.value = { identifier: '', name: name, filters: [], whereClause: {}, extended: false, public: false }
@@ -376,6 +374,11 @@ export default {
         if (id) {
           loadByIdentifier(id).then(data => searchSelected(data))
         } else {
+          const tst = localStorage.getItem('search_to_open')
+          if (tst) {
+            localStorage.removeItem('search_to_open')
+            searchToOpenRef.value = JSON.parse(tst)
+          }
           if (searchToOpenRef.value) {
             searchToOpenRef.value.user = ''
             searchSelected(searchToOpenRef.value)

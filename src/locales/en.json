@@ -378,6 +378,7 @@
   "UserSelect.Tenant": "Tenant",
   "UserSelect.User": "User",
   "DataTable.Export.Limit" : "You have {number} rows loaded, but only {max} rows can be exported. Do you want to proceed?",
+  "DataTable.OpenSearch" : "Search for all objects under this parent",
   "DataTable.ExportExcel" : "Export to Excel file",
   "DataTable.ImportExcel" : "Import from Excel file",
   "DataTable.ExportCSV" : "Export to CSV file",

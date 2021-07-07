@@ -137,7 +137,7 @@
             <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded"></ItemRelationsList>
           </v-tab-item>
           <v-tab-item v-if="totalChildrenRef === -1 || totalChildrenRef > 0" eager>  <!-- Children -->
-            <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false"></ItemsDataTable>
+            <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false" :item="itemRef"></ItemsDataTable>
           </v-tab-item>
           <v-tab-item v-if="hasChannels" eager>  <!-- Channels -->
             <div v-for="(channel, i) in awailableChannelsRef" :key="i">

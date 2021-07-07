@@ -3,6 +3,12 @@
   <v-toolbar dense elevation="1" class="mt-2">
       <v-select dense v-if="savedOptionsVisible()" v-model="savedColumnsSelectionRef" :items="savedColumnsOptionsRef"></v-select>
       <v-spacer></v-spacer>
+      <v-tooltip top v-if="item">
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" @click="openSearch"><v-icon>mdi-text-search</v-icon></v-btn>
+        </template>
+        <span>{{ $t('DataTable.OpenSearch') }}</span>
+      </v-tooltip>
       <v-tooltip top v-if="!talendExportSelection && hasAccess('exportXLS')">
         <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportExcel"><v-icon>mdi-application-export</v-icon></v-btn>
@@ -154,6 +160,7 @@ import * as userStore from '../store/users'
 import * as searchStore from '../store/search'
 import * as attrStore from '../store/attributes'
 import * as channelsStore from '../store/channels'
+import * as typesStore from '../store/types'
 import i18n from '../i18n'
 import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
@@ -172,6 +179,9 @@ export default {
     export: {
       type: Boolean,
       required: true
+    },
+    item: {
+      required: false
     }
   },
   setup (props, { emit, root }) {
@@ -200,6 +210,11 @@ export default {
     const {
       getLOVData
     } = lovsStore.useStore()
+
+    const {
+      loadAllTypes,
+      findTypeByIdentifier
+    } = typesStore.useStore()
 
     const columnsSelectionDialogRef = ref(null)
     const columnsSaveDialogRef = ref(null)
@@ -752,7 +767,32 @@ export default {
       showInfo(i18n.t('Submitted'))
     }
 
+    function openSearch () {
+      const name = props.item.name[currentLanguage.value.identifier] || '[' + props.item.name.name[defaultLanguageIdentifier.value] + ']'
+      const search = { user: '', filters: [{ type: 'attr', attr: '#level#', operation: 1, value: name, path: props.item.path }], whereClause: {}, extended: false }
+
+      const type = findTypeByIdentifier(props.item.typeIdentifier).node
+      const typesToExclude = []
+      collectTypes(type, typesToExclude)
+      typesToExclude.forEach(type => {
+        search.filters.push({ type: 'attr', attr: 'typeIdentifier', operation: 2, value: type.identifier })
+      })
+
+      localStorage.setItem('search_to_open', JSON.stringify(search))
+      window.open('/#/search', '_blank')
+    }
+
+    function collectTypes (type, array) {
+      if (type.children && type.children.length > 0) {
+        array.push(type)
+        type.children.forEach(childType => {
+          collectTypes(childType, array)
+        })
+      }
+    }
+
     onMounted(() => {
+      loadAllTypes()
       loadAllChannels().then(() => {
         hasChannelsRef.value = getAwailableChannels(true).length > 0
       })
@@ -827,6 +867,7 @@ export default {
       hasChannelsRef,
       chanSelectionDialogRef,
       channelsSelected,
+      openSearch,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }
