@@ -238,7 +238,7 @@ export default {
     onMounted(() => {
       loadAllRelations().then(() => { relationsLoadedRef.value = true })
       loadAllAttributes().then(() => {
-        const arr = []
+        const arr = [{ value: '$id', text: 'Внутренний номер объекта' }, { value: '$parentId', text: 'Внутренний номер родительского объекта' }]
         for (let i = 0; i < languages.length; i++) {
           const lang = languages[i]
           const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
