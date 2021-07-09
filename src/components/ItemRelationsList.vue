@@ -50,10 +50,10 @@
                   </td>
                   <td class="pa-1">
                     <span v-if="componentType === 'source' && itemRel.target">
-                      {{  dateFormat(new Date(itemRel.target.updatedAt), DATE_FORMAT) }}
+                      {{  itemRel.target.updatedAt ? dateFormat(new Date(itemRel.target.updatedAt), DATE_FORMAT) : '' }}
                     </span>
                     <span v-if="componentType === 'target' && itemRel.item">
-                      {{  dateFormat(new Date(itemRel.item.updatedAt), DATE_FORMAT) }}
+                      {{  itemRel.item.updatedAt ? dateFormat(new Date(itemRel.item.updatedAt), DATE_FORMAT) : '' }}
                     </span>
                   </td>
                   <td class="text-left" v-for="(attr, i) in getAttributesForRelation(identifier)" :key="i">
