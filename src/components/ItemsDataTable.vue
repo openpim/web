@@ -65,10 +65,11 @@
       <tr>
         <td v-for="(header, i) in headers" :key="i" @click="cellClicked(item, header)">
           <router-link v-if="header.identifier === 'identifier'" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
+          <router-link v-if="header.identifier === 'parentIdentifier'" :to="'/item/' + item.parentIdentifier">{{ item.parentIdentifier }}</router-link>
 
           <v-img v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="50" max-height="50"></v-img>
 
-          <template v-if="!header.identifier.startsWith('#channel_') && header.identifier !== 'identifier' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
+          <template v-if="!header.identifier.startsWith('#channel_') && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
             <span v-else>{{ getValue(item, header) }}</span>
           </template>

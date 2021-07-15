@@ -309,6 +309,7 @@ export default {
         const arr = [
           { value: 'id', text: i18n.t('Item.id') },
           { value: 'identifier', text: i18n.t('Item.identifier') },
+          { value: 'parentIdentifier', text: i18n.t('Item.parentIdentifier') },
           { value: 'typeIdentifier', text: i18n.t('Item.typeIdentifier') },
           { value: '#level#', text: i18n.t('Item.level') },
           { value: 'createdBy', text: i18n.t('CreatedBy') },

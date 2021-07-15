@@ -334,6 +334,7 @@
   "ColumnsSelection.ChannelMessage": "Message",
   "Item.id": "Id",
   "Item.identifier": "Identifier",
+  "Item.parentIdentifier": "Parent Identifier",
   "Item.fileOrigName": "Original file name",
   "Item.mimeType": "Mime type",
   "Item.name": "Name",

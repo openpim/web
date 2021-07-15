@@ -334,6 +334,7 @@
   "ColumnsSelection.ChannelMessage": "Сообщение",
   "Item.id": "Id",
   "Item.identifier": "Идентификатор",
+  "Item.parentIdentifier": "Идентификатор категории",
   "Item.fileOrigName": "Имя файла",
   "Item.mimeType": "Тип файла",
   "Item.name": "Наименование",
