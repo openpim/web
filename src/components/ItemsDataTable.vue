@@ -408,9 +408,11 @@ export default {
         }
       })
 
+      const sortBy = optionsRef.value.sortBy && optionsRef.value.sortBy.length > 0 ? optionsRef.value.sortBy : ['id']
+      const sortDesc = optionsRef.value.sortDesc && optionsRef.value.sortDesc.length > 0 ? optionsRef.value.sortDesc : [false]
       do {
         page++
-        const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: optionsRef.value.sortBy, sortDesc: optionsRef.value.sortDesc })
+        const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: sortBy, sortDesc: sortDesc })
         total = data.count
         if (!excelDialogRef.value) return // exit if process was canceled
         data.rows.forEach(row => {
@@ -619,7 +621,9 @@ export default {
     }
     function performExport (maxRows) {
       loadingRef.value = true
-      props.loadData({ page: 1, itemsPerPage: maxRows, sortBy: optionsRef.value.sortBy, sortDesc: optionsRef.value.sortDesc }).then(data => {
+      const sortBy = optionsRef.value.sortBy && optionsRef.value.sortBy.length > 0 ? optionsRef.value.sortBy : ['id']
+      const sortDesc = optionsRef.value.sortDesc && optionsRef.value.sortDesc.length > 0 ? optionsRef.value.sortDesc : [false]
+      props.loadData({ page: 1, itemsPerPage: maxRows, sortBy: sortBy, sortDesc: sortDesc }).then(data => {
         if (props.export) {
           console.log('#@SELECTED_ITEMS@#')
           const identHeader = { value: 'identifier' }
