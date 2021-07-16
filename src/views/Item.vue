@@ -551,9 +551,14 @@ export default {
         const expr = getOption(group, 'visible', null)
         if (expr) {
           try {
+            const utils = {
+              canEditItem: () => {
+                return canEditItem(item.typeId, item.path)
+              }
+            }
             // eslint-disable-next-line no-new-func
-            const func = new Function('item', 'group', 'user', 'roles', '"use strict"; return (' + expr + ')')
-            return func(item, group, currentUserRef.value, currentRoles)
+            const func = new Function('item', 'group', 'user', 'roles', 'utils', '"use strict"; return (' + expr + ')')
+            return func(item, group, currentUserRef.value, currentRoles, utils)
           } catch (err) {
             console.error('Failed to evaluate expression: "' + expr + '" for group: ' + group.identifier, err)
             return false
