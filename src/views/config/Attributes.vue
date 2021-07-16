@@ -262,7 +262,7 @@ export default {
       } else {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('Config.Attributes.Group.NewName')
-        const newGroup = { id: Date.now(), internalId: 0, group: true, attributes: [], order: 0, visible: false, name: name }
+        const newGroup = { id: Date.now(), internalId: 0, group: true, attributes: [], order: 0, visible: false, name: name, options: [] }
         groups.push(newGroup)
         selectedRef.value = newGroup
       }
