@@ -410,7 +410,7 @@ export default {
 
       do {
         page++
-        const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: [], sortDesc: [] })
+        const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: optionsRef.value.sortBy, sortDesc: optionsRef.value.sortDesc })
         total = data.count
         if (!excelDialogRef.value) return // exit if process was canceled
         data.rows.forEach(row => {
@@ -619,7 +619,7 @@ export default {
     }
     function performExport (maxRows) {
       loadingRef.value = true
-      props.loadData({ page: 1, itemsPerPage: maxRows, sortBy: [], sortDesc: [] }).then(data => {
+      props.loadData({ page: 1, itemsPerPage: maxRows, sortBy: optionsRef.value.sortBy, sortDesc: optionsRef.value.sortDesc }).then(data => {
         if (props.export) {
           console.log('#@SELECTED_ITEMS@#')
           const identHeader = { value: 'identifier' }
