@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted, onUnmounted } from '@vue/composition-api'
 import * as userStore from '../store/users'
 import i18n from '../i18n'
 
@@ -68,6 +68,12 @@ export default {
     const login = ref('')
     const password = ref('')
 
+    function signInKeyListener (e) {
+      if (e.key === 'Enter') {
+        signIn(login.value, password.value, props.pathAfterLogin)
+      }
+    }
+
     onMounted(() => {
       const params = {}
       window.location.href.replace(/[?&]+([^=&]+)=([^&#]*)/gi,
@@ -75,6 +81,11 @@ export default {
           params[key] = value
         })
       if (params.user && params.password) signIn(params.user, params.password, props.pathAfterLogin)
+      document.addEventListener('keypress', signInKeyListener)
+    })
+
+    onUnmounted(() => {
+      document.removeEventListener('keypress', signInKeyListener)
     })
 
     return {
