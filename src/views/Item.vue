@@ -489,13 +489,7 @@ export default {
     }
 
     function move () {
-      loadChildren(itemRef.value.internalId, { page: 1, itemsPerPage: 1 }).then(data => {
-        if (data.count > 0) {
-          showError(i18n.t('ItemView.Move.HasChildrenError'))
-        } else {
-          itemSelectionDialogRef.value.showDialog()
-        }
-      })
+      itemSelectionDialogRef.value.showDialog()
     }
 
     function itemToMoveSelected (id) {
