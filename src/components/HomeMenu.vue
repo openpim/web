@@ -118,6 +118,7 @@ export default {
       createItem(item, selectedRef.value).then(() => {
         openRef.value.push(selectedRef.value.id)
         activeRef.value = [item.id]
+        selectedRef.value = item
         router.push('/item/' + item.identifier)
       })
     }
