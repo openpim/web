@@ -25,7 +25,7 @@ const actions = {
   },
   loadAllLOVs: async () => {
     if (lovs.length > 0) return
-    const data = await serverFetch('query { getLOVs {id identifier name values } }')
+    const data = await serverFetch('query { getLOVs {id identifier name values createdBy createdAt updatedBy updatedAt } }')
     if (data.getLOVs) {
       data.getLOVs.forEach(element => {
         element.internalId = element.id
