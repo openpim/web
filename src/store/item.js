@@ -343,7 +343,8 @@ const actions = {
                 entity: ITEM, 
                 offset: 0, 
                 limit: 100,
-                where: {OP_or: [` + attrExpr + '{ identifier: { OP_iLike: "%' + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + `%"}}}] }
+                where: {OP_or: [` + attrExpr + '{ identifier: { OP_iLike: "%' + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + `%"}}}] },
+                order: [["id", "ASC"]]
             }]
         ) {
         responses {
