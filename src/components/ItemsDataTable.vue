@@ -558,12 +558,12 @@ export default {
                     const tst = attr.substring(idx + 1)
                     if (availableLangs.includes(tst)) {
                       if (!item.values[attrIdent]) item.values[attrIdent] = {}
-                      item.values[attrIdent][tst] = cellVal
+                      item.values[attrIdent][tst] = convertValueIfNecessary(attrIdent, cellVal)
                     } else {
-                      item.values[attr] = cellVal
+                      item.values[attr] = convertValueIfNecessary(attr, cellVal)
                     }
                   } else {
-                    item.values[attr] = cellVal
+                    item.values[attr] = convertValueIfNecessary(attr, cellVal)
                   }
                 }
               }
@@ -591,6 +591,10 @@ export default {
       }
       reader.readAsBinaryString(file)
       fileUploadRef.value.value = ''
+    }
+    function convertValueIfNecessary (attr, cellVal) {
+      const attrNode = findByIdentifier(attr)
+      return attrNode && attrNode.item.type === AttributeType.Text ? '' + cellVal : cellVal
     }
     function importRows (rows) {
       importItems(rows).then(returnRows => {
