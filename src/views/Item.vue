@@ -684,11 +684,12 @@ export default {
       loadAllChannels().then(() => {
         awailableChannelsRef.value = getAwailableChannels(false)
       })
-      checkAuditEnabled()
-      loadAllActions()
-      loadAllAttributes()
-      loadAllRelations()
-      loadAllTypes().then(() => {
+      Promise.all([
+        checkAuditEnabled(),
+        loadAllActions(),
+        loadAllAttributes(),
+        loadAllRelations(),
+        loadAllTypes()]).then(() => {
         if (route.value && route.value.params && route.value.params.id) {
           itemPathRef.value = []
           loadItemByIdentifier(route.value.params.id).then((item) => {
