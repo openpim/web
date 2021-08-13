@@ -18,7 +18,7 @@ const actions = {
   addRelation: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Relations.NewName')
-    const newRel = { id: Date.now(), internalId: 0, name: name, sources: [], targets: [], child: false, multi: false }
+    const newRel = { id: Date.now(), internalId: 0, name: name, sources: [], targets: [], child: false, multi: false, options: [] }
     relations.push(newRel)
     return newRel
   },
@@ -31,7 +31,7 @@ const actions = {
         '], targets: [' + rel.targets +
         '], child: ' + rel.child +
         ', multi: ' + rel.multi +
-        `)
+        ', options: ' + objectToGraphgl(rel.options) + ` )
       }`
       const data = await serverFetch(query)
       const newId = parseInt(data.createRelation)
@@ -44,7 +44,7 @@ const actions = {
         '], targets: [' + rel.targets +
         '], child: ' + rel.child +
         ', multi: ' + rel.multi +
-        `)
+        ', options: ' + objectToGraphgl(rel.options) + ` )
       }`
       await serverFetch(query)
     }

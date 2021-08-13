@@ -72,6 +72,8 @@
 
           <v-text-field v-model="selectedRef.order" type="number" :label="$t('Config.Relations.Order')" required></v-text-field>
 
+          <OptionsTable :options="selectedRef.options" />
+
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
@@ -93,9 +95,10 @@ import * as langStore from '../../store/languages'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
+import OptionsTable from '../../components/OptionsTable'
 
 export default {
-  components: { TypeSelectionDialog, LanguageDependentField, SystemInformation },
+  components: { TypeSelectionDialog, LanguageDependentField, SystemInformation, OptionsTable },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
 
