@@ -1,7 +1,7 @@
 import { reactive, ref, provide, inject } from '@vue/composition-api'
 import router from '../router'
 import * as err from './error'
-import { serverFetch } from './utils'
+import { serverFetch, objectToGraphgl } from './utils'
 import * as rolesStore from './roles'
 
 const users = reactive([])
@@ -26,7 +26,7 @@ async function userLogin (token, user, pathAfterLogin) {
 const actions = {
   loadAllUsers: async () => {
     if (users.length > 0) return
-    const data = await serverFetch('query { getUsers {id internalId login name email roles createdAt createdBy updatedAt updatedBy } }')
+    const data = await serverFetch('query { getUsers {id internalId login name email roles options createdAt createdBy updatedAt updatedBy } }')
     if (data.getUsers) {
       data.getUsers.forEach(element => {
         users.push(element)
@@ -34,7 +34,7 @@ const actions = {
     }
   },
   addUser: () => {
-    const newUser = { id: Date.now(), internalId: 0, name: '', roles: [] }
+    const newUser = { id: Date.now(), internalId: 0, name: '', roles: [], options: [] }
     users.push(newUser)
     return newUser
   },
@@ -45,7 +45,7 @@ const actions = {
         '", roles: [' + user.roles +
         '], password: "' + (user.password1 ? user.password1 : '') +
         '", email: "' + (user.email ? user.email : '') +
-        `")
+        '", options: ' + objectToGraphgl(user.options) + ` )
       }`
       const data = await serverFetch(query)
       const newId = parseInt(data.createUser)
@@ -56,7 +56,7 @@ const actions = {
         (user.roles ? ', roles: [' + user.roles + ']' : '') +
         ', password: "' + (user.password1 ? user.password1 : '') +
         '", email: "' + (user.email ? user.email : '') +
-        `")
+        '", options: ' + objectToGraphgl(user.options) + ` )
       }`
       await serverFetch(query)
     }

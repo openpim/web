@@ -6,7 +6,7 @@ const roles = reactive([])
 const actions = {
   loadAllRoles: async () => {
     if (roles.length > 0) return
-    const data = await serverFetch('query { getRoles {id, internalId, identifier, name, configAccess, relAccess, itemAccess, channelAccess, otherAccess, updatedAt, updatedBy, createdAt, createdBy } }')
+    const data = await serverFetch('query { getRoles {id, internalId, identifier, name, configAccess, relAccess, itemAccess, channelAccess, otherAccess, options, updatedAt, updatedBy, createdAt, createdBy } }')
     if (data.getRoles) {
       if (roles.length > 0) return
       data.getRoles.forEach(element => {
@@ -23,7 +23,8 @@ const actions = {
       relAccess: { relations: [], access: 0, groups: [] },
       itemAccess: { valid: [], fromItems: [], access: 0, groups: [] },
       channelAccess: [],
-      otherAccess: { audit: false, search: false, exportCSV: false, exportXLS: false, importXLS: false }
+      otherAccess: { audit: false, search: false, exportCSV: false, exportXLS: false, importXLS: false },
+      options: []
     }
     roles.push(newRole)
     return newRole
@@ -37,7 +38,7 @@ const actions = {
         ', itemAccess: ' + objectToGraphgl(role.itemAccess) +
         ', channelAccess: ' + objectToGraphgl(role.channelAccess) +
         ', otherAccess: ' + objectToGraphgl(role.otherAccess) +
-        `)
+        ', options: ' + objectToGraphgl(role.options) + ` )
       }`
       const data = await serverFetch(query)
       const newId = parseInt(data.createRole)
@@ -50,7 +51,7 @@ const actions = {
         ', itemAccess: ' + objectToGraphgl(role.itemAccess) +
         ', channelAccess: ' + objectToGraphgl(role.channelAccess) +
         ', otherAccess: ' + objectToGraphgl(role.otherAccess) +
-        `)
+        ', options: ' + objectToGraphgl(role.options) + ` )
       }`
       await serverFetch(query)
     }

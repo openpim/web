@@ -222,6 +222,8 @@
             </v-tab-item>
           </v-tabs-items>
 
+          <OptionsTable :options="selectedRef.options" />
+
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save" :disabled="selectedRef.identifier && selectedRef.identifier === 'admin'">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.identifier && selectedRef.identifier === 'admin'">{{ $t('Remove') }}</v-btn>
         </v-form>
@@ -254,9 +256,10 @@ import * as typesStore from '../../store/types'
 import * as itemStore from '../../store/item'
 import * as channelsStore from '../../store/channels'
 import SystemInformation from '../../components/SystemInformation'
+import OptionsTable from '../../components/OptionsTable'
 
 export default {
-  components: { RelationsSelectionDialog, AttrGroupsSelectionDialog, TypeSelectionDialog, ItemsSelectionDialog, SystemInformation, ChannelsSelectionDialog },
+  components: { RelationsSelectionDialog, AttrGroupsSelectionDialog, TypeSelectionDialog, ItemsSelectionDialog, SystemInformation, ChannelsSelectionDialog, OptionsTable },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {

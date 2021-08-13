@@ -53,6 +53,9 @@
           <v-text-field v-model="selectedRef.email" :label="$t('Config.Users.Email')" required></v-text-field>
           <v-text-field type="password" v-if="canEditConfigRef" :error-messages="passwordErrors" v-model="selectedRef.password1" :label="$t('Config.Users.Password1')" required></v-text-field>
           <v-text-field type="password" v-if="canEditConfigRef" :error-messages="passwordErrors" v-model="selectedRef.password2" :label="$t('Config.Users.Password2')" required></v-text-field>
+
+          <OptionsTable :options="selectedRef.options" />
+
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove">{{ $t('Remove') }}</v-btn>
         </v-form>
@@ -71,9 +74,10 @@ import i18n from '../../i18n'
 import router from '../../router'
 import RolesSelectionDialog from '../../components/RolesSelectionDialog'
 import SystemInformation from '../../components/SystemInformation'
+import OptionsTable from '../../components/OptionsTable'
 
 export default {
-  components: { RolesSelectionDialog, SystemInformation },
+  components: { RolesSelectionDialog, SystemInformation, OptionsTable },
   setup () {
     const {
       showInfo
