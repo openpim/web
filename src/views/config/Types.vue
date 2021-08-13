@@ -61,6 +61,8 @@
                 </v-list>
               </v-card>
 
+            <OptionsTable :options="selectedRef.options" />
+
             <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
             <v-btn class="mr-4" v-if="canEditConfigRef" @click="link">{{ $t('Config.Types.Link') }}</v-btn>
             <v-btn class="mr-4" v-if="canEditConfigRef" @click="remove" :disabled="selectedRef.children && selectedRef.children.length > 0">{{ $t('Remove') }}</v-btn>
@@ -99,9 +101,10 @@ import * as userStore from '../../store/users'
 import * as relStore from '../../store/relations'
 import RelationsSelectionDialog from '../../components/RelationsSelectionDialog'
 import SystemInformation from '../../components/SystemInformation'
+import OptionsTable from '../../components/OptionsTable'
 
 export default {
-  components: { TypeSelectionDialog, LanguageDependentField, RelationsSelectionDialog, SystemInformation },
+  components: { TypeSelectionDialog, LanguageDependentField, RelationsSelectionDialog, SystemInformation, OptionsTable },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
 
