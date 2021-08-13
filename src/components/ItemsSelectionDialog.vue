@@ -134,7 +134,7 @@ export default {
     }
 
     async function loadChildren (item) {
-      return loadItems(item.id, item.internalId)
+      return loadItems(item.id, item.internalId, item.typeId)
     }
 
     return {

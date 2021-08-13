@@ -115,8 +115,20 @@ const actions = {
       return items.map(item => enrichItem(item))
     }
   },
-  loadItems: async (id, parentId) => {
-    const data = await serverFetch('query { getItems(parentId: "' + (parentId || '') + `", offset: 0, limit: 500) { 
+  loadItems: async (id, parentId, typeId) => {
+    let order = ''
+    if (typeId) {
+      const type = findType(typeId).node
+      const tstField = type.options.find(elem => elem.name === 'sort')
+      if (tstField) {
+        const tstOrder = type.options.find(elem => elem.name === 'sortDirection')
+        const sort = [[tstField.value, tstOrder ? tstOrder.value : 'ASC']]
+        order = 'order:' + objectToGraphgl(sort)
+      }
+    }
+
+    debugger
+    const data = await serverFetch('query { getItems(parentId: "' + (parentId || '') + '", offset: 0, limit: 500, ' + order + `) { 
       rows 
       { 
         id 
