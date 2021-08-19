@@ -10,6 +10,8 @@ const targetRelations = reactive({})
 const sourceRelationsTotal = reactive({})
 const targetRelationsTotal = reactive({})
 
+const attrCache = {}
+
 function isString (obj) {
   return (Object.prototype.toString.call(obj) === '[object String]')
 }
@@ -223,6 +225,9 @@ const actions = {
     }
   },
   getAttributesForRelationId (relationId) {
+    const tst = attrCache[relationId]
+    if (tst) return tst
+
     const attrs = []
     const groups = attrStore.store.groups
     for (var i = 0; i < groups.length; i++) {
@@ -258,6 +263,7 @@ const actions = {
       }
     }
 
+    attrCache[relationId] = attrs
     return attrs
   },
   identifierExists: async (identifier) => {
