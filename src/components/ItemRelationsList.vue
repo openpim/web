@@ -1,7 +1,9 @@
 <template>
 <div v-if="sourceRelations && targetRelations"> <!-- this is necessary to refrech computed itemRelations right way -->
   <v-expansion-panels popout multiple focusable :model="panels" class="mt-3">
-    <v-expansion-panel v-for="(rel, identifier, i) in itemRelations" :key="i">
+    <template v-for="(rel, identifier, i) in itemRelations">
+    <h5 style="flex: 1 0 100%; max-width: calc(100% - 32px);" :class="getOption(identifier, 'class', '')" :style="getOption(identifier, 'style', '')" :key="i" v-if="getOption(identifier, 'title', null)">{{getOption(identifier, 'title', null)}}</h5>
+    <v-expansion-panel :key="i" :class="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'class', '')" :style="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'style', '')">
       <v-expansion-panel-header class="pb-0">{{ getRelationName(identifier) }}</v-expansion-panel-header>
       <v-expansion-panel-content>
         <v-simple-table dense>
@@ -102,6 +104,7 @@
           </v-container>
       </v-expansion-panel-content>
     </v-expansion-panel>
+    </template>
   </v-expansion-panels>
   <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
     <template v-if="auditEnabled">
@@ -389,6 +392,15 @@ export default {
       return getAttributesForRelationId(rel.id)
     }
 
+    function getOption (identifier, name, defaultValue) {
+      const rel = relations.find(rel => rel.identifier === identifier)
+      if (rel.options) {
+        const tst = rel.options.find(elem => elem.name === name)
+        return tst ? tst.value : defaultValue
+      }
+      return defaultValue
+    }
+
     function showHistory (itemRel) {
       if (itemRel.id === -1) return
       historySelectedRef.value = itemRel
@@ -424,6 +436,7 @@ export default {
       auditEnabled,
       pageSizeChanged,
       hasAccess,
+      getOption,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive'),
       dateFormat,
