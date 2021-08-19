@@ -1,1 +1,1 @@
-window.OPENPIM_VERSION = '1.3.rev'
+window.OPENPIM_VERSION = '1.4.rev'
