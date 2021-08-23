@@ -36,6 +36,12 @@
       </v-tooltip>
       <v-tooltip top>
         <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" @click="selectAttrGroups"><v-icon>mdi-table-plus</v-icon></v-btn>
+        </template>
+        <span>{{ $t('DataTable.SelectGroups') }}</span>
+      </v-tooltip>
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="DataChanged()"><v-icon>mdi-refresh</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.Refresh') }}</span>
@@ -120,6 +126,7 @@
   <ColumnsSelectionDialog ref="columnsSelectionDialogRef" @selected="columnsSelected"/>
   <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
   <ColumnsSaveDialog ref="columnsSaveDialogRef" @changed="loadColumns(true)"/>
+  <AttrGroupsSelectionDialog ref="attrSelectionDialogRef" :multiselect="true" @selected="attrGroupsSelected"/>
     <template>
       <v-row justify="center">
         <v-dialog v-model="excelDialogRef" persistent max-width="600px">
@@ -167,12 +174,13 @@ import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 import ColumnsSaveDialog from './ColumnsSaveDialog'
 import ChannelsSelectionDialog from './ChannelsSelectionDialog'
+import AttrGroupsSelectionDialog from './AttrGroupsSelectionDialog'
 import AttributeType from '../constants/attributeTypes'
 import XLSX from 'xlsx'
 import dateFormat from 'dateformat'
 
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog },
   props: {
     loadData: {
       required: true
@@ -192,7 +200,7 @@ export default {
 
     const { savedColumnsRef, loadAllSavedColumns } = searchStore.useStore()
 
-    const { findByIdentifier } = attrStore.useStore()
+    const { groups, findByIdentifier, getAttributesForItem } = attrStore.useStore()
 
     const { loadAllChannels, getAwailableChannels, submitItem } = channelsStore.useStore()
 
@@ -219,6 +227,7 @@ export default {
 
     const columnsSelectionDialogRef = ref(null)
     const columnsSaveDialogRef = ref(null)
+    const attrSelectionDialogRef = ref(null)
 
     const fileUploadRef = ref(null)
     const excelDialogRef = ref(false)
@@ -800,6 +809,51 @@ export default {
       }
     }
 
+    function selectAttrGroups () {
+      let filter = null
+      if (itemsRef.value && itemsRef.value.length > 0) {
+        const first = itemsRef.value[0]
+        const onlyAttributes = getAttributesForItem(first.typeId, first.path)
+        filter = onlyAttributes.map(elem => elem.id)
+      }
+      attrSelectionDialogRef.value.showDialog(null, null, filter)
+    }
+
+    function attrGroupsSelected (groupIds, initiator) {
+      attrSelectionDialogRef.value.closeDialog()
+
+      let onlyAttributes = null
+      if (itemsRef.value && itemsRef.value.length > 0) {
+        const first = itemsRef.value[0]
+        onlyAttributes = getAttributesForItem(first.typeId, first.path)
+      }
+
+      groupIds.forEach(groupId => {
+        const group = onlyAttributes ? onlyAttributes.find(elem => elem.id === groupId) : groups.find(elem => elem.id === groupId)
+        if (group && group.visible) {
+          const attrs = onlyAttributes ? group.itemAttributes : group.attributes
+          attrs.forEach(attr => {
+            const nameText = attr.identifier + ': ' + (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']') + ' [' + (group.name[currentLanguage.value.identifier] || attr.group.name[defaultLanguageIdentifier.value]) + ']'
+            const nameShort = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
+            if (attr.languageDependent) {
+              for (let i = 0; i < languages.length; i++) {
+                const lang = languages[i]
+                const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
+                const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameShort + langText, textLong: nameText + langText, textShort: nameShort + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
+                if (attr.lov) data.lov = attr.lov
+                if (!headersRef.value.some(elem => elem.identifier === data.identifier)) headersRef.value.push(data)
+              }
+            } else {
+              const data = { identifier: 'attr_' + attr.identifier, text: nameShort, textLong: nameText, textShort: nameShort, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
+              if (attr.lov) data.lov = attr.lov
+              if (!headersRef.value.some(elem => elem.identifier === data.identifier)) headersRef.value.push(data)
+            }
+          })
+        }
+      })
+      loadLOVs()
+    }
+
     onMounted(() => {
       loadAllTypes()
       loadAllChannels().then(() => {
@@ -877,6 +931,9 @@ export default {
       chanSelectionDialogRef,
       channelsSelected,
       openSearch,
+      attrSelectionDialogRef,
+      attrGroupsSelected,
+      selectAttrGroups,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }

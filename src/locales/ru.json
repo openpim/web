@@ -384,6 +384,7 @@
   "DataTable.ImportExcel" : "Загрузить из файла Excel",
   "DataTable.ExportCSV" : "Выгрузить в CSV файл",
   "DataTable.TalendExportSelection" : "Выгрузить",
+  "DataTable.SelectGroups" : "Выбрать группы атрибутов для показа в таблице",
   "DataTable.SelectColumns" : "Выбрать колонки для показа в таблице",
   "DataTable.Refresh" : "Обновить",
   "DataTable.SaveColumns"  : "Сохранить настройки колонок",

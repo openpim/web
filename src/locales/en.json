@@ -384,6 +384,7 @@
   "DataTable.ImportExcel" : "Import from Excel file",
   "DataTable.ExportCSV" : "Export to CSV file",
   "DataTable.TalendExportSelection" : "Export",
+  "DataTable.SelectGroups" : "Select the attribute groups to display in the table",
   "DataTable.SelectColumns" : "Select columns to show in the table",
   "DataTable.Refresh" : "Refresh",
   "DataTable.SaveColumns"  : "Save columns configuration",

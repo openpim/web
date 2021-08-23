@@ -10,7 +10,7 @@
             <v-col cols="12">
             <v-list nav dense>
               <v-list-item-group v-model="selectedGroupsRef" color="primary" :multiple="multiselect">
-                <v-list-item v-for="(item, i) in groups" :key="i">
+                <v-list-item v-for="(item, i) in groupsToShow" :key="i">
                   <v-list-item-icon><v-icon>mdi-format-list-bulleted-type</v-icon></v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
@@ -31,7 +31,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref } from '@vue/composition-api'
+import { ref, computed } from '@vue/composition-api'
 import * as attrStore from '../store/attributes'
 import * as langStore from '../store/languages'
 
@@ -56,24 +56,30 @@ export default {
 
     const selectedGroupsRef = ref([])
     const selectionDialogRef = ref(false)
+    const filterRef = ref(null)
     let initiator
 
     function selected () {
-      const arr = selectedGroupsRef.value.map(idx => groups[idx].internalId)
+      const arr = selectedGroupsRef.value.map(idx => groupsToShow.value[idx].internalId)
       emit('selected', arr, initiator)
     }
 
-    function showDialog (init, selected) {
+    const groupsToShow = computed(() => {
+      return filterRef.value ? groups.filter(elem => filterRef.value.includes(elem.id)) : groups
+    })
+
+    function showDialog (init, selected, filter) {
       initiator = init
+      if (filter) filterRef.value = filter
       if (groups.length === 0) {
         loadAllAttributes().then(() => {
           selectionDialogRef.value = true
-          const arr = selected ? selected.map(id => groups.findIndex(rel => rel.id === id)) : []
+          const arr = selected ? selected.map(id => groupsToShow.value.findIndex(rel => rel.id === id)) : []
           selectedGroupsRef.value = arr
         })
       } else {
         selectionDialogRef.value = true
-        const arr = selected ? selected.map(id => groups.findIndex(rel => rel.id === id)) : []
+        const arr = selected ? selected.map(id => groupsToShow.value.findIndex(rel => rel.id === id)) : []
         selectedGroupsRef.value = arr
       }
     }
@@ -83,7 +89,7 @@ export default {
     }
 
     return {
-      groups,
+      groupsToShow,
       selectionDialogRef,
       selected,
       selectedGroupsRef,
