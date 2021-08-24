@@ -335,7 +335,13 @@ export default {
     })
 
     function editHeaders () {
-      columnsSelectionDialogRef.value.showDialog([...headersRef.value])
+      let onlyAttributes = null
+      if (itemsRef.value && itemsRef.value.length > 0) {
+        const first = itemsRef.value[0]
+        onlyAttributes = getAttributesForItem(first.typeId, first.path)
+      }
+
+      columnsSelectionDialogRef.value.showDialog([...headersRef.value], onlyAttributes)
     }
 
     function columnsSelected (arr) {

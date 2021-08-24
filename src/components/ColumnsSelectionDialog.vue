@@ -171,7 +171,7 @@ export default {
       emit('selected', selectedColumnsRef.value)
     }
 
-    function showDialog (selected) {
+    function showDialog (selected, onlyAttributes) {
       selectedColumnsRef.value = selected
       const arr = [
         { identifier: 'identifier', text: i18n.t('Item.identifier'), align: 'start', sortable: true, filterable: false, value: 'identifier' },
@@ -236,6 +236,15 @@ export default {
       const attrs = getAllItemsAttributes()
       for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i]
+
+        if (onlyAttributes) { // filter only attributes that possible to have at this level
+          const attrGroup = attr.linkToGroup
+          const tstGroup = onlyAttributes.find(elem => elem.id === attrGroup.id)
+          if (!tstGroup) continue
+          const tstAttr = tstGroup.itemAttributes.find(elem => elem.identifier === attr.identifier)
+          if (!tstAttr) continue
+        }
+
         const nameText = attr.identifier + ': ' + (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']') + ' [' + (attr.linkToGroup.name[currentLanguage.value.identifier] || attr.linkToGroup.name[defaultLanguageIdentifier.value]) + ']'
         const nameShort = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
         if (attr.languageDependent) {
