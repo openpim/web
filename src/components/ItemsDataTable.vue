@@ -516,6 +516,7 @@ export default {
             if (firstRow) {
               for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
                 const cell = ws[XLSX.utils.encode_cell({ r: rowNum, c: colNum })]
+                if (!cell) continue
                 if (!cell.c || cell.c.length === 0) {
                   showError(i18n.t('DataTable.ExcelImport.WrongFormat'))
                   excelDialogRef.value = false
@@ -585,7 +586,7 @@ export default {
                   }
                 }
               }
-              rows.push(item)
+              if (item.identifier) rows.push(item)
               if (rows.length === pageSize) {
                 importRows(rows)
                 rows = []
