@@ -300,6 +300,7 @@
   "ItemView.Channels.Submitted": "В очереди",
   "ItemView.Channels.Synced": "OK",
   "ItemView.Channels.Error": "Ошибка",
+  "ItemView.Channels.Waiting": "Ожидание ответа",
   "Items.SelectionDialog.Title": "Выбор объекта",
   "Items.SelectionDialog.Selection": "Выбор",
   "Items.SelectionDialog.Search": "Поиск",

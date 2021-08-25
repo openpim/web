@@ -83,10 +83,10 @@
           <template v-if="header.identifier.startsWith('#channel_')">
             <template v-if="!getValue(item, header)"></template>
             <template v-else>
-              <v-chip v-if="header.identifier.endsWith('_status')" :set="status = getValue(item, header)" class="ma-2"
-                :color="status === 1 ? '' : status === 2 ? 'green' : 'red'"
-                :text-color="status === 1 ? 'black' : 'white'">
-                  {{ status === 1 ? $t('ItemView.Channels.Submitted') : status === 2 ? $t('ItemView.Channels.Synced') : $t('ItemView.Channels.Error') }}</v-chip>
+              <template v-if="getValue(item, header) === 1"><v-chip class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip></template>
+              <template v-if="getValue(item, header) === 2"><v-chip class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.OK')}}</v-chip></template>
+              <template v-if="getValue(item, header) === 3"><v-chip class="ma-2" color="red" text-color="white"> {{$t('ItemView.Channels.Error')}}</v-chip></template>
+              <template v-if="getValue(item, header) === 4"><v-chip class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip></template>
 
               <span v-if="header.identifier.endsWith('_submittedAt')  || header.identifier.endsWith('_syncedAt')">{{ dateFormat(new Date(getValue(item, header)), DATE_FORMAT) }}</span>
 
@@ -464,7 +464,10 @@ export default {
         if (getValue(row, header)) {
           if (header.identifier.endsWith('_status')) {
             const status = getValue(row, header)
-            value = status === 1 ? i18n.t('ItemView.Channels.Submitted') : status === 2 ? i18n.t('ItemView.Channels.Synced') : i18n.t('ItemView.Channels.Error')
+            if (status === 1) value = i18n.t('ItemView.Channels.Submitted')
+            else if (status === 2) value = i18n.t('ItemView.Channels.Synced')
+            else if (status === 3) value = i18n.t('ItemView.Channels.Error')
+            else if (status === 4) value = i18n.t('ItemView.Channels.Waiting')
           } else if (header.identifier.endsWith('_submittedAt') || header.identifier.endsWith('_syncedAt')) {
             value = formatDate ? dateFormat(new Date(getValue(row, header)), process.env.VUE_APP_DATE_FORMAT) : new Date(getValue(row, header))
           } else {

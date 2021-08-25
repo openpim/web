@@ -300,6 +300,7 @@
   "ItemView.Channels.Submitted": "Submitted",
   "ItemView.Channels.Synced": "OK",
   "ItemView.Channels.Error": "Error",
+  "ItemView.Channels.Waiting": "Waiting",
   "Items.SelectionDialog.Title": "Select items",
   "Items.SelectionDialog.Selection": "Select",
   "Items.SelectionDialog.Search": "Search",

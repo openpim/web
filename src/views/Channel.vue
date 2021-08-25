@@ -50,7 +50,8 @@
                       :category="status.id"
                       :submitted="status.statuses.find(elem => elem.status === 1).count"
                       :syncked="status.statuses.find(elem => elem.status === 2).count"
-                      :error="status.statuses.find(elem => elem.status === 3).count"/>
+                      :error="status.statuses.find(elem => elem.status === 3).count"
+                      :waiting="status.statuses.find(elem => elem.status === 4).count"/>
                   </div>
                 </v-col>
               </v-row>

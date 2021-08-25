@@ -24,6 +24,14 @@
         <span>{{error}}</span>
       </v-tooltip>
     </a>
+    <a href="#" @click.stop="barClick(4)">
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-sheet v-bind="attrs" v-on="on" v-if="waitingPercent" :style="'display: inline-block; position: absolute; left: '+ ( submittedPercent + synckedPercent + errorPercent )+ '%'" color="#3F51B5" elevation="1" height="20" :width="waitingPercent+'%'"></v-sheet>
+        </template>
+        <span>{{error}}</span>
+      </v-tooltip>
+    </a>
   </div>
 </template>
 <script>
@@ -42,17 +50,23 @@ export default {
     },
     error: {
       required: true
+    },
+    waiting: {
+      required: true
     }
   },
   setup (props, { emit }) {
     const submittedPercent = computed(() => {
-      return 90 * props.submitted / (props.submitted + props.syncked + props.error)
+      return 90 * props.submitted / (props.submitted + props.syncked + props.error + props.waiting)
     })
     const synckedPercent = computed(() => {
-      return 90 * props.syncked / (props.submitted + props.syncked + props.error)
+      return 90 * props.syncked / (props.submitted + props.syncked + props.error + props.waiting)
     })
     const errorPercent = computed(() => {
-      return 90 * props.error / (props.submitted + props.syncked + props.error)
+      return 90 * props.error / (props.submitted + props.syncked + props.error + props.waiting)
+    })
+    const waitingPercent = computed(() => {
+      return 90 * props.waiting / (props.submitted + props.syncked + props.error + props.waiting)
     })
 
     function barClick (status) {
@@ -63,6 +77,7 @@ export default {
       submittedPercent,
       synckedPercent,
       errorPercent,
+      waitingPercent,
       barClick
     }
   }

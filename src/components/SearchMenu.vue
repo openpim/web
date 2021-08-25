@@ -410,7 +410,8 @@ export default {
       statusSelection: [
         { text: i18n.t('ItemView.Channels.Submitted'), value: 1 },
         { text: i18n.t('ItemView.Channels.Synced'), value: 2 },
-        { text: i18n.t('ItemView.Channels.Error'), value: 3 }
+        { text: i18n.t('ItemView.Channels.Error'), value: 3 },
+        { text: i18n.t('ItemView.Channels.Waiting'), value: 4 }
       ],
       operationSelection: [
         { text: i18n.t('Search.Filter.Operation.Eq'), value: 1 },
