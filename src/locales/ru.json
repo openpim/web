@@ -359,6 +359,7 @@
   "Search.Filter.Operation.StartWith": "начинается с",
   "Search.Filter.Operation.EndWith": "оканчивается",
   "Search.Filter.Operation.Substring": "имеет",
+  "Search.Filter.Operation.List": "в списке",
   "Search.Extended.Label": "Условие выборки",
   "Search.Extended.Error": "неверное условие выборки: ",
   "SearchSaveDialog.Title": "Сохранить условия поиска",

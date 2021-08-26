@@ -359,6 +359,7 @@
   "Search.Filter.Operation.StartWith": "start with",
   "Search.Filter.Operation.EndWith": "end with",
   "Search.Filter.Operation.Substring": "has",
+  "Search.Filter.Operation.List": "in list",
   "Search.Extended.Label": "Where clause",
   "Search.Extended.Error": "Wrong where clause: ",
   "SearchSaveDialog.Title": "Save search",

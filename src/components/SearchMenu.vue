@@ -52,7 +52,8 @@
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
                     <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-text-field v-if="filter.operation !== 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
 
@@ -125,7 +126,8 @@ export default {
 
     const {
       loadAllAttributes,
-      getAllItemsAttributes
+      getAllItemsAttributes,
+      findByIdentifier
     } = attrStore.useStore()
 
     const {
@@ -224,6 +226,9 @@ export default {
               case 9:
                 operation = 'OP_substring'
                 break
+              case 10:
+                operation = 'OP_in'
+                break
             }
 
             if (filter.attr.startsWith('channel#')) {
@@ -234,7 +239,7 @@ export default {
               data.channels = {}
               data.channels[channelIdentifier] = {}
               data.channels[channelIdentifier][field] = {}
-              data.channels[channelIdentifier][field][operation] = parseValue(filter.attr, filter.value)
+              data.channels[channelIdentifier][field][operation] = parseValue(null, filter.attr, filter.value, filter.operation === 10)
             } else if (filter.attr === '#level#') {
               data.path = {}
               data.path.OP_regexp = filter.path + '.*'
@@ -247,20 +252,22 @@ export default {
               const idx = filter.attr.indexOf('#', 5)
               if (idx === -1) {
                 const attr = filter.attr.substring(5)
+                const attrObj = findByIdentifier(attr)
                 data.values = {}
                 data.values[attr] = {}
-                data.values[attr][operation] = parseValue(filter.attr, filter.value)
+                data.values[attr][operation] = parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter.operation === 10)
               } else {
                 const attr = filter.attr.substring(5, idx)
                 const lang = filter.attr.substring(idx + 1)
+                const attrObj = findByIdentifier(attr)
                 data.values = {}
                 data.values[attr] = {}
                 data.values[attr][lang] = {}
-                data.values[attr][lang][operation] = parseValue(filter.attr, filter.value)
+                data.values[attr][lang][operation] = parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter.operation === 10)
               }
             } else {
               data[filter.attr] = {}
-              data[filter.attr][operation] = parseValue(filter.attr, filter.value)
+              data[filter.attr][operation] = parseValue(null, filter.attr, filter.value, filter.operation === 10)
             }
             where.OP_and.push(data)
           }
@@ -269,10 +276,22 @@ export default {
       }
     }
 
-    function parseValue (attr, value) {
+    function parseValue (attrObj, attr, value, array) {
+      if (!array) return parseSimpleValue(attrObj, attr, value)
+
+      const arr = []
+      const split = ('' + value).split(/\r\n|\n|\r/)
+      split.forEach(str => {
+        arr.push(parseSimpleValue(attrObj, attr, str))
+      })
+      return arr
+    }
+
+    function parseSimpleValue (attrObj, attr, value) {
       if (lovsMap[attr]) return '' + value
 
       if (Object.prototype.toString.call(value) !== '[object String]') return value
+      if (attrObj && attrObj.type === 1) return '' + value
 
       if (value.startsWith('"') && value.endsWith('"')) {
         return value.substring(1, value.length - 1)
@@ -422,7 +441,8 @@ export default {
         { text: i18n.t('Search.Filter.Operation.Lte'), value: 6 },
         { text: i18n.t('Search.Filter.Operation.StartWith'), value: 7 },
         { text: i18n.t('Search.Filter.Operation.EndWith'), value: 8 },
-        { text: i18n.t('Search.Filter.Operation.Substring'), value: 9 }
+        { text: i18n.t('Search.Filter.Operation.Substring'), value: 9 },
+        { text: i18n.t('Search.Filter.Operation.List'), value: 10 }
       ]
 
     }
