@@ -148,7 +148,7 @@
                     <v-col cols="3">
                       <div>{{$t('ItemView.Channels.Status')}}:
                         <template v-if="itemRef.channels[channel.identifier].status === 1"><v-chip class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip></template>
-                        <template v-if="itemRef.channels[channel.identifier].status === 2"><v-chip class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.OK')}}</v-chip></template>
+                        <template v-if="itemRef.channels[channel.identifier].status === 2"><v-chip class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.Synced')}}</v-chip></template>
                         <template v-if="itemRef.channels[channel.identifier].status === 3"><v-chip class="ma-2" color="red" text-color="white"> {{$t('ItemView.Channels.Error')}}</v-chip></template>
                         <template v-if="itemRef.channels[channel.identifier].status === 4"><v-chip class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip></template>
                       </div>
