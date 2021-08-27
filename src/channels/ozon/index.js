@@ -8,10 +8,11 @@ function getStandardAttributes () {
       dictionary: false
     },
     {
-      id: '#name',
-      name: 'Наименование',
-      required: false,
-      dictionary: false
+      id: '#vat',
+      name: 'Ставка НДС',
+      required: true,
+      dictionary: false,
+      description: '0 — не облагается НДС, 0.1 — 10%, 0.2 — 20%.'
     },
     {
       id: '#barcode',
