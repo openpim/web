@@ -105,7 +105,10 @@ export default {
 
     const channelRef = ref(null)
     const tabRef = ref(null)
-    const pieData = ref({ labels: [i18n.t('ItemView.Channels.Submitted'), i18n.t('ItemView.Channels.Synced'), i18n.t('ItemView.Channels.Error')], datasets: [{ data: [5, 5, 0], backgroundColor: ['#78909C', '#66BB6A', '#EF5350'] }] })
+    const pieData = ref({
+      labels: [i18n.t('ItemView.Channels.Submitted'), i18n.t('ItemView.Channels.Synced'), i18n.t('ItemView.Channels.Error'), i18n.t('ItemView.Channels.Waiting')],
+      datasets: [{ data: [5, 5, 5, 5], backgroundColor: ['#78909C', '#66BB6A', '#EF5350', '#3F51B5'] }]
+    })
     const loadedRef = ref(false)
 
     const submittedRef = ref(0)
@@ -119,7 +122,7 @@ export default {
       if (selected) {
         loadedRef.value = false
         getChannelStatus(selected.internalId).then(records => {
-          const data = [0, 0, 0]
+          const data = [0, 0, 0, 0]
           submittedRef.value = 0
           synckedRef.value = 0
           errorRef.value = 0
@@ -134,6 +137,10 @@ export default {
             }
             if (elem.status === 3) {
               data[2] = elem.count
+              errorRef.value = elem.count
+            }
+            if (elem.status === 4) {
+              data[3] = elem.count
               errorRef.value = elem.count
             }
           })
