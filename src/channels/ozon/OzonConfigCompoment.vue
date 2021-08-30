@@ -2,7 +2,7 @@
   <div>
     <v-text-field v-if="channel" v-model="channel.config.ozonClientId" :readonly="readonly" label="Client ID" required></v-text-field>
     <v-text-field v-if="channel" v-model="channel.config.ozonApiKey" :readonly="readonly" label="Api-Key" required></v-text-field>
-    <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly ></MappingConfigCompoment>
+    <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :variants="false"></MappingConfigCompoment>
 
     <template v-if="channel">
       <v-row justify="center">

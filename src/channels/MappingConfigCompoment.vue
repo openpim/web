@@ -21,7 +21,7 @@
               </v-card>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="variants">
       <v-col cols="11">
         <v-checkbox v-model="channel.config.variantsSupport" label="Поддержка вариантов" required></v-checkbox>
         <v-text-field v-if= "channel.config.variantsSupport" v-model="channel.config.variantExpr" dense class="ml-5" label="Выражение для определения вариант или нет" />
@@ -103,6 +103,11 @@ export default {
     readonly: {
       type: Boolean,
       required: true
+    },
+    variants: {
+      type: Boolean,
+      required: true,
+      default: true
     }
   },
   components: { ValidVisibleComponent, RelationsSelectionDialog, MappingAttributesCompoment },
