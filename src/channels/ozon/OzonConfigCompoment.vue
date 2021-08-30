@@ -23,7 +23,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Cancel') }}</v-btn>
-              <v-btn color="blue darken-1" text @click="startSync" :disabled="!channel.config.wbKeyAttribute">Начать</v-btn>
+              <v-btn color="blue darken-1" text @click="startSync" :disabled="!channel.config.ozonKeyAttribute">Начать</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -77,7 +77,7 @@ export default {
 
     function startSync () {
       dialogRef.value = false
-      triggerChannel(props.channel.internalId, { sync: true, attr: props.channel.config.wbKeyAttribute })
+      triggerChannel(props.channel.internalId, { sync: true, attr: props.channel.config.ozonKeyAttribute })
     }
 
     return {
