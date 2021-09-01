@@ -108,10 +108,12 @@ export default {
 
     const {
       channels,
+      channelTypes,
       addChannel,
       saveChannel,
       removeChannel,
-      loadAllChannels
+      loadAllChannels,
+      loadAllChannelTypes
     } = channelsStore.useStore()
 
     const canViewConfigRef = ref(false)
@@ -169,21 +171,19 @@ export default {
       }
     }
 
-    let types = [
+    const types = ref([
       { value: 1, text: i18n.t('Channels.Type.External') },
       { value: 2, text: i18n.t('Channels.Type.WB') },
       { value: 3, text: i18n.t('Channels.Type.Ozon') },
       { value: 4, text: i18n.t('Channels.Type.YM') }
-    ]
-    if (process.env.VUE_APP_CHANNELS) {
-      const arr = process.env.VUE_APP_CHANNELS.split(',').map(elem => parseInt(elem))
-      types = types.filter(elem => arr.includes(elem.value))
-    }
+    ])
 
     onMounted(() => {
       canViewConfigRef.value = canViewConfig('channels')
       canEditConfigRef.value = canEditConfig('channels')
-      loadAllChannels().then(() => {
+      Promise.all([loadAllChannelTypes(), loadAllChannels()]).then(() => {
+        types.value = types.value.filter(elem => channelTypes.includes(elem.value))
+
         const id = router.currentRoute.params.id
         if (id) {
           const idx = channels.findIndex((elem) => elem.identifier === id)

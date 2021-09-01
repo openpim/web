@@ -5,6 +5,7 @@ import { currentLanguage } from './languages'
 import * as userStore from './users'
 
 const channels = reactive([])
+const channelTypes = reactive([])
 
 function hasChannelAccess (channel, fullAccess) {
   const roles = userStore.store.currentRoles
@@ -23,6 +24,18 @@ function hasChannelAccess (channel, fullAccess) {
 }
 
 const actions = {
+  loadAllChannelTypes: async () => {
+    if (channelTypes.length > 0) return channels
+    const data = await serverFetch('query { getChannelTypes }')
+    if (channelTypes.length > 0) return channels
+    if (data.getChannelTypes) {
+      data.getChannelTypes.forEach(id => {
+        channelTypes.push(id)
+      })
+    }
+
+    return channels
+  },
   loadAllChannels: async () => {
     if (channels.length > 0) return channels
     const data = await serverFetch('query { getChannels {id identifier name active type valid visible config mappings runtime createdAt createdBy updatedAt updatedBy} }')
@@ -150,6 +163,7 @@ const actions = {
 // eslint-disable-next-line no-unused-vars
 const store = {
   channels: channels,
+  channelTypes: channelTypes,
   ...actions
 }
 
