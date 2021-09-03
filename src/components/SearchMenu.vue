@@ -292,6 +292,13 @@ export default {
 
       if (Object.prototype.toString.call(value) !== '[object String]') return value
       if (attrObj && attrObj.type === 1) return '' + value
+      if (attr === 'identifier' ||
+        attr === 'parentIdentifier' ||
+        attr === 'typeIdentifier' ||
+        attr === 'createdBy' ||
+        attr === 'updatedBy' ||
+        attr === 'fileOrigName' ||
+        attr === 'mimeType') return '' + value
 
       if (value.startsWith('"') && value.endsWith('"')) {
         return value.substring(1, value.length - 1)
