@@ -360,6 +360,8 @@
   "Search.Filter.Operation.EndWith": "end with",
   "Search.Filter.Operation.Substring": "has",
   "Search.Filter.Operation.List": "in list",
+  "Search.Filter.Operation.EqICase": "equals (case insensitive)",
+  "Search.Filter.Operation.SubstringICase": "has (case insensitive)",
   "Search.Extended.Label": "Where clause",
   "Search.Extended.Error": "Wrong where clause: ",
   "SearchSaveDialog.Title": "Save search",

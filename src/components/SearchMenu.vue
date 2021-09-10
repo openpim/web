@@ -229,6 +229,10 @@ export default {
               case 10:
                 operation = 'OP_in'
                 break
+              case 11:
+              case 12:
+                operation = 'OP_iLike'
+                break
             }
 
             if (filter.attr.startsWith('channel#')) {
@@ -239,7 +243,7 @@ export default {
               data.channels = {}
               data.channels[channelIdentifier] = {}
               data.channels[channelIdentifier][field] = {}
-              data.channels[channelIdentifier][field][operation] = parseValue(null, filter.attr, filter.value, filter.operation === 10)
+              data.channels[channelIdentifier][field][operation] = parseValue(null, filter.attr, filter.value, filter)
             } else if (filter.attr === '#level#') {
               data.path = {}
               data.path.OP_regexp = filter.path + '.*'
@@ -255,7 +259,7 @@ export default {
                 const attrObj = findByIdentifier(attr)
                 data.values = {}
                 data.values[attr] = {}
-                data.values[attr][operation] = parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter.operation === 10)
+                data.values[attr][operation] = parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
               } else {
                 const attr = filter.attr.substring(5, idx)
                 const lang = filter.attr.substring(idx + 1)
@@ -263,11 +267,11 @@ export default {
                 data.values = {}
                 data.values[attr] = {}
                 data.values[attr][lang] = {}
-                data.values[attr][lang][operation] = parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter.operation === 10)
+                data.values[attr][lang][operation] = parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
               }
             } else {
               data[filter.attr] = {}
-              data[filter.attr][operation] = parseValue(null, filter.attr, filter.value, filter.operation === 10)
+              data[filter.attr][operation] = parseValue(null, filter.attr, filter.value, filter)
             }
             where.OP_and.push(data)
           }
@@ -276,15 +280,18 @@ export default {
       }
     }
 
-    function parseValue (attrObj, attr, value, array) {
-      if (!array) return parseSimpleValue(attrObj, attr, value)
-
-      const arr = []
-      const split = ('' + value).split(/\r\n|\n|\r/)
-      split.forEach(str => {
-        arr.push(parseSimpleValue(attrObj, attr, str))
-      })
-      return arr
+    function parseValue (attrObj, attr, value, filter) {
+      if (filter.operation === 12) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
+      else if (filter.operation === 10) {
+        const arr = []
+        const split = ('' + value).split(/\r\n|\n|\r/)
+        split.forEach(str => {
+          arr.push(parseSimpleValue(attrObj, attr, str))
+        })
+        return arr
+      } else {
+        return parseSimpleValue(attrObj, attr, value)
+      }
     }
 
     function parseSimpleValue (attrObj, attr, value) {
@@ -449,7 +456,9 @@ export default {
         { text: i18n.t('Search.Filter.Operation.StartWith'), value: 7 },
         { text: i18n.t('Search.Filter.Operation.EndWith'), value: 8 },
         { text: i18n.t('Search.Filter.Operation.Substring'), value: 9 },
-        { text: i18n.t('Search.Filter.Operation.List'), value: 10 }
+        { text: i18n.t('Search.Filter.Operation.List'), value: 10 },
+        { text: i18n.t('Search.Filter.Operation.EqICase'), value: 11 },
+        { text: i18n.t('Search.Filter.Operation.SubstringICase'), value: 12 }
       ]
 
     }
