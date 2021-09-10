@@ -30,6 +30,7 @@ const actions = {
     if (groups.length > 0) return
     if (data.getAttributesInfo) {
       data.getAttributesInfo.forEach(element => {
+        element.attributes = element.attributes.sort((a, b) => a.order - b.order)
         groups.push(element)
       })
     }
