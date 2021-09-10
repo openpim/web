@@ -60,13 +60,31 @@
       </v-tooltip>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
-      :options.sync="optionsRef"
+      :options="optionsRef"
       :server-items-length="totalItemsRef"
       :loading="loadingRef"
       :headers="headersRef"
       :items="itemsRef"
-      :footer-props="{'items-per-page-options': [10, 20, 30, 40, 50] }"
+      hide-default-footer
       class="elevation-1">
+    <template v-slot:footer="{ props }">
+          <v-divider class="pb-3"></v-divider>
+          <v-container class="pa-0">
+            <v-row>
+              <v-col cols="2" class="pb-0">
+                <v-text-field type="number" v-model="pageSize" :label="$t('ItemRelationsList.RowsPerPage')" required :rules="[required, pageSizePositive]" @change="pageSizeChanged"></v-text-field>
+              </v-col>
+              <v-col cols="2" class="mt-5 pb-0">
+                <span>{{ $t('ItemRelationsList.TotalRows') + ' ' + props.pagination.itemsLength}}</span>
+              </v-col>
+              <v-col cols="8" class="mt-1 pb-0">
+                <template v-if="pageSize && pageSize !== '0'">
+                  <v-pagination @input="pageChanged" v-model="tableFooterRef" :length="props.pagination.pageCount" :total-visible="11"></v-pagination>
+                </template>
+              </v-col>
+            </v-row>
+          </v-container>
+    </template>
     <template v-slot:item="{ item, headers }">
       <tr>
         <td v-for="(header, i) in headers" :key="i" @click="cellClicked(item, header)">
@@ -258,6 +276,18 @@ export default {
     const timeMenu = ref(false)
     const timeMenuRef = ref(null)
     const time = ref(null)
+
+    const pageSize = ref(10)
+    const tableFooterRef = ref(1)
+
+    function pageSizeChanged (itemsPerPage) {
+      optionsRef.value.itemsPerPage = parseInt(itemsPerPage)
+      optionsRef.value.page = 1
+    }
+
+    function pageChanged (page) {
+      optionsRef.value.page = page
+    }
 
     function cellClicked (item, header) {
       if (!canEditItem(item.typeId, item.path)) return
@@ -944,8 +974,14 @@ export default {
       attrSelectionDialogRef,
       attrGroupsSelected,
       selectAttrGroups,
+      pageSize,
+      tableFooterRef,
+      pageSizeChanged,
+      pageChanged,
       dateFormat,
-      DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
+      DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
+      required: value => !!value || i18n.t('ItemRelationsList.Required'),
+      pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive')
     }
   }
 }
