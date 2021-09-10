@@ -69,7 +69,7 @@
       class="elevation-1">
     <template v-slot:footer="{ props }">
           <v-divider class="pb-3"></v-divider>
-          <v-container class="pa-0">
+          <v-container class="pa-0 pl-4">
             <v-row>
               <v-col cols="2" class="pb-0">
                 <v-text-field type="number" v-model="pageSize" :label="$t('ItemRelationsList.RowsPerPage')" required :rules="[required, pageSizePositive]" @change="pageSizeChanged"></v-text-field>
