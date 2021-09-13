@@ -9,7 +9,7 @@
             <span>{{ $t('Main.Work') }}</span>
             <v-icon>mdi-sitemap</v-icon>
         </v-btn>
-        <v-btn to="/search" v-if="hasAccess('search')">
+        <v-btn to="/search" v-if="hasSearchAccess">
             <span>{{ $t('Main.Search') }}</span>
             <v-icon>mdi-magnify</v-icon>
         </v-btn>
@@ -84,7 +84,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn color="blue darken-1" text @click="logout">{{ $t('Config.Users.Exit') }}</v-btn>
-          <v-btn v-if="isAdmin()" color="blue darken-1" text @click="reload">{{ $t('Config.Users.ReloadModel') }}</v-btn>
+          <v-btn v-if="isUserAdmin" color="blue darken-1" text @click="reload">{{ $t('Config.Users.ReloadModel') }}</v-btn>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="userDialogRef = false">{{ $t('Close') }}</v-btn>
           <v-btn color="blue darken-1" text @click="save" v-if="currentUserRef.login !== 'demo'">{{ $t('Save') }}</v-btn>
@@ -103,6 +103,7 @@ import * as itemStore from '../store/item'
 import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
 import * as attrStore from '../store/attributes'
+import * as rolesStore from '../store/roles'
 import i18n from '../i18n'
 import router from '../router'
 import TitleComponent from '../_customizations/toolbar/title/TitleComponent'
@@ -121,6 +122,10 @@ export default {
     const {
       showInfo
     } = errorStore.useStore()
+
+    const {
+      loadAllRoles
+    } = rolesStore.useStore()
 
     const {
       languages,
@@ -167,6 +172,9 @@ export default {
     const searchLoadingRef = ref(false)
     const searchAttributesRef = ref([])
     let awaitingSearch = false
+
+    const hasSearchAccess = ref(false)
+    const isUserAdmin = ref(false)
 
     watch(searchRef, (val) => {
       if (val && val.length > 1) {
@@ -282,22 +290,25 @@ export default {
     onMounted(() => {
       setBorderWidth()
       setResizeEvents()
-      if (currentUserRef.value.tenantId !== '0') {
-        loadAllAttributes().then(() => {
-          searchAttributesRef.value = getAttributesForSearch()
-        })
-        loadAllChannels().then(channels => {
-          if (channels && channels.length > 0) hasChannelsRef.value = true
-        })
-        hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards')
-        loadAllLanguages()
-      }
+      loadAllRoles().then(() => {
+        isUserAdmin.value = isAdmin()
+        hasSearchAccess.value = hasAccess('search')
+        if (currentUserRef.value.tenantId !== '0') {
+          loadAllAttributes().then(() => {
+            searchAttributesRef.value = getAttributesForSearch()
+          })
+          loadAllChannels().then(channels => {
+            if (channels && channels.length > 0) hasChannelsRef.value = true
+          })
+          hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards')
+          loadAllLanguages()
+        }
+      })
     })
 
     return {
       logout,
       reload,
-      isAdmin,
       drawer,
       drawerRef,
       drawerWidth,
@@ -319,8 +330,9 @@ export default {
       searchAttributesRef,
       hasConfigRef,
       hasChannelsRef,
-      hasAccess,
       isExportSearch: props.export,
+      hasSearchAccess,
+      isUserAdmin,
       nameRules: [
         v => !!v || i18n.t('Config.Users.Error.NameRequired')
       ]

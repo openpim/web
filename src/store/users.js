@@ -118,7 +118,7 @@ const actions = {
   isAdmin: () => {
     if (!currentUserRef.value) return false
     if (currentRoles.length === 0) {
-      console.error('Roles are not loaded !!!')
+      console.error('isAdmin: Roles are not loaded !!!')
       return false
     }
     return !!currentRoles.find(role => role.identifier === 'admin')
@@ -126,7 +126,7 @@ const actions = {
   hasAccess: (item) => {
     if (!currentUserRef.value) return false
     if (currentRoles.length === 0) {
-      console.error('Roles are not loaded !!!')
+      console.error('hasAccess: Roles are not loaded !!!')
       return false
     }
     for (let i = 0; i < currentRoles.length; i++) {
@@ -138,7 +138,7 @@ const actions = {
   canViewConfig: (item) => {
     if (!currentUserRef.value) return false
     if (currentRoles.length === 0) {
-      console.error('Roles are not loaded !!!')
+      console.error('canViewConfig: Roles are not loaded !!!')
       return false
     }
     for (let i = 0; i < currentRoles.length; i++) {
@@ -150,7 +150,7 @@ const actions = {
   canEditConfig: (item) => {
     if (!currentUserRef.value) return false
     if (currentRoles.length === 0) {
-      console.error('Roles are not loaded !!!')
+      console.error('canEditConfig: Roles are not loaded !!!')
       return false
     }
     for (let i = 0; i < currentRoles.length; i++) {
@@ -162,7 +162,7 @@ const actions = {
   canViewItemRelation: (relationId) => {
     if (!currentUserRef.value) return false
     if (currentRoles.length === 0) {
-      console.error('Roles are not loaded !!!')
+      console.error('canViewItemRelation: Roles are not loaded !!!')
       return false
     }
 
@@ -178,7 +178,7 @@ const actions = {
   canEditItemRelation: (relationId) => {
     if (!currentUserRef.value) return false
     if (currentRoles.length === 0) {
-      console.error('Roles are not loaded !!!')
+      console.error('canEditItemRelation: Roles are not loaded !!!')
       return false
     }
 
@@ -194,7 +194,7 @@ const actions = {
   canEditItem: (typeId, path) => {
     if (!currentUserRef.value) return false
     if (currentRoles.length === 0) {
-      console.error('Roles are not loaded !!!')
+      console.error('canEditItem: Roles are not loaded !!!')
       return false
     }
 
@@ -217,7 +217,7 @@ const actions = {
   canEditAttrGroup: (attrGroupId) => {
     if (!currentUserRef.value) return false
     if (currentRoles.length === 0) {
-      console.error('Roles are not loaded !!!')
+      console.error('canEditAttrGroup: Roles are not loaded !!!')
       return false
     }
 
