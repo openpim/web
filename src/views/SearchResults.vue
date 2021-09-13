@@ -11,6 +11,7 @@
 <script>
 import { ref, watch } from '@vue/composition-api'
 import * as itemStore from '../store/item'
+import * as errorStore from '../store/error'
 import ItemsDataTable from '../components/ItemsDataTable'
 
 export default {
@@ -27,6 +28,8 @@ export default {
       currentWhereRef
     } = itemStore.useStore()
 
+    const { showError } = errorStore.useStore()
+
     const itemsDataTableRef = ref(null)
 
     watch(currentWhereRef, () => {
@@ -38,7 +41,9 @@ export default {
         if (!currentWhereRef.value) {
           resolve({ count: 0, rows: [] })
         } else {
-          searchItems(currentWhereRef.value, options).then(data => resolve(data))
+          searchItems(currentWhereRef.value, options)
+            .then(data => resolve(data))
+            .catch(error => showError(error))
         }
       })
     }
