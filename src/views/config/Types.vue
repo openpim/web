@@ -211,10 +211,11 @@ export default {
 
     function remove () {
       if (confirm(i18n.t('Config.Types.Confirm.Delete', { name: selectedRef.value.name[currentLanguage.value.identifier] }))) {
-        activeRef.value.pop()
-        removeType(selectedRef.value.id)
-        selectedRef.value = { id: -1 }
-        router.push('/config/types')
+        removeType(selectedRef.value.id).then(() => {
+          activeRef.value.pop()
+          selectedRef.value = { id: -1 }
+          router.push('/config/types')
+        })
       }
     }
 

@@ -91,13 +91,17 @@ const actions = {
     return newType
   },
   removeType: async (id) => {
-    const node = removeNode(id, typesTree)
+    const node = actions.findType(id).node
 
     if (node.internalId !== 0) {
       const query = `
         mutation { removeType(id: "` + node.internalId + `")
       }`
-      await serverFetch(query)
+      await serverFetch(query).then(() => {
+        removeNode(id, typesTree)
+      })
+    } else {
+      removeNode(id, typesTree)
     }
   }
 }
