@@ -274,6 +274,7 @@
   "ItemCreationDialog.IdentifierNotUnique": "Такой идентификатор уже существует",
   "ItemCreationDialog.NameRequired": "Не введено наименование",
   "ItemCreationDialog.NoChildren": "Невозможно создать подчиненную запись для объекта {typeName}",
+  "ItemCreationDialog.NoChildrenRoot": "Невозможно создать объект на первом уровне",
   "Item.byIdentifier.NotFound": "Данные не найдены - {identifier}",
   "ItemView.Tab.Attributes": "Атрибуты",
   "ItemView.Tab.File": "Файл",

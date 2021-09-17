@@ -274,6 +274,7 @@
   "ItemCreationDialog.IdentifierNotUnique": "Such identifier already exists",
   "ItemCreationDialog.NameRequired": "Name required",
   "ItemCreationDialog.NoChildren": "Impossible to create children for {typeName}",
+  "ItemCreationDialog.NoChildrenRoot": "Impossible to create object at the top level",
   "Item.byIdentifier.NotFound": "Item not found by identifier: {identifier}",
   "ItemView.Tab.Attributes": "Attributes",
   "ItemView.Tab.File": "File",

@@ -113,8 +113,12 @@ export default {
         if (typesToCreate.value.length > 0) {
           dialogRef.value = true
         } else {
-          showError(i18n.t('ItemCreationDialog.NoChildren',
-            { typeName: (itemSelected.name[currentLanguage.value.identifier] || '[' + itemSelected.name[currentLanguage.value.identifier] + ']') }))
+          if (itemSelected.id === -1) {
+            showError(i18n.t('ItemCreationDialog.NoChildrenRoot'))
+          } else {
+            showError(i18n.t('ItemCreationDialog.NoChildren',
+              { typeName: (itemSelected.name[currentLanguage.value.identifier] || '[' + itemSelected.name[defaultLanguageIdentifier.value] + ']') }))
+          }
         }
       })
     }
