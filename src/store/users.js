@@ -93,7 +93,7 @@ const actions = {
           'Content-Type': 'application/json',
           Accept: 'application/json'
         },
-        body: JSON.stringify({ query: 'mutation {signIn(login: "' + login + '", password: "' + password + '") { token, user {id internalId login name email roles tenantId} }}' })
+        body: JSON.stringify({ query: 'mutation {signIn(login: "' + login + '", password: "' + password + '") { token, user {id internalId login name email roles tenantId options} }}' })
       })
       if (resp.ok) {
         const data = (await resp.json()).data
@@ -109,7 +109,7 @@ const actions = {
     }
   },
   signInAs: async (id) => {
-    const data = await serverFetch('mutation {signInAs(id: "' + id + '") { token, user {id internalId login name email roles tenantId} }}')
+    const data = await serverFetch('mutation {signInAs(id: "' + id + '") { token, user {id internalId login name email roles tenantId options} }}')
     await userLogin(data.signInAs.token, data.signInAs.user, '/')
   },
   reloadModel: async () => {
