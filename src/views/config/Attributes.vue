@@ -203,9 +203,9 @@ export default {
     const activeRef = ref([])
     const openRef = ref([])
     const relSelectionDialogRef = ref(null)
+    const selectedGroupsRef = ref([])
     const connectGroups = computed(() => {
-      const item = findByIdentifier(selectedRef.value.identifier)
-      return groups.filter((grp) => !item.groups.find((item) => item.id === grp.id))
+      return selectedGroupsRef.value ? groups.filter((grp) => !selectedGroupsRef.value.find((item) => item.id === grp.id)) : []
     })
 
     const lovSelection = ref([])
@@ -240,7 +240,9 @@ export default {
 
         if (active[0] !== selectedRef.value.id) {
           activeRef.value[0] = active[0]
-          selectedRef.value = findById(active[0]).item
+          const tmp = findById(active[0])
+          selectedRef.value = tmp.item
+          selectedGroupsRef.value = tmp.groups
           router.push('/config/attributes' + (selectedRef.value.identifier ? '/' + selectedRef.value.identifier : ''))
         }
       } else {
@@ -259,12 +261,14 @@ export default {
         selectedRef.value.attributes.push(newAttr)
         openRef.value = [selectedRef.value.id]
         selectedRef.value = newAttr
+        selectedGroupsRef.value = []
       } else {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('Config.Attributes.Group.NewName')
         const newGroup = { id: Date.now(), internalId: 0, group: true, attributes: [], order: 0, visible: false, name: name, options: [] }
         groups.push(newGroup)
         selectedRef.value = newGroup
+        selectedGroupsRef.value = []
       }
       activeRef.value.pop()
       activeRef.value.push(selectedRef.value.id)
@@ -333,6 +337,7 @@ export default {
           const result = findByIdentifier(id)
           if (result.item) {
             selectedRef.value = result.item
+            selectedGroupsRef.value = result.groups
             activeRef.value.push(result.item.id)
             if (!result.item.group) {
               openRef.value = result.groups.map(grp => grp.id)
