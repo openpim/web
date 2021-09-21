@@ -54,10 +54,10 @@
               <tbody>
                 <tr v-for="(elem, j) in selectedRef.values" :key="j">
                   <td class="pa-1">
-                    <input v-model="elem.id" type="number" :placeholder="$t('Config.LOV.ID')"/>
+                    <input v-model="elem.id" type="number" size="5" maxlength="5" :placeholder="$t('Config.LOV.ID')"/>
                   </td>
                   <td class="pa-1">
-                    <input v-model="elem.value[currentLanguage.identifier]" :placeholder="$t('Config.LOV.Value')"/>
+                    <input v-model="elem.value[currentLanguage.identifier]" size="50" :placeholder="$t('Config.LOV.Value')"/>
                   </td>
                   <td class="pa-1" v-for="(channel, i) in awailableChannelsRef" :key="i">
                     <input v-model="elem[channel.identifier][currentLanguage.identifier]"/>
