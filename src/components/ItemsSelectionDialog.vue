@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="selectionDialogRef" persistent max-width="600px">
+  <v-dialog v-model="selectionDialogRef" persistent max-width="95%">
     <v-card>
       <v-card-title>
         <span class="headline">{{ $t('Items.SelectionDialog.Title') }}</span>
@@ -14,7 +14,7 @@
               </v-tabs>
               <v-tabs-items v-model="tabRef">
                 <v-tab-item> <!-- select -->
-                  <div style="max-height: 300px" class="overflow-y-auto">
+                  <div style="max-height: 70%" class="overflow-y-auto">
                   <v-treeview v-if="selectionDialogRef" dense selectable selection-type="independent" hoverable :items="itemsTree" :load-children="loadChildren" v-model="selectedItemsRef" @input="onSelect">
                     <template v-slot:prepend="{ item }">
                       <v-icon v-if="item.typeIcon" :color="item.typeIconColor">mdi-{{ item.typeIcon }}</v-icon>
@@ -27,7 +27,7 @@
                 </v-tab-item>
                 <v-tab-item> <!-- search -->
                   <v-text-field v-model="searchTextRef" @input="searchChanged" :label="$t('Search')" append-icon="mdi-magnify" class="ml-5 mr-5"></v-text-field>
-                  <v-list dense v-if="searchResultsRef.length > 0" style="max-height: 300px" class="overflow-y-auto">
+                  <v-list dense v-if="searchResultsRef.length > 0" style="max-height: 70%" class="overflow-y-auto">
                     <v-list-item-group v-model="searchSelectedRef" color="primary">
                       <v-list-item v-for="(elem, i) in searchResultsRef" :key="i" dense>
                         <v-list-item-content>
