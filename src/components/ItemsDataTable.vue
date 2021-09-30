@@ -66,7 +66,19 @@
       :headers="headersRef"
       :items="itemsRef"
       hide-default-footer
+      hide-default-header
       class="elevation-1">
+    <template v-slot:header="{ props }">
+      <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
+          <th v-for="header in props.headers" :key="header.identifier" style="position: relative">
+              <span class="ml-1 mr-1 subtitle-2">{{header.text}}</span>
+              <v-btn small v-if="header.sortable" icon @click="headerSort(header)">
+                <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
+              </v-btn>
+              <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" style="position:absolute; top: 0px; right: 0px; width: 5px; cursor: col-resize; user-select: none; height: 30px;"></div>
+          </th>
+      </tr>
+    </template>
     <template v-slot:footer="{ props }">
           <v-divider class="pb-3"></v-divider>
           <v-container class="pa-0 pl-4">
@@ -86,8 +98,8 @@
           </v-container>
     </template>
     <template v-slot:item="{ item, headers }">
-      <tr>
-        <td v-for="(header, i) in headers" :key="i" @click="cellClicked(item, header)">
+      <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
+        <td v-for="(header, i) in headers" :key="i" @click="cellClicked(item, header)" class="truncate">
           <router-link v-if="header.identifier === 'identifier'" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
           <router-link v-if="header.identifier === 'parentIdentifier'" :to="'/item/' + item.parentIdentifier">{{ item.parentIdentifier }}</router-link>
 
@@ -393,6 +405,26 @@ export default {
         }
       }
       if (refresh) DataChanged()
+    }
+
+    function headerSort (header) {
+      const idx = optionsRef.value.sortBy.findIndex(elem => elem === header.value)
+      if (idx === -1) {
+        optionsRef.value.sortBy.push(header.value)
+        optionsRef.value.sortDesc.push(false)
+        header.icon = 'mdi-arrow-down'
+      } else {
+        if (!optionsRef.value.sortDesc[idx]) {
+          optionsRef.value.sortDesc[idx] = true
+          header.icon = 'mdi-arrow-up'
+        } else {
+          optionsRef.value.sortBy.splice(idx, 1)
+          optionsRef.value.sortDesc.splice(idx, 1)
+          header.icon = 'mdi-arrow-up-down'
+        }
+      }
+
+      optionsUpdate(optionsRef.value)
     }
 
     function optionsUpdate (options) {
@@ -922,6 +954,55 @@ export default {
       DataChanged()
     })
 
+    // https://codepen.io/crwilson311/pen/Bajbdwd
+    let pageX, curCol, nxtCol, curColWidth, nxtColWidth
+    function divMouseOver (event) {
+      event.currentTarget.style.borderRight = '2px solid #000000'
+    }
+    function divMouseLeave (event) {
+      event.currentTarget.style.borderRight = ''
+    }
+    function divMouseDown (e) {
+      // console.log('Down')
+      curCol = e.currentTarget.parentElement
+      nxtCol = curCol.nextElementSibling
+      pageX = e.pageX
+
+      var padding = paddingDiff(curCol)
+
+      curColWidth = curCol.offsetWidth - padding
+      if (nxtCol) { nxtColWidth = nxtCol.offsetWidth - padding }
+    }
+    function divMouseUp (e) {
+      // console.log('Up')
+      curCol = undefined
+      nxtCol = undefined
+      pageX = undefined
+      nxtColWidth = undefined
+      curColWidth = undefined
+    }
+    function divMouseMove (e) {
+      // console.log('Move')
+      if (curCol) {
+        var diffX = e.pageX - pageX
+
+        if (nxtCol) { nxtCol.style.width = (nxtColWidth - (diffX)) + 'px' }
+
+        curCol.style.width = (curColWidth + diffX) + 'px'
+      }
+    }
+    function paddingDiff (col) {
+      if (getStyleVal(col, 'box-sizing') === 'border-box') {
+        return 0
+      }
+
+      var padLeft = getStyleVal(col, 'padding-left')
+      var padRight = getStyleVal(col, 'padding-right')
+      return (parseInt(padLeft) + parseInt(padRight))
+    }
+    function getStyleVal (elm, css) {
+      return (window.getComputedStyle(elm, null).getPropertyValue(css))
+    }
     return {
       columnsSelectionDialogRef,
       columnsSaveDialogRef,
@@ -946,6 +1027,7 @@ export default {
       defaultLanguageIdentifier,
       DataChanged,
       getValue,
+      headerSort,
       optionsUpdate,
       optionsRef,
       loadingRef,
@@ -978,6 +1060,11 @@ export default {
       tableFooterRef,
       pageSizeChanged,
       pageChanged,
+      divMouseOver,
+      divMouseLeave,
+      divMouseUp,
+      divMouseDown,
+      divMouseMove,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
@@ -985,4 +1072,19 @@ export default {
     }
   }
 }
+
 </script>
+<style>
+/* https://stackoverflow.com/questions/61022163/vuetify-data-table-component-truncate-text-in-cell-using-css */
+  .truncate {
+    max-width: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  th {
+    white-space: nowrap;
+    height: 35px;
+    text-align: left;
+  }
+</style>
