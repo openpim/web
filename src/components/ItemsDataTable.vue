@@ -71,7 +71,7 @@
     <template v-slot:header="{ props }">
       <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
           <th v-for="header in props.headers" :key="header.identifier" style="position: relative">
-              <span class="ml-1 mr-1 subtitle-2">{{header.text}}</span>
+              <span class="ml-1 mr-1 pl-3 subtitle-2">{{header.text}}</span>
               <v-btn small v-if="header.sortable" icon @click="headerSort(header)">
                 <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
               </v-btn>
