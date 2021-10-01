@@ -1,6 +1,17 @@
 <template>
 <div>
-  <v-text-field @blur="valueBlur" :readonly="readonly" :append-icon="languages.length > 1 ? 'mdi-web-box' : ''" @click:append="showAllValues" :value="value" @input="handleInput" :rules="rules" :label="label" required  :error-messages="errors"></v-text-field>
+  <v-text-field @blur="valueBlur" :readonly="readonly" :value="value" @input="handleInput" :rules="rules" :label="label" required  :error-messages="errors">
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+          <v-btn @click="showAllValues" v-if="languages.length > 1" icon><v-icon>mdi-web-box</v-icon></v-btn>
+        </template>
+      </v-text-field>
+
    <v-menu v-model="showMenuRef" offset-y :position-x="xRef" :position-y="yRef" absolute>
       <v-list>
         <v-list-item v-for="(item, index) in availableValues" :key="index">
@@ -16,6 +27,9 @@ import { ref, computed } from '@vue/composition-api'
 
 export default {
   props: {
+    attr: {
+      required: false
+    },
     value: {
       required: true
     },
@@ -67,8 +81,17 @@ export default {
       return languages.map(lang => lang.identifier + ': ' + (props.values[lang.identifier] || ''))
     })
 
+    function getTextOption (name, defaultValue) {
+      if (props.attr && props.attr.options) {
+        const tst = props.attr.options.find(elem => elem.name === name)
+        if (tst) return tst.value
+      }
+      return defaultValue
+    }
+
     return {
       languages,
+      getTextOption,
       showAllValues,
       handleInput,
       valueBlur,

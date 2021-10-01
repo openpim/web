@@ -2,11 +2,38 @@
 <div>
     <div v-if="!dense">
       <!-- Text -->
-      <v-text-field @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
-      <LanguageDependentField @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && attr.languageDependent" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :errors="errors"></LanguageDependentField>
+      <v-text-field @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-text-field>
+      <LanguageDependentField :attr="attr" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && attr.languageDependent" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :errors="errors"></LanguageDependentField>
 
-      <v-textarea @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && !attr.languageDependent" :rows="3" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-textarea>
-      <v-textarea @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="3" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :error-messages="errors"></v-textarea>
+      <v-textarea @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && !attr.languageDependent" :rows="3" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-textarea>
+      <v-textarea @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="3" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :error-messages="errors">
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-textarea>
 
       <label v-if="attr.type === AttributeType.Text && attr.richText">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
       <jodit-editor v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :config="joditConfig" v-model="values[attr.identifier]" />
@@ -16,16 +43,70 @@
       <br v-if="attr.type === AttributeType.Text && attr.richText"/>
 
       <!-- Boolean -->
-      <v-checkbox @input="attrInput" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-checkbox>
-      <v-checkbox @input="attrInput" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-checkbox>
+      <v-checkbox @input="attrInput" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-checkbox>
+      <v-checkbox @input="attrInput" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-checkbox>
 
       <!-- Integer -->
-      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
-      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
+      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-text-field>
+      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-text-field>
 
       <!-- Float -->
-      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
-      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors"></v-text-field>
+      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-text-field>
+      <v-text-field @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-text-field>
 
       <!-- Date -->
       <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && !attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
@@ -56,15 +137,42 @@
       </v-menu>
 
       <!-- LOV -->
-      <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable></v-autocomplete>
-      <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable></v-autocomplete>
+      <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-autocomplete>
+      <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
+        <template #append>
+          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+            </template>
+            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+          </v-tooltip>
+        </template>
+      </v-autocomplete>
 
       <!-- URL -->
       <template v-if="attr.type === AttributeType.URL && !attr.languageDependent">
         <v-container v-if="!attr.readonly" class="pa-0">
           <v-row>
             <v-col cols="6">
-              <v-text-field @input="attrInput" @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier])" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-text-field>
+              <v-text-field @input="attrInput" @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier])" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+                <template #append>
+                  <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+                    <template v-slot:activator="{ on }">
+                      <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+                    </template>
+                    <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+                  </v-tooltip>
+                </template>
+              </v-text-field>
             </v-col>
             <v-col cols="6">
               <v-text-field @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier + '_text']" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
@@ -78,7 +186,16 @@
         <v-container v-if="!attr.readonly" class="pa-0">
           <v-row>
             <v-col cols="6">
-              <v-text-field @input="attrInput" @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier][currentLanguage.identifier])" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required></v-text-field>
+              <v-text-field @input="attrInput" @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier][currentLanguage.identifier])" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+                <template #append>
+                  <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+                    <template v-slot:activator="{ on }">
+                      <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+                    </template>
+                    <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+                  </v-tooltip>
+                </template>
+              </v-text-field>
             </v-col>
             <v-col cols="6">
               <v-text-field @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier + '_text'][currentLanguage.identifier]" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
@@ -327,6 +444,14 @@ export default {
       return defaultValue
     }
 
+    function getTextOption (name, defaultValue) {
+      if (props.attr.options) {
+        const tst = props.attr.options.find(elem => elem.name === name)
+        if (tst) return tst.value
+      }
+      return defaultValue
+    }
+
     return {
       multivalueRef,
       attrBlur,
@@ -345,6 +470,7 @@ export default {
       AttributeType,
       joditConfig: { readonly: props.attr.readonly, toolbarAdaptive: false, toolbarButtonSize: 'small' },
       editor: ClassicEditor,
+      getTextOption,
       editorConfigReadonly: {
         plugins: [
           EssentialsPlugin,

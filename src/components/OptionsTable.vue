@@ -20,10 +20,10 @@
               <tbody>
                 <tr v-for="(elem, j) in options" :key="j">
                   <td class="pa-1">
-                    <input v-model="elem.name" :placeholder="$t('OptionsTable.Name')">
+                    <input v-model="elem.name" :placeholder="$t('OptionsTable.Name')"/>
                   </td>
                   <td class="pa-1" colspan="2">
-                    <input v-model="elem.value" :placeholder="$t('OptionsTable.Name')">
+                    <textarea rows="1"  cols="50" v-model="elem.value" :placeholder="$t('OptionsTable.Value')"/>
                     <v-btn class="pa-0" icon color="primary" @click="removeValue(j)"><v-icon dark>mdi-close-circle-outline</v-icon></v-btn>
                   </td>
                 </tr>
