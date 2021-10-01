@@ -10,7 +10,7 @@
                 <v-col v-if="mainImage" cols="1">
                   <v-img :src="damUrl + 'asset/' + mainImage.id + '/thumb?token=' + token" contain max-width="100" max-height="100"></v-img>
                 </v-col>
-                <v-col :cols="mainImage ? 11: 12">
+                <v-col :cols="mainImage ? 11: 12" class="mb-2">
                     <span class="mr-0">{{ itemRef.name[currentLanguage.identifier] || '[' + itemRef.name[defaultLanguageIdentifier] + ']' }}</span>
                     <SystemInformation :data="itemRef"></SystemInformation>
                     <div class="caption">
@@ -18,6 +18,13 @@
                     </div>
                 </v-col>
               </v-row>
+              <template v-for="(group) in attrGroups">
+                <template v-for="(attr) in group.itemAttributes">
+                  <v-col :cols="12" :key="attr.id" v-if="getOption(attr, 'head', null)" class="caption pa-0">
+                    {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }} : {{attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]}}
+                  </v-col>
+                </template>
+              </template>
             </v-container>
           </v-card-title>
           <v-card-actions>
