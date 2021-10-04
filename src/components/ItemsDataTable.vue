@@ -955,7 +955,7 @@ export default {
     })
 
     // https://codepen.io/crwilson311/pen/Bajbdwd
-    let pageX, curCol, nxtCol, curColWidth, nxtColWidth
+    let table, curTableWidth, pageX, curCol, curColWidth
     function divMouseOver (event) {
       event.currentTarget.style.borderRight = '2px solid #000000'
     }
@@ -963,32 +963,28 @@ export default {
       event.currentTarget.style.borderRight = ''
     }
     function divMouseDown (e) {
-      // console.log('Down')
       curCol = e.currentTarget.parentElement
-      nxtCol = curCol.nextElementSibling
+      table = curCol.parentElement.parentElement
       pageX = e.pageX
 
       var padding = paddingDiff(curCol)
 
       curColWidth = curCol.offsetWidth - padding
-      if (nxtCol) { nxtColWidth = nxtCol.offsetWidth - padding }
+
+      curTableWidth = table.offsetWidth
     }
     function divMouseUp (e) {
-      // console.log('Up')
       curCol = undefined
-      nxtCol = undefined
       pageX = undefined
-      nxtColWidth = undefined
       curColWidth = undefined
+      curTableWidth = undefined
     }
     function divMouseMove (e) {
-      // console.log('Move')
       if (curCol) {
         var diffX = e.pageX - pageX
 
-        if (nxtCol) { nxtCol.style.width = (nxtColWidth - (diffX)) + 'px' }
-
         curCol.style.width = (curColWidth + diffX) + 'px'
+        table.style.width = (curTableWidth + diffX) + 'px'
       }
     }
     function paddingDiff (col) {
