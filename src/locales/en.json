@@ -406,6 +406,7 @@
   "FileUploadDialog.SelectParent.WrongParent": "Can not select this folder to put file because this is not allowed by data model.",
   "File.UploadFailed": "File upload failed because of server error",
   "ItemDuplicationDialog.Title": "Copy",
+  "ItemDuplicationDialog.AnotherType": "Select another type",
   "OptionsTable.Title": "Options",
   "OptionsTable.Name": "Name",
   "OptionsTable.Value": "Value",

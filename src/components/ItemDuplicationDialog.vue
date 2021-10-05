@@ -12,6 +12,14 @@
                 <v-form ref="formRef" lazy-validation>
                 <v-text-field v-model="newItemRef.identifier" :error-messages="identifierErrors" :rules="identifierRules" :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
                 <v-text-field v-model="newItemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')" required></v-text-field>
+
+                    <div><div class="d-inline-flex align-center">
+                      <div v-if="selectedType">
+                        <router-link :to="'/config/types/' + selectedType.identifier">{{ selectedType.identifier }}</router-link><span class="ml-2">- {{ selectedType.name[currentLanguage.identifier] || '[' + selectedType.name[defaultLanguageIdentifier] + ']' }}</span>
+                      </div>
+                      <v-btn color="blue darken-1" text @click="typeSelectionDialogRef.showDialog()">{{ $t('ItemDuplicationDialog.AnotherType') }}</v-btn>
+                    </div></div>
+
                 </v-form>
               </v-col>
             </v-row>
@@ -24,16 +32,20 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="false" @selected="typeSelected"/>
   </v-row>
 </template>
 <script>
 import * as itemsStore from '../store/item'
 import { ref } from '@vue/composition-api'
 import * as langStore from '../store/languages'
+import * as typesStore from '../store/types'
+import TypeSelectionDialog from './TypeSelectionDialog'
 import i18n from '../i18n'
 
 export default {
   name: 'ItemCreation',
+  components: { TypeSelectionDialog },
   setup (props, { emit }) {
     const { identifierExists, nextId } = itemsStore.useStore()
 
@@ -42,12 +54,18 @@ export default {
       defaultLanguageIdentifier
     } = langStore.useStore()
 
+    const {
+      findType
+    } = typesStore.useStore()
+
     const dialogRef = ref(false)
     const empty = { id: -1 }
     const selectedItemRef = ref(empty)
     const newItemRef = ref(null)
     const formRef = ref(null)
     const identifierErrors = ref([])
+    const selectedType = ref(null)
+    const typeSelectionDialogRef = ref(null)
 
     function duplicate () {
       formRef.value.resetValidation()
@@ -59,11 +77,19 @@ export default {
           }
           const newItem = newItemRef.value
 
-          newItem.typeIcon = selectedItemRef.value.typeIcon
-          newItem.typeIdentifier = selectedItemRef.value.typeIdentifier
-          newItem.typeIconColor = selectedItemRef.value.typeIconColor
-          newItem.typeFile = selectedItemRef.value.typeFile
-          newItem.typeId = selectedItemRef.value.typeId
+          if (!selectedType.value) {
+            newItem.typeIcon = selectedItemRef.value.typeIcon
+            newItem.typeIdentifier = selectedItemRef.value.typeIdentifier
+            newItem.typeIconColor = selectedItemRef.value.typeIconColor
+            newItem.typeFile = selectedItemRef.value.typeFile
+            newItem.typeId = selectedItemRef.value.typeId
+          } else {
+            newItem.typeIcon = selectedType.value.icon
+            newItem.typeIdentifier = selectedType.value.identifier
+            newItem.typeIconColor = selectedType.value.iconColor
+            newItem.typeFile = selectedType.value.file
+            newItem.typeId = selectedType.value.id
+          }
 
           emit('duplicated', newItem)
         })
@@ -71,6 +97,7 @@ export default {
     }
 
     function showDialog (itemSelected) {
+      selectedType.value = null
       nextId().then(id => {
         newItemRef.value = { id: Date.now(), identifier: itemSelected.typeIdentifier + id, internalId: 0, children: [], name: itemSelected.name, values: itemSelected.values }
         selectedItemRef.value = itemSelected
@@ -80,6 +107,11 @@ export default {
 
     function closeDialog () {
       dialogRef.value = false
+    }
+
+    function typeSelected (arr) {
+      typeSelectionDialogRef.value.closeDialog()
+      selectedType.value = findType(arr[0]).node
     }
 
     function identifierValidation (v) {
@@ -101,6 +133,9 @@ export default {
       closeDialog,
       newItemRef,
       identifierErrors,
+      selectedType,
+      typeSelectionDialogRef,
+      typeSelected,
       currentLanguage,
       defaultLanguageIdentifier,
       identifierRules: [

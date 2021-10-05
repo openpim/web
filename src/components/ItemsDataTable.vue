@@ -968,7 +968,6 @@ export default {
           return arr[arr.length - 2]
         })
         loadItemsByIds(parents).then(data => {
-          console.log('size', parentsRef.value.length)
           const refresh = parentsRef.value.length === 0
           parentsRef.value = data
           if (refresh) DataChanged()

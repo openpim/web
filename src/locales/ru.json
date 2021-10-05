@@ -406,6 +406,7 @@
   "FileUploadDialog.SelectParent.WrongParent": "Нельзя выбрать эту папку для файла так как это не разрешено моделью данных",
   "File.UploadFailed": "Произошла ошибка при загрузке файла",
   "ItemDuplicationDialog.Title": "Копирование",
+  "ItemDuplicationDialog.AnotherType": "Выбрать другой тип",
   "OptionsTable.Title": "Опции",
   "OptionsTable.Name": "Наименование",
   "OptionsTable.Value": "Значение",
