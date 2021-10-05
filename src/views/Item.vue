@@ -14,7 +14,7 @@
                     <span class="mr-0">{{ itemRef.name[currentLanguage.identifier] || '[' + itemRef.name[defaultLanguageIdentifier] + ']' }}</span>
                     <SystemInformation :data="itemRef"></SystemInformation>
                     <div class="caption">
-                      {{$t('Item.type')}}: <router-link :to="'/config/types/' + itemType.identifier">{{ itemType.identifier }}</router-link><span class="ml-0"> ({{ itemType.name[currentLanguage.identifier] || '[' + itemType.name[defaultLanguageIdentifier] + ']' }})</span>
+                      <v-icon :color="itemType ? itemType.iconColor : null">{{itemType ? 'mdi-'+itemType.icon : null}}</v-icon> {{$t('Item.type')}}: <router-link :to="'/config/types/' + itemType.identifier">{{ itemType.identifier }}</router-link><span class="ml-0"> ({{ itemType.name[currentLanguage.identifier] || '[' + itemType.name[defaultLanguageIdentifier] + ']' }})</span>
                     </div>
                 </v-col>
               </v-row>
