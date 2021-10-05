@@ -18,13 +18,15 @@
                     </div>
                 </v-col>
               </v-row>
+              <div :key="headAttributesKeyRef">
               <template v-for="(group) in attrGroups">
                 <template v-for="(attr) in group.itemAttributes">
                   <v-col :cols="12" :key="attr.id" v-if="getOption(attr, 'head', null)" class="caption pa-0">
-                    {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }} : {{attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]}}
+                    {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }} : {{attr.lov? getLOVValue(attr) : (attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier])}}
                   </v-col>
                 </template>
               </template>
+              </div>
             </v-container>
           </v-card-title>
           <v-card-actions>
@@ -203,6 +205,7 @@ import * as actionsStore from '../store/actions'
 import * as relStore from '../store/relations'
 import * as auditStore from '../store/audit'
 import * as channelsStore from '../store/channels'
+import * as lovsStore from '../store/lovs'
 import i18n from '../i18n'
 import * as langStore from '../store/languages'
 import AttributeValue from '../components/AttributeValue'
@@ -302,6 +305,10 @@ export default {
       loadAllRelations,
       relations
     } = relStore.useStore()
+
+    const {
+      getLOVData
+    } = lovsStore.useStore()
 
     const itemsDataTableRef = ref(null)
     const historyTableRef = ref(null)
@@ -728,6 +735,23 @@ export default {
       })
     }
 
+    const headAttributesKeyRef = ref(1)
+    const lovsMap = {}
+    function getLOVValue (attr) {
+      const values = lovsMap[attr.lov]
+      if (values) {
+        const attrValue = attr.languageDependent ? itemRef.value.values[attr.identifier][currentLanguage.value.identifier] : itemRef.value.values[attr.identifier]
+        const elem = values.find(elem => elem.id === attrValue)
+        return elem ? (elem.value[currentLanguage.value.identifier] || elem.value[defaultLanguageIdentifier.value]) : elem.id
+      } else {
+        getLOVData(attr.lov).then(values => {
+          lovsMap[attr.lov] = values
+          headAttributesKeyRef.value++
+        })
+        return null
+      }
+    }
+
     return {
       executeAction,
       buttonActions,
@@ -781,6 +805,8 @@ export default {
       chanSelectionDialogRef,
       channelsSelected,
       dateFormat,
+      headAttributesKeyRef,
+      getLOVValue,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
