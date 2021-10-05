@@ -256,6 +256,10 @@ export default {
     function getRelationName (identifier) {
       const rel = relations.find(rel => rel.identifier === identifier)
       if (rel) {
+        if (props.componentType !== 'source' && rel.options) {
+          const tst = rel.options.find(elem => elem.name === 'nameFromTarget')
+          if (tst) return tst.value
+        }
         return rel.name[currentLanguage.value.identifier] || '[' + rel.name[defaultLanguageIdentifier.value] + ']'
       } else {
         return '???'
