@@ -103,9 +103,11 @@
           <router-link v-if="header.identifier === 'identifier'" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
           <router-link v-if="header.identifier === 'parentIdentifier'" :to="'/item/' + item.parentIdentifier">{{ item.parentIdentifier }}</router-link>
 
+          <span v-if="header.identifier === '#parentName#'">{{ getParentName(item) }}</span>
+
           <v-img v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="50" max-height="50"></v-img>
 
-          <template v-if="!header.identifier.startsWith('#channel_') && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
+          <template v-if="!header.identifier.startsWith('#channel_') && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' && header.identifier !== '#parentName#' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
             <span v-else>{{ getValue(item, header) }}</span>
           </template>
@@ -243,7 +245,8 @@ export default {
     const {
       loadThumbnails,
       importItems,
-      updateItem
+      updateItem,
+      loadItemsByIds
     } = itemStore.useStore()
 
     const {
@@ -378,7 +381,7 @@ export default {
 
     function editHeaders () {
       let onlyAttributes = null
-      if (itemsRef.value && itemsRef.value.length > 0) {
+      if (props.item && itemsRef.value && itemsRef.value.length > 0) { // filter attributes only when table show children (not in search)
         const first = itemsRef.value[0]
         onlyAttributes = getAttributesForItem(first.typeId, first.path)
       }
@@ -391,6 +394,7 @@ export default {
       columnsSelectionDialogRef.value.closeDialog()
       headersRef.value = arr
       loadLOVs()
+      loadParentsIfNecessary()
       localStorage.setItem('item_headers', JSON.stringify(arr))
     }
 
@@ -437,6 +441,7 @@ export default {
 
         const ids = data.rows.map(elem => elem.id)
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
+        loadParentsIfNecessary()
       })
     }
 
@@ -450,7 +455,7 @@ export default {
 
       const columns = ['parent', 'type', 'Identifier']
       headersRef.value.forEach(header => {
-        if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier') {
+        if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#') {
           columns.push(header.text)
         }
       })
@@ -476,7 +481,7 @@ export default {
 
       let idx = 3
       headersRef.value.forEach(header => {
-        if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier') {
+        if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#') {
           cell = ws[XLSX.utils.encode_cell({ c: idx, r: 0 })]
           cell.c = []
           cell.c.hidden = true
@@ -759,6 +764,7 @@ export default {
 
         const ids = data.rows.map(elem => elem.id)
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
+        loadParentsIfNecessary()
       })
     }
 
@@ -954,6 +960,29 @@ export default {
       DataChanged()
     })
 
+    const parentsRef = ref([])
+    function loadParentsIfNecessary () {
+      if (headersRef.value.some(elem => elem.identifier === '#parentName#')) {
+        const parents = itemsRef.value.map(item => {
+          const arr = item.path.split('.')
+          return arr[arr.length - 2]
+        })
+        loadItemsByIds(parents).then(data => {
+          console.log('size', parentsRef.value.length)
+          const refresh = parentsRef.value.length === 0
+          parentsRef.value = data
+          if (refresh) DataChanged()
+        })
+      }
+    }
+    function getParentName (item) {
+      const arr = item.path.split('.')
+      const parentId = parseInt(arr[arr.length - 2])
+      const parent = parentsRef.value.find(elem => elem.id === parentId)
+      if (parentsRef.value.length > 0) debugger
+      return parent ? (parent.name[currentLanguage.value.identifier] || parent.name[defaultLanguageIdentifier.value]) : null
+    }
+
     // https://codepen.io/crwilson311/pen/Bajbdwd
     let table, curTableWidth, pageX, curCol, curColWidth
     function divMouseOver (event) {
@@ -1061,6 +1090,7 @@ export default {
       divMouseUp,
       divMouseDown,
       divMouseMove,
+      getParentName,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),

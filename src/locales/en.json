@@ -337,6 +337,7 @@
   "Item.id": "Id",
   "Item.identifier": "Identifier",
   "Item.parentIdentifier": "Parent Identifier",
+  "Item.parentName": "Parent Name",
   "Item.fileOrigName": "Original file name",
   "Item.mimeType": "Mime type",
   "Item.name": "Name",

@@ -337,6 +337,7 @@
   "Item.id": "Id",
   "Item.identifier": "Идентификатор",
   "Item.parentIdentifier": "Идентификатор категории",
+  "Item.parentName": "Наименование категории",
   "Item.fileOrigName": "Имя файла",
   "Item.mimeType": "Тип файла",
   "Item.name": "Наименование",
