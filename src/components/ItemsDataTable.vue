@@ -978,7 +978,6 @@ export default {
       const arr = item.path.split('.')
       const parentId = parseInt(arr[arr.length - 2])
       const parent = parentsRef.value.find(elem => elem.id === parentId)
-      if (parentsRef.value.length > 0) debugger
       return parent ? (parent.name[currentLanguage.value.identifier] || parent.name[defaultLanguageIdentifier.value]) : null
     }
 

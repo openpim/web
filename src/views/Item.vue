@@ -742,7 +742,7 @@ export default {
       if (values) {
         const attrValue = attr.languageDependent ? itemRef.value.values[attr.identifier][currentLanguage.value.identifier] : itemRef.value.values[attr.identifier]
         const elem = values.find(elem => elem.id === attrValue)
-        return elem ? (elem.value[currentLanguage.value.identifier] || elem.value[defaultLanguageIdentifier.value]) : elem.id
+        return elem ? (elem.value[currentLanguage.value.identifier] || elem.value[defaultLanguageIdentifier.value]) : attrValue
       } else {
         getLOVData(attr.lov).then(values => {
           lovsMap[attr.lov] = values
