@@ -40,6 +40,7 @@ import * as itemsStore from '../store/item'
 import { ref } from '@vue/composition-api'
 import * as langStore from '../store/languages'
 import * as typesStore from '../store/types'
+import * as attrStore from '../store/attributes'
 import TypeSelectionDialog from './TypeSelectionDialog'
 import i18n from '../i18n'
 
@@ -57,6 +58,10 @@ export default {
     const {
       findType
     } = typesStore.useStore()
+
+    const {
+      getAllItemsAttributes
+    } = attrStore.useStore()
 
     const dialogRef = ref(false)
     const empty = { id: -1 }
@@ -100,6 +105,13 @@ export default {
       selectedType.value = null
       nextId().then(id => {
         newItemRef.value = { id: Date.now(), identifier: itemSelected.typeIdentifier + id, internalId: 0, children: [], name: itemSelected.name, values: itemSelected.values }
+
+        const attrs = getAllItemsAttributes()
+        const attrsToFilter = attrs.filter(attr => attr.options.some(elem => elem.name === 'skipOnCopy' && elem.value === 'true'))
+        attrsToFilter.forEach(attr => {
+          delete newItemRef.value.values[attr.identifier]
+        })
+
         selectedItemRef.value = itemSelected
         dialogRef.value = true
       })
