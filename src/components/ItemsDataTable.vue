@@ -962,7 +962,7 @@ export default {
 
     const parentsRef = ref([])
     function loadParentsIfNecessary () {
-      if (headersRef.value.some(elem => elem.identifier === '#parentName#')) {
+      if (itemsRef.value.length > 0 && headersRef.value.some(elem => elem.identifier === '#parentName#')) {
         const parents = itemsRef.value.map(item => {
           const arr = item.path.split('.')
           return arr[arr.length - 2]
