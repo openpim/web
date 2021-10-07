@@ -267,9 +267,8 @@ const actions = {
     const query = `
       mutation { removeItem(id: "` + idToRemove + `") 
     }`
-    await serverFetch(query)
-
-    removeNodeByInternalId(id, itemsTree)
+    const resp = await serverFetch(query)
+    if (resp.removeItem) removeNodeByInternalId(id, itemsTree)
   },
   uploadFile: async (id, file) => {
     const data = new FormData()
