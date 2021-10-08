@@ -416,7 +416,12 @@ const actions = {
             }
         }}}       
       `)
-    return data.search.responses[0]
+    const res = data.search.responses[0]
+    if (res.count <= options.itemsPerPage && res.rows.length !== res.count) {
+      // count can be more then real rows because system perform addition filtering after SQL query, while count based on SQL only
+      res.count = res.rows.length
+    }
+    return res
   },
   importItems: async (rows) => {
     let query = `
