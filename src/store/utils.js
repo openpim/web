@@ -111,7 +111,7 @@ function objectToGraphgl (value) {
       } else if (Array.isArray(obj)) {
         result += prop + ':['
         obj.forEach(elem => {
-          result += objectToGraphgl(elem)
+          result += objectToGraphgl(elem) + ','
         })
         result += '],'
       } else if (Object.prototype.toString.call(obj) === '[object String]') {
