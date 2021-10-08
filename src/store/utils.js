@@ -96,12 +96,10 @@ function objectToGraphgl (value) {
   // https://stackoverflow.com/questions/48614730/how-can-i-convert-the-object-array-to-graphql-format-in-javascript
   // return JSON.stringify(value).replace(/"([^(")"]+)":/g, '$1:')
   let result = ''
-  debugger
   if (Array.isArray(value)) {
     result += '['
     value.forEach(elem => {
       result += objectToGraphgl(elem)
-      debugger
     })
     result += '],'
   } else if (value !== null && typeof value === 'object') {
