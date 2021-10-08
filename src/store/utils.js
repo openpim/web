@@ -94,7 +94,41 @@ function removeNodeByInternalId (internalId, tree) {
 
 function objectToGraphgl (value) {
   // https://stackoverflow.com/questions/48614730/how-can-i-convert-the-object-array-to-graphql-format-in-javascript
-  return JSON.stringify(value).replace(/"([^(")"]+)":/g, '$1:')
+  // return JSON.stringify(value).replace(/"([^(")"]+)":/g, '$1:')
+  let result = ''
+  debugger
+  if (Array.isArray(value)) {
+    result += '['
+    value.forEach(elem => {
+      result += objectToGraphgl(elem)
+      debugger
+    })
+    result += '],'
+  } else if (value !== null && typeof value === 'object') {
+    result = '{'
+    for (const prop in value) {
+      const obj = value[prop]
+      if (obj !== null && typeof obj === 'object' && !Array.isArray(obj)) {
+        result += prop + ': ' + objectToGraphgl(obj)
+      } else if (Array.isArray(obj)) {
+        result += prop + ':['
+        obj.forEach(elem => {
+          result += objectToGraphgl(elem)
+        })
+        result += '],'
+      } else if (Object.prototype.toString.call(obj) === '[object String]') {
+        result += prop + ':"' + obj.replaceAll('"', '\\"').replaceAll('\n', '\\n').replaceAll('\t', '\\t') + '",'
+      } else {
+        result += prop + ':' + obj + ','
+      }
+    }
+    result += '}'
+  } else if (Object.prototype.toString.call(value) === '[object String]') {
+    return '"' + value + '"'
+  } else {
+    return value
+  }
+  return result
 }
 
 function generateSorting (options) {
