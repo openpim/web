@@ -307,7 +307,7 @@ export default {
     onMounted(() => {
       loadAllTypes()
       Promise.all([loadAllLOVs(), loadAllChannels()]).then(() => {
-        awailableChannelsRef.value = getAwailableChannels(true).filter(channel => channel.type !== 1)
+        awailableChannelsRef.value = getAwailableChannels(true)
 
         canViewConfigRef.value = canViewConfig('lovs')
         canEditConfigRef.value = canEditConfig('lovs')
