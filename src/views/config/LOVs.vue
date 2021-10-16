@@ -277,7 +277,11 @@ export default {
       val[currentLanguage.value.identifier] = ''
       let max = selectedRef.value.values.reduce((accumulator, currentValue) => Math.max(accumulator, currentValue.id), 0)
       if (!max) max = 0
-      selectedRef.value.values.push({ id: ++max, value: val, filter: null, level: [] })
+      const tmp = { id: ++max, value: val, filter: null, level: [] }
+      awailableChannelsRef.value.forEach(channel => {
+        tmp[channel.identifier] = {}
+      })
+      selectedRef.value.values.push(tmp)
     }
 
     function add () {
