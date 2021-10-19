@@ -98,9 +98,11 @@ function objectToGraphgl (value) {
   let result = ''
   if (Array.isArray(value)) {
     result += '['
-    value.forEach(elem => {
+    for (let i = 0; i < value.length; i++) {
+      const elem = value[i]
       result += objectToGraphgl(elem)
-    })
+      if (i !== value.length - 1) result += ','
+    }
     result += '],'
   } else if (value !== null && typeof value === 'object') {
     result = '{'
@@ -110,9 +112,11 @@ function objectToGraphgl (value) {
         result += prop + ': ' + objectToGraphgl(obj)
       } else if (Array.isArray(obj)) {
         result += prop + ':['
-        obj.forEach(elem => {
-          result += objectToGraphgl(elem) + ','
-        })
+        for (let i = 0; i < obj.length; i++) {
+          const elem = obj[i]
+          result += objectToGraphgl(elem)
+          if (i !== obj.length - 1) result += ','
+        }
         result += '],'
       } else if (Object.prototype.toString.call(obj) === '[object String]') {
         result += prop + ':"' + obj.replaceAll('"', '\\"').replaceAll('\n', '\\n').replaceAll('\t', '\\t') + '",'
