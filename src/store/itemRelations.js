@@ -291,7 +291,8 @@ const actions = {
     } else {
       const query = `
         mutation { updateItemRelation(id: "` + itemRel.id +
-        '", targetId: ' + itemRel.target.id +
+        '", itemId: ' + itemRel.item.id +
+        ', targetId: ' + itemRel.target.id +
         ', values: ' + objectToGraphgl(itemRel.values) +
         `)
       }`
