@@ -414,8 +414,8 @@ export default {
     function headerSort (header) {
       const idx = optionsRef.value.sortBy.findIndex(elem => elem === header.value)
       if (idx === -1) {
-        optionsRef.value.sortBy.push(header.value)
-        optionsRef.value.sortDesc.push(false)
+        optionsRef.value.sortBy.unshift(header.value)
+        optionsRef.value.sortDesc.unshift(false)
         header.icon = 'mdi-arrow-down'
       } else {
         if (!optionsRef.value.sortDesc[idx]) {
