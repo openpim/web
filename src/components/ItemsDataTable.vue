@@ -889,7 +889,7 @@ export default {
 
     function selectAttrGroups () {
       let filter = null
-      if (itemsRef.value && itemsRef.value.length > 0) {
+      if (props.item && itemsRef.value && itemsRef.value.length > 0) {
         const first = itemsRef.value[0]
         const onlyAttributes = getAttributesForItem(first.typeId, first.path)
         filter = onlyAttributes.map(elem => elem.id)
@@ -901,7 +901,7 @@ export default {
       attrSelectionDialogRef.value.closeDialog()
 
       let onlyAttributes = null
-      if (itemsRef.value && itemsRef.value.length > 0) {
+      if (props.item && itemsRef.value && itemsRef.value.length > 0) {
         const first = itemsRef.value[0]
         onlyAttributes = getAttributesForItem(first.typeId, first.path)
       }
