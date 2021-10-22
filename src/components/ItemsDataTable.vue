@@ -116,7 +116,7 @@
             <template v-if="!getValue(item, header)"></template>
             <template v-else>
               <template v-if="getValue(item, header) === 1"><v-chip class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip></template>
-              <template v-if="getValue(item, header) === 2"><v-chip class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.OK')}}</v-chip></template>
+              <template v-if="getValue(item, header) === 2"><v-chip class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.Synced')}}</v-chip></template>
               <template v-if="getValue(item, header) === 3"><v-chip class="ma-2" color="red" text-color="white"> {{$t('ItemView.Channels.Error')}}</v-chip></template>
               <template v-if="getValue(item, header) === 4"><v-chip class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip></template>
 
