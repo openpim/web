@@ -109,7 +109,7 @@ function objectToGraphgl (value) {
     for (const prop in value) {
       const obj = value[prop]
       if (obj !== null && typeof obj === 'object' && !Array.isArray(obj)) {
-        result += prop + ': ' + objectToGraphgl(obj)
+        result += prop + ': ' + objectToGraphgl(obj) + ','
       } else if (Array.isArray(obj)) {
         result += prop + ':['
         for (let i = 0; i < obj.length; i++) {
