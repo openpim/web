@@ -1,6 +1,7 @@
 import * as err from './error'
 import router from '../router'
 import i18n from '../i18n'
+import * as attrStore from './attributes'
 
 export async function serverFetch (query, variables) {
   const req = { query: query }
@@ -109,7 +110,6 @@ function objectToGraphgl (value) {
     for (const prop in value) {
       const obj = value[prop]
       if (obj !== null && typeof obj === 'object' && !Array.isArray(obj)) {
-        result += prop + ': ' + objectToGraphgl(obj) + ','
       } else if (Array.isArray(obj)) {
         result += prop + ':['
         for (let i = 0; i < obj.length; i++) {
@@ -119,14 +119,23 @@ function objectToGraphgl (value) {
         }
         result += '],'
       } else if (Object.prototype.toString.call(obj) === '[object String]') {
-        result += prop + ':"' + obj.replaceAll('"', '\\"').replaceAll('\n', '\\n').replaceAll('\t', '\\t') + '",'
+        if (obj) {
+          result += prop + ':"' + obj.replaceAll('"', '\\"').replaceAll('\n', '\\n').replaceAll('\t', '\\t') + '",'
+        } else {
+          const attr = attrStore.store.findByIdentifier(prop)
+          if (attr && (attr.item.type === 3 || attr.item.type === 4)) { // set to null for Integer or Float attributes if we have "" as value
+            result += prop + ': null,'
+          } else {
+            result += prop + ':"' + obj.replaceAll('"', '\\"').replaceAll('\n', '\\n').replaceAll('\t', '\\t') + '",'
+          }
+        }
       } else {
         result += prop + ':' + obj + ','
       }
     }
     result += '}'
   } else if (Object.prototype.toString.call(value) === '[object String]') {
-    return '"' + value + '"'
+    return value && value.length > 0 ? '"' + value + '"' : null
   } else {
     return value
   }
