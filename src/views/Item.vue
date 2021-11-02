@@ -140,10 +140,10 @@
             </v-carousel>
           </v-tab-item>
           <v-tab-item v-if="hasSources" eager>  <!-- Links from -->
-            <ItemRelationsList :item="itemRef" componentType="source" @dataLoaded="sourcesLoaded"></ItemRelationsList>
+            <ItemRelationsList :item="itemRef" componentType="source" @dataLoaded="sourcesLoaded" class="mb-12"></ItemRelationsList>
           </v-tab-item>
           <v-tab-item v-if="hasTargets" eager>  <!-- Links to -->
-            <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded"></ItemRelationsList>
+            <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded" class="mb-12"></ItemRelationsList>
           </v-tab-item>
           <v-tab-item v-if="totalChildrenRef === -1 || totalChildrenRef > 0" eager>  <!-- Children -->
             <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false" :item="itemRef"></ItemsDataTable>
