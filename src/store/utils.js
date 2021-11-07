@@ -122,13 +122,13 @@ function objectToGraphgl (value) {
         result += '],'
       } else if (Object.prototype.toString.call(obj) === '[object String]') {
         if (obj) {
-          result += prop + ':"' + obj.replaceAll('"', '\\"').replaceAll('\n', '\\n').replaceAll('\t', '\\t') + '",'
+          result += prop + ':"' + obj.replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\n').replaceAll('\t', '\\t') + '",'
         } else {
           const attr = attrStore.store.findByIdentifier(prop)
           if (attr && (attr.item.type === 3 || attr.item.type === 4)) { // set to null for Integer or Float attributes if we have "" as value
             result += prop + ': null,'
           } else {
-            result += prop + ':"' + obj.replaceAll('"', '\\"').replaceAll('\n', '\\n').replaceAll('\t', '\\t') + '",'
+            result += prop + ':"' + obj.replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\n').replaceAll('\t', '\\t') + '",'
           }
         }
       } else {
