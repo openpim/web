@@ -340,7 +340,7 @@ const actions = {
     return data.getMainImages || []
   },
   searchItem: async (text) => {
-    const txt = text.replaceAll('\\', '\\\\')
+    const txt = text.replaceAll('\\', '\\\\').replaceAll('"', '\\"')
     const attrs = getAttributesForSearch()
     let attrExpr = ''
     attrs.forEach(attr => {
