@@ -127,7 +127,7 @@
                     <router-link :to="'/item/' + file.identifier">
                       <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</div>
                     </router-link>
-                    <v-img :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="600"></v-img>
+                    <v-img :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="600"></v-img>
                   </v-card-text>
                 </v-card>
                 <v-card v-if="!file.image" class="ma-4" style="background: white;border:1px solid grey">
@@ -435,6 +435,9 @@ export default {
       if (result) {
         showInfo(i18n.t('Saved'))
         loadAssets(itemRef.value.id).then(arr => {
+          arr.forEach(elem => {
+            elem.type = findType(elem.typeId)?.node
+          })
           filesRef.value = arr
         })
       }
@@ -552,6 +555,9 @@ export default {
       hasTargets.value = true
 
       loadAssets(item.internalId).then(arr => {
+        arr.forEach(elem => {
+          elem.type = findType(elem.typeId)?.node
+        })
         filesRef.value = arr
       })
 

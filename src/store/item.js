@@ -321,6 +321,7 @@ const actions = {
   loadAssets: async (id) => {
     const data = await serverFetch('query { getAssets(id: "' + id + `") { 
       id
+      typeId
       identifier
       name
       mainImage
