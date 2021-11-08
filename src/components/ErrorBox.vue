@@ -1,7 +1,7 @@
 <template>
 <div>
   <v-snackbar
-      v-model="hasError"
+      :value="hasError"
       top
       :multi-line="true"
       :timeout="6000000"
@@ -15,7 +15,7 @@
     </v-btn>
   </v-snackbar>
   <v-snackbar
-      v-model="hasInfo"
+      :value="hasInfo"
       color="teal"
       bottom=""
       :multi-line="true"
