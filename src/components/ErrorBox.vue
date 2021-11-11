@@ -4,7 +4,7 @@
       :value="hasError"
       top
       :multi-line="true"
-      :timeout="6000000"
+      :timeout="0"
     >
     {{ error }}
     <v-btn
@@ -19,7 +19,7 @@
       color="teal"
       bottom=""
       :multi-line="true"
-      :timeout="10000"
+      :timeout="0"
     >
     {{ info }}
     <v-btn

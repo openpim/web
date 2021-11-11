@@ -9,9 +9,15 @@ const state = reactive({
 
 const actions = {
   clearError: () => { state.error = '' },
-  showError: (msg) => { state.error = msg },
+  showError: (msg) => {
+    state.error = msg
+    setTimeout(() => { state.error = '' }, 6000000)
+  },
   clearInfo: () => { state.info = '' },
-  showInfo: (msg) => { state.info = msg }
+  showInfo: (msg) => {
+    state.info = msg
+    setTimeout(() => { state.info = '' }, 5000)
+  }
 }
 
 // eslint-disable-next-line no-unused-vars
