@@ -86,7 +86,8 @@ export default {
             if (err.message === 'NOT_SAVED') activeRef.value = save.identifier ? [save.id] : []
           })
         }
-      } else {
+      } else if (activeRef.value.length > 0 && activeRef.value[0] < 1636642098632) {
+        // fix for duplicate. Active is also changed during duplicate, but this is new node (with big temporaly ID) and we do not need to go to / route
         router.push('/').then(() => {
           selectedRef.value = { id: -1 }
         }).catch((err) => {
