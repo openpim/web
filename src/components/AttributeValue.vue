@@ -405,7 +405,12 @@ export default {
     }
 
     function goto (url) {
-      window.open(url)
+      let noCache = ''
+      if (getOption('no-cache')) {
+        const random = Math.floor(Math.random() * 999)
+        noCache = (url.includes('?') ? '&' : '?') + random
+      }
+      window.open(url + noCache)
     }
 
     function lovChanged () {
