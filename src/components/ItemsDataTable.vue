@@ -510,7 +510,7 @@ export default {
           rowData.push(row.typeIdentifier)
           rowData.push(row.identifier)
           headersRef.value.forEach(header => {
-            if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier') {
+            if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#') {
               rowData.push(getValueWithChannels(header, row, false))
             }
           })
