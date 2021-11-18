@@ -57,7 +57,7 @@
   </v-data-table>
     <template>
       <v-row justify="center">
-        <v-dialog v-model="dialogRef" persistent max-width="90%">
+        <v-dialog v-model="dialogRef" persistent width="90%">
           <v-card>
             <v-card-text>
               <v-container>
