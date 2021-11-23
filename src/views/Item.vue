@@ -7,10 +7,10 @@
             <v-breadcrumbs v-if="parents.length > 0" class="pa-1" dense :items="parents"></v-breadcrumbs>
             <v-container fluid class="pt-0 pb-0">
               <v-row dense>
-                <v-col v-if="mainImage" cols="1">
-                  <v-img :src="damUrl + 'asset/' + mainImage.id + '/thumb?token=' + token" contain max-width="100" max-height="100"></v-img>
+                <v-col v-if="mainImage" :cols="getOption(itemType, 'thumbnail_cols', '1')">
+                  <v-img :src="damUrl + 'asset/' + mainImage.id + '/thumb?token=' + token" contain></v-img>
                 </v-col>
-                <v-col :cols="mainImage ? 11: 12" class="mb-2">
+                <v-col :cols="mainImage ? (12-getOption(itemType, 'thumbnail_cols', '1')): 12" class="mb-2">
                     <span class="mr-0">{{ itemRef.name[currentLanguage.identifier] || '[' + itemRef.name[defaultLanguageIdentifier] + ']' }}</span>
                     <SystemInformation :data="itemRef"></SystemInformation>
                     <div class="caption">
