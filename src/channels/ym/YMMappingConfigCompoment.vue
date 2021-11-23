@@ -44,7 +44,7 @@
                       <v-autocomplete dense :readonly="readonly" v-model="elem.attrIdent" :items="pimAttributesRef" clearable></v-autocomplete>
                     </td>
                     <td class="pa-1" colspan="2">
-                      <input v-model="elem.expr">
+                      <textarea rows="1"  cols="50" v-model="elem.expr"/>
                       <v-btn class="pa-0" icon color="primary" @click="removeValue(j)"><v-icon dark>mdi-close-circle-outline</v-icon></v-btn>
                     </td>
                   </tr>
