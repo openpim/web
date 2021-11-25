@@ -310,7 +310,7 @@ export default {
       if (value.startsWith('"') && value.endsWith('"')) {
         return value.substring(1, value.length - 1)
       } else {
-        return isNaN(value) ? value : parseFloat(value)
+        return isNaN(value) ? value : (value.length > 0 ? parseFloat(value) : null)
       }
     }
 
