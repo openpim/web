@@ -19,7 +19,7 @@
                         <span>{{ attr.description }}</span>
                       </v-tooltip>
 
-                      <span :class="attr.required ? 'font-weight-bold' : ''">{{ attr.name }}</span>
+                      <span :class="attr.required ? 'font-weight-bold' : ''"  @click="showHelp(i)">{{ attr.name }}</span>
 
                       <v-tooltip bottom v-if="attr.dictionaryLink">
                         <template v-slot:activator="{ on }">
@@ -105,6 +105,11 @@ export default {
       }
     }
 
+    function showHelp (i) {
+      const attr = props.channelAttributes[i]
+      if (attr.description) window.alert(attr.description)
+    }
+
     function showExpression (attr) {
       exprAttrRef.value = attr
       exprDialogRef.value = true
@@ -114,6 +119,7 @@ export default {
       getAttribute,
       openWindow,
       showExpression,
+      showHelp,
       exprDialogRef,
       exprAttrRef
     }
