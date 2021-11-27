@@ -33,8 +33,15 @@
 
         <div v-if="categoryIdRef">
           <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>
-
           <v-textarea :rows="1" :readonly="readonly" v-model="categoryRef.categoryExpr" label="Выражение для определения категории" required/>
+          <v-row>
+            <v-col cols="6">
+              <v-autocomplete @input="lovChanged" item-text="name.ru" item-value='identifier' v-model="categoryRef.categoryAttr" :items="lovAttributes" :readonly="readonly" label="Атрибут где находится категория маркетплейса" clearable/>
+            </v-col>
+            <v-col cols="6">
+              <v-autocomplete item-text="value.ru" item-value='id' v-model="categoryRef.categoryAttrValue" :items="categoryLovValues" :readonly="readonly" label="Значение атрибута" clearable/>
+            </v-col>
+          </v-row>
 
           <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
         </div>
@@ -89,6 +96,7 @@ import * as channelsStore from '../store/channels'
 import * as attrStore from '../store/attributes'
 import * as langStore from '../store/languages'
 import * as relStore from '../store/relations'
+import * as lovsStore from '../store/lovs'
 import * as errorStore from '../store/error'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
@@ -119,6 +127,11 @@ export default {
     } = errorStore.useStore()
 
     const {
+      lovs,
+      loadAllLOVs
+    } = lovsStore.useStore()
+
+    const {
       languages,
       currentLanguage,
       defaultLanguageIdentifier
@@ -131,7 +144,8 @@ export default {
 
     const {
       loadAllAttributes,
-      getAllItemsAttributes
+      getAllItemsAttributes,
+      groups
     } = attrStore.useStore()
 
     const {
@@ -196,6 +210,7 @@ export default {
 
     function categoryChanged () {
       categoryRef.value = mappedCategories.value.find(elem => elem.id === categoryIdRef.value)
+      if (categoryRef.value?.categoryAttr) lovChanged(categoryRef.value.categoryAttr)
       loadAttributes()
     }
 
@@ -242,9 +257,34 @@ export default {
       props.channel.config.imgRelations = arr
     }
 
+    const categoryLovValues = ref([])
+    const lovAttributes = ref([])
+    function lovChanged (val) {
+      if (!val) {
+        categoryLovValues.value = []
+      } else {
+        const lovId = '' + lovAttributes.value.find(attr => attr.identifier === val).lov
+        const lov = lovs.find(lov => lov.id === lovId)
+        categoryLovValues.value = lov.values
+      }
+    }
+
     onMounted(() => {
+      loadAllLOVs()
       loadAllRelations().then(() => { relationsLoadedRef.value = true })
       loadAllAttributes().then(() => {
+        const lovArr = []
+        for (var i = 0; i < groups.length; i++) {
+          const group = groups[i]
+          for (var j = 0; j < group.attributes.length; j++) {
+            const attr = group.attributes[j]
+            if (attr.lov) {
+              lovArr.push(attr)
+            }
+          }
+        }
+        lovAttributes.value = lovArr
+
         const arr = [{ value: '$id', text: 'Внутренний номер объекта' }, { value: '$parentId', text: 'Внутренний номер родительского объекта' }]
         for (let i = 0; i < languages.length; i++) {
           const lang = languages[i]
@@ -293,6 +333,9 @@ export default {
       editRelations,
       currentLanguage,
       defaultLanguageIdentifier,
+      lovAttributes,
+      lovChanged,
+      categoryLovValues,
       add,
       remove
     }

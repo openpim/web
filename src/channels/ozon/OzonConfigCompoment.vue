@@ -2,8 +2,10 @@
   <div>
     <v-text-field v-if="channel" v-model="channel.config.ozonClientId" :readonly="readonly" label="Client ID" required></v-text-field>
     <v-text-field v-if="channel" v-model="channel.config.ozonApiKey" :readonly="readonly" label="Api-Key" required></v-text-field>
-    <v-text-field v-if="channel" v-model="channel.config.ozonIdAttr" :readonly="readonly" label="Атрибут где хранить ID" required></v-text-field>
-    <v-text-field v-if="channel" v-model="channel.config.ozonImageAttr" :readonly="readonly" label="Атрибут где лежит URL изображения" required></v-text-field>
+
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить ID" clearable/>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonImageAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит URL изображения" clearable/>
+
     <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :variants="false"></MappingConfigCompoment>
 
     <template v-if="channel">
@@ -36,8 +38,9 @@
   </div>
 </template>
 <script>
-import { watch, ref } from '@vue/composition-api'
+import { watch, ref, onMounted } from '@vue/composition-api'
 import * as channelsStore from '../../store/channels'
+import * as attrStore from '../../store/attributes'
 import MappingConfigCompoment from '../MappingConfigCompoment'
 
 export default {
@@ -55,6 +58,11 @@ export default {
     const {
       triggerChannel
     } = channelsStore.useStore()
+
+    const {
+      loadAllAttributes,
+      groups
+    } = attrStore.useStore()
 
     const dialogRef = ref(false)
 
@@ -82,8 +90,25 @@ export default {
       triggerChannel(props.channel.internalId, { sync: true, attr: props.channel.config.ozonKeyAttribute })
     }
 
+    const allAttributes = ref([])
+    onMounted(() => {
+      loadAllAttributes().then(() => {
+        const arr = []
+        for (var i = 0; i < groups.length; i++) {
+          const group = groups[i]
+          for (var j = 0; j < group.attributes.length; j++) {
+            const attr = group.attributes[j]
+            attr.text = attr.identifier + ' (' + attr.name.ru + ')'
+            arr.push(attr)
+          }
+        }
+        allAttributes.value = arr
+      })
+    })
+
     return {
       dialogRef,
+      allAttributes,
       sync,
       startSync
     }
