@@ -3,7 +3,9 @@
     <v-text-field v-if="channel" v-model="channel.config.ozonClientId" :readonly="readonly" label="Client ID" required></v-text-field>
     <v-text-field v-if="channel" v-model="channel.config.ozonApiKey" :readonly="readonly" label="Api-Key" required></v-text-field>
 
-    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить ID" clearable/>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить product ID" clearable/>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonFBOIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить FBO ID" clearable/>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonFBSIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить FBS ID" clearable/>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonImageAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит URL изображения" clearable/>
 
     <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :variants="false"></MappingConfigCompoment>
@@ -19,7 +21,7 @@
               <v-container>
                 <v-row>
                   <v-col cols="12">
-                    <v-text-field v-model="channel.config.ozonKeyAttribute" label="Идентификатор атрибута кода товара" required></v-text-field>
+                    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonKeyAttribute" :items="allAttributes" :readonly="readonly" label="Атрибут кода товара" clearable/>
                   </v-col>
                 </v-row>
               </v-container>
