@@ -291,7 +291,7 @@ const actions = {
       err.store.showError(i18n.t('File.UploadFailed'))
       return false
     } else {
-      return true
+      return await resp.json()
     }
   },
   uploadAndCreateFile: async (itemId, file, fileItemTypeId, parentId, relationId, lang) => {

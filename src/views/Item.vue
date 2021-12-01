@@ -422,8 +422,9 @@ export default {
     }
 
     function upload () {
-      uploadFile(itemRef.value.id, fileRef.value).then((ok) => {
-        if (ok) {
+      uploadFile(itemRef.value.id, fileRef.value).then((item) => {
+        if (item) {
+          itemRef.value.values = item.values
           itemRef.value.mimeType = fileRef.value.type
           itemRef.value.fileOrigName = fileRef.value.name
           imageKeyRef.value++
