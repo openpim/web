@@ -3,50 +3,50 @@ function getStandardAttributes () {
   return [
     {
       id: '#productCode',
-      name: 'Артикул товара',
+      name: 'Артикул товара (строка)',
       required: true,
       dictionary: false
     },
     {
       id: '#vat',
-      name: 'Ставка НДС',
+      name: 'Ставка НДС (число)',
       required: true,
       dictionary: false,
       description: '0 — не облагается НДС, 0.1 — 10%, 0.2 — 20%.'
     },
     {
       id: '#barcode',
-      name: 'Баркод',
+      name: 'Баркод (строка)',
       required: true,
       dictionary: false
     },
     {
       id: '#price',
-      name: 'Цена',
+      name: 'Цена (строка)',
       required: true,
       dictionary: false
     },
     {
       id: '#weight',
-      name: 'Вес с упаковкой, г',
+      name: 'Вес с упаковкой, г (число)',
       required: true,
       dictionary: false
     },
     {
       id: '#depth',
-      name: 'Длина упаковки, мм',
+      name: 'Длина упаковки, мм (число)',
       required: true,
       dictionary: false
     },
     {
       id: '#width',
-      name: 'Ширина упаковки, мм',
+      name: 'Ширина упаковки, мм (число)',
       required: true,
       dictionary: false
     },
     {
       id: '#height',
-      name: 'Высота упаковки, мм',
+      name: 'Высота упаковки, мм (число)',
       required: true,
       dictionary: false
     }
