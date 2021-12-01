@@ -161,7 +161,7 @@
   <AttrGroupsSelectionDialog ref="attrSelectionDialogRef" :multiselect="true" @selected="attrGroupsSelected"/>
     <template>
       <v-row justify="center">
-        <v-dialog v-model="excelDialogRef" persistent max-width="600px">
+        <v-dialog v-model="excelDialogRef" persistent width="80%">
           <v-card>
             <v-card-title>
               <span class="headline">{{ excelDialogTitleRef }}</span>
@@ -182,6 +182,35 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="excelDialogClose">{{ $t('Cancel') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="importFinishedDialogRef" persistent width="500px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('DataTable.ExcelImport.Finished') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12" class="d-flex justify-center align-center">
+                    {{ $t('DataTable.ExcelImport.FinishedText', {count: importFinishedLogRef.length}) }}
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="12" class="d-flex justify-center align-center">
+                    <v-btn color="blue darken-1" text @click="downloadImportFinishedLog">{{ $t('DataTable.ExcelImport.Report') }}</v-btn>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="importFinishedDialogRef=false">{{ $t('Close') }}</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -294,6 +323,9 @@ export default {
 
     const pageSize = ref(10)
     const tableFooterRef = ref(1)
+
+    const importFinishedDialogRef = ref(null)
+    const importFinishedLogRef = ref([])
 
     function pageSizeChanged (itemsPerPage) {
       optionsRef.value.itemsPerPage = parseInt(itemsPerPage)
@@ -569,6 +601,8 @@ export default {
       const file = event.target.files[0]
       if (!file) return
 
+      const log = [['identifier', 'result', 'errors', 'warnings']]
+
       excelDialogRef.value = true
       var reader = new FileReader()
       reader.onload = function (evt) {
@@ -662,18 +696,19 @@ export default {
               }
               if (item.identifier) rows.push(item)
               if (rows.length === pageSize) {
-                importRows(rows)
+                importRows(rows, log)
                 rows = []
               }
               excelDialogProgressRef.value = currentRow++ * 100 / totalRows
             }
           }
-          if (rows.length > 0) importRows(rows)
+          if (rows.length > 0) importRows(rows, log)
           excelDialogProgressRef.value = 100
 
           setTimeout(() => {
+            importFinishedDialogRef.value = true
+            importFinishedLogRef.value = log
             DataChanged()
-            showInfo(i18n.t('DataTable.ExcelImport.Loaded'))
           }, 500)
         } catch (err) {
           console.error('Error opening file', err)
@@ -689,19 +724,27 @@ export default {
       const attrNode = findByIdentifier(attr)
       return attrNode && attrNode.item.type === AttributeType.Text ? '' + cellVal : cellVal
     }
-    function importRows (rows) {
+    function importRows (rows, log) {
       importItems(rows).then(returnRows => {
         let errors = ''
         returnRows.forEach(row => {
           if (row.errors.length > 0) {
             errors += row.identifier + ': ' + row.errors[0].message
           }
+          log.push([row.identifier, row.result, JSON.stringify(row.errors), JSON.stringify(row.warnings)])
         })
         if (errors.length > 0) {
           showError(errors)
           excelDialogRef.value = false
         }
       })
+    }
+    function downloadImportFinishedLog () {
+      const ws = XLSX.utils.aoa_to_sheet(importFinishedLogRef.value)
+      var wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Data')
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+      saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'log.xlsx')
     }
 
     function excelDialogClose () {
@@ -1096,6 +1139,9 @@ export default {
       divMouseDown,
       divMouseMove,
       getParentName,
+      importFinishedDialogRef,
+      importFinishedLogRef,
+      downloadImportFinishedLog,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
