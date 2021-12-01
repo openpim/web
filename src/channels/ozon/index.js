@@ -8,6 +8,13 @@ function getStandardAttributes () {
       dictionary: false
     },
     {
+      id: '#name',
+      name: 'Название товара. (строка)',
+      required: true,
+      dictionary: false,
+      description: 'Название товара. До 500 символов..'
+    },
+    {
       id: '#vat',
       name: 'Ставка НДС (число)',
       required: true,
