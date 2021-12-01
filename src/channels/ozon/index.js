@@ -9,7 +9,7 @@ function getStandardAttributes () {
     },
     {
       id: '#name',
-      name: 'Название товара. (строка)',
+      name: 'Название товара (строка)',
       required: true,
       dictionary: false,
       description: 'Название товара. До 500 символов..'
