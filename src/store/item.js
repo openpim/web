@@ -219,10 +219,11 @@ const actions = {
       ', values: ' + (item.values ? objectToGraphgl(item.values) : null) +
       ', parentId: "' + (parent && parent.id !== -1 ? '' + parent.internalId : '') +
       '", typeId: "' + item.typeId +
-      `")
+      `") { id }
     }`
     const data = await serverFetch(query)
-    const newId = parseInt(data.createItem)
+    const itemData = data.createItem
+    const newId = parseInt(itemData.id)
     item.internalId = newId
 
     if (findParentForChildren && parent && parent.id !== -1) {
@@ -240,9 +241,13 @@ const actions = {
     const query = `
       mutation { updateItem(id: "` + item.internalId + '" ' + (item.name ? ', name: ' + objectToGraphgl(item.name) : '') +
       ', values: ' + (item.values ? objectToGraphgl(item.values) : null) +
-      `)
+      `) { name, values, channels }
     }`
-    await serverFetch(query)
+    const data = await serverFetch(query)
+    const itemData = data.updateItem
+    item.name = itemData.name
+    item.values = itemData.values
+    item.channels = itemData.channels
   },
   moveItem: async (item, parentId) => {
     const query = `

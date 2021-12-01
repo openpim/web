@@ -692,7 +692,7 @@ export default {
     function channelsSelected (arr) {
       chanSelectionDialogRef.value.closeDialog()
       if (arr.length === 0) return
-      submitItem(itemRef.value.internalId, itemRef.value.typeId, itemRef.value.path, arr).then(() => {
+      submitItem(itemRef.value.internalId, itemRef.value.typeId, itemRef.value.path, arr, itemRef.value).then(() => {
         showInfo(i18n.t('Submitted'))
       })
     }

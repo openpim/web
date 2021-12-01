@@ -113,7 +113,7 @@ const actions = {
     }
     return res
   },
-  submitItem: async (itemId, itemTypeId, itemPath, channelIds) => {
+  submitItem: async (itemId, itemTypeId, itemPath, channelIds, item) => {
     if (channelIds.length === 0) return
     const channelsData = {}
     let wasData = false
@@ -131,10 +131,14 @@ const actions = {
     if (wasData) {
       const query = `
         mutation { updateItem(id: "` + itemId +
-        '",   : ' + objectToGraphgl(channelsData) +
-        `)
+        '",   channels: ' + objectToGraphgl(channelsData) +
+        `) { channels }
       }`
-      await serverFetch(query)
+      const data = await serverFetch(query)
+      if (item) {
+        const itemData = data.updateItem
+        item.channels = itemData.channels
+      }
     }
   },
   triggerChannel: async (id, data) => {
