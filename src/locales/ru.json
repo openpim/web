@@ -302,6 +302,7 @@
   "ItemView.Channels.Synced": "OK",
   "ItemView.Channels.Error": "Ошибка",
   "ItemView.Channels.Waiting": "Ожидание ответа",
+  "ItemView.Channels.SyncItem": "Синхронизация",
   "Items.SelectionDialog.Title": "Выбор объекта",
   "Items.SelectionDialog.Selection": "Выбор",
   "Items.SelectionDialog.Search": "Поиск",

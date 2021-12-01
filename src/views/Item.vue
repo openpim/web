@@ -151,7 +151,15 @@
           <v-tab-item v-if="hasChannels" eager>  <!-- Channels -->
             <div v-for="(channel, i) in awailableChannelsRef" :key="i">
               <v-card v-if="itemRef.channels && itemRef.channels[channel.identifier]">
-                <v-card-title class="text-subtitle-2">{{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}</v-card-title>
+                <v-card-title class="text-subtitle-2">
+                  {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}
+                  <v-tooltip top v-if="getChannelFactory(channel.type).hasItemSync">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon v-on="on" @click="syncItem(channel)" class="ml-3"><v-icon>mdi-sync</v-icon></v-btn>
+                    </template>
+                      <span>{{ $t('ItemView.Channels.SyncItem') }}</span>
+                  </v-tooltip>
+                </v-card-title>
                 <v-card-text class="text-body-1">
                   <v-row no-gutters>
                     <v-col cols="3">
@@ -232,6 +240,7 @@ import AfterAttributesComponent from '../_customizations/item/afterAttributes/Af
 
 import eventBus from '../eventBus'
 import dateFormat from 'dateformat'
+import getChannelFactory from '../channels'
 
 export default {
   components: {
@@ -263,7 +272,7 @@ export default {
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
-    const { loadAllChannels, getAwailableChannels, submitItem } = channelsStore.useStore()
+    const { loadAllChannels, getAwailableChannels, submitItem, triggerChannel } = channelsStore.useStore()
 
     const {
       findType,
@@ -701,6 +710,10 @@ export default {
       return false
     })
 
+    function syncItem (channel) {
+      if (confirm('Запустить синхронизацию?')) triggerChannel(channel.internalId, { sync: true, item: itemRef.value.internalId })
+    }
+
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
       loadAllChannels().then(() => {
@@ -813,6 +826,8 @@ export default {
       dateFormat,
       headAttributesKeyRef,
       getLOVValue,
+      getChannelFactory,
+      syncItem,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')

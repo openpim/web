@@ -173,7 +173,7 @@ export default {
     }
 
     const channelHasExecutions = computed(() => {
-      return channelRef.value ? getChannelFactory(channelRef.value.type).hasExecutions() : false
+      return channelRef.value ? getChannelFactory(channelRef.value.type).hasExecutions : false
     })
 
     const channelReadAccess = computed(() => {

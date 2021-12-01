@@ -131,7 +131,7 @@ const actions = {
     if (wasData) {
       const query = `
         mutation { updateItem(id: "` + itemId +
-        '", channels: ' + objectToGraphgl(channelsData) +
+        '",   : ' + objectToGraphgl(channelsData) +
         `)
       }`
       await serverFetch(query)

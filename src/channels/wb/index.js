@@ -35,7 +35,8 @@ function getStandardAttributes () {
 }
 
 export default {
-  hasExecutions: () => true,
+  hasExecutions: true,
+  hasItemSync: false,
   getConfigCompoment,
   getStandardAttributes
 }

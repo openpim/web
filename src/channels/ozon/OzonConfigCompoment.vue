@@ -10,32 +10,6 @@
 
     <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :variants="false"></MappingConfigCompoment>
 
-    <template v-if="channel">
-      <v-row justify="center">
-        <v-dialog v-model="dialogRef" persistent max-width="600px">
-          <v-card>
-            <v-card-title>
-              <span class="headline">Синхронизация товаров с Ozon</span>
-            </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonKeyAttribute" :items="allAttributes" :readonly="readonly" label="Атрибут кода товара" clearable/>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Cancel') }}</v-btn>
-              <v-btn color="blue darken-1" text @click="startSync" :disabled="!channel.config.ozonKeyAttribute">Начать</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-row>
-    </template>
-
     <v-btn v-if="!readonly" class="mb-5 mt-5" text @click="sync">Синхронизация данных</v-btn>
   </div>
 </template>
@@ -84,12 +58,7 @@ export default {
     })
 
     function sync () {
-      dialogRef.value = true
-    }
-
-    function startSync () {
-      dialogRef.value = false
-      triggerChannel(props.channel.internalId, { sync: true, attr: props.channel.config.ozonKeyAttribute })
+      if (confirm('Запустить синхронизацию?')) triggerChannel(props.channel.internalId, { sync: true })
     }
 
     const allAttributes = ref([])
@@ -111,8 +80,7 @@ export default {
     return {
       dialogRef,
       allAttributes,
-      sync,
-      startSync
+      sync
     }
   }
 }

@@ -302,6 +302,7 @@
   "ItemView.Channels.Synced": "OK",
   "ItemView.Channels.Error": "Error",
   "ItemView.Channels.Waiting": "Waiting",
+  "ItemView.Channels.SyncItem": "Sync",
   "Items.SelectionDialog.Title": "Select items",
   "Items.SelectionDialog.Selection": "Select",
   "Items.SelectionDialog.Search": "Search",
