@@ -761,8 +761,19 @@ export default {
       const values = lovsMap[attr.lov]
       if (values) {
         const attrValue = attr.languageDependent ? itemRef.value.values[attr.identifier][currentLanguage.value.identifier] : itemRef.value.values[attr.identifier]
-        const elem = values.find(elem => elem.id === attrValue)
-        return elem ? (elem.value[currentLanguage.value.identifier] || elem.value[defaultLanguageIdentifier.value]) : attrValue
+        if (Array.isArray(attrValue)) { // multivalue attribute
+          let result = ''
+          for (let i = 0; i < attrValue.length; i++) {
+            const val = attrValue[i]
+            const elem = values.find(elem => elem.id === val)
+            result += elem ? (elem.value[currentLanguage.value.identifier] || elem.value[defaultLanguageIdentifier.value]) : attrValue
+            if (i !== attrValue.length - 1) result += ', '
+          }
+          return result
+        } else {
+          const elem = values.find(elem => elem.id === attrValue)
+          return elem ? (elem.value[currentLanguage.value.identifier] || elem.value[defaultLanguageIdentifier.value]) : attrValue
+        }
       } else {
         getLOVData(attr.lov).then(values => {
           lovsMap[attr.lov] = values
