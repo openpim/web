@@ -413,11 +413,11 @@ export default {
       window.open(url + noCache)
     }
 
-    function lovChanged () {
+    function lovChanged (skipInput) {
       const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
       const data = { attr: props.attr.identifier, lov: props.attr.lov, value: val }
       eventBus.emit('lov_value_changed', data)
-      attrInput(val)
+      if (!skipInput) attrInput(val)
     }
 
     onMounted(() => {
@@ -434,6 +434,11 @@ export default {
         getLOVData(props.attr.lov).then((data) => {
           lovData.value = data
         })
+      }
+
+      if (props.attr.lov) {
+        // TODO change to nextTick after moving to real Vue 3. Now nextTick is not available
+        setTimeout(() => { lovChanged(true) }, 1000)
       }
     })
 
