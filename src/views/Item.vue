@@ -11,7 +11,7 @@
                   <v-img :src="damUrl + 'asset/' + mainImage.id + '/thumb?token=' + token" contain></v-img>
                 </v-col>
                 <v-col :cols="mainImage ? (12-getOption(itemType, 'thumbnail_cols', '1')): 12" class="mb-2">
-                    <span class="mr-0">{{ itemRef.name[currentLanguage.identifier] || '[' + itemRef.name[defaultLanguageIdentifier] + ']' }}</span>
+                    <span class="mr-0" :class="getOption(itemType, 'name_head_class', '')" :style="getOption(itemType, 'name_head_style', '')">{{ itemRef.name[currentLanguage.identifier] || '[' + itemRef.name[defaultLanguageIdentifier] + ']' }}</span>
                     <SystemInformation :data="itemRef"></SystemInformation>
                     <div class="caption">
                       <v-icon :color="itemType ? itemType.iconColor : null">{{itemType ? 'mdi-'+itemType.icon : null}}</v-icon> {{$t('Item.type')}}: <router-link :to="'/config/types/' + itemType.identifier">{{ itemType.identifier }}</router-link><span class="ml-0"> ({{ itemType.name[currentLanguage.identifier] || '[' + itemType.name[defaultLanguageIdentifier] + ']' }})</span>
@@ -65,7 +65,7 @@
           <FirstTabsItemComponent></FirstTabsItemComponent>
           <v-tab-item> <!-- Attributes -->
             <v-text-field class="pt-4 pb-0 pr-5 pl-5" v-model="itemRef.identifier" readonly :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
-            <LanguageDependentField class="pb-0 pr-5 pl-5" @input="nameInput" :values="itemRef.name" v-model="itemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')"></LanguageDependentField>
+            <div :class="getOption(itemType, 'name_class', '')" :style="getOption(itemType, 'name_style', '')"><LanguageDependentField class="pb-0 pr-5 pl-5" @input="nameInput" :values="itemRef.name" v-model="itemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')"></LanguageDependentField></div>
             <v-card flat>
               <v-card-text class="pt-2 pl-0 pr-0">
 
