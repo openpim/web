@@ -22,7 +22,11 @@
               <template v-for="(group) in attrGroups">
                 <template v-for="(attr) in group.itemAttributes">
                   <v-col :cols="12" :key="attr.id" v-if="getOption(attr, 'head', null)" class="caption pa-0">
-                    {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }} : {{attr.lov? getLOVValue(attr) : (attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier])}}
+                    {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }} :
+                      <span v-if="attr.type === AttributeType.URL">
+                        <a :href="attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]" target="_blank">{{attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]}}</a>
+                      </span>
+                      <span v-else>{{attr.lov? getLOVValue(attr) : (attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier])}}</span>
                   </v-col>
                 </template>
               </template>
@@ -784,6 +788,7 @@ export default {
     }
 
     return {
+      AttributeType,
       executeAction,
       buttonActions,
       itemRef,
