@@ -70,10 +70,11 @@
       </v-list>
       <v-textarea v-if="selectedRef && selectedRef.extended" class="ml-3 mr-3" v-model="extendedSearchRef" :label="$t('Search.Extended.Label')"></v-textarea>
   </v-col>
-  <v-col cols="2" class="d-inline-flex justify-end align-center">
-    <v-switch class="mt-0" dense hide-details v-if="selectedRef" v-model="selectedRef.extended"></v-switch>
+  <v-col cols="4" class="d-inline-flex justify-end align-center">
+    <v-select v-if="selectedRef && !selectedRef.extended && selectedRef.filters && selectedRef.filters.length > 1" class="ml-5" dense v-model="selectedRef.orAnd" :items="orAndSelection"></v-select>
   </v-col>
-  <v-col cols="10" class="d-inline-flex justify-end align-center">
+  <v-col cols="8" class="d-inline-flex justify-end align-center">
+    <v-switch class="mt-0" dense hide-details v-if="selectedRef" v-model="selectedRef.extended"></v-switch>
     <v-btn text @click="search" v-text="$t('Search.Find')" class="mr-2"></v-btn>
   </v-col>
   <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
@@ -157,7 +158,7 @@ export default {
       } else {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
-        selectedRef.value = { identifier: '', name: name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false }
+        selectedRef.value = { identifier: '', name: name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: 1 }
       }
       if (selected.extended) extendedSearchRef.value = JSON.stringify(selected.whereClause)
       searchLoadDialogRef.value.closeDialog()
@@ -191,7 +192,9 @@ export default {
           showError(i18n.t('Search.Extended.Error') + err.message)
         }
       } else {
-        const where = { OP_and: [] }
+        const orAndOperation = selectedRef.value.orAnd === 1 ? 'OP_or' : 'OP_and'
+        const where = {}
+        where[orAndOperation] = []
 
         selectedRef.value.filters.forEach(filter => {
           if (filter.attr) {
@@ -273,7 +276,7 @@ export default {
               data[filter.attr] = {}
               data[filter.attr][operation] = parseValue(null, filter.attr, filter.value, filter)
             }
-            where.OP_and.push(data)
+            where[orAndOperation].push(data)
           }
         })
         currentWhereRef.value = where
@@ -337,7 +340,7 @@ export default {
       Promise.all([loadAllTypes(), loadAllLanguages(), loadAllAttributes(), loadAllChannels()]).then(() => {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
-        selectedRef.value = { identifier: '', name: name, filters: [], whereClause: {}, extended: false, public: false }
+        selectedRef.value = { identifier: '', name: name, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
 
         const arr = [
           { value: 'id', text: i18n.t('Item.id') },
@@ -440,6 +443,10 @@ export default {
       fieldsSelection,
       lovsMap,
       hasAccess,
+      orAndSelection: [
+        { text: i18n.t('Search.Or'), value: 1 },
+        { text: i18n.t('Search.And'), value: 2 }
+      ],
       statusSelection: [
         { text: i18n.t('ItemView.Channels.Submitted'), value: 1 },
         { text: i18n.t('ItemView.Channels.Synced'), value: 2 },

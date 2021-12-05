@@ -367,6 +367,8 @@
   "Search.Filter.Operation.SubstringICase": "имеет (без регистра)",
   "Search.Extended.Label": "Условие выборки",
   "Search.Extended.Error": "неверное условие выборки: ",
+  "Search.Or": "ИЛИ",
+  "Search.And": "И",
   "SearchSaveDialog.Title": "Сохранить условия поиска",
   "SearchSaveDialog.SaveTooltip": "Сохранить",
   "SearchSaveDialog.LoadTooltip": "Загрузить сохраненный",

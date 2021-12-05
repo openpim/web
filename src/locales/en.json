@@ -367,6 +367,8 @@
   "Search.Filter.Operation.SubstringICase": "has (case insensitive)",
   "Search.Extended.Label": "Where clause",
   "Search.Extended.Error": "Wrong where clause: ",
+  "Search.Or": "OR",
+  "Search.And": "AND",
   "SearchSaveDialog.Title": "Save search",
   "SearchSaveDialog.SaveTooltip": "Save",
   "SearchSaveDialog.LoadTooltip": "Load",
