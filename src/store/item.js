@@ -347,10 +347,17 @@ const actions = {
   },
   searchItem: async (text) => {
     const txt = text.replaceAll('\\', '\\\\').replaceAll('"', '\\"')
+    const txtArr = txt.split(' ').filter(str => str.length > 0)
     const attrs = getAttributesForSearch()
     let attrExpr = ''
     attrs.forEach(attr => {
-      attrExpr += '{ values: { ' + attr.identifier + ': { OP_iLike:"%' + txt + '%"}}},'
+      txtArr.forEach(txtElem => {
+        attrExpr += '{ values: { ' + attr.identifier + ': { OP_iLike:"%' + txtElem + '%"}}},'
+      })
+    })
+    let mainExpr = ''
+    txtArr.forEach(txtElem => {
+      mainExpr += '{ identifier: { OP_iLike: "%' + txtElem + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txtElem + '%"}}},'
     })
     const data = await serverFetch(
       `query { search(
@@ -359,7 +366,7 @@ const actions = {
                 entity: ITEM, 
                 offset: 0, 
                 limit: 100,
-                where: {OP_or: [` + attrExpr + '{ identifier: { OP_iLike: "%' + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + `%"}}}] },
+                where: {OP_or: [` + attrExpr + mainExpr + `] },
                 order: [["id", "ASC"]]
             }]
         ) {
