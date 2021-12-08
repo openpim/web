@@ -152,13 +152,14 @@ export default {
     const lovsMap = {}
 
     function searchSelected (selected) {
+      if (!selected.orAnd) selected.orAnd = 2
       if (selected.user === currentUserRef.value.login) {
         selectedRef.value = selected
         router.push('/search/' + selected.identifier)
       } else {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
-        selectedRef.value = { identifier: '', name: name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: 1 }
+        selectedRef.value = { identifier: '', name: name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
       }
       if (selected.extended) extendedSearchRef.value = JSON.stringify(selected.whereClause)
       searchLoadDialogRef.value.closeDialog()
