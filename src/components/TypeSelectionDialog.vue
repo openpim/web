@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="typeSelectionDialogRef" persistent max-width="600px">
+  <v-dialog v-model="typeSelectionDialogRef" persistent width="80%">
     <v-card>
       <v-card-title>
         <span class="headline">{{ $t('Types.SelectionDialog.Title') }}</span>
