@@ -329,7 +329,7 @@ router.clearDataChanged = function (dataId) {
   delete router.preventRoute[dataId]
 }
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (Object.keys(router.preventRoute).length > 0) {
     let text = i18n.t('Router.Changed.NotSaved') + '\n'
     let idx = 1
@@ -346,15 +346,14 @@ router.beforeEach((to, from, next) => {
     }
   }
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    const item = localStorage.getItem('token')
-    if (item) {
+    const token = localStorage.getItem('token')
+    if (token) {
       if (!userStore.store.currentUserRef.value) {
         const user = JSON.parse(localStorage.getItem('user'))
         userStore.store.currentUserRef.value = user
         if (user.tenantId !== '0') {
-          rolesStore.store.loadAllRoles().then(() => {
-            user.roles.forEach(roleId => userStore.store.currentRoles.push(rolesStore.store.roles.find(role => role.id === roleId)))
-          })
+          await rolesStore.store.loadAllRoles()
+          user.roles.forEach(roleId => userStore.store.currentRoles.push(rolesStore.store.roles.find(role => role.id === roleId)))
         }
         // console.log(userStore.store.currentRoles)
       }
