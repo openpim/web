@@ -12,8 +12,19 @@
 
         <div v-if="categoryIdRef">
           <ValidVisibleComponent v-if="categoryIdRef !== '_default'" :elem="categoryRef" :canEditConfig="!readonly"/>
-
-          <v-select v-model="categoryRef.type" v-if="categoryRef" :items="offerTypes" label="Тип предложения" @change="refreshAttributes()"></v-select>
+          <v-row>
+            <v-col cols="11">
+              <v-select v-model="categoryRef.type" v-if="categoryRef" :items="offerTypes" label="Тип предложения" @change="refreshAttributes()"></v-select>
+            </v-col>
+            <v-col cols="1">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="relCategoryDialogRef.showDialog()"><v-icon>mdi-content-copy</v-icon></v-btn>
+                </template>
+                <span>Скопировать настройки из другой категории</span>
+              </v-tooltip>
+            </v-col>
+          </v-row>
 
           <MappingAttributesCompoment v-if="categoryRef && pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="categoryAttributes" />
 
@@ -95,6 +106,7 @@
         </v-dialog>
       </v-row>
     </template>
+    <ChannelsCategorySelectionDialog ref="relCategoryDialogRef" :channelType="channel.type" @selected="categoryToCopySelected"/>
   </div>
 </template>
 <script>
@@ -103,6 +115,7 @@ import * as attrStore from '../../store/attributes'
 import * as langStore from '../../store/languages'
 import ValidVisibleComponent from '../../components/ValidVisibleComponent'
 import MappingAttributesCompoment from '../MappingAttributesCompoment'
+import ChannelsCategorySelectionDialog from '../../components/ChannelsCategorySelectionDialog.vue'
 
 import i18n from '../../i18n'
 
@@ -116,7 +129,7 @@ export default {
       required: true
     }
   },
-  components: { ValidVisibleComponent, MappingAttributesCompoment },
+  components: { ValidVisibleComponent, MappingAttributesCompoment, ChannelsCategorySelectionDialog },
   setup (props, { root }) {
     const {
       languages,
@@ -144,6 +157,7 @@ export default {
     const pimAttributesRef = ref([])
     const exprDialogRef = ref(null)
     const exprAttrRef = ref(null)
+    const relCategoryDialogRef = ref(null)
 
     watch(() => props.channel, (chan) => {
       if (chan && !chan.mappings._default) {
@@ -193,6 +207,7 @@ export default {
       { id: 'bid', name: 'bid', required: false, description: 'Размер ставки. Указывайте размер ставки в условных центах: например, значение 80 соответствует ставке 0,8 у. е. Значения должны быть целыми и положительными числами.' },
       { id: 'url', name: 'url', required: true, description: 'URL страницы товара на сайте магазина. Максимальная длина ссылки — 2048 символов.' },
       { id: 'price', name: 'price', required: true, description: 'Актуальная цена товара. Формат: целое или дробное число. Разделитель целой и дробной части — точка.' },
+      { id: 'count', name: 'count', required: true, description: 'Остатки товара — общее количество товара, доступное для продажи на Маркете и зарезервированное под заказы. Если товара нет в наличии, укажите 0. Если у вас включена опция передачи данных об остатках товаров и вы не укажете элемент count, товар не будет размещен на Маркете.' },
       { id: 'oldprice', name: 'oldprice', required: false, description: 'Старая цена товара, должна быть выше текущей. Маркет автоматически рассчитывает разницу и показывает пользователям скидку.' },
       { id: 'purchase_price', name: 'purchase_price', required: false, description: 'Закупочная цена товара. Она нужна для расчета наценки и настройки стратегии по маржинальности в PriceLabs.' },
       { id: 'enable_auto_discounts', name: 'enable_auto_discounts', required: false, description: 'Автоматический расчет и показ скидок для предложения.' },
@@ -201,6 +216,7 @@ export default {
       { id: 'picture', name: 'picture', required: false, description: 'URL-ссылка на картинку товара. Обязательно для части категорий.' },
       { id: 'supplier', name: 'supplier', required: false, description: 'ОГРН или ОГРНИП стороннего продавца. ОГРН должен содержать 13 символов, ОГРНИП — 15.' },
       { id: 'delivery', name: 'delivery', required: false, description: 'Возможность курьерской доставки (по всем регионам, в которые доставляет магазин). true/false' },
+      { id: 'delivery-option', name: 'delivery-option', required: false, description: 'Условия доставки (можно задать до 3 значений). Формат: "300,4,18" - "<стоимость доставки>,< срок доставки в рабочих днях>,<время, до которого нужно сделать заказ, чтобы получить его в этот срок - необязательный параметр>".' },
       { id: 'pickup', name: 'pickup', required: false, description: 'Возможность самовывоза из пунктов выдачи (во всех регионах, в которые доставляет магазин). true/false.' },
       { id: 'store', name: 'store', required: false, description: 'Возможность купить товар без предварительного заказа. true/false.' },
       { id: 'description', name: 'description', required: false, description: 'Описание предложения. Оно отображается: на странице Цены карточки товара — в полном виде; в результатах поиска Маркета — в сокращенном виде (описание длиной не больше 300 символов). Длина текста — не более 3000 символов (включая знаки препинания).' },
@@ -219,6 +235,7 @@ export default {
       { id: 'downloadable', name: 'downloadable', required: false, description: 'Продукт можно скачать. Если указано true, предложение показывается во всех регионах, при этом способы оплаты для него не отображаются.' },
       { id: 'available', name: 'available', required: false, description: 'С помощью элемента available со значением false можно задать для товара вместо конкретного срока курьерской доставки и самовывоза значение «до 60 дней» (или «предзаказ», если в базе данных Маркета есть дата, когда товар официально начнет продаваться).' },
       { id: 'age', name: 'age', required: false, description: 'Возрастная категория товара. Годы задаются с помощью атрибута unit со значением year. Допустимые значения параметра age при unit="year": 0, 6, 12, 16, 18. Месяцы задаются с помощью атрибута unit со значением month. Допустимые значения параметра age при unit="month": 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12.' },
+      { id: 'cpa', name: 'cpa', required: false, description: 'Возможность заказать товар на Маркете: 1 — товар можно заказать на Маркете. 0 — товар можно заказать только на сайте магазина. Значение по умолчанию: 1.' },
       { id: 'group_id', name: 'group_id', required: false, description: 'Элемент объединяет все предложения, которые являются вариациями одной модели и должен иметь одинаковое значение. Значение должно быть целым числом, максимум 9 знаков.' }
     ]
 
@@ -288,6 +305,21 @@ export default {
       categoryRef.value.params.splice(idx, 1)
     }
 
+    function categoryToCopySelected (mapping) {
+      relCategoryDialogRef.value.closeDialog()
+      if (confirm('Все настройки атрибутов будут переписаны. Продолжать?')) {
+        for (let i = 0; i < categoryRef.value.attributes.length; i++) {
+          const attr = categoryRef.value.attributes[i]
+          const tst = mapping.attributes.find(elem => elem.id === attr.id)
+          if (tst) {
+            attr.attrIdent = tst.attrIdent
+            attr.expr = tst.expr
+          }
+        }
+        console.log(mapping)
+      }
+    }
+
     onMounted(() => {
       loadAllAttributes().then(() => {
         const arr = [{ value: '$id', text: 'Внутренний номер объекта' }, { value: '$parentId', text: 'Внутренний номер родительского объекта' }]
@@ -339,6 +371,8 @@ export default {
       remove,
       addValue,
       removeValue,
+      relCategoryDialogRef,
+      categoryToCopySelected,
       offerTypes: [
         { text: 'Упрощенное предложение', value: 'simple' },
         { text: 'Произвольное предложение', value: 'vendor.model' },

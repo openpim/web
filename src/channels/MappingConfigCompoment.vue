@@ -100,7 +100,7 @@
       </v-row>
     </template>
     <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="true" @selected="relationsSelected"/>
-    <ChannelsCategorySelectionDialog ref="relCategoryDialogRef" :multiselect="false" :channelType="channel.type" @selected="categoryToCopySelected"/>
+    <ChannelsCategorySelectionDialog ref="relCategoryDialogRef" :channelType="channel.type" @selected="categoryToCopySelected"/>
   </div>
 </template>
 <script>
