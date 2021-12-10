@@ -12,6 +12,7 @@
 
         <div v-if="categoryIdRef">
           <ValidVisibleComponent v-if="categoryIdRef !== '_default'" :elem="categoryRef" :canEditConfig="!readonly"/>
+          <v-select clearable class="mb-5" v-if="categoryIdRef !== '_default'" v-model="categoryRef.visibleRelation" item-text="name.ru" item-value="id" :items="relations" label="Зависимость связывающая товар и видимо от"></v-select>
           <v-row>
             <v-col cols="11">
               <v-select v-model="categoryRef.type" v-if="categoryRef" :items="offerTypes" label="Тип предложения" @change="refreshAttributes()"></v-select>
@@ -113,6 +114,7 @@
 import { ref, onMounted, computed, watch } from '@vue/composition-api'
 import * as attrStore from '../../store/attributes'
 import * as langStore from '../../store/languages'
+import * as relStore from '../../store/relations'
 import ValidVisibleComponent from '../../components/ValidVisibleComponent'
 import MappingAttributesCompoment from '../MappingAttributesCompoment'
 import ChannelsCategorySelectionDialog from '../../components/ChannelsCategorySelectionDialog.vue'
@@ -141,6 +143,11 @@ export default {
       loadAllAttributes,
       getAllItemsAttributes
     } = attrStore.useStore()
+
+    const {
+      relations,
+      loadAllRelations
+    } = relStore.useStore()
 
     const mappedCategories = computed(() => {
       if (props.channel && props.channel.mappings) {
@@ -321,6 +328,7 @@ export default {
     }
 
     onMounted(() => {
+      loadAllRelations()
       loadAllAttributes().then(() => {
         const arr = [{ value: '$id', text: 'Внутренний номер объекта' }, { value: '$parentId', text: 'Внутренний номер родительского объекта' }]
         for (let i = 0; i < languages.length; i++) {
@@ -373,6 +381,7 @@ export default {
       removeValue,
       relCategoryDialogRef,
       categoryToCopySelected,
+      relations,
       offerTypes: [
         { text: 'Упрощенное предложение', value: 'simple' },
         { text: 'Произвольное предложение', value: 'vendor.model' },
