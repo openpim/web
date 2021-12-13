@@ -171,15 +171,19 @@ export default {
     const searchRef = ref('')
     const searchLoadingRef = ref(false)
     const searchAttributesRef = ref([])
-    let awaitingSearch = false
+    let awaitingSearch = null
 
     const hasSearchAccess = ref(false)
     const isUserAdmin = ref(false)
 
     watch(searchRef, (val) => {
       if (val && val.length > 1) {
+        if (awaitingSearch) {
+          clearTimeout(awaitingSearch)
+          awaitingSearch = null
+        }
         if (!awaitingSearch) {
-          setTimeout(() => {
+          awaitingSearch = setTimeout(() => {
             searchLoadingRef.value = true
             searchItem(val).then(data => {
               searchResultsRef.value = data.rows.map(elem => {
@@ -189,10 +193,9 @@ export default {
               })
               searchLoadingRef.value = false
             })
-            awaitingSearch = false
+            awaitingSearch = null
           }, 1000)
         }
-        awaitingSearch = true
       }
     })
 
