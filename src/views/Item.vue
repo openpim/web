@@ -115,7 +115,10 @@
                   </v-card-actions>
                 </v-card>
                 <v-card v-if="isFile">
-                  <v-card-title><a :href="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token">{{itemRef.fileOrigName}}</a></v-card-title>
+                  <v-card-title>
+                    <a v-if="itemRef.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + itemRef.id + '?inline&key='+imageKeyRef+'&token=' + token" target="_blank"><pdf :src="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token"> </pdf></a>
+                    <a v-else :href="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token">{{itemRef.fileOrigName}}</a>
+                  </v-card-title>
                   <v-card-actions>
                     <v-btn v-if="canEditSelected" text @click="removeFile" v-text="$t('Remove')"></v-btn>
                   </v-card-actions>
@@ -136,7 +139,8 @@
                 </v-card>
                 <v-card v-if="!file.image" class="ma-4" style="background: white;border:1px solid grey">
                   <v-card-title>
-                    <a :href="damUrl + 'asset/' + file.id + '?token=' + token">{{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</a>
+                    <a v-if="file.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + file.id + '?inline&token=' + token" target="_blank"><pdf :src="damUrl + 'asset/' + file.id + '?token=' + token"> </pdf></a>
+                    <a v-else :href="damUrl + 'asset/' + file.id + '?token=' + token">{{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</a>
                     <v-btn :to="'/item/' + file.identifier" icon color="black" class="ml-4"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
                   </v-card-title>
                 </v-card>
@@ -245,6 +249,7 @@ import AfterAttributesComponent from '../_customizations/item/afterAttributes/Af
 import eventBus from '../eventBus'
 import dateFormat from 'dateformat'
 import getChannelFactory from '../channels'
+import pdf from 'vue-pdf'
 
 export default {
   components: {
@@ -264,7 +269,8 @@ export default {
     LastTabsItemComponent,
     BeforeAttributesComponent,
     AfterAttributesComponent,
-    ChannelsSelectionDialog
+    ChannelsSelectionDialog,
+    pdf
   },
   name: 'Home',
   setup (params, context) {
