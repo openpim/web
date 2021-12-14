@@ -30,7 +30,7 @@
         <TitleComponent></TitleComponent>
       </v-toolbar-title>
       <v-spacer />
-      <v-autocomplete :filter="searchFilter" v-if="currentUserRef.tenantId !== '0' && !isExportSearch" @input="searchSelected" @focus="searchResultsRef=[]" item-value="identifier" v-model="searchTextRef" :loading="searchLoadingRef" :items="searchResultsRef" :search-input.sync="searchRef" class="mr-2 hidden-sm-and-down" flat solo-inverted hide-no-data hide-details prepend-inner-icon="mdi-magnify" :label="$t('Search')">
+      <v-autocomplete @keydown.enter.prevent="searchEnterPressed" :filter="searchFilter" v-if="currentUserRef.tenantId !== '0' && !isExportSearch" @input="searchSelected" @focus="searchResultsRef=[]" item-value="identifier" v-model="searchTextRef" :loading="searchLoadingRef" :items="searchResultsRef" :search-input.sync="searchRef" class="mr-2 hidden-sm-and-down" flat solo-inverted hide-no-data hide-details prepend-inner-icon="mdi-magnify" :label="$t('Search')">
         <template v-slot:item="{ item }">
           <v-list-item-content>
             <v-list-item-title><router-link :to="'/item/'+item.identifier">{{item.identifier + ' (' +item.type.identifier+')'}}</router-link></v-list-item-title>
@@ -184,20 +184,31 @@ export default {
         }
         if (!awaitingSearch) {
           awaitingSearch = setTimeout(() => {
-            searchLoadingRef.value = true
-            searchItem(val).then(data => {
-              searchResultsRef.value = data.rows.map(elem => {
-                elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
-                searchAttributesRef.value.forEach(attr => { elem.text += ' ' + elem.values[attr.identifier] })
-                return elem
-              })
-              searchLoadingRef.value = false
-            })
-            awaitingSearch = null
+            performSearch(val)
           }, 1000)
         }
       }
     })
+
+    function performSearch (val) {
+      searchLoadingRef.value = true
+      searchItem(val).then(data => {
+        searchResultsRef.value = data.rows.map(elem => {
+          elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
+          searchAttributesRef.value.forEach(attr => { elem.text += ' ' + elem.values[attr.identifier] })
+          return elem
+        })
+        searchLoadingRef.value = false
+      })
+      awaitingSearch = null
+    }
+
+    function searchEnterPressed () {
+      if (awaitingSearch) {
+        clearTimeout(awaitingSearch)
+      }
+      performSearch(searchRef.value)
+    }
 
     function searchSelected () {
       awaitingSearch = true
@@ -330,6 +341,7 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       searchTextRef,
+      searchEnterPressed,
       searchRef,
       searchResultsRef,
       searchLoadingRef,
