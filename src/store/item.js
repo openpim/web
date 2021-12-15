@@ -347,18 +347,12 @@ const actions = {
   },
   searchItem: async (text) => {
     const txt = text.replaceAll('\\', '\\\\').replaceAll('"', '\\"')
-    const txtArr = txt.split(' ').filter(str => str.length > 0)
     const attrs = getAttributesForSearch()
     let attrExpr = ''
     attrs.forEach(attr => {
-      txtArr.forEach(txtElem => {
-        attrExpr += '{ values: { ' + attr.identifier + ': { OP_iLike:"%' + txtElem + '%"}}},'
-      })
+      attrExpr += '{ values: { ' + attr.identifier + ': { OP_iLike:"%' + txt + '%"}}},'
     })
-    let mainExpr = ''
-    txtArr.forEach(txtElem => {
-      mainExpr += '{ identifier: { OP_iLike: "%' + txtElem + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txtElem + '%"}}},'
-    })
+    const mainExpr = '{ identifier: { OP_iLike: "%' + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + '%"}}}'
     const data = await serverFetch(
       `query { search(
         requests: [
