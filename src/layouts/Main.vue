@@ -30,7 +30,7 @@
         <TitleComponent></TitleComponent>
       </v-toolbar-title>
       <v-spacer />
-      <v-autocomplete v-if="currentUserRef.tenantId !== '0' && !isExportSearch" @input="searchSelected" @focus="searchResultsRef=[]" item-value="identifier" v-model="searchTextRef" :loading="searchLoadingRef" :items="searchResultsRef" :search-input.sync="searchRef" class="mr-2 hidden-sm-and-down" flat solo-inverted hide-no-data hide-details prepend-inner-icon="mdi-magnify" :label="$t('Search')">
+      <v-autocomplete @keydown.enter.prevent="searchEnterPressed" :filter="searchFilter" v-if="currentUserRef.tenantId !== '0' && !isExportSearch" @input="searchSelected" @focus="searchResultsRef=[]" item-value="identifier" v-model="searchTextRef" :loading="searchLoadingRef" :items="searchResultsRef" :search-input.sync="searchRef" class="mr-2 hidden-sm-and-down" flat solo-inverted hide-no-data hide-details prepend-inner-icon="mdi-magnify" :label="$t('Search')">
         <template v-slot:item="{ item }">
           <v-list-item-content>
             <v-list-item-title><router-link :to="'/item/'+item.identifier">{{item.identifier + ' (' +item.type.identifier+')'}}</router-link></v-list-item-title>
@@ -171,30 +171,44 @@ export default {
     const searchRef = ref('')
     const searchLoadingRef = ref(false)
     const searchAttributesRef = ref([])
-    let awaitingSearch = false
+    let awaitingSearch = null
 
     const hasSearchAccess = ref(false)
     const isUserAdmin = ref(false)
 
     watch(searchRef, (val) => {
       if (val && val.length > 1) {
+        if (awaitingSearch) {
+          clearTimeout(awaitingSearch)
+          awaitingSearch = null
+        }
         if (!awaitingSearch) {
-          setTimeout(() => {
-            searchLoadingRef.value = true
-            searchItem(val).then(data => {
-              searchResultsRef.value = data.rows.map(elem => {
-                elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
-                searchAttributesRef.value.forEach(attr => { elem.text += ' ' + elem.values[attr.identifier] })
-                return elem
-              })
-              searchLoadingRef.value = false
-            })
-            awaitingSearch = false
+          awaitingSearch = setTimeout(() => {
+            performSearch(val)
           }, 1000)
         }
-        awaitingSearch = true
       }
     })
+
+    function performSearch (val) {
+      searchLoadingRef.value = true
+      searchItem(val).then(data => {
+        searchResultsRef.value = data.rows.map(elem => {
+          elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
+          searchAttributesRef.value.forEach(attr => { elem.text += ' ' + elem.values[attr.identifier] })
+          return elem
+        })
+        searchLoadingRef.value = false
+      })
+      awaitingSearch = null
+    }
+
+    function searchEnterPressed () {
+      if (awaitingSearch) {
+        clearTimeout(awaitingSearch)
+      }
+      performSearch(searchRef.value)
+    }
 
     function searchSelected () {
       awaitingSearch = true
@@ -237,6 +251,10 @@ export default {
           showInfo(i18n.t('Saved'))
         })
       }
+    }
+
+    function searchFilter () {
+      return true
     }
 
     function setBorderWidth () {
@@ -323,10 +341,12 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       searchTextRef,
+      searchEnterPressed,
       searchRef,
       searchResultsRef,
       searchLoadingRef,
       searchSelected,
+      searchFilter,
       searchAttributesRef,
       hasConfigRef,
       hasChannelsRef,

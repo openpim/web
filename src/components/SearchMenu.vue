@@ -152,13 +152,14 @@ export default {
     const lovsMap = {}
 
     function searchSelected (selected) {
+      if (!selected.orAnd) selected.orAnd = 1
       if (selected.user === currentUserRef.value.login) {
         selectedRef.value = selected
         router.push('/search/' + selected.identifier)
       } else {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
-        selectedRef.value = { identifier: '', name: name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: 1 }
+        selectedRef.value = { identifier: '', name: name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
       }
       if (selected.extended) extendedSearchRef.value = JSON.stringify(selected.whereClause)
       searchLoadDialogRef.value.closeDialog()
@@ -192,7 +193,7 @@ export default {
           showError(i18n.t('Search.Extended.Error') + err.message)
         }
       } else {
-        const orAndOperation = selectedRef.value.orAnd === 1 ? 'OP_or' : 'OP_and'
+        const orAndOperation = selectedRef.value.orAnd === 1 ? 'OP_and' : 'OP_or'
         const where = {}
         where[orAndOperation] = []
 
@@ -444,8 +445,8 @@ export default {
       lovsMap,
       hasAccess,
       orAndSelection: [
-        { text: i18n.t('Search.Or'), value: 1 },
-        { text: i18n.t('Search.And'), value: 2 }
+        { text: i18n.t('Search.And'), value: 1 },
+        { text: i18n.t('Search.Or'), value: 2 }
       ],
       statusSelection: [
         { text: i18n.t('ItemView.Channels.Submitted'), value: 1 },

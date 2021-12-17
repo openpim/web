@@ -32,7 +32,19 @@
         <v-select v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')" clearable></v-select>
 
         <div v-if="categoryIdRef">
-          <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>
+          <v-row>
+            <v-col cols="11">
+              <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>
+            </v-col>
+            <v-col cols="1">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="relCategoryDialogRef.showDialog()"><v-icon>mdi-content-copy</v-icon></v-btn>
+                </template>
+                <span>Скопировать настройки из другой категории</span>
+              </v-tooltip>
+            </v-col>
+          </v-row>
           <v-textarea :rows="1" :readonly="readonly" v-model="categoryRef.categoryExpr" label="Выражение для определения категории" required/>
           <v-row>
             <v-col cols="6">
@@ -88,6 +100,7 @@
       </v-row>
     </template>
     <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="true" @selected="relationsSelected"/>
+    <ChannelsCategorySelectionDialog ref="relCategoryDialogRef" :channelType="channel.type" @selected="categoryToCopySelected"/>
   </div>
 </template>
 <script>
@@ -101,6 +114,7 @@ import * as errorStore from '../store/error'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
 import MappingAttributesCompoment from './MappingAttributesCompoment'
+import ChannelsCategorySelectionDialog from '../components/ChannelsCategorySelectionDialog.vue'
 
 import i18n from '../i18n'
 import getChannelFactory from '../channels'
@@ -120,7 +134,7 @@ export default {
       default: true
     }
   },
-  components: { ValidVisibleComponent, RelationsSelectionDialog, MappingAttributesCompoment },
+  components: { ValidVisibleComponent, RelationsSelectionDialog, MappingAttributesCompoment, ChannelsCategorySelectionDialog },
   setup (props, { root }) {
     const {
       showError
@@ -176,6 +190,7 @@ export default {
     const exprAttrRef = ref(null)
     const relSelectionDialogRef = ref(null)
     const relationsLoadedRef = ref(false)
+    const relCategoryDialogRef = ref(null)
 
     function loadCategories () {
       if (props.channel) {
@@ -269,6 +284,21 @@ export default {
       }
     }
 
+    function categoryToCopySelected (mapping) {
+      relCategoryDialogRef.value.closeDialog()
+      if (confirm('Все настройки атрибутов будут переписаны. Продолжать?')) {
+        for (let i = 0; i < categoryRef.value.attributes.length; i++) {
+          const attr = categoryRef.value.attributes[i]
+          const tst = mapping.attributes.find(elem => elem.id === attr.id)
+          if (tst) {
+            attr.attrIdent = tst.attrIdent
+            attr.expr = tst.expr
+          }
+        }
+        console.log(mapping)
+      }
+    }
+
     onMounted(() => {
       loadAllLOVs()
       loadAllRelations().then(() => { relationsLoadedRef.value = true })
@@ -337,7 +367,9 @@ export default {
       lovChanged,
       categoryLovValues,
       add,
-      remove
+      remove,
+      relCategoryDialogRef,
+      categoryToCopySelected
     }
   }
 }

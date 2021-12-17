@@ -352,6 +352,7 @@ const actions = {
     attrs.forEach(attr => {
       attrExpr += '{ values: { ' + attr.identifier + ': { OP_iLike:"%' + txt + '%"}}},'
     })
+    const mainExpr = '{ identifier: { OP_iLike: "%' + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + '%"}}}'
     const data = await serverFetch(
       `query { search(
         requests: [
@@ -359,7 +360,7 @@ const actions = {
                 entity: ITEM, 
                 offset: 0, 
                 limit: 100,
-                where: {OP_or: [` + attrExpr + '{ identifier: { OP_iLike: "%' + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + `%"}}}] },
+                where: {OP_or: [` + attrExpr + mainExpr + `] },
                 order: [["id", "ASC"]]
             }]
         ) {
