@@ -503,6 +503,11 @@ export default {
       updateItem(itemRef.value).then(() => {
         router.clearDataChanged(itemRef.value.identifier + '_name')
         router.clearDataChanged(itemRef.value.identifier)
+        // TODO: use existing table options
+        loadDataFunction({ page: 1, itemsPerPage: 10 }).then(data => {
+          childrenLoaded(data.rows, data.count)
+          if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
+        })
         showInfo(i18n.t('Saved'))
       })
     }
@@ -661,6 +666,9 @@ export default {
           showInfo(result.message)
         } else {
           showInfo(i18n.t('Started'))
+        }
+        if (result.data && result.data.router) {
+          router.push(result.data.router)
         }
       })
     }
