@@ -58,7 +58,7 @@ const actionList = {
     actions.splice(idx, 1)
   },
   executeButtonAction: async (itemId, buttonText) => {
-    const query = 'mutation { executeButtonAction(itemId: "' + itemId + '", buttonText: "' + buttonText + '") { error, compileError, message }}'
+    const query = 'mutation { executeButtonAction(itemId: "' + itemId + '", buttonText: "' + buttonText + '") { error, compileError, message, data }}'
     const response = await serverFetch(query)
     return response.executeButtonAction
   },
