@@ -119,10 +119,14 @@ const actions = {
     let order = ''
     if (typeId) {
       const type = findType(typeId).node
-      const tstField = type.options.find(elem => elem.name === 'sort')
-      if (tstField) {
+      const tstFields = type.options.find(elem => elem.name === 'sort')
+      if (tstFields) {
+        const arr = tstFields.value.split(',')
         const tstOrder = type.options.find(elem => elem.name === 'sortDirection')
-        const sort = [[tstField.value, tstOrder ? tstOrder.value : 'ASC']]
+        const sort = []
+        arr.forEach(field => {
+          sort.push([field, tstOrder ? tstOrder.value : 'ASC'])
+        })
         order = 'order:' + objectToGraphgl(sort)
       }
     }
