@@ -76,7 +76,7 @@
 
     <template>
       <v-row justify="center">
-        <v-dialog v-model="dialogRef" persistent width="80%">
+        <v-dialog v-model="dialogRef" persistent width="90%">
           <v-card>
             <v-card-title>
               <span class="headline">{{ $t('MappingConfigComponent.Add.Title') }}</span>
@@ -85,7 +85,11 @@
               <v-container>
                 <v-row>
                   <v-col cols="12">
-                    <v-autocomplete dense v-model="newCategoryIdRef" :items="availableCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Add.Category')"></v-autocomplete>
+                    <template v-if="categoriesTreeRef">
+                      <v-text-field v-model="treeSearchRef" label="Поиск" flat hide-details clearable clear-icon="mdi-close-circle-outline"></v-text-field>
+                      <v-treeview class="scroll-body" :search="treeSearchRef" dense hoverable activatable :active.sync="treeActiveRef" :items="categoriesTreeRef.children"></v-treeview>
+                    </template>
+                    <v-autocomplete v-else dense v-model="newCategoryIdRef" :items="availableCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Add.Category')"></v-autocomplete>
                   </v-col>
                 </v-row>
               </v-container>
@@ -181,6 +185,9 @@ export default {
 
     const dialogRef = ref(null)
     const categoriesRef = ref([])
+    const categoriesTreeRef = ref(null)
+    const treeSearchRef = ref('')
+    const treeActiveRef = ref([])
     const categoryIdRef = ref(null)
     const newCategoryIdRef = ref(null)
     const categoryRef = ref(null)
@@ -195,7 +202,13 @@ export default {
     function loadCategories () {
       if (props.channel) {
         getChannelCategories(props.channel.internalId)
-          .then(data => { categoriesRef.value = data.list })
+          .then(data => {
+            if (data.tree) {
+              categoriesTreeRef.value = data.tree
+            } else {
+              categoriesRef.value = data.list
+            }
+          })
           .catch((error) => {
             showError(error.message)
           })
@@ -208,12 +221,40 @@ export default {
     }
 
     function addCategory () {
+      let newCat
+      let newName
+      if (categoriesTreeRef.value) {
+        if (treeActiveRef.value.length === 0) return
+        const parents = []
+        newCat = findNodeByComparator(treeActiveRef.value[0], categoriesTreeRef.value.children, parents, (id, item) => item.id === id)
+        if (newCat.children.length > 0) return
+        const fulName = parents.join('\\')
+        newName = fulName + '\\' + newCat.name
+      } else {
+        if (!newCategoryIdRef.value) return
+        newCat = categoriesRef.value.find(elem => elem.id === newCategoryIdRef.value)
+        newName = newCat.name
+      }
       dialogRef.value = false
-      const newCat = categoriesRef.value.find(elem => elem.id === newCategoryIdRef.value)
-      categoryRef.value = { id: newCat.id, name: newCat.name, valid: props.channel.valid || [], visible: [], attributes: [] }
+      categoryRef.value = { id: newCat.id, name: newName, valid: props.channel.valid || [], visible: [], attributes: [] }
       loadAttributes()
       root.$set(props.channel.mappings, newCat.id, categoryRef.value)
       categoryIdRef.value = newCat.id
+    }
+    function findNodeByComparator (id, children, path, comparator) {
+      for (var i = 0; i < children.length; i++) {
+        const item = children[i]
+        if (comparator(id, item)) {
+          return item
+        } else if (item.children && item.children.length > 0) {
+          const found = findNodeByComparator(id, item.children, path, comparator)
+          if (found) {
+            if (path) path.unshift(item.name)
+            return found
+          }
+        }
+      }
+      return null
     }
 
     function remove () {
@@ -346,6 +387,9 @@ export default {
 
     return {
       mappedCategories,
+      categoriesTreeRef,
+      treeSearchRef,
+      treeActiveRef,
       availableCategories,
       categoryRef,
       categoryIdRef,
@@ -374,3 +418,9 @@ export default {
   }
 }
 </script>
+<style>
+.scroll-body {
+  overflow-y: auto;
+  max-height: 50vh;
+}
+</style>
