@@ -195,7 +195,7 @@ export default {
     function loadCategories () {
       if (props.channel) {
         getChannelCategories(props.channel.internalId)
-          .then(data => { categoriesRef.value = data })
+          .then(data => { categoriesRef.value = data.list })
           .catch((error) => {
             showError(error.message)
           })
