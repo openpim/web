@@ -619,12 +619,12 @@ export default {
           for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
             const cell = ws[XLSX.utils.encode_cell({ r: 0, c: colNum })]
             if (!cell) continue
-            if (!cell.c || cell.c.length === 0) {
+            if ((!cell.c || cell.c.length === 0) && !cell.v === '#delete#') {
               showError(i18n.t('DataTable.ExcelImport.WrongFormat'))
               excelDialogRef.value = false
               return
             } else {
-              headers.push(cell.c[0].t)
+              headers.push(cell.v === '#delete#' ? cell.v : cell.c[0].t)
             }
           }
 
@@ -651,6 +651,8 @@ export default {
                 item.typeIdentifier = cell.v
               } else if (header === 'identifier') {
                 item.identifier = cell.v
+              } else if (header === '#delete#') {
+                item.delete = cell.v
               } else if (header.startsWith('name')) {
                 const arr = ('' + header).split('_')
                 const lang = arr[1]
