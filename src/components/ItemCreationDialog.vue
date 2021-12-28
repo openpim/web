@@ -65,9 +65,11 @@ export default {
     let newId
 
     watch(typeSelectedRef, (val) => {
-      if (val && !newItemRef.value.identifier) {
+      if (val) {
         const type = findType(val).node
-        newItemRef.value.identifier = type.identifier + newId
+        if (!newItemRef.value.identifier || !newItemRef.value.identifier.startsWith(type.identifier)) {
+          newItemRef.value.identifier = type.identifier + newId
+        }
       }
     })
 
