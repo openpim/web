@@ -34,7 +34,7 @@
             </v-container>
           </v-card-title>
           <v-card-actions>
-            <v-btn v-if="canEditSelected" text @click="save" v-text="$t('Save')"></v-btn>
+            <v-btn v-if="canEditSelected" :color="itemChangedRef ? 'primary' : ''" depressed :text="!itemChangedRef" @click="save" v-text="$t('Save')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
@@ -492,12 +492,15 @@ export default {
       return arr
     })
 
+    const itemChangedRef = ref(false)
     function nameInput () {
       router.dataChanged(itemRef.value.identifier + '_name', i18n.t('Router.Changed.Name'))
+      itemChangedRef.value = true
     }
 
     function attrInput () {
       router.dataChanged(itemRef.value.identifier, i18n.t('Router.Changed.Attribute'))
+      itemChangedRef.value = true
     }
 
     function save () {
@@ -509,6 +512,7 @@ export default {
       updateItem(itemRef.value).then(() => {
         router.clearDataChanged(itemRef.value.identifier + '_name')
         router.clearDataChanged(itemRef.value.identifier)
+        itemChangedRef.value = false
         // TODO: use existing table options
         loadDataFunction({ page: 1, itemsPerPage: 10 }).then(data => {
           childrenLoaded(data.rows, data.count)
@@ -651,6 +655,7 @@ export default {
         })
       })
       itemRef.value = item
+      itemChangedRef.value = false
       if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
     }
 
@@ -859,6 +864,7 @@ export default {
       getLOVValue,
       getChannelFactory,
       syncItem,
+      itemChangedRef,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')

@@ -41,7 +41,7 @@
       <br v-if="attr.type === AttributeType.Text && attr.richText"/>
 
       <!-- Boolean -->
-      <v-checkbox @input="attrInput" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+      <v-checkbox @change="attrInput" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
         <template #append>
           <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -51,7 +51,7 @@
           </v-tooltip>
         </template>
       </v-checkbox>
-      <v-checkbox @input="attrInput" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+      <v-checkbox @change="attrInput" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
         <template #append>
           <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
