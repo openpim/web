@@ -122,7 +122,7 @@ function objectToGraphgl (value) {
         result += '],'
       } else if (Object.prototype.toString.call(obj) === '[object String]') {
         if (obj) {
-          let tmp = obj.replaceAll('\\', '\\\\').replaceAll('"', '\\"')
+          let tmp = obj
           if (tmp.endsWith('"')) tmp += ' '
           result += prop + ':"""' + tmp + '""",'
         } else {
