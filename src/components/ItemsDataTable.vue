@@ -646,18 +646,18 @@ export default {
               if (!cell) continue
               const header = headers[colNum]
               if (header === 'parent') {
-                item.parentIdentifier = cell.v
+                item.parentIdentifier = '' + cell.v
               } else if (header === 'type') {
-                item.typeIdentifier = cell.v
+                item.typeIdentifier = '' + cell.v
               } else if (header === 'identifier') {
-                item.identifier = cell.v
+                item.identifier = '' + cell.v
               } else if (header === '#delete#') {
                 item.delete = cell.v
               } else if (header.startsWith('name')) {
                 const arr = ('' + header).split('_')
                 const lang = arr[1]
                 if (!item.name) item.name = {}
-                item.name[lang] = cell.v
+                item.name[lang] = '' + cell.v
               } else if (header.startsWith('attr') && cell.v) {
                 if (!item.values) item.values = {}
                 let attr = header.substring(5)
