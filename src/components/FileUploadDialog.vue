@@ -32,7 +32,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref, computed } from '@vue/composition-api'
+import { ref, computed, watch } from '@vue/composition-api'
 import * as typesStore from '../store/types'
 import * as relStore from '../store/relations'
 import * as langStore from '../store/languages'
@@ -121,19 +121,29 @@ export default {
       emit('upload', arr, initiator)
     }
 
+    watch(relationRef, (selected) => {
+      const rel = relations.find(rel => rel.id === selected)
+      if (rel) {
+        const defOption = rel.options.find(option => option.name === 'defaultParentId')
+        if (defOption && !isNaN(parseInt(defOption.value))) parentSelected(parseInt(defOption.value))
+      }
+    })
+
     function showDialog (init, selected) {
       initiator = init
       dialogRef.value = true
 
-      fileItemTypeId = null
-      const tst = localStorage.getItem('upload_relation')
-      relationRef.value = tst ? parseInt(tst) : relationsWithFiles.value[0].value
-      fileRef.value = null
-      selectedParentRef.value = null
       const tstParent = localStorage.getItem('upload_parent')
       if (tstParent) {
         parentSelected(parseInt(tstParent))
       }
+
+      fileItemTypeId = null
+      const tst = localStorage.getItem('upload_relation')
+      relationRef.value = tst ? parseInt(tst) : relationsWithFiles.value[0].value
+
+      fileRef.value = null
+      selectedParentRef.value = null
     }
 
     function closeDialog () {
