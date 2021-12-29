@@ -33,7 +33,7 @@
               </thead>
               <tbody>
                 <tr v-for="(itemRel, j) in rel" :key="j" :set="canEditItemRelation = canEditItemRelationByIdentifier(identifier)">
-                  <td class="pa-1"><input v-model="itemRel.identifier" :placeholder="$t('ItemRelationsList.Identifier')" :disabled="itemRel.id !== -1"></td>
+                  <td class="pa-1"><input v-model="itemRel.identifier" :placeholder="$t('ItemRelationsList.Identifier')" :disabled="itemRel.id > 0"></td>
                   <td class="pa-1">
                     <span v-if="componentType === 'source' && itemRel.target">
                         <router-link :to="'/item/' + itemRel.target.identifier">{{ itemRel.target.identifier }}</router-link>
@@ -59,12 +59,17 @@
                     </span>
                   </td>
                   <td class="text-left" v-for="(attr, i) in getAttributesForRelation(identifier)" :key="i">
-                    <AttributeValue @input="attrChange(itemRel.identifier)" :item="item" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
+                    <AttributeValue @input="attrChange(itemRel)" :item="item" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
                   </td>
                   <td class="pa-1" v-if="canEditItemRelation">
                     <v-tooltip top>
                       <template v-slot:activator="{ on }">
-                      <v-btn v-on="on" class="pa-0 inline" icon @click="save(identifier, itemRel.id)"><v-icon dark>mdi-content-save-outline</v-icon></v-btn>
+                        <template v-if="changedRelations.includes(itemRel.id)">
+                          <v-btn v-on="on" color="primary" class="pa-0 inline" icon @click="save(identifier, itemRel.id)"><v-icon large dark>mdi-content-save</v-icon></v-btn>
+                        </template>
+                        <template v-else>
+                          <v-btn v-on="on" class="pa-0 inline" icon @click="save(identifier, itemRel.id)"><v-icon dark>mdi-content-save-outline</v-icon></v-btn>
+                        </template>
                       </template>
                       <span>{{ $t('Save') }}</span>
                     </v-tooltip>
@@ -282,12 +287,12 @@ export default {
         if (!rel.multi && sourceRelations[identifier].length > 0) {
           showError(i18n.t('ItemRelationsList.OnlyOne'))
         } else {
-          const data = { id: -1, relationId: rel.id, item: props.item, values: {} }
+          const data = { id: -Date.now(), relationId: rel.id, item: props.item, values: {} }
           createLanguageDependentValues(rel.id, data)
           sourceRelations[identifier].unshift(data)
         }
       } else {
-        const data = { id: -1, relationId: rel.id, target: props.item, values: {} }
+        const data = { id: -Date.now(), relationId: rel.id, target: props.item, values: {} }
         createLanguageDependentValues(rel.id, data)
         targetRelations[identifier].unshift(data)
       }
@@ -328,7 +333,8 @@ export default {
         }
       }
 
-      if (itemRel.id === -1) {
+      const changedIdx = changedRelations.value.indexOf(itemRel.id)
+      if (itemRel.id < 0) {
         identifierExists(itemRel.identifier).then((val) => {
           if (val) {
             showError(i18n.t('ItemRelationsList.IdentifierNotUnique'))
@@ -336,6 +342,7 @@ export default {
             // create
             saveItemRelation(itemRel).then(() => {
               router.clearDataChanged(itemRel.identifier)
+              changedRelations.value.splice(changedIdx, 1)
               showInfo(i18n.t('Saved'))
             })
           }
@@ -344,6 +351,7 @@ export default {
         // update
         saveItemRelation(itemRel).then(() => {
           router.clearDataChanged(itemRel.identifier)
+          changedRelations.value.splice(changedIdx, 1)
           showInfo(i18n.t('Saved'))
         })
       }
@@ -359,6 +367,7 @@ export default {
       itemSelectionDialogRef.value.showDialog({ identifier: identifier, itemRelId: itemRel.id, itemRelIdentifier: itemRel.identifier })
     }
 
+    const changedRelations = ref([])
     function itemsSelected (id, parameters) {
       itemSelectionDialogRef.value.closeDialog()
       nextId().then(nextId => {
@@ -378,6 +387,7 @@ export default {
                 } else {
                   router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
                 }
+                changedRelations.value.push(itemRel.id)
               }
             })
           } else {
@@ -387,8 +397,9 @@ export default {
       })
     }
 
-    function attrChange (itemRelIdent) {
-      router.dataChanged(itemRelIdent, i18n.t('Router.Changed.ItemRelation') + itemRelIdent)
+    function attrChange (itemRel) {
+      router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
+      changedRelations.value.push(itemRel.id)
     }
 
     function getAttributesForRelation (identifier) {
@@ -406,7 +417,7 @@ export default {
     }
 
     function showHistory (itemRel) {
-      if (itemRel.id === -1) return
+      if (itemRel.id < 0) return
       historySelectedRef.value = itemRel
       historyDialogRef.value = true
     }
@@ -434,6 +445,7 @@ export default {
       getAttributesForRelation,
       canEditItemRelationByIdentifier,
       panels,
+      changedRelations,
       historyDialogRef,
       historySelectedRef,
       showHistory,
