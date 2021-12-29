@@ -448,7 +448,7 @@ export default {
       let result = true
       for (let i = 0; i < filesData.length; i++) {
         const fileData = filesData[i]
-        uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier).then((ok) => {
+        uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier, fileData.fileName, fileData.fileIdentifier).then((ok) => {
           if (!ok) result = false
         })
       }

@@ -298,7 +298,7 @@ const actions = {
       return await resp.json()
     }
   },
-  uploadAndCreateFile: async (itemId, file, fileItemTypeId, parentId, relationId, lang) => {
+  uploadAndCreateFile: async (itemId, file, fileItemTypeId, parentId, relationId, lang, fileName, fileIdentifier) => {
     const data = new FormData()
     data.append('itemId', itemId)
     data.append('file', file)
@@ -306,6 +306,8 @@ const actions = {
     data.append('parentId', parentId)
     data.append('relationId', relationId)
     data.append('lang', lang)
+    data.append('fileName', fileName)
+    data.append('fileIdentifier', fileIdentifier)
 
     const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'asset-create-upload', {
       method: 'POST',

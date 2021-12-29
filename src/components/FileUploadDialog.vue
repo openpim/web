@@ -1,25 +1,44 @@
 <template>
-  <v-dialog v-model="dialogRef" persistent max-width="600px">
+  <v-dialog v-model="dialogRef" persistent width="80%">
     <v-card>
       <v-card-title>
         <span class="headline">{{ $t('FileUploadDialog.Title') }}</span>
       </v-card-title>
       <v-card-text>
         <v-container>
-          <v-row>
-            <v-col cols="12">
-              <v-form ref="formRef" lazy-validation class="ml-7">
-                <v-file-input chips multiple show-size v-model="fileRef" :label="$t('FileUploadDialog.NewFile')"></v-file-input>
-                <v-select v-model="relationRef" :items="relationsWithFiles" :label="$t('FileUploadDialog.FileType')"></v-select>
-                <div class="d-inline-flex align-center">
-                  <div v-if="selectedParentRef">
-                    <router-link :to="'/item/' + selectedParentRef.identifier">{{ selectedParentRef.identifier }}</router-link><span class="ml-2">- {{ selectedParentRef.name[currentLanguage.identifier] || '[' + selectedParentRef.name[defaultLanguageIdentifier] + ']' }}</span>
+          <v-form ref="formRef" lazy-validation class="ml-7">
+            <v-row>
+              <v-col cols="12">
+                  <v-file-input @change="fileChanged" chips show-size v-model="fileRef" :label="$t('FileUploadDialog.NewFile')"></v-file-input>
+                  <v-select v-model="relationRef" :items="relationsWithFiles" :label="$t('FileUploadDialog.FileType')"></v-select>
+                  <div class="d-inline-flex align-center">
+                    <div v-if="selectedParentRef">
+                      <router-link :to="'/item/' + selectedParentRef.identifier">{{ selectedParentRef.identifier }}</router-link><span class="ml-2">- {{ selectedParentRef.name[currentLanguage.identifier] || '[' + selectedParentRef.name[defaultLanguageIdentifier] + ']' }}</span>
+                    </div>
+                    <v-btn color="blue darken-1" text @click="itemSelectionDialogRef.showDialog()">{{ $t('FileUploadDialog.SelectParent.Button') }}</v-btn>
                   </div>
-                  <v-btn color="blue darken-1" text @click="itemSelectionDialogRef.showDialog()">{{ $t('FileUploadDialog.SelectParent.Button') }}</v-btn>
-                </div>
-              </v-form>
-            </v-col>
-          </v-row>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12" class="pa-0">
+                <v-expansion-panels flat focusable>
+                  <v-expansion-panel >
+                    <v-expansion-panel-header>{{ $t('FileUploadDialog.Additionally') }}</v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                       <v-container class="pa-0">
+                        <v-row no-gutters>
+                          <v-text-field class="pt-4 pb-0 pr-5 pl-5" v-model="identifierRef" :label="$t('FileUploadDialog.Identifier')" required></v-text-field>
+                        </v-row>
+                        <v-row no-gutters>
+                          <v-text-field class="pt-4 pb-0 pr-5 pl-5" v-model="nameRef" :label="$t('FileUploadDialog.Name')" required></v-text-field>
+                        </v-row>
+                       </v-container>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </v-col>
+            </v-row>
+          </v-form>
         </v-container>
       </v-card-text>
       <v-card-actions>
@@ -66,17 +85,21 @@ export default {
     } = relStore.useStore()
 
     const {
-      loadItemsByIds
+      loadItemsByIds,
+      nextId
     } = itemStore.useStore()
 
     const formRef = ref(null)
     const dialogRef = ref(false)
     const fileRef = ref(null)
     const relationRef = ref(0)
+    const identifierRef = ref('')
+    const nameRef = ref('')
     const itemSelectionDialogRef = ref(null)
     const selectedParentRef = ref(null)
     let initiator
     let fileItemTypeId
+    let nextItemId = 0
 
     const relationsWithFiles = computed(() => {
       const arr = []
@@ -116,34 +139,61 @@ export default {
       })
     }
 
+    function fileChanged (file) {
+      nameRef.value = file.name
+    }
+
     function upload () {
-      const arr = fileRef.value.map(fileRef => { return { file: fileRef, fileItemTypeId: fileItemTypeId, parentId: selectedParentRef.value.id, relationId: relationRef.value } })
+      const arr = [{
+        file: fileRef.value,
+        fileItemTypeId: fileItemTypeId,
+        parentId: selectedParentRef.value.id,
+        relationId: relationRef.value,
+        fileName: nameRef.value,
+        fileIdentifier: identifierRef.value
+      }]
       emit('upload', arr, initiator)
     }
 
     watch(relationRef, (selected) => {
+      relationChanged(selected)
+    })
+
+    function relationChanged (selected) {
       const rel = relations.find(rel => rel.id === selected)
       if (rel) {
         const defOption = rel.options.find(option => option.name === 'defaultParentId')
         if (defOption && !isNaN(parseInt(defOption.value))) parentSelected(parseInt(defOption.value))
+
+        const fItemTypeId = rel.targets.find(typeId => findType(typeId).node.file)
+        const fItemType = findType(fItemTypeId).node
+        identifierRef.value = fItemType.identifier + nextItemId
       }
-    })
+    }
 
     function showDialog (init, selected) {
-      initiator = init
-      dialogRef.value = true
+      nextId().then(id => {
+        identifierRef.value = ''
+        nameRef.value = ''
 
-      const tstParent = localStorage.getItem('upload_parent')
-      if (tstParent) {
-        parentSelected(parseInt(tstParent))
-      }
+        nextItemId = id
 
-      fileItemTypeId = null
-      const tst = localStorage.getItem('upload_relation')
-      relationRef.value = tst ? parseInt(tst) : relationsWithFiles.value[0].value
+        initiator = init
+        dialogRef.value = true
 
-      fileRef.value = null
-      selectedParentRef.value = null
+        const tstParent = localStorage.getItem('upload_parent')
+        if (tstParent) {
+          parentSelected(parseInt(tstParent))
+        }
+
+        fileItemTypeId = null
+        const tst = localStorage.getItem('upload_relation')
+        relationRef.value = tst ? parseInt(tst) : relationsWithFiles.value[0].value
+        relationChanged(relationRef.value)
+
+        fileRef.value = null
+        selectedParentRef.value = null
+      })
     }
 
     function closeDialog () {
@@ -163,11 +213,14 @@ export default {
       upload,
       relationsWithFiles,
       relationRef,
+      identifierRef,
+      nameRef,
       itemSelectionDialogRef,
       selectedParentRef,
       parentSelected,
       showDialog,
       closeDialog,
+      fileChanged,
       currentLanguage,
       defaultLanguageIdentifier
     }
