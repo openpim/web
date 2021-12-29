@@ -36,8 +36,8 @@
       </v-textarea>
 
       <label v-if="attr.type === AttributeType.Text && attr.richText">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
-      <jodit-editor v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :config="joditConfig" v-model="values[attr.identifier]" />
-      <jodit-editor v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent" :config="joditConfig" v-model="values[attr.identifier][currentLanguage.identifier]" />
+      <jodit-editor ref='joditRef' v-if="attr.type === AttributeType.Text && attr.richText && !attr.languageDependent" :config="joditConfig" v-model="values[attr.identifier]" />
+      <jodit-editor ref='joditRef' v-if="attr.type === AttributeType.Text && attr.richText && attr.languageDependent" :config="joditConfig" v-model="values[attr.identifier][currentLanguage.identifier]" />
       <br v-if="attr.type === AttributeType.Text && attr.richText"/>
 
       <!-- Boolean -->
@@ -335,6 +335,8 @@ export default {
     const lovFilterRef = ref(null)
     const multivalueRef = ref(false)
 
+    const joditRef = ref(null)
+
     const lovData = ref([])
 
     function isValid () {
@@ -395,6 +397,15 @@ export default {
     }
 
     onMounted(() => {
+      if (joditRef.value) {
+        const handler = () => {
+          const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
+          attrInput(val)
+        }
+        joditRef.value.editor.events.on('keyup', handler)
+        joditRef.value.editor.events.on('afterPaste', handler)
+      }
+
       const tst = props.attr.options.find(opt => opt.name === 'lovFilter')
       const lovFilter = tst ? parseInt(tst.value) : null
       eventBus.on('lov_value_changed', evt => {
@@ -452,6 +463,7 @@ export default {
       lovSelection,
       lovChanged,
       AttributeType,
+      joditRef,
       joditConfig: { readonly: props.attr.readonly, toolbarAdaptive: false, toolbarButtonSize: 'small' },
       getTextOption
     }
