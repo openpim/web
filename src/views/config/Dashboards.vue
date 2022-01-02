@@ -66,43 +66,50 @@
               <v-col cols="9" v-if="selectedRef.components[componentRef]">
                 <v-text-field v-model="selectedRef.components[componentRef].title" :label="$t('Config.Dashboards.Components.Title')" required></v-text-field>
                 <v-text-field v-model="selectedRef.components[componentRef].width" type="number" :label="$t('Config.Dashboards.Components.Width')" required></v-text-field>
-                <v-select v-model="selectedRef.components[componentRef].chart" :items="chartSelection" :label="$t('Config.Dashboards.Components.ChartType')"></v-select>
 
                 <v-select v-model="selectedRef.components[componentRef].type" :items="typeSelection" :label="$t('Config.Dashboards.Components.Type')"></v-select>
 
-                <v-select v-if="selectedRef.components[componentRef].type === 1" v-model="selectedRef.components[componentRef].groupBy" :items="availableAttributes" :label="$t('Config.Dashboards.Components.Attribute')"></v-select>
-                <v-textarea v-if="selectedRef.components[componentRef].type === 1" v-model="selectedRef.components[componentRef].groupWhere" :label="$t('Config.Dashboards.Components.Where')" rows="3"></v-textarea>
+                <template v-if="selectedRef.components[componentRef].type !== 3">
+                  <v-select v-model="selectedRef.components[componentRef].chart" :items="chartSelection" :label="$t('Config.Dashboards.Components.ChartType')"></v-select>
 
-                <template v-if="selectedRef.components[componentRef].type === 2">
-                  <v-toolbar dense flat>
-                    <v-toolbar-title class="subtitle-2">{{ $t('Config.Dashboards.Components.Queries') }}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-tooltip bottom v-if="canEditConfigRef">
-                      <template v-slot:activator="{ on }">
-                        <v-btn icon v-on="on" @click="addQuery"><v-icon>mdi-plus</v-icon></v-btn>
-                      </template>
-                      <span>{{ $t('Add') }}</span>
-                    </v-tooltip>
-                    <v-tooltip bottom v-if="canEditConfigRef">
-                      <template v-slot:activator="{ on }">
-                        <v-btn icon v-on="on" :disabled="queryRef == null" @click="removeQuery"><v-icon>mdi-minus</v-icon></v-btn>
-                      </template>
-                      <span>{{ $t('Remove') }}</span>
-                    </v-tooltip>
-                  </v-toolbar>
-                  <v-list nav dense>
-                    <v-list-item-group v-model="queryRef" color="primary">
-                      <v-list-item v-for="(query, i) in selectedRef.components[componentRef].queries" :key="i">
-                        <v-list-item-content>
-                          <v-list-item-title>{{(i+1) + ': ' + query.label}}</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list-item-group>
-                  </v-list>
-                  <template v-if="queryRef != null">
-                    <v-text-field v-model="selectedRef.components[componentRef].queries[queryRef].label" :label="$t('Config.Dashboards.Components.Label')" required></v-text-field>
-                    <v-textarea v-model="selectedRef.components[componentRef].queries[queryRef].where" :label="$t('Config.Dashboards.Components.Where')" rows="3"></v-textarea>
+                  <v-select v-if="selectedRef.components[componentRef].type === 1" v-model="selectedRef.components[componentRef].groupBy" :items="availableAttributes" :label="$t('Config.Dashboards.Components.Attribute')"></v-select>
+                  <v-textarea v-if="selectedRef.components[componentRef].type === 1" v-model="selectedRef.components[componentRef].groupWhere" :label="$t('Config.Dashboards.Components.Where')" rows="3"></v-textarea>
+
+                  <template v-if="selectedRef.components[componentRef].type === 2">
+                    <v-toolbar dense flat>
+                      <v-toolbar-title class="subtitle-2">{{ $t('Config.Dashboards.Components.Queries') }}</v-toolbar-title>
+                      <v-spacer></v-spacer>
+                      <v-tooltip bottom v-if="canEditConfigRef">
+                        <template v-slot:activator="{ on }">
+                          <v-btn icon v-on="on" @click="addQuery"><v-icon>mdi-plus</v-icon></v-btn>
+                        </template>
+                        <span>{{ $t('Add') }}</span>
+                      </v-tooltip>
+                      <v-tooltip bottom v-if="canEditConfigRef">
+                        <template v-slot:activator="{ on }">
+                          <v-btn icon v-on="on" :disabled="queryRef == null" @click="removeQuery"><v-icon>mdi-minus</v-icon></v-btn>
+                        </template>
+                        <span>{{ $t('Remove') }}</span>
+                      </v-tooltip>
+                    </v-toolbar>
+                    <v-list nav dense>
+                      <v-list-item-group v-model="queryRef" color="primary">
+                        <v-list-item v-for="(query, i) in selectedRef.components[componentRef].queries" :key="i">
+                          <v-list-item-content>
+                            <v-list-item-title>{{(i+1) + ': ' + query.label}}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </v-list-item-group>
+                    </v-list>
+                    <template v-if="queryRef != null">
+                      <v-text-field v-model="selectedRef.components[componentRef].queries[queryRef].label" :label="$t('Config.Dashboards.Components.Label')" required></v-text-field>
+                      <v-textarea v-model="selectedRef.components[componentRef].queries[queryRef].where" :label="$t('Config.Dashboards.Components.Where')" rows="3"></v-textarea>
+                    </template>
                   </template>
+                </template>
+                <template v-else>
+                  <v-text-field v-model="selectedRef.components[componentRef].url" :label="$t('Config.Dashboards.Components.Url')" required></v-text-field>
+                  <v-checkbox v-model="selectedRef.components[componentRef].passToken" :label="$t('Config.Dashboards.Components.PassToken')" required></v-checkbox>
                 </template>
               </v-col>
             </v-row>
@@ -326,7 +333,8 @@ export default {
       ],
       typeSelection: [
         { text: i18n.t('Config.Dashboards.Components.Type.Group'), value: 1 },
-        { text: i18n.t('Config.Dashboards.Components.Type.List'), value: 2 }
+        { text: i18n.t('Config.Dashboards.Components.Type.List'), value: 2 },
+        { text: i18n.t('Config.Dashboards.Components.Type.IFrame'), value: 3 }
       ],
       chartSelection: [
         { text: i18n.t('Config.Dashboards.Components.Chart.Bar'), value: 1 },

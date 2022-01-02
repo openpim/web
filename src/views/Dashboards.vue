@@ -5,10 +5,11 @@
         <v-select v-if="dashboardsSelection.length > 1" v-model="selectedRef" :items="dashboardsSelection" :label="$t('Dashboards.Select')"></v-select>
       </v-col>
       <v-col cols="12" v-if="selectedRef">
-        <v-container v-if="selectedDashboardRef && selectedDashboardRef.components">
+        <v-container v-if="selectedDashboardRef && selectedDashboardRef.components" class="pa-0">
           <v-row no-gutters>
-            <v-col v-for="(elem,i) in selectedDashboardRef.components" :key="i" :cols="elem.width">
-              <DashboardComponent :dashboard="selectedDashboardRef" :component="elem" :key="Date.now()"></DashboardComponent>
+            <v-col v-for="(component,i) in selectedDashboardRef.components" :key="i" :cols="component.width">
+             <iframe v-if="component.type === 3" style="height: 100vh; width: 100%; border: none;" scrolling="no" :src="component.url + (component.passToken? (component.url.includes('?')? '&' : '?')+'token='+token : '')"></iframe>
+              <DashboardComponent v-if="component.type !== 3" :dashboard="selectedDashboardRef" :component="component" :key="Date.now()"></DashboardComponent>
             </v-col>
           </v-row>
         </v-container>
@@ -76,7 +77,8 @@ export default {
       defaultLanguageIdentifier,
       selectedRef,
       dashboardsSelection,
-      selectedDashboardRef
+      selectedDashboardRef,
+      token: localStorage.getItem('token')
     }
   }
 }

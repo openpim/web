@@ -339,7 +339,7 @@ router.beforeEach(async (to, from, next) => {
     text += i18n.t('Router.Changed.Continue')
 
     if (!window.confirm(text)) {
-      next(new Error('NOT_SAVED'))
+      next(false)
       return
     } else {
       router.preventRoute = {}

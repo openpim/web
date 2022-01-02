@@ -198,7 +198,7 @@
               <v-container>
                 <v-row>
                   <v-col cols="12" class="d-flex justify-center align-center">
-                    {{ $t('DataTable.ExcelImport.FinishedText', {count: importFinishedLogRef.length}) }}
+                    {{ $t('DataTable.ExcelImport.FinishedText', {count: importFinishedLogRef.length-1}) }}
                   </v-col>
                 </v-row>
                 <v-row>
@@ -603,9 +603,10 @@ export default {
 
       const log = [['identifier', 'result', 'errors', 'warnings']]
 
+      excelDialogProgressRef.value = 0
       excelDialogRef.value = true
       var reader = new FileReader()
-      reader.onload = function (evt) {
+      reader.onload = async function (evt) {
         const data = evt.target.result
 
         try {
@@ -614,108 +615,112 @@ export default {
           const availableLangs = languages.map(lang => lang.identifier)
 
           const range = XLSX.utils.decode_range(ws['!ref'])
-          let firstRow = true
           const headers = []
+          for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
+            const cell = ws[XLSX.utils.encode_cell({ r: 0, c: colNum })]
+            if (!cell) continue
+            if ((!cell.c || cell.c.length === 0) && !cell.v === '#delete#') {
+              showError(i18n.t('DataTable.ExcelImport.WrongFormat'))
+              excelDialogRef.value = false
+              return
+            } else {
+              headers.push(cell.v === '#delete#' ? cell.v : cell.c[0].t)
+            }
+          }
+
           let rows = []
           const totalRows = range.e.r
           let currentRow = 0
+          await loadLOVs2(headers)
+
+          let firstRow = true
           for (let rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
-            if (!excelDialogRef.value) return
             if (firstRow) {
-              for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
-                const cell = ws[XLSX.utils.encode_cell({ r: rowNum, c: colNum })]
-                if (!cell) continue
-                if (!cell.c || cell.c.length === 0) {
-                  showError(i18n.t('DataTable.ExcelImport.WrongFormat'))
-                  excelDialogRef.value = false
-                  return
-                } else {
-                  headers.push(cell.c[0].t)
-                }
-              }
               firstRow = false
-            } else {
-              const item = {}
-              for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
-                const cell = ws[XLSX.utils.encode_cell({ r: rowNum, c: colNum })]
-                if (!cell) continue
-                const header = headers[colNum]
-                if (header === 'parent') {
-                  item.parentIdentifier = cell.v
-                } else if (header === 'type') {
-                  item.typeIdentifier = cell.v
-                } else if (header === 'identifier') {
-                  item.identifier = cell.v
-                } else if (header.startsWith('name')) {
-                  const arr = ('' + header).split('_')
-                  const lang = arr[1]
-                  if (!item.name) item.name = {}
-                  item.name[lang] = cell.v
-                } else if (header.startsWith('attr') && cell.v) {
-                  if (!item.values) item.values = {}
-                  let attr = header.substring(5)
+              continue
+            }
+            if (!excelDialogRef.value) return
+            const item = {}
+            for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
+              const cell = ws[XLSX.utils.encode_cell({ r: rowNum, c: colNum })]
+              if (!cell) continue
+              const header = headers[colNum]
+              if (header === 'parent') {
+                item.parentIdentifier = '' + cell.v
+              } else if (header === 'type') {
+                item.typeIdentifier = '' + cell.v
+              } else if (header === 'identifier') {
+                item.identifier = '' + cell.v
+              } else if (header === '#delete#') {
+                item.delete = cell.v
+              } else if (header.startsWith('name')) {
+                const arr = ('' + header).split('_')
+                const lang = arr[1]
+                if (!item.name) item.name = {}
+                item.name[lang] = '' + cell.v
+              } else if (header.startsWith('attr') && cell.v) {
+                if (!item.values) item.values = {}
+                let attr = header.substring(5)
 
-                  let cellVal = cell.v
-                  // check LOV
-                  const tst = attr.indexOf('#')
-                  if (tst !== -1) {
-                    const lov = parseInt(attr.substring(tst + 1))
-                    attr = attr.substring(0, tst)
+                let cellVal = cell.v
+                // check LOV
+                const tst = attr.indexOf('#')
+                if (tst !== -1) {
+                  const lov = parseInt(attr.substring(tst + 1))
+                  attr = attr.substring(0, tst)
 
-                    const lovValues = lovsMap[lov]
-                    if (lovValues) {
-                      const val = cell.v
-                      if (val.includes(',')) { // multivalue lov
-                        cellVal = val.split(',').reduce((accumulator, currentValue) => {
-                          const tmp = currentValue.trim()
-                          const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === tmp)
-                          if (tst2) accumulator.push(tst2.id)
-                          return accumulator
-                        }, [])
-                      } else {
-                        const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === val)
-                        if (tst2) cellVal = tst2.id
-                      }
+                  const lovValues = lovsMap[lov]
+                  if (lovValues) {
+                    const val = cell.v
+                    if (val.includes(',')) { // multivalue lov
+                      cellVal = val.split(',').reduce((accumulator, currentValue) => {
+                        const tmp = currentValue.trim()
+                        const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === tmp)
+                        if (tst2) accumulator.push(tst2.id)
+                        return accumulator
+                      }, [])
+                    } else {
+                      const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === val)
+                      if (tst2) cellVal = tst2.id
                     }
                   }
+                }
 
-                  const idx = attr.lastIndexOf('_')
-                  if (idx !== -1) {
-                    const attrIdent = attr.substring(0, idx)
-                    const tst = attr.substring(idx + 1)
-                    if (availableLangs.includes(tst)) {
-                      if (!item.values[attrIdent]) item.values[attrIdent] = {}
-                      item.values[attrIdent][tst] = convertValueIfNecessary(attrIdent, cellVal)
-                    } else {
-                      item.values[attr] = convertValueIfNecessary(attr, cellVal)
-                    }
+                const idx = attr.lastIndexOf('_')
+                if (idx !== -1) {
+                  const attrIdent = attr.substring(0, idx)
+                  const tst = attr.substring(idx + 1)
+                  if (availableLangs.includes(tst)) {
+                    if (!item.values[attrIdent]) item.values[attrIdent] = {}
+                    item.values[attrIdent][tst] = convertValueIfNecessary(attrIdent, cellVal)
                   } else {
                     item.values[attr] = convertValueIfNecessary(attr, cellVal)
                   }
+                } else {
+                  item.values[attr] = convertValueIfNecessary(attr, cellVal)
                 }
               }
-              if (item.identifier) rows.push(item)
-              if (rows.length === pageSize) {
-                importRows(rows, log)
-                rows = []
-              }
-              excelDialogProgressRef.value = currentRow++ * 100 / totalRows
             }
+            if (item.identifier) rows.push(item)
+            if (rows.length === pageSize) {
+              await importRows(rows, log)
+              rows = []
+            }
+            excelDialogProgressRef.value = currentRow++ * 100 / totalRows
           }
-          if (rows.length > 0) importRows(rows, log)
+          if (rows.length > 0) await importRows(rows, log)
           excelDialogProgressRef.value = 100
-
           setTimeout(() => {
             importFinishedDialogRef.value = true
             importFinishedLogRef.value = log
             DataChanged()
           }, 500)
+          excelDialogRef.value = false
         } catch (err) {
           console.error('Error opening file', err)
           showError(err.message)
+          excelDialogRef.value = false
         }
-
-        excelDialogRef.value = false
       }
       reader.readAsBinaryString(file)
       fileUploadRef.value.value = ''
@@ -724,20 +729,19 @@ export default {
       const attrNode = findByIdentifier(attr)
       return attrNode && attrNode.item.type === AttributeType.Text ? '' + cellVal : cellVal
     }
-    function importRows (rows, log) {
-      importItems(rows).then(returnRows => {
-        let errors = ''
-        returnRows.forEach(row => {
-          if (row.errors.length > 0) {
-            errors += row.identifier + ': ' + row.errors[0].message
-          }
-          log.push([row.identifier, row.result, JSON.stringify(row.errors), JSON.stringify(row.warnings)])
-        })
-        if (errors.length > 0) {
-          showError(errors)
-          excelDialogRef.value = false
+    async function importRows (rows, log) {
+      const returnRows = await importItems(rows)
+      let errors = ''
+      returnRows.forEach(row => {
+        if (row.errors.length > 0) {
+          errors += row.identifier + ': ' + row.errors[0].message
         }
+        log.push([row.identifier, row.result, JSON.stringify(row.errors), JSON.stringify(row.warnings)])
       })
+      if (errors.length > 0) {
+        showError(errors)
+        excelDialogRef.value = false
+      }
     }
     function downloadImportFinishedLog () {
       const ws = XLSX.utils.aoa_to_sheet(importFinishedLogRef.value)
@@ -745,6 +749,20 @@ export default {
       XLSX.utils.book_append_sheet(wb, ws, 'Data')
       const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
       saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'log.xlsx')
+    }
+    async function loadLOVs2 (importHeaders) {
+      for (let i = 0; i < importHeaders.length; i++) {
+        const header = importHeaders[i]
+        if (header.startsWith('attr') && header.indexOf('#') !== -1) {
+          const tst = header.indexOf('#')
+          const lov = parseInt(header.substring(tst + 1))
+          const lovValues = lovsMap[lov]
+          if (!lovValues) {
+            const values = await getLOVData(lov)
+            lovsMap[lov] = values
+          }
+        }
+      }
     }
 
     function excelDialogClose () {

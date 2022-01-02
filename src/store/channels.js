@@ -155,7 +155,7 @@ const actions = {
     return data.getExecutions
   },
   getChannelCategories: async (channelId) => {
-    const data = await serverFetch('query { getChannelCategories(id: "' + channelId + '") {id name} }')
+    const data = await serverFetch('query { getChannelCategories(id: "' + channelId + '") { list {id name} tree } }')
     return data.getChannelCategories
   },
   getChannelAttributes: async (channelId, categoryId) => {

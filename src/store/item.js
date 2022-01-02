@@ -119,10 +119,14 @@ const actions = {
     let order = ''
     if (typeId) {
       const type = findType(typeId).node
-      const tstField = type.options.find(elem => elem.name === 'sort')
-      if (tstField) {
+      const tstFields = type.options.find(elem => elem.name === 'sort')
+      if (tstFields) {
+        const arr = tstFields.value.split(',')
         const tstOrder = type.options.find(elem => elem.name === 'sortDirection')
-        const sort = [[tstField.value, tstOrder ? tstOrder.value : 'ASC']]
+        const sort = []
+        arr.forEach(field => {
+          sort.push([field, tstOrder ? tstOrder.value : 'ASC'])
+        })
         order = 'order:' + objectToGraphgl(sort)
       }
     }
@@ -309,7 +313,7 @@ const actions = {
       return await resp.json()
     }
   },
-  uploadAndCreateFile: async (itemId, file, fileItemTypeId, parentId, relationId, lang) => {
+  uploadAndCreateFile: async (itemId, file, fileItemTypeId, parentId, relationId, lang, fileName, fileIdentifier) => {
     const data = new FormData()
     data.append('itemId', itemId)
     data.append('file', file)
@@ -317,6 +321,8 @@ const actions = {
     data.append('parentId', parentId)
     data.append('relationId', relationId)
     data.append('lang', lang)
+    data.append('fileName', fileName)
+    data.append('fileIdentifier', fileIdentifier)
 
     const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'asset-create-upload', {
       method: 'POST',

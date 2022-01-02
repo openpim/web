@@ -277,7 +277,7 @@ const actions = {
     }
   },
   saveItemRelation: async (itemRel) => {
-    if (itemRel.id === -1) {
+    if (itemRel.id < 0) {
       const query = `
         mutation { createItemRelation(identifier: "` + itemRel.identifier + '", itemId: ' + itemRel.item.id +
         ', relationId: ' + itemRel.relationId +
