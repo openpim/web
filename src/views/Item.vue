@@ -300,7 +300,9 @@ export default {
       updateItem,
       moveItem,
       createItem,
+      createItemInTree,
       removeItem,
+      removeItemFromTree,
       uploadFile,
       uploadAndCreateFile,
       removeItemFile,
@@ -673,8 +675,17 @@ export default {
         } else {
           showInfo(i18n.t('Started'))
         }
-        if (result.data && result.data.router) {
-          router.push(result.data.router)
+        if (result.data) {
+          if (result.data.removeItem) {
+            removeItemFromTree(result.data.removeItem)
+          }
+          if (result.data.createItem) {
+            createItemInTree(result.data.createItem.item, result.data.createItem.parent)
+            eventBus.emit('item_selected', result.data.createItem.item)
+          }
+          if (result.data.router) {
+            router.push(result.data.router)
+          }
         }
       })
     }

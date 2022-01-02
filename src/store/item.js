@@ -237,6 +237,18 @@ const actions = {
       children.push(item)
     }
   },
+  createItemInTree: (item, parent) => {
+    if (parent && parent.id !== -1) {
+      const path = []
+      const parentId = parent.internalId ? parent.internalId : parent.id
+      const parentNode = findNode(parentId, itemsTree, path)
+      if (parentNode && parentNode.children) {
+        if (!parentNode.children.some((el) => el.id === item.id)) {
+          parentNode.children.push(enrichItem(item))
+        }
+      }
+    }
+  },
   updateItem: async (item) => {
     const query = `
       mutation { updateItem(id: "` + item.internalId + '" ' + (item.name ? ', name: ' + objectToGraphgl(item.name) : '') +
@@ -274,6 +286,9 @@ const actions = {
     }`
     const resp = await serverFetch(query)
     if (resp.removeItem) removeNodeByInternalId(id, itemsTree)
+  },
+  removeItemFromTree: (id) => {
+    removeNodeByInternalId(id, itemsTree)
   },
   uploadFile: async (id, file) => {
     const data = new FormData()
