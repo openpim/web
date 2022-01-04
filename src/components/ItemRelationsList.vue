@@ -1,8 +1,18 @@
 <template>
 <div v-if="sourceRelations && targetRelations"> <!-- this is necessary to refrech computed itemRelations right way -->
+  <v-row v-if="groupRelationsRef" justify="space-around">
+    <v-col cols="12">
+      <v-sheet elevation="0" class="pt-3 pl-4">
+        <v-chip-group v-model="selectedGroupRef" mandatory active-class="primary--text">
+          <v-chip v-for="(group, i) in groupsRef" :key="'G'+i">{{ group.name }}</v-chip>
+        </v-chip-group>
+      </v-sheet>
+    </v-col>
+  </v-row>
+
   <v-expansion-panels popout multiple focusable :model="panels" class="mt-3">
     <template v-for="(rel, identifier, i) in itemRelations">
-    <h5 style="flex: 1 0 100%; max-width: calc(100% - 32px);" :class="getOption(identifier, 'class', '')" :style="getOption(identifier, 'style', '')" :key="i" v-if="getOption(identifier, 'title', null)">{{getOption(identifier, 'title', null)}}</h5>
+    <h5 style="flex: 1 0 100%; max-width: calc(100% - 32px);" :class="getOption(identifier, 'class', '')" :style="getOption(identifier, 'style', '')" :key="'T'+i" v-if="!groupRelationsRef && getOption(identifier, 'title', null)">{{getOption(identifier, 'title', null)}}</h5>
     <v-expansion-panel :key="i" :class="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'class', '')" :style="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'style', '')">
       <v-expansion-panel-header class="pb-0">{{ getRelationName(identifier) }}</v-expansion-panel-header>
       <v-expansion-panel-content>
@@ -18,7 +28,7 @@
                   <th class="text-left" v-if="componentType === 'source'">{{$t('ItemRelationsList.TargetDate')}}</th>
                   <th class="text-left" v-if="componentType === 'target'">{{$t('ItemRelationsList.SourceDate')}}</th>
 
-                  <th class="text-left" v-for="(attr, i) in getAttributesForRelation(identifier)" :key="i">
+                  <th class="text-left" v-for="(attr, j) in getAttributesForRelation(identifier)" :key="'A'+j">
                     {{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}
                   </th>
                   <th class="text-left" v-if="canEditItemRelationByIdentifier(identifier)">
@@ -32,7 +42,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(itemRel, j) in rel" :key="j" :set="canEditItemRelation = canEditItemRelationByIdentifier(identifier)">
+                <tr v-for="(itemRel, j) in rel" :key="'T'+j" :set="canEditItemRelation = canEditItemRelationByIdentifier(identifier)">
                   <td class="pa-1"><input v-model="itemRel.identifier" :placeholder="$t('ItemRelationsList.Identifier')" :disabled="itemRel.id > 0"></td>
                   <td class="pa-1">
                     <span v-if="componentType === 'source' && itemRel.target">
@@ -58,7 +68,7 @@
                       {{  itemRel.item.updatedAt ? dateFormat(new Date(itemRel.item.updatedAt), DATE_FORMAT) : '' }}
                     </span>
                   </td>
-                  <td class="text-left" v-for="(attr, i) in getAttributesForRelation(identifier)" :key="i">
+                  <td class="text-left" v-for="(attr, idx) in getAttributesForRelation(identifier)" :key="'attr'+idx">
                     <AttributeValue @input="attrChange(itemRel)" :item="item" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
                   </td>
                   <td class="pa-1" v-if="canEditItemRelation">
@@ -146,6 +156,7 @@ import * as relStore from '../store/relations'
 import * as itemRelStore from '../store/itemRelations'
 import * as itemStore from '../store/item'
 import * as auditStore from '../store/audit'
+import * as typesStore from '../store/types'
 import ItemsSelectionDialog from './ItemsSelectionDialog'
 import i18n from '../i18n'
 import * as userStore from '../store/users'
@@ -207,6 +218,10 @@ export default {
       nextId
     } = itemStore.useStore()
 
+    const {
+      findType
+    } = typesStore.useStore()
+
     const pageSize = ref(5)
     const itemSelectionDialogRef = ref(null)
     const historyDialogRef = ref(false)
@@ -216,7 +231,17 @@ export default {
     const pagesTarget = reactive({})
     const panels = ref([])
 
+    const groupRelationsRef = ref(false)
+    const groupsRef = ref([])
+    const selectedGroupRef = ref(null)
+
     watch(() => props.item, (newValue, previousValue) => {
+      const type = findType(newValue.typeId)?.node
+      if (type) {
+        const tst = type.options.find(option => option.name === 'groupRelations')
+        groupRelationsRef.value = tst && tst.value === 'true'
+      }
+
       if (props.componentType === 'source') {
         loadSourceRelations(newValue, root, 0, pageSize.value).then(() => {
           emit('dataLoaded', sourceRelations)
@@ -224,6 +249,7 @@ export default {
           for (const identifier in sourceRelationsTotal) {
             root.$set(pagesSource, identifier, 1)
           }
+          calculateGroups()
         })
       } else {
         loadTargetRelations(newValue, root, 0, pageSize.value).then(() => {
@@ -232,6 +258,7 @@ export default {
           for (const identifier in targetRelationsTotal) {
             root.$set(pagesTarget, identifier, 1)
           }
+          calculateGroups()
         })
       }
     })
@@ -255,8 +282,36 @@ export default {
     }
 
     const itemRelations = computed(() => {
-      return props.componentType === 'source' ? sourceRelations : targetRelations
+      const relations = props.componentType === 'source' ? sourceRelations : targetRelations
+      if (groupRelationsRef.value && selectedGroupRef.value !== null) {
+        const group = groupsRef.value[selectedGroupRef.value]
+        const filtered = Object.keys(relations).filter(key => group.relations.includes(key)).reduce((obj, key) => { obj[key] = relations[key]; return obj }, {})
+        return filtered
+      } else {
+        return relations
+      }
     })
+
+    function calculateGroups () {
+      if (!groupRelationsRef.value) return
+
+      const groupsArr = []
+      const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
+      let grp = null
+      for (const relIdent in itemRels) {
+        const rel = relations.find(rel => rel.identifier === relIdent)
+        if (rel && rel.options) {
+          const tst = rel.options.find(elem => elem.name === 'title')
+          if (tst) {
+            grp = { name: tst.value, relations: [relIdent] }
+            groupsArr.push(grp)
+          } else if (grp) {
+            grp.relations.push(relIdent)
+          }
+        }
+      }
+      groupsRef.value = groupsArr
+    }
 
     function getRelationName (identifier) {
       const rel = relations.find(rel => rel.identifier === identifier)
@@ -453,6 +508,9 @@ export default {
       pageSizeChanged,
       hasAccess,
       getOption,
+      groupsRef,
+      groupRelationsRef,
+      selectedGroupRef,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive'),
       dateFormat,
