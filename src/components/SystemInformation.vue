@@ -5,6 +5,7 @@
     </template>
     <v-list>
       <v-list-item><v-list-item-title>{{ 'id: ' + (data.internalId || data.id) }}</v-list-item-title></v-list-item>
+      <v-list-item><v-list-item-title>{{ 'identifier: ' + data.identifier }}</v-list-item-title></v-list-item>
       <v-list-item><v-list-item-title>{{ $t('CreatedBy') + ': ' + data.createdBy }}</v-list-item-title></v-list-item>
       <v-list-item><v-list-item-title>{{ $t('CreatedAt') + ': ' + data.createdAt }}</v-list-item-title></v-list-item>
       <v-list-item><v-list-item-title>{{ $t('UpdatedBy') + ': ' + data.updatedBy }}</v-list-item-title></v-list-item>
