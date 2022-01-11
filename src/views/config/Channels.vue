@@ -61,6 +61,8 @@
               </v-radio-group>
 
               <ValidVisibleComponent :elem="selectedRef" :canEditConfig="canEditConfigRef"/>
+
+              <v-checkbox class="ml-2" v-model="selectedRef.config.statusOnHead" :label="$t('Config.Channels.StatusOnHead')" required></v-checkbox>
             </v-tab-item>
             <v-tab-item>
               <component v-if="configComponent" :is="configComponent" :channel="selectedRef" :readonly="!canEditConfigRef" ></component>

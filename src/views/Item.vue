@@ -10,12 +10,49 @@
                 <v-col v-if="mainImage" :cols="getOption(itemType, 'thumbnail_cols', '1')">
                   <v-img :src="damUrl + 'asset/' + mainImage.id + '/thumb?token=' + token" contain></v-img>
                 </v-col>
-                <v-col :cols="mainImage ? (12-getOption(itemType, 'thumbnail_cols', '1')): 12" class="mb-2">
+                <v-col :cols="mainImage ? (12-getOption(itemType, 'thumbnail_cols', '1')-(channelsOnHead.length>0?3:0)): 12-(channelsOnHead.length>0?3:0)" class="mb-2">
                     <span class="mr-0" :class="getOption(itemType, 'name_head_class', '')" :style="getOption(itemType, 'name_head_style', '')">{{ itemRef.name[currentLanguage.identifier] || '[' + itemRef.name[defaultLanguageIdentifier] + ']' }}</span>
                     <SystemInformation :data="itemRef"></SystemInformation>
                     <div class="caption">
                       <v-icon :color="itemType ? itemType.iconColor : null">{{itemType ? 'mdi-'+itemType.icon : null}}</v-icon> {{$t('Item.type')}}: <router-link :to="'/config/types/' + itemType.identifier">{{ itemType.identifier }}</router-link><span class="ml-0"> ({{ itemType.name[currentLanguage.identifier] || '[' + itemType.name[defaultLanguageIdentifier] + ']' }})</span>
                     </div>
+                </v-col>
+                <v-col v-if="channelsOnHead.length>0" :cols="3">
+                  <div v-for="(channel, i) in channelsOnHead" :key="i">
+                  <v-card v-if="itemRef.channels[channel.identifier]" flat class="ma-0 pa-0">
+                    <v-card-title class="text-subtitle-2 pa-0">
+                      {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}:
+                      <v-chip v-if="itemRef.channels[channel.identifier].status === 1" class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip>
+
+                      <template v-if="itemRef.channels[channel.identifier].status === 2">
+                        <v-tooltip top :disabled="!itemRef.channels[channel.identifier].message">
+                          <template v-slot:activator="{ on }">
+                            <v-chip v-on="on" class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.Synced')}}</v-chip>
+                          </template>
+                            <span>{{ itemRef.channels[channel.identifier].message }}</span>
+                        </v-tooltip>
+                      </template>
+
+                      <template v-if="itemRef.channels[channel.identifier].status === 3">
+                        <v-tooltip top :disabled="!itemRef.channels[channel.identifier].message">
+                          <template v-slot:activator="{ on }">
+                            <v-chip v-on="on" class="ma-2" color="red" text-color="white"> {{$t('ItemView.Channels.Error')}}</v-chip>
+                          </template>
+                            <span>{{ itemRef.channels[channel.identifier].message || null }}</span>
+                        </v-tooltip>
+                      </template>
+
+                      <template v-if="itemRef.channels[channel.identifier].status === 4">
+                        <v-tooltip top :disabled="!itemRef.channels[channel.identifier].message">
+                          <template v-slot:activator="{ on }">
+                            <v-chip v-on="on" class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip>
+                          </template>
+                            <span>{{ itemRef.channels[channel.identifier].message || null }}</span>
+                        </v-tooltip>
+                      </template>
+                    </v-card-title>
+                  </v-card>
+                  </div>
                 </v-col>
               </v-row>
               <div :key="headAttributesKeyRef">
@@ -417,6 +454,15 @@ export default {
         })
 
         return arr
+      } else {
+        return []
+      }
+    })
+
+    const channelsOnHead = computed(() => {
+      if (itemRef.value) {
+        const pathArr = itemRef.value.path.split('.')
+        return awailableChannelsRef.value.filter(channel => channel.config.statusOnHead && channel.valid.includes(itemRef.value.typeId) && channel.visible.find(elem => pathArr.includes(elem)))
       } else {
         return []
       }
@@ -867,6 +913,7 @@ export default {
       historyTableRef,
       hasAccess,
       awailableChannelsRef,
+      channelsOnHead,
       hasChannels,
       submit,
       chanSelectionDialogRef,

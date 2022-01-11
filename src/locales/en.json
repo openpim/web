@@ -199,6 +199,7 @@
   "Config.Channels.Time": "Time",
   "Config.Channels.TabProperties": "Properties",
   "Config.Channels.TabConfiguration": "Configuration",
+  "Config.Channels.StatusOnHead": "Show channel status on object",
   "Config.Actions": "Actions",
   "Config.Actions.Title": "Actions",
   "Config.Actions.NewName": "New action",
