@@ -172,7 +172,7 @@
                     <router-link :to="'/item/' + file.identifier">
                       <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</div>
                     </router-link>
-                    <v-img :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="600"></v-img>
+                    <a target="_blank" :href="damUrl + 'asset/' + file.id + '?inline=true&token=' + token"><v-img :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="600"></v-img></a>
                   </v-card-text>
                 </v-card>
                 <v-card v-if="!file.image" class="ma-4" style="background: white;border:1px solid grey">
