@@ -483,6 +483,8 @@ export default {
     function upload () {
       uploadFile(itemRef.value.id, fileRef.value).then((item) => {
         if (item) {
+          enrichItem(item)
+
           itemRef.value.values = item.values
           itemRef.value.mimeType = fileRef.value.type
           itemRef.value.fileOrigName = fileRef.value.name
@@ -639,6 +641,13 @@ export default {
         filesRef.value = arr
       })
 
+      enrichItem(item)
+
+      itemRef.value = item
+      itemChangedRef.value = false
+      if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
+    }
+    function enrichItem (item) {
       const arr = getAttributesForItem(item.typeId, item.path)
 
       attrGroups.value = arr.filter(group => {
@@ -703,9 +712,6 @@ export default {
           }
         })
       })
-      itemRef.value = item
-      itemChangedRef.value = false
-      if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
     }
 
     function loadItemPath (path) {
