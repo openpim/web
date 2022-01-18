@@ -1,4 +1,4 @@
-import { ref, reactive, provide, inject } from '@vue/composition-api'
+import { reactive, provide, inject } from '@vue/composition-api'
 import { serverFetch, findNode, removeNodeByInternalId, findNodeByComparator, objectToGraphgl } from './utils'
 import * as typesStore from './types'
 import * as attrStore from './attributes'
@@ -7,7 +7,6 @@ import i18n from '../i18n'
 import { currentLanguage } from './languages'
 
 const itemsTree = reactive([])
-const currentWhereRef = ref(null)
 
 const {
   findType
@@ -482,7 +481,6 @@ const actions = {
 // eslint-disable-next-line no-unused-vars
 const store = {
   itemsTree,
-  currentWhereRef,
   ...actions
 }
 

@@ -29,6 +29,22 @@ function createLanguageDependentValues (relId, rows) {
   })
 }
 
+function generateSorting (options) {
+  const order = []
+  if (options.sortBy) {
+    for (let i = 0; i < options.sortBy.length; i++) {
+      const elem = options.sortBy[i]
+      if (typeof elem === 'object') {
+        const path = elem.path.reduce((accumulator, currentValue, index, arr) => accumulator + (index !== arr.length ? '.' : '') + currentValue)
+        order.push([path, options.sortDesc[i] ? 'DESC' : 'ASC'])
+      } else {
+        order.push([elem, options.sortDesc[i] ? 'DESC' : 'ASC'])
+      }
+    }
+  }
+  return order
+}
+
 const actions = {
   loadSourceRelations: async (item, root, offset, limit) => {
     let relations = relStore.store.relations
@@ -182,6 +198,46 @@ const actions = {
         root.$delete(targetRelationsTotal, rel.identifier)
       }
     }
+  },
+  searchItemRelations: async (where, options) => {
+    if (!where) return []
+
+    const offset = (options.page - 1) * options.itemsPerPage
+    const order = generateSorting(options)
+    const data = await serverFetch(
+      `query { search(
+        requests: [
+            {
+                entity: ITEM_RELATION, 
+                offset: ` + offset + `, 
+                limit: ` + options.itemsPerPage + `,
+                where: ` + objectToGraphgl(where) + `,
+                order: ` + objectToGraphgl(order) + `
+            }]
+        ) {
+        responses {
+            ... on SearchItemRelationResponse {
+                count
+                rows {
+                  identifier
+                  itemIdentifier
+                  targetIdentifier
+                  relationIdentifier
+                  values
+                  createdBy
+                  createdAt
+                  updatedBy
+                  updatedAt
+                }
+            }
+        }}}       
+      `)
+    const res = data.search.responses[0]
+    if (res.count <= options.itemsPerPage && res.rows.length !== res.count) {
+      // count can be more then real rows because system perform addition filtering after SQL query, while count based on SQL only
+      res.count = res.rows.length
+    }
+    return res
   },
   loadTargetPage: async (item, root, identifier, offset, limit) => {
     const relations = relStore.store.relations

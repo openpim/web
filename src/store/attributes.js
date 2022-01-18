@@ -227,6 +227,26 @@ const actions = {
       attrArr.sort((a, b) => a.order - b.order)
     }
     return attrArr
+  },
+  getAllItemRelationsAttributes: () => {
+    const attrArr = []
+    groups.forEach(group => {
+      if (group.visible) {
+        group.attributes.forEach(attr => {
+          if (attr.relations.length > 0) {
+            if (!attrArr.find(tst => tst.identifier === attr.identifier)) {
+              const tmp = { ...attr }
+              tmp.linkToGroup = group
+              attrArr.push(tmp)
+            }
+          }
+        })
+      }
+    })
+    if (attrArr.length > 0) {
+      attrArr.sort((a, b) => a.order - b.order)
+    }
+    return attrArr
   }
 }
 

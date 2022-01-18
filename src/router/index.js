@@ -88,7 +88,7 @@ const routes = [
       {
         path: '',
         components: {
-          menu: () => import('../components/SearchMenu.vue'),
+          menu: () => import('../components/SearchPanel.vue'),
           default: () => import('../views/SearchResults.vue')
         }
       }
@@ -105,7 +105,7 @@ const routes = [
       {
         path: '',
         components: {
-          menu: () => import('../components/SearchMenu.vue'),
+          menu: () => import('../components/SearchItem.vue'),
           default: () => import('../views/SearchResults.vue')
         }
       }
@@ -122,7 +122,7 @@ const routes = [
       {
         path: '',
         components: {
-          menu: () => import('../components/SearchMenu.vue'),
+          menu: () => import('../components/SearchItem.vue'),
           default: () => import('../views/SearchResults.vue')
         }
       }

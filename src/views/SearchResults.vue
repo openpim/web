@@ -2,7 +2,11 @@
   <v-container>
     <v-row no-gutters>
       <v-col cols="12">
-        <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" :export="isExportSearch"></ItemsDataTable>
+        <ItemsDataTable
+          ref="itemsDataTableRef"
+          :loadData="loadDataFunction"
+          :export="isExportSearch"
+        ></ItemsDataTable>
       </v-col>
     </v-row>
   </v-container>
@@ -11,6 +15,8 @@
 <script>
 import { ref, watch } from '@vue/composition-api'
 import * as itemStore from '../store/item'
+import * as itemRelationStore from '../store/itemRelations'
+import * as searchStore from '../store/search'
 import * as errorStore from '../store/error'
 import ItemsDataTable from '../components/ItemsDataTable'
 
@@ -23,10 +29,11 @@ export default {
     }
   },
   setup (props) {
-    const {
-      searchItems,
-      currentWhereRef
-    } = itemStore.useStore()
+    const { searchItems } = itemStore.useStore()
+
+    const { searchItemRelations } = itemRelationStore.useStore()
+
+    const { currentWhereRef, searchEntity } = searchStore.useStore()
 
     const { showError } = errorStore.useStore()
 
@@ -41,9 +48,16 @@ export default {
         if (!currentWhereRef.value) {
           resolve({ count: 0, rows: [] })
         } else {
-          searchItems(currentWhereRef.value, options)
-            .then(data => resolve(data))
-            .catch(error => showError(error))
+          console.log(JSON.stringify(searchEntity.value))
+          if (searchEntity.value === 'ITEM_RELATION') {
+            searchItemRelations(currentWhereRef.value, options)
+              .then((data) => resolve(data))
+              .catch((error) => showError(error))
+          } else {
+            searchItems(currentWhereRef.value, options)
+              .then((data) => resolve(data))
+              .catch((error) => showError(error))
+          }
         }
       })
     }

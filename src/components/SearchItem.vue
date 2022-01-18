@@ -109,12 +109,13 @@ export default {
     } = typesStore.useStore()
 
     const {
-      currentWhereRef,
       loadItemsByIds
     } = itemStore.useStore()
 
     const {
       loadByIdentifier,
+      currentWhereRef,
+      searchEntity,
       searchToOpenRef
     } = searchStore.useStore()
 
@@ -187,6 +188,7 @@ export default {
       if (selectedRef.value.extended) {
         try {
           selectedRef.value.whereClause = JSON.parse(extendedSearchRef.value)
+          searchEntity.value = 'ITEM'
           currentWhereRef.value = selectedRef.value.whereClause
         } catch (err) {
           console.error(err)
@@ -280,6 +282,7 @@ export default {
             where[orAndOperation].push(data)
           }
         })
+        searchEntity.value = 'ITEM'
         currentWhereRef.value = where
       }
     }
