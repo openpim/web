@@ -18,16 +18,16 @@
                     </div>
                 </v-col>
                 <v-col v-if="channelsOnHead.length>0" :cols="3">
-                  <div v-for="(channel, i) in channelsOnHead" :key="i">
+                  <div v-for="(channel, i) in channelsOnHead" :key="i" >
                   <v-card v-if="itemRef.channels[channel.identifier]" flat class="ma-0 pa-0">
-                    <v-card-title class="text-subtitle-2 pa-0">
+                    <v-card-title class="text-subtitle-2 pa-0 ma-0">
                       {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}:
-                      <v-chip v-if="itemRef.channels[channel.identifier].status === 1" class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip>
+                      <v-chip small v-if="itemRef.channels[channel.identifier].status === 1" class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip>
 
                       <template v-if="itemRef.channels[channel.identifier].status === 2">
                         <v-tooltip top :disabled="!itemRef.channels[channel.identifier].message">
                           <template v-slot:activator="{ on }">
-                            <v-chip v-on="on" class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.Synced')}}</v-chip>
+                            <v-chip small v-on="on" class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.Synced')}}</v-chip>
                           </template>
                             <span>{{ itemRef.channels[channel.identifier].message }}</span>
                         </v-tooltip>
@@ -36,7 +36,7 @@
                       <template v-if="itemRef.channels[channel.identifier].status === 3">
                         <v-tooltip top :disabled="!itemRef.channels[channel.identifier].message">
                           <template v-slot:activator="{ on }">
-                            <v-chip v-on="on" class="ma-2" color="red" text-color="white"> {{$t('ItemView.Channels.Error')}}</v-chip>
+                            <v-chip small v-on="on" class="ma-2" color="red" text-color="white"> {{$t('ItemView.Channels.Error')}}</v-chip>
                           </template>
                             <span>{{ itemRef.channels[channel.identifier].message || null }}</span>
                         </v-tooltip>
@@ -45,7 +45,7 @@
                       <template v-if="itemRef.channels[channel.identifier].status === 4">
                         <v-tooltip top :disabled="!itemRef.channels[channel.identifier].message">
                           <template v-slot:activator="{ on }">
-                            <v-chip v-on="on" class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip>
+                            <v-chip small v-on="on" class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip>
                           </template>
                             <span>{{ itemRef.channels[channel.identifier].message || null }}</span>
                         </v-tooltip>
@@ -53,6 +53,7 @@
                     </v-card-title>
                   </v-card>
                   </div>
+                  <v-btn x-small text @click="refreshChannels" v-text="$t('DataTable.Refresh')" class="ma-0 pa-0"></v-btn>
                 </v-col>
               </v-row>
               <div :key="headAttributesKeyRef">
@@ -346,7 +347,8 @@ export default {
       removeItemFile,
       loadAssets,
       loadChildren,
-      hasRelations
+      hasRelations,
+      loadItemChannels
     } = itemStore.useStore()
 
     const {
@@ -802,8 +804,17 @@ export default {
       if (confirm('Запустить синхронизацию?')) triggerChannel(channel.internalId, { sync: true, item: itemRef.value.internalId })
     }
 
+    async function refreshChannels () {
+      if (itemRef.value && channelsOnHead.value.length > 0) {
+        const channels = await loadItemChannels(itemRef.value.identifier)
+        itemRef.value.channels = channels
+      }
+    }
+
+    let timer
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
+      timer = setInterval(refreshChannels, 60000)
       loadAllChannels().then(() => {
         awailableChannelsRef.value = getAwailableChannels(false)
       })
@@ -825,6 +836,7 @@ export default {
 
     onUnmounted(() => {
       window.removeEventListener('keydown', hotkey)
+      clearInterval(timer)
     })
 
     function hotkey (event) {
@@ -930,6 +942,7 @@ export default {
       getChannelFactory,
       syncItem,
       itemChangedRef,
+      refreshChannels,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
