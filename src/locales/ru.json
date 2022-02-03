@@ -227,7 +227,7 @@
   "Config.Actions.Triggers.SelectRel.Button": "Выбрать зависимость",
   "Config.Actions.Triggers.ButtonText": "Текст на кнопке",
   "Config.Actions.Triggers.ConfirmDelete": "Удалить триггер?",
-  "Config.Actions.Triggers.ButtonsWithText": "Кнопка с текстом '{text}'",
+  "Config.Actions.Triggers.ButtonsWithText": "Кнопка с текстом '{text}' для типа ",
   "Config.Actions.Triggers.Item1": "Объект типа",
   "Config.Actions.Triggers.Item2": "начиная с объекта",
   "Config.Actions.Triggers.Relation": "Зависимость",

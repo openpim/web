@@ -79,6 +79,9 @@
                       </div>
                       <div v-if="trigger.type === 3">
                         {{ $t('Config.Actions.Triggers.ButtonsWithText', {text: trigger.itemButton}) }}
+                        <router-link :to="'/config/types/' + type.identifier">{{ type.identifier }}</router-link>
+                        {{ $t('Config.Actions.Triggers.Item2') }}
+                        <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
                       </div>
                     </v-list-item-title>
                   </v-list-item-content>
@@ -203,7 +206,7 @@ export default {
     function triggerCreated (trigger) {
       triggerDialogRef.value.closeDialog()
       selectedRef.value.triggers.push(trigger)
-      if (trigger.type === 1) {
+      if (trigger.type === 1 || trigger.type === 3) {
         loadItemsByIds([trigger.itemFrom]).then(arr => { itemsRef.value.push(arr[0]) })
       }
     }
@@ -259,7 +262,7 @@ export default {
       selectedRef.value = action
       const ids = []
       selectedRef.value.triggers.forEach(trigger => {
-        if (trigger.type === 1) ids.push(trigger.itemFrom)
+        if (trigger.type === 1 || trigger.type === 3) ids.push(trigger.itemFrom)
       })
       loadItemsByIds(ids).then(arr => { itemsRef.value = arr })
       if (action.identifier) router.push('/config/actions/' + action.identifier)

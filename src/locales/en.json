@@ -227,7 +227,7 @@
   "Config.Actions.Triggers.SelectRel.Button": "Select relation",
   "Config.Actions.Triggers.ButtonText": "Button text",
   "Config.Actions.Triggers.ConfirmDelete": "Remove trigger?",
-  "Config.Actions.Triggers.ButtonsWithText": "Button with text '{text}'",
+  "Config.Actions.Triggers.ButtonsWithText": "Button with text '{text}' for type ",
   "Config.Actions.Triggers.Item1": "Item with type",
   "Config.Actions.Triggers.Item2": "starting from item",
   "Config.Actions.Triggers.Relation": "Relation",
