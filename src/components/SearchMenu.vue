@@ -83,7 +83,7 @@
   </v-row>
 </template>
 <script>
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted, onUnmounted } from '@vue/composition-api'
 import i18n from '../i18n'
 import * as typesStore from '../store/types'
 import * as itemStore from '../store/item'
@@ -255,7 +255,7 @@ export default {
               const lang = filter.attr.substring(5)
               data.name = {}
               data.name[lang] = {}
-              data.name[lang][operation] = filter.value
+              data.name[lang][operation] = filter.operation === 12 ? '%' + filter.value + '%' : filter.value
             } else if (filter.attr.startsWith('attr#')) {
               const idx = filter.attr.indexOf('#', 5)
               if (idx === -1) {
@@ -285,6 +285,7 @@ export default {
     }
 
     function parseValue (attrObj, attr, value, filter) {
+      debugger
       if (filter.operation === 12) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
       else if (filter.operation === 10) {
         const arr = []
@@ -337,7 +338,14 @@ export default {
       })
     }
 
+    function enterKeyListener (e) {
+      if (e.key === 'Enter') {
+        search()
+      }
+    }
+
     onMounted(() => {
+      document.addEventListener('keypress', enterKeyListener)
       Promise.all([loadAllTypes(), loadAllLanguages(), loadAllAttributes(), loadAllChannels()]).then(() => {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
@@ -425,6 +433,10 @@ export default {
           }
         }
       })
+    })
+
+    onUnmounted(() => {
+      document.removeEventListener('keypress', enterKeyListener)
     })
 
     return {
