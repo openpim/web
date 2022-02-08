@@ -25,7 +25,8 @@ const actionList = {
     return act
   },
   saveAction: async (action) => {
-    const code = action.code ? action.code : ''
+    let code = action.code ? action.code : ''
+    if (code.endsWith('\\')) code += ' '
     if (action.internalId === 0) {
       const query = `
         mutation { createAction(identifier: "` + action.identifier + '", name: ' + objectToGraphgl(action.name) +
