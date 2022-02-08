@@ -25,12 +25,12 @@ const actionList = {
     return act
   },
   saveAction: async (action) => {
-    const code = action.code ? action.code.replace(/\n/g, '_#n#_').replace(/"/g, '_#dbl#_') : ''
+    const code = action.code ? action.code : ''
     if (action.internalId === 0) {
       const query = `
         mutation { createAction(identifier: "` + action.identifier + '", name: ' + objectToGraphgl(action.name) +
-        ', code: "' + code +
-        '", triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '[]') +
+        ', code: """' + code +
+        '""", triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '[]') +
         `)
       }`
       const data = await serverFetch(query)
@@ -39,8 +39,8 @@ const actionList = {
     } else {
       const query = `
         mutation { updateAction(id: "` + action.internalId + '", name: ' + (action.name ? '' + objectToGraphgl(action.name) : '') +
-        ', code: "' + code +
-        '", triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '') +
+        ', code: """' + code +
+        '""", triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '') +
         `)
       }`
       await serverFetch(query)
