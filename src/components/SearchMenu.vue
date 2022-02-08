@@ -285,7 +285,6 @@ export default {
     }
 
     function parseValue (attrObj, attr, value, filter) {
-      debugger
       if (filter.operation === 12) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
       else if (filter.operation === 10) {
         const arr = []
