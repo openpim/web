@@ -611,23 +611,22 @@ export default {
       })
     }
 
-    function remove () {
+    async function remove () {
       if (confirm(i18n.t('ItemView.RemoveItem'))) {
-        loadChildren(itemRef.value.internalId, { page: 1, itemsPerPage: 1 }).then(data => {
-          if (data.count > 0) {
-            showError(i18n.t('ItemView.Remove.HasChildrenError'))
+        const data = await loadChildren(itemRef.value.internalId, { page: 1, itemsPerPage: 1 })
+        if (data.count > 0) {
+          showError(i18n.t('ItemView.Remove.HasChildrenError'))
+        } else {
+          const checkRelationsOnDelete = getOption(itemType.value, 'checkRelationsOnDelete', true)
+          const res = !checkRelationsOnDelete ? false : await hasRelations(itemRef.value.internalId)
+          if (res) {
+            showError(i18n.t('ItemView.Remove.HasRelationsError'))
           } else {
-            hasRelations(itemRef.value.internalId).then(res => {
-              if (res) {
-                showError(i18n.t('ItemView.Remove.HasRelationsError'))
-              } else {
-                removeItem(itemRef.value.internalId).then(() => {
-                  router.push('/')
-                })
-              }
+            removeItem(itemRef.value.internalId).then(() => {
+              router.push('/')
             })
           }
-        })
+        }
       }
     }
 
