@@ -32,6 +32,7 @@ export default {
     } = dashStore.useStore()
 
     const {
+      searchEntityRef,
       searchToOpenRef
     } = searchStore.useStore()
 
@@ -52,6 +53,7 @@ export default {
         // list of queries
         const where = props.component.queries[item[0]._index].where
         searchToOpenRef.value = { whereClause: JSON.parse(where), extended: true }
+        searchEntityRef.value = 'ITEM'
         router.push('/search/')
       } else {
         // group by
@@ -99,6 +101,7 @@ export default {
           where = query
         }
         searchToOpenRef.value = { whereClause: where, extended: true }
+        searchEntityRef.value = 'ITEM'
         router.push('/search/')
       }
     }

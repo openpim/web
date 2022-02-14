@@ -219,8 +219,11 @@ const actions = {
             ... on SearchItemRelationResponse {
                 count
                 rows {
+                  id
                   identifier
+                  itemId
                   itemIdentifier
+                  targetId
                   targetIdentifier
                   relationIdentifier
                   values
@@ -230,7 +233,7 @@ const actions = {
                   updatedAt
                 }
             }
-        }}}       
+        }}}
       `)
     const res = data.search.responses[0]
     if (res.count <= options.itemsPerPage && res.rows.length !== res.count) {
@@ -238,6 +241,32 @@ const actions = {
       res.count = res.rows.length
     }
     return res
+  },
+  importItemRelations: async (rows) => {
+    let query = `
+      mutation { import(
+        config: {
+            mode: CREATE_UPDATE
+            errors: PROCESS_WARN
+        },
+        itemRelations: [`
+
+    rows.forEach(row => {
+      query += objectToGraphgl(row)
+    })
+
+    query += `]
+        ) {
+        itemRelations {
+        identifier
+        result
+        id
+        errors { code message }
+        warnings { code message }
+      }}}    
+    `
+    const data = await serverFetch(query)
+    return data.import.itemRelations
   },
   loadTargetPage: async (item, root, identifier, offset, limit) => {
     const relations = relStore.store.relations
@@ -354,6 +383,14 @@ const actions = {
       }`
       await serverFetch(query)
     }
+  },
+  updateItemRelation: async (itemRel) => {
+    const query = `
+    mutation { updateItemRelation(id: "` + itemRel.internalId +
+      '", values: ' + objectToGraphgl(itemRel.values) +
+      `)
+    }`
+    await serverFetch(query)
   },
   removeItemRelation: async (componentType, identifier, id) => {
     const itemRels = componentType === 'source' ? sourceRelations : targetRelations

@@ -53,7 +53,7 @@ export default {
 
     const {
       channels,
-      getAwailableChannels,
+      getAvailableChannels,
       loadAllChannels
     } = channelsStore.useStore()
 
@@ -101,13 +101,13 @@ export default {
       if (channels.length === 0) {
         loadAllChannels().then(() => {
           selectionDialogRef.value = true
-          let tmp = getAwailableChannels(props.editAccessOnly)
+          let tmp = getAvailableChannels(props.editAccessOnly)
           if (props.channelType) tmp = tmp.filter(channel => channel.type === props.channelType)
           buildItems(tmp)
         })
       } else {
         selectionDialogRef.value = true
-        let tmp = getAwailableChannels(props.editAccessOnly)
+        let tmp = getAvailableChannels(props.editAccessOnly)
         if (props.channelType) tmp = tmp.filter(channel => channel.type === props.channelType)
         buildItems(tmp)
       }

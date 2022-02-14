@@ -2,9 +2,10 @@ import { ref, provide, inject } from '@vue/composition-api'
 import { serverFetch, objectToGraphgl } from './utils'
 
 const currentWhereRef = ref(null)
-const searchEntity = ref(null)
+const searchEntityRef = ref('ITEM')
 const searchToOpenRef = ref(null)
 const savedColumnsRef = ref(null)
+const selectedRef = ref(null)
 
 const actions = {
   loadAllSavedColumns: async (force) => {
@@ -24,7 +25,7 @@ const actions = {
     }
   },
   loadSearches: async (onlyMy) => {
-    const data = await serverFetch('query { getSearches(onlyMy: ' + onlyMy + ') {identifier name extended filters whereClause public user} }')
+    const data = await serverFetch('query { getSearches(onlyMy: ' + onlyMy + ') {identifier entity name extended filters whereClause public user} }')
     return data.getSearches
   },
   loadColumns: async (onlyMy) => {
@@ -53,13 +54,14 @@ const actions = {
   },
   loadByIdentifier: async (identifier) => {
     const data = await serverFetch('query { getSearchByIdentifier(identifier: "' + identifier + `") { 
-      identifier name extended filters whereClause public user
+      identifier entity name extended filters whereClause public user
     } }`)
     return data.getSearchByIdentifier
   },
   save: async (search) => {
     const query = `
       mutation { saveSearch(identifier: "` + search.identifier + '", name: ' + (search.name ? objectToGraphgl(search.name) : '') +
+      ', entity: "' + search.entity + '"' +
       ', publicSearch: ' + search.public +
       ', extended: ' + search.extended +
       ', filters: ' + (search.filters ? objectToGraphgl(search.filters) : '') +
@@ -90,7 +92,8 @@ const actions = {
 // eslint-disable-next-line no-unused-vars
 const store = {
   currentWhereRef,
-  searchEntity,
+  searchEntityRef,
+  selectedRef,
   savedColumnsRef: savedColumnsRef,
   searchToOpenRef: searchToOpenRef,
   ...actions

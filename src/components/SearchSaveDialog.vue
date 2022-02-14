@@ -62,7 +62,8 @@ export default {
     const {
       loadSearches,
       identifierExists,
-      save
+      save,
+      searchEntityRef
     } = searchStore.useStore()
 
     const creationRef = ref(false)
@@ -79,6 +80,7 @@ export default {
         if (confirm(i18n.t('SearchSaveDialog.OverrideConfirmation'))) {
           const data = searchesRef.value[selected]
           selectedRef.value.identifier = data.identifier
+          selectedRef.value.entity = data.entity
           selectedRef.value.name = data.name
           searchesRef.value.splice(-1, 1)
           creationRef.value = false
@@ -115,12 +117,12 @@ export default {
       selectedRef.value = selected
       loadSearches(true).then(arr => {
         searchesRef.value = arr
-
         const idx = searchesRef.value.findIndex(elem => elem.identifier === selected.identifier)
         if (idx !== -1) {
           creationRef.value = false
           const data = searchesRef.value[idx]
           data.name = selected.name
+          data.entity = searchEntityRef.value
           data.extended = selected.extended
           data.filters = selected.filters
           data.whereClause = selected.whereClause

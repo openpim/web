@@ -122,7 +122,7 @@ const routes = [
       {
         path: '',
         components: {
-          menu: () => import('../components/SearchItem.vue'),
+          menu: () => import('../components/SearchPanel.vue'),
           default: () => import('../views/SearchResults.vue')
         }
       }

@@ -105,7 +105,7 @@ const actions = {
     return data.getChannelStatusByCategories
   },
   hasChannelAccess: hasChannelAccess,
-  getAwailableChannels: (fullAccessOnly) => {
+  getAvailableChannels: (fullAccessOnly) => {
     const res = []
     for (var i = 0; i < channels.length; i++) {
       const channel = channels[i]

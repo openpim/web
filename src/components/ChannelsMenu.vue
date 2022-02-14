@@ -28,7 +28,7 @@ export default {
 
     const {
       loadAllChannels,
-      getAwailableChannels
+      getAvailableChannels
     } = channelsStore.useStore()
 
     const itemRef = ref(null)
@@ -51,7 +51,7 @@ export default {
 
     onMounted(() => {
       loadAllChannels().then(() => {
-        channelsRef.value = getAwailableChannels()
+        channelsRef.value = getAvailableChannels()
         if (route.value && route.value.params && route.value.params.id) {
           itemRef.value = channelsRef.value.findIndex(elem => elem.identifier === route.value.params.id)
         }

@@ -54,27 +54,18 @@
 </template>
 <script>
 import { ref, computed } from '@vue/composition-api'
-import * as attrStore from '../store/attributes'
-import * as langStore from '../store/languages'
-import * as channelsStore from '../store/channels'
-
-import i18n from '../i18n'
 
 export default {
   name: 'ColumnsSelection',
+
+  props: {
+    getColumns: {
+      type: Function,
+      required: true
+    }
+  },
+
   setup (props, { emit }) {
-    const {
-      languages,
-      currentLanguage,
-      defaultLanguageIdentifier
-    } = langStore.useStore()
-
-    const {
-      getAllItemsAttributes
-    } = attrStore.useStore()
-
-    const { getAwailableChannels } = channelsStore.useStore()
-
     const leftFilterRef = ref('')
     const rightFilterRef = ref('')
     const selectedLeftRef = ref([])
@@ -173,95 +164,7 @@ export default {
 
     function showDialog (selected, onlyAttributes) {
       selectedColumnsRef.value = selected
-      const arr = [
-        { identifier: 'identifier', text: i18n.t('Item.identifier'), align: 'start', sortable: true, filterable: false, value: 'identifier' },
-        { identifier: 'parentIdentifier', text: i18n.t('Item.parentIdentifier'), align: 'start', sortable: true, filterable: false, value: 'parentIdentifier' },
-        { identifier: '#parentName#', text: i18n.t('Item.parentName'), align: 'start', sortable: false, filterable: false, value: '#parentName#' },
-        { identifier: '#thumbnail#', text: i18n.t('Item.thumbnail'), align: 'start', sortable: false, filterable: false, value: '#thumbnail#' },
-        { identifier: 'createdBy', text: i18n.t('CreatedBy'), align: 'start', sortable: true, filterable: false, value: 'createdBy' },
-        { identifier: 'createdAt', text: i18n.t('CreatedAt'), align: 'start', sortable: true, filterable: false, value: 'createdAt' },
-        { identifier: 'updatedBy', text: i18n.t('UpdatedBy'), align: 'start', sortable: true, filterable: false, value: 'updatedBy' },
-        { identifier: 'updatedAt', text: i18n.t('UpdatedAt'), align: 'start', sortable: true, filterable: false, value: 'updatedAt' },
-        { identifier: 'fileOrigName', text: i18n.t('Item.fileOrigName'), align: 'start', sortable: true, filterable: false, value: 'fileOrigName' },
-        { identifier: 'mimeType', text: i18n.t('Item.mimeType'), align: 'start', sortable: true, filterable: false, value: 'mimeType' }
-      ]
-      const channels = getAwailableChannels()
-      for (let i = 0; i < channels.length; i++) {
-        const channel = channels[i]
-        arr.push({
-          identifier: '#channel_' + channel.identifier + '_status',
-          text: i18n.t('ColumnsSelection.ChannelStatus') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
-          align: 'start',
-          sortable: true,
-          filterable: false,
-          value: { path: ['channels', channel.identifier, 'status'] }
-        })
-        arr.push({
-          identifier: '#channel_' + channel.identifier + '_submittedAt',
-          text: i18n.t('ColumnsSelection.SubmittedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
-          align: 'start',
-          sortable: true,
-          filterable: false,
-          value: { path: ['channels', channel.identifier, 'submittedAt'] }
-        })
-        arr.push({
-          identifier: '#channel_' + channel.identifier + '_submittedBy',
-          text: i18n.t('ColumnsSelection.SubmittedBy') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
-          align: 'start',
-          sortable: true,
-          filterable: false,
-          value: { path: ['channels', channel.identifier, 'submittedBy'] }
-        })
-        arr.push({
-          identifier: '#channel_' + channel.identifier + '_syncedAt',
-          text: i18n.t('ColumnsSelection.SyncedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
-          align: 'start',
-          sortable: true,
-          filterable: false,
-          value: { path: ['channels', channel.identifier, 'syncedAt'] }
-        })
-        arr.push({
-          identifier: '#channel_' + channel.identifier + '_message',
-          text: i18n.t('ColumnsSelection.ChannelMessage') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
-          align: 'start',
-          sortable: true,
-          filterable: false,
-          value: { path: ['channels', channel.identifier, 'message'] }
-        })
-      }
-      for (let i = 0; i < languages.length; i++) {
-        const lang = languages[i]
-        const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-        arr.push({ identifier: 'name_' + lang.identifier, text: i18n.t('Item.name') + langText, align: 'start', sortable: true, filterable: false, value: { path: ['name', lang.identifier] } })
-      }
-      const attrs = getAllItemsAttributes()
-      for (let i = 0; i < attrs.length; i++) {
-        const attr = attrs[i]
-
-        if (onlyAttributes) { // filter only attributes that possible to have at this level
-          const attrGroup = attr.linkToGroup
-          const tstGroup = onlyAttributes.find(elem => elem.id === attrGroup.id)
-          if (!tstGroup) continue
-          const tstAttr = tstGroup.itemAttributes.find(elem => elem.identifier === attr.identifier)
-          if (!tstAttr) continue
-        }
-
-        const nameText = attr.identifier + ': ' + (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']') + ' [' + (attr.linkToGroup.name[currentLanguage.value.identifier] || attr.linkToGroup.name[defaultLanguageIdentifier.value]) + ']'
-        const nameShort = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
-        if (attr.languageDependent) {
-          for (let i = 0; i < languages.length; i++) {
-            const lang = languages[i]
-            const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-            const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameText + langText, textLong: nameText + langText, textShort: nameShort + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
-            if (attr.lov) data.lov = attr.lov
-            arr.push(data)
-          }
-        } else {
-          const data = { identifier: 'attr_' + attr.identifier, text: nameText, textLong: nameText, textShort: nameShort, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
-          if (attr.lov) data.lov = attr.lov
-          arr.push(data)
-        }
-      }
+      const arr = props.getColumns(onlyAttributes)
       availableColumnsRef.value = arr.filter(elem => !selected.find(elem2 => elem2.identifier === elem.identifier)) // .sort((a, b) => a.identifier.localeCompare(b.identifier))
       selectionDialogRef.value = true
     }

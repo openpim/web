@@ -320,7 +320,7 @@ export default {
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
-    const { loadAllChannels, getAwailableChannels, submitItem, triggerChannel } = channelsStore.useStore()
+    const { loadAllChannels, getAvailableChannels, submitItem, triggerChannel } = channelsStore.useStore()
 
     const {
       findType,
@@ -805,7 +805,7 @@ export default {
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
       loadAllChannels().then(() => {
-        awailableChannelsRef.value = getAwailableChannels(false)
+        awailableChannelsRef.value = getAvailableChannels(false)
       })
       Promise.all([
         checkAuditEnabled(),

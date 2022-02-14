@@ -169,7 +169,7 @@ export default {
       removeLOV
     } = lovStore.useStore()
 
-    const { loadAllChannels, getAwailableChannels } = channelsStore.useStore()
+    const { loadAllChannels, getAvailableChannels } = channelsStore.useStore()
 
     const { loadItemsByIds } = itemStore.useStore()
 
@@ -311,7 +311,7 @@ export default {
     onMounted(() => {
       loadAllTypes()
       Promise.all([loadAllLOVs(), loadAllChannels()]).then(() => {
-        awailableChannelsRef.value = getAwailableChannels(true)
+        awailableChannelsRef.value = getAvailableChannels(true)
 
         canViewConfigRef.value = canViewConfig('lovs')
         canEditConfigRef.value = canEditConfig('lovs')

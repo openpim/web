@@ -2,7 +2,7 @@
     <v-row no-gutters v-if="hasAccess('search')">
     <v-col cols="12">
       <v-toolbar dense flat>
-        <v-toolbar-title class="subtitle-2">{{ selectedRef && selectedRef.extended ? $t('Home.Search.TitleExtended') : $t('Home.Search.Title') }}</v-toolbar-title>
+        <v-toolbar-title class="subtitle-2">{{ selectedRef && selectedRef.extended ? $t('Home.Search.TitleExtended') : null }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <!-- v-menu offset-y v-if="!selectedRef.extended">
           <template v-slot:activator="{ on }"><v-btn icon v-on="on" ><v-icon>mdi-plus</v-icon></v-btn></template>
@@ -115,8 +115,9 @@ export default {
     const {
       loadByIdentifier,
       currentWhereRef,
-      searchEntity,
-      searchToOpenRef
+      searchEntityRef,
+      searchToOpenRef,
+      selectedRef
     } = searchStore.useStore()
 
     const {
@@ -141,13 +142,13 @@ export default {
       getLOVData
     } = lovsStore.useStore()
 
-    const { loadAllChannels, getAwailableChannels } = channelsStore.useStore()
+    const { loadAllChannels, getAvailableChannels } = channelsStore.useStore()
 
     const itemSelectionDialogRef = ref(null)
     const searchSaveDialogRef = ref(null)
     const searchLoadDialogRef = ref(null)
     const selectedFilterRef = ref(null)
-    const selectedRef = ref(null)
+    // const selectedRef = ref(null)
     const fieldsSelection = ref([])
     const extendedSearchRef = ref('{ "identifier": "???", ... }')
     const lovsMap = {}
@@ -163,6 +164,7 @@ export default {
         selectedRef.value = { identifier: '', name: name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
       }
       if (selected.extended) extendedSearchRef.value = JSON.stringify(selected.whereClause)
+      searchEntityRef.value = selected.entity ? selected.entity : 'ITEM'
       searchLoadDialogRef.value.closeDialog()
     }
 
@@ -188,7 +190,8 @@ export default {
       if (selectedRef.value.extended) {
         try {
           selectedRef.value.whereClause = JSON.parse(extendedSearchRef.value)
-          searchEntity.value = 'ITEM'
+          searchEntityRef.value = 'ITEM'
+          selectedRef.value.entity = searchEntityRef.value
           currentWhereRef.value = selectedRef.value.whereClause
         } catch (err) {
           console.error(err)
@@ -282,7 +285,8 @@ export default {
             where[orAndOperation].push(data)
           }
         })
-        searchEntity.value = 'ITEM'
+        searchEntityRef.value = 'ITEM'
+        selectedRef.value.entity = searchEntityRef.value
         currentWhereRef.value = where
       }
     }
@@ -344,7 +348,9 @@ export default {
       Promise.all([loadAllTypes(), loadAllLanguages(), loadAllAttributes(), loadAllChannels()]).then(() => {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
-        selectedRef.value = { identifier: '', name: name, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
+        if (!selectedRef.value) {
+          selectedRef.value = { identifier: '', entity: 'ITEM', name: name, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
+        }
 
         const arr = [
           { value: 'id', text: i18n.t('Item.id') },
@@ -359,7 +365,7 @@ export default {
           { value: 'fileOrigName', text: i18n.t('Item.fileOrigName') },
           { value: 'mimeType', text: i18n.t('Item.mimeType') }
         ]
-        const channels = getAwailableChannels()
+        const channels = getAvailableChannels()
         for (let i = 0; i < channels.length; i++) {
           const channel = channels[i]
           arr.push({
