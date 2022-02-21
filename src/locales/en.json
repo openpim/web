@@ -197,6 +197,7 @@
   "Config.Channels.Interval": "Interval",
   "Config.Channels.IntervalUOM": "min.",
   "Config.Channels.Time": "Time",
+  "Config.Channels.SyncAfterStart": "Trigger sync after channel processing",
   "Config.Channels.TabProperties": "Properties",
   "Config.Channels.TabConfiguration": "Configuration",
   "Config.Channels.StatusOnHead": "Show channel status on object",

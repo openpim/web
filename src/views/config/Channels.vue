@@ -60,12 +60,14 @@
                 </template>
               </v-radio-group>
 
+              <v-checkbox class="ml-2" v-if="channelFactory.hasSync" v-model="selectedRef.config.syncAfterStart" :label="$t('Config.Channels.SyncAfterStart')" required></v-checkbox>
+
               <ValidVisibleComponent :elem="selectedRef" :canEditConfig="canEditConfigRef"/>
 
               <v-checkbox class="ml-2" v-model="selectedRef.config.statusOnHead" :label="$t('Config.Channels.StatusOnHead')" required></v-checkbox>
             </v-tab-item>
             <v-tab-item>
-              <component v-if="configComponent" :is="configComponent" :channel="selectedRef" :readonly="!canEditConfigRef" ></component>
+              <component v-if="channelFactory.getConfigCompoment()" :is="channelFactory.getConfigCompoment()" :channel="selectedRef" :readonly="!canEditConfigRef" ></component>
             </v-tab-item>
           </v-tabs-items>
 
@@ -149,8 +151,8 @@ export default {
       }
     })
 
-    const configComponent = computed(() => {
-      return getChannelFactory(selectedRef.value.type).getConfigCompoment()
+    const channelFactory = computed(() => {
+      return getChannelFactory(selectedRef.value.type)
     })
 
     function add () {
@@ -228,7 +230,7 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       types,
-      configComponent,
+      channelFactory,
       timeMenuRef,
       timeMenu,
       time,
