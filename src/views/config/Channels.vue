@@ -60,7 +60,24 @@
                 </template>
               </v-radio-group>
 
-              <v-checkbox class="ml-2" v-if="channelFactory.hasSync" v-model="selectedRef.config.syncAfterStart" :label="$t('Config.Channels.SyncAfterStart')" required></v-checkbox>
+              <v-radio-group v-if="channelFactory.hasSync" v-model="selectedRef.config.syncStart" :readonly="!canEditConfigRef">
+                <v-radio :label="$t('Config.Channels.SyncStartManual')" :value="1"></v-radio>
+
+                <v-radio :label="$t('Config.Channels.SyncStartInterval')" :value="2"></v-radio>
+                <div v-if="selectedRef.config.syncStart === 2">
+                  <input :readonly="!canEditConfigRef" class="ml-5" v-model="selectedRef.config.syncInterval" type="number" :placeholder="$t('Config.Channels.Interval')"/> {{$t('Config.Channels.IntervalUOM')}}
+                </div>
+
+                <v-radio :label="$t('Config.Channels.SyncStartAt')" :value="3"></v-radio>
+                <template v-if="selectedRef.config.syncStart === 3">
+                  <v-menu ref="timeMenuRef2" :disabled="!canEditConfigRef" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
+                    <template v-slot:activator="{ on }">
+                      <v-text-field  class="ml-5" v-model="selectedRef.config.syncTime" :label="$t('Config.Channels.Time')" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
+                    </template>
+                    <v-time-picker v-if="timeMenu" v-model="selectedRef.config.syncTime" format="24hr" full-width @click:minute="timeMenuRef2.save(time)"></v-time-picker>
+                  </v-menu>
+                </template>
+              </v-radio-group>
 
               <ValidVisibleComponent :elem="selectedRef" :canEditConfig="canEditConfigRef"/>
 
