@@ -203,6 +203,7 @@
   "Config.Channels.TabProperties": "Свойства",
   "Config.Channels.TabConfiguration": "Конфигурация",
   "Config.Channels.StatusOnHead": "Показывать статус канала у объекта",
+  "Config.Channels.Language": "Язык при автоматическом запуске",
   "Config.Actions": "Действия",
   "Config.Actions.Title": "Действия",
   "Config.Actions.NewName": "Новое действие",

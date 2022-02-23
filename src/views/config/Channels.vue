@@ -79,6 +79,8 @@
                 </template>
               </v-radio-group>
 
+              <v-select v-if="(selectedRef.config.start && selectedRef.config.start != 1) || (selectedRef.config.syncStart && selectedRef.config.syncStart != 1)" v-model="selectedRef.config.language" :items="languages" :readonly="!canEditConfigRef" :label="$t('Config.Channels.Language')" item-text="name.ru" item-value='identifier' clearable></v-select>
+
               <ValidVisibleComponent :elem="selectedRef" :canEditConfig="canEditConfigRef"/>
 
               <v-checkbox class="ml-2" v-model="selectedRef.config.statusOnHead" :label="$t('Config.Channels.StatusOnHead')" required></v-checkbox>
@@ -124,7 +126,9 @@ export default {
 
     const {
       currentLanguage,
-      defaultLanguageIdentifier
+      defaultLanguageIdentifier,
+      loadAllLanguages,
+      languages
     } = langStore.useStore()
 
     const {
@@ -202,7 +206,7 @@ export default {
     onMounted(() => {
       canViewConfigRef.value = canViewConfig('channels')
       canEditConfigRef.value = canEditConfig('channels')
-      Promise.all([loadAllChannelTypes(), loadAllChannels()]).then(() => {
+      Promise.all([loadAllLanguages(), loadAllChannelTypes(), loadAllChannels()]).then(() => {
         types.value = types.value.filter(elem => channelTypes.includes(elem.value))
 
         const id = router.currentRoute.params.id
@@ -252,6 +256,7 @@ export default {
       timeMenu,
       time,
       tabRef,
+      languages,
       identifierRules: [
         v => identifierValidation(v)
       ],
