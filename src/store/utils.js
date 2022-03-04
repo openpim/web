@@ -121,20 +121,23 @@ function objectToGraphgl (value) {
         }
         result += '],'
       } else if (Object.prototype.toString.call(obj) === '[object String]') {
+        const attr = attrStore.store.findByIdentifier(prop)
         if (obj) {
           let tmp = obj
           if (tmp.endsWith('"')) tmp += ' '
           result += prop + ':"""' + tmp + '""",'
         } else {
-          const attr = attrStore.store.findByIdentifier(prop)
+          const noEmpty = attr ? attr.item.options.some(elem => elem.name === 'noEmptyValue' && elem.value === 'true') : false
           if (attr && (attr.item.type === 3 || attr.item.type === 4)) { // set to null for Integer or Float attributes if we have "" as value
-            result += prop + ': null,'
+            if (!noEmpty) result += prop + ': null,'
           } else {
-            result += prop + ':"",'
+            if (!noEmpty) result += prop + ':"",'
           }
         }
       } else {
-        result += prop + ':' + obj + ','
+        const attr = attrStore.store.findByIdentifier(prop)
+        const noEmpty = !obj && attr ? attr.item.options.some(elem => elem.name === 'noEmptyValue' && elem.value === 'true') : false
+        if (!noEmpty) result += prop + ':' + obj + ','
       }
     }
     result += '}'
