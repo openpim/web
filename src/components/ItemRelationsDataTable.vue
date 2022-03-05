@@ -9,6 +9,9 @@
     :importEntities="importItemRelations"
     :updateEntity="updateItemRelation"
     :searchHeader="'Search.Title.ItemRelations'"
+    :exportXLSEnabled="hasAccess('exportRelationsXLS')"
+    :importXLSEnabled="hasAccess('importRelationsXLS')"
+    v-if="hasAccess('searchRelations')"
   />
 </template>
 
@@ -19,6 +22,7 @@ import * as errorStore from '../store/error'
 import * as itemRelationsStore from '../store/itemRelations'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'
+import * as userStore from '../store/users'
 import i18n from '../i18n'
 import DataTable from '../components/DataTable'
 
@@ -33,6 +37,7 @@ export default {
   setup (props) {
     const itemsDataTableRef = ref(null)
 
+    const { hasAccess } = userStore.useStore()
     const { searchItemRelations, importItemRelations, updateItemRelation } = itemRelationsStore.useStore()
     const { currentWhereRef } = searchStore.useStore()
     const { showError } = errorStore.useStore()
@@ -117,6 +122,7 @@ export default {
     return {
       defaultHeadersArray,
       getAvailableColumns,
+      hasAccess,
       isExportSearch: props.export,
       itemsDataTableRef,
       importItemRelations,

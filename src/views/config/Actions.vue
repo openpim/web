@@ -30,8 +30,8 @@
             <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Languages.Identifier')" required></v-text-field>
             <SystemInformation :data="selectedRef"></SystemInformation>
           </div>
-
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Languages.Name')"></LanguageDependentField>
+          <v-text-field v-model="selectedRef.order" type="number" :label="$t('Config.Actions.Order')" required></v-text-field>
         </v-form>
 
         <v-tabs v-model="tabRef">

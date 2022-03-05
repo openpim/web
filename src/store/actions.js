@@ -8,7 +8,7 @@ const actions = reactive([])
 const actionList = {
   loadAllActions: async () => {
     if (actions.length > 0) return
-    const data = await serverFetch('query { getActions {id identifier name code triggers createdAt createdBy updatedAt updatedBy} }')
+    const data = await serverFetch('query { getActions {id identifier name code order triggers createdAt createdBy updatedAt updatedBy} }')
     if (actions.length > 0) return
     if (data.getActions) {
       data.getActions.forEach(element => {
@@ -20,7 +20,7 @@ const actionList = {
   addAction: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Actions.NewName')
-    const act = { id: Date.now(), internalId: 0, name: name, code: '', triggers: [] }
+    const act = { id: Date.now(), internalId: 0, order: 0, name: name, code: '', triggers: [] }
     actions.push(act)
     return act
   },
@@ -30,7 +30,8 @@ const actionList = {
       const query = `
         mutation { createAction(identifier: "` + action.identifier + '", name: ' + objectToGraphgl(action.name) +
         ', code: "' + code +
-        '", triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '[]') +
+        '", order: ' + action.order +
+        ', triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '[]') +
         `)
       }`
       const data = await serverFetch(query)
@@ -40,7 +41,8 @@ const actionList = {
       const query = `
         mutation { updateAction(id: "` + action.internalId + '", name: ' + (action.name ? '' + objectToGraphgl(action.name) : '') +
         ', code: "' + code +
-        '", triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '') +
+        '", order: ' + action.order +
+        ', triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '') +
         `)
       }`
       await serverFetch(query)

@@ -1,5 +1,5 @@
 <template>
-    <v-row no-gutters v-if="hasAccess('search')">
+    <v-row no-gutters v-if="hasAccess('searchRelations')">
     <v-col cols="12">
       <v-toolbar dense flat>
         <v-toolbar-title class="subtitle-2">{{ selectedRef && selectedRef.extended ? $t('Home.Search.TitleExtended') : null }}</v-toolbar-title>

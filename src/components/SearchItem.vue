@@ -4,17 +4,8 @@
       <v-toolbar dense flat>
         <v-toolbar-title class="subtitle-2">{{ selectedRef && selectedRef.extended ? $t('Home.Search.TitleExtended') : null }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <!-- v-menu offset-y v-if="!selectedRef.extended">
-          <template v-slot:activator="{ on }"><v-btn icon v-on="on" ><v-icon>mdi-plus</v-icon></v-btn></template>
-          <v-list>
-            <v-list-item @click="add(1)">
-              <v-list-item-title>{{$t('Search.Filter.Attribute')}}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu -->
         <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="add(1)"><v-icon>mdi-plus</v-icon></v-btn>
         <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="remove" :disabled="selectedFilterRef == null"><v-icon>mdi-minus</v-icon></v-btn>
-
         <v-tooltip top>
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" icon @click="save"><v-icon>mdi-content-save</v-icon></v-btn>

@@ -1,25 +1,11 @@
 <template>
-  <v-row v-if="hasAccess('search')">
+  <v-row v-if="hasAccess('search') || hasAccess('searchRelations')">
     <v-col cols="12">
       <v-select v-model="searchEntityRef" :items="items" @change="onSearchEntityChange" class="mx-4" />
-      <SearchItem v-show="searchEntityRef === 'ITEM'" />
-      <SearchItemRelation v-show="searchEntityRef === 'ITEM_RELATION'" />
+      <SearchItem v-if="searchEntityRef === 'ITEM'" />
+      <SearchItemRelation v-if="searchEntityRef === 'ITEM_RELATION'" />
     </v-col>
   </v-row>
-    <!-- v-expansion-panels focusable>
-    <v-expansion-panel :key="'item'">
-      <v-expansion-panel-header>Item</v-expansion-panel-header>
-      <v-expansion-panel-content>
-        <SearchItem />
-      </v-expansion-panel-content>
-    </v-expansion-panel>
-    <v-expansion-panel :key="'itemRelation'">
-      <v-expansion-panel-header>Item Relation</v-expansion-panel-header>
-      <v-expansion-panel-content>
-        <SearchItemRelation />
-      </v-expansion-panel-content>
-    </v-expansion-panel>
-  </v-expansion-panels -->
 </template>
 
 <script>
@@ -40,7 +26,8 @@ export default {
     function onSearchEntityChange (val) {
       const name = {}
       name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
-      selectedRef.value = selectedRef.value = { identifier: '', entity: val, name: name, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
+      currentWhereRef.value = null
+      selectedRef.value = { identifier: '', entity: val, name: name, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
     }
 
     return {
@@ -48,7 +35,7 @@ export default {
       searchEntityRef,
       currentWhereRef,
       onSearchEntityChange,
-      items: [{ text: i18n.t('Search.Title.Items'), value: 'ITEM' }, { text: i18n.t('Search.Title.ItemRelations'), value: 'ITEM_RELATION' }]
+      items: [{ text: i18n.t('Search.Title.Items'), value: 'ITEM', disabled: !hasAccess('search') }, { text: i18n.t('Search.Title.ItemRelations'), value: 'ITEM_RELATION', disabled: !hasAccess('searchRelations') }]
     }
   }
 }

@@ -192,7 +192,9 @@
             <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded" class="mb-12"></ItemRelationsList>
           </v-tab-item>
           <v-tab-item v-if="totalChildrenRef === -1 || totalChildrenRef > 0" eager>  <!-- Children -->
-            <ItemsDataTable ref="itemsDataTableRef" :loadData="loadDataFunction" @dataLoaded="childrenLoaded" :export="false" :item="itemRef"></ItemsDataTable>
+
+            <ItemsDataTable ref="itemRecordsTable" :loadItemChildren="loadDataFunction" @dataLoaded="childrenLoaded" :export="false" :item="itemRef"></ItemsDataTable>
+
           </v-tab-item>
           <v-tab-item v-if="hasChannels" eager>  <!-- Channels -->
             <div v-for="(channel, i) in awailableChannelsRef" :key="i">
@@ -312,6 +314,8 @@ export default {
   },
   name: 'Home',
   setup (params, context) {
+    const itemRecordsTable = ref(null)
+
     const { route } = useRouter()
 
     const { showInfo, showError } = errorStore.useStore()
@@ -567,7 +571,8 @@ export default {
         // TODO: use existing table options
         loadDataFunction({ page: 1, itemsPerPage: 10 }).then(data => {
           childrenLoaded(data.rows, data.count)
-          if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
+          // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
+          if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
         })
         showInfo(i18n.t('Saved'))
       })
@@ -645,7 +650,8 @@ export default {
 
       itemRef.value = item
       itemChangedRef.value = false
-      if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
+      // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
+      if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
     }
     function enrichItem (item) {
       const arr = getAttributesForItem(item.typeId, item.path)
@@ -900,6 +906,7 @@ export default {
       token: localStorage.getItem('token'),
       loadDataFunction,
       itemsDataTableRef,
+      itemRecordsTable,
       itemType,
       hasSources,
       hasTargets,

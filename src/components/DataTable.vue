@@ -10,20 +10,20 @@
         </template>
         <span>{{ $t('DataTable.OpenSearch') }}</span>
       </v-tooltip>
-      <v-tooltip top v-if="!talendExportSelection && hasAccess('exportXLS')">
+      <v-tooltip top v-if="!talendExportSelection && exportXLSEnabled">
         <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportExcel"><v-icon>mdi-application-export</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ExportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip top v-if="!talendExportSelection && hasAccess('importXLS')">
+      <v-tooltip top v-if="!talendExportSelection && importXLSEnabled">
         <template v-slot:activator="{ on }">
           <input ref="fileUploadRef" style="display: none" type="file" @change="importExcel"/>
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="fileUploadRef.click()"><v-icon>mdi-application-import</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ImportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip top  v-if="talendExportSelection || hasAccess('exportCSV')">
+      <v-tooltip top  v-if="talendExportSelection || (searchEntityRef === 'ITEM' && hasAccess('exportCSV'))">
         <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
         </template>
@@ -286,6 +286,14 @@ export default {
       default: false
     },
     sendToChannelBtnVisible: {
+      required: false,
+      default: false
+    },
+    importXLSEnabled: {
+      required: false,
+      default: false
+    },
+    exportXLSEnabled: {
       required: false,
       default: false
     }

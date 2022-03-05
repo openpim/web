@@ -310,7 +310,7 @@ export default {
       setResizeEvents()
       loadAllRoles().then(() => {
         isUserAdmin.value = isAdmin()
-        hasSearchAccess.value = hasAccess('search')
+        hasSearchAccess.value = hasAccess('search') || hasAccess('searchRelations')
         if (currentUserRef.value.tenantId !== '0') {
           loadAllAttributes().then(() => {
             searchAttributesRef.value = getAttributesForSearch()

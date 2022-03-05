@@ -1,17 +1,40 @@
 <template>
-  <DataTable
-    ref="itemsDataTableRef"
-    :loadData="loadDataFunction"
-    :headersStorageName="'item_headers'"
-    :defaultHeadersArr="defaultHeadersArray"
-    :export="isExportSearch"
-    :availableColumns="getAvailableColumns"
-    :importEntities="importItems"
-    :updateEntity="updateItem"
-    :searchHeader="'Search.Title.Items'"
-    :attrGroupsBtnVisible="true"
-    :sendToChannelBtnVisible="true"
-  />
+  <div>
+    <DataTable
+      v-if="hasAccess('search') && item"
+      ref="itemsDataTableRef"
+      :loadData="loadItemChildren"
+      :headersStorageName="'item_headers'"
+      :defaultHeadersArr="defaultHeadersArray"
+      :export="isExportSearch"
+      :availableColumns="getAvailableColumns"
+      :importEntities="importItems"
+      :updateEntity="updateItem"
+      :searchHeader="'Search.Title.Items'"
+      :attrGroupsBtnVisible="true"
+      :sendToChannelBtnVisible="true"
+      :exportXLSEnabled="hasAccess('exportXLS')"
+      :importXLSEnabled="hasAccess('importXLS')"
+      :item="item"
+      @dataLoaded="childrenLoaded"
+    />
+    <DataTable
+      ref="itemsDataTableRef"
+      :loadData="loadDataFunction"
+      :headersStorageName="'item_headers'"
+      :defaultHeadersArr="defaultHeadersArray"
+      :export="isExportSearch"
+      :availableColumns="getAvailableColumns"
+      :importEntities="importItems"
+      :updateEntity="updateItem"
+      :searchHeader="'Search.Title.Items'"
+      :attrGroupsBtnVisible="true"
+      :sendToChannelBtnVisible="true"
+      :exportXLSEnabled="hasAccess('exportXLS')"
+      :importXLSEnabled="hasAccess('importXLS')"
+      v-if="hasAccess('search') && !item"
+    />
+  </div>
 </template>
 
 <script>
@@ -22,6 +45,7 @@ import * as errorStore from '../store/error'
 import * as itemStore from '../store/item'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'
+import * as userStore from '../store/users'
 import i18n from '../i18n'
 import DataTable from '../components/DataTable'
 
@@ -31,11 +55,19 @@ export default {
     export: {
       type: Boolean,
       required: true
+    },
+    item: {
+      required: false
+    },
+    loadItemChildren: {
+      type: Function,
+      required: false
     }
   },
-  setup (props) {
+  setup (props, { emit, root }) {
     const itemsDataTableRef = ref(null)
 
+    const { hasAccess } = userStore.useStore()
     const { searchItems, importItems, updateItem } = itemStore.useStore()
     const { currentWhereRef } = searchStore.useStore()
     const { showError } = errorStore.useStore()
@@ -46,6 +78,14 @@ export default {
     watch(currentWhereRef, () => {
       if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
     })
+
+    function DataChanged () {
+      if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
+    }
+
+    function childrenLoaded (rows, total) {
+      emit('dataLoaded', rows, total)
+    }
 
     function loadDataFunction (options) {
       return new Promise((resolve, reject) => {
@@ -161,11 +201,14 @@ export default {
     return {
       defaultHeadersArray,
       getAvailableColumns,
+      hasAccess,
       importItems,
       isExportSearch: props.export,
       itemsDataTableRef,
       loadDataFunction,
-      updateItem
+      updateItem,
+      DataChanged,
+      childrenLoaded
     }
   }
 }
