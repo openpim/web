@@ -658,7 +658,7 @@ export default {
                 const lang = arr[1]
                 if (!item.name) item.name = {}
                 item.name[lang] = '' + cell.v
-              } else if (header.startsWith('attr') && cell.v) {
+              } else if (header.startsWith('attr') && cell.v !== null && cell.v !== undefined) {
                 if (!item.values) item.values = {}
                 let attr = header.substring(5)
 
