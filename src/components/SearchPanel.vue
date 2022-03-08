@@ -1,7 +1,7 @@
 <template>
   <v-row v-if="hasAccess('search') || hasAccess('searchRelations')">
     <v-col cols="12">
-      <v-select v-model="searchEntityRef" :items="items" @change="onSearchEntityChange" class="mx-4" />
+      <v-select v-model="searchEntityRef" :items="items" @change="onSearchEntityChange" dense hide-details class="mx-4 mb-0 py-0" />
       <SearchItem v-if="searchEntityRef === 'ITEM'" />
       <SearchItemRelation v-if="searchEntityRef === 'ITEM_RELATION'" />
     </v-col>
