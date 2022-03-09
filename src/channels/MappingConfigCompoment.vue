@@ -29,7 +29,7 @@
     </v-row>
     <v-row>
       <v-col cols="11">
-        <v-select v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')" clearable></v-select>
+        <v-autocomplete v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')" clearable></v-autocomplete>
 
         <div v-if="categoryIdRef">
           <v-row>
