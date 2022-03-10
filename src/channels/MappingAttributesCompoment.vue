@@ -32,7 +32,7 @@
                       <v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributes" clearable></v-autocomplete>
                     </td>
                     <td class="pa-1">
-                      <v-text-field v-model="attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[i])" />
+                      <v-text-field v-model="attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[i])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[i])" />
                     </td>
                   </tr>
                 </tbody>
@@ -59,12 +59,35 @@
         </v-dialog>
       </v-row>
     </template>
+    <template>
+      <v-row justify="center" v-if="optAttrRef">
+        <v-dialog v-model="optDialogRef" persistent max-width="90%">
+          <v-card>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <OptionsTable :options="optAttrRef.options" />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="optDialogRef = false">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
   </div>
 </template>
 <script>
 import { ref } from '@vue/composition-api'
+import OptionsTable from '../components/OptionsTable.vue'
 
 export default {
+  components: { OptionsTable },
   props: {
     attributes: {
       required: true
@@ -83,6 +106,8 @@ export default {
   setup (props, { root }) {
     const exprAttrRef = ref(null)
     const exprDialogRef = ref(null)
+    const optAttrRef = ref(null)
+    const optDialogRef = ref(null)
 
     function getAttribute (id) {
       return props.channelAttributes.find(elem => elem.id === id)
@@ -115,13 +140,24 @@ export default {
       exprDialogRef.value = true
     }
 
+    function showOptions (attr) {
+      if (!attr.options) {
+        root.$set(attr, 'options', [])
+      }
+      optAttrRef.value = attr
+      optDialogRef.value = true
+    }
+
     return {
       getAttribute,
       openWindow,
       showExpression,
+      showOptions,
       showHelp,
       exprDialogRef,
-      exprAttrRef
+      exprAttrRef,
+      optDialogRef,
+      optAttrRef
     }
   }
 }

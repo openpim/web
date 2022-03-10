@@ -25,26 +25,29 @@ const actionList = {
     return act
   },
   saveAction: async (action) => {
-    const code = action.code ? action.code.replace(/\n/g, '_#n#_').replace(/"/g, '_#dbl#_') : ''
+    let code = action.code ? action.code : ''
+    if (code.endsWith('\\')) code += ' '
     if (action.internalId === 0) {
       const query = `
         mutation { createAction(identifier: "` + action.identifier + '", name: ' + objectToGraphgl(action.name) +
-        ', code: "' + code +
-        '", order: ' + action.order +
-        ', triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '[]') +
+        ', code: """' + code +
+        '""", triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '[]') +
+        ', order: ' + action.order +
         `)
       }`
+      console.log(query)
       const data = await serverFetch(query)
       const newId = parseInt(data.createAction)
       action.internalId = newId
     } else {
       const query = `
         mutation { updateAction(id: "` + action.internalId + '", name: ' + (action.name ? '' + objectToGraphgl(action.name) : '') +
-        ', code: "' + code +
-        '", order: ' + action.order +
-        ', triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '') +
+        ', code: """' + code +
+        '""", triggers: ' + (action.triggers ? objectToGraphgl(action.triggers) : '') +
+        ', order: ' + action.order +
         `)
       }`
+      console.log(query)
       await serverFetch(query)
     }
   },

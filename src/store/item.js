@@ -93,6 +93,12 @@ const actions = {
     }
     return enrichItem(item.getItemByIdentifier)
   },
+  loadItemChannels: async (identifier) => {
+    const item = await serverFetch('query { getItemByIdentifier(identifier: "' + identifier + `") { 
+      channels
+    } }`)
+    return item.getItemByIdentifier.channels
+  },
   loadItemsByIds: async (arr, enrich) => {
     const res = await serverFetch('query { getItemsByIds(ids: [' + arr + `]) { 
       id 

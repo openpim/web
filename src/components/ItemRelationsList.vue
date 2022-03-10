@@ -20,7 +20,7 @@
             <template v-slot:default>
               <thead>
                 <tr>
-                  <th class="text-left">{{$t('ItemRelationsList.Identifier')}}</th>
+                  <th v-if="getOption(identifier, 'hideIdentifier', '') !== 'true'" class="text-left">{{$t('ItemRelationsList.Identifier')}}</th>
 
                   <th class="text-left" v-if="componentType === 'source'">{{$t('ItemRelationsList.Target')}}</th>
                   <th class="text-left" v-if="componentType === 'target'">{{$t('ItemRelationsList.Source')}}</th>
@@ -43,15 +43,25 @@
               </thead>
               <tbody>
                 <tr v-for="(itemRel, j) in rel" :key="'T'+j" :set="canEditItemRelation = canEditItemRelationByIdentifier(identifier)">
-                  <td class="pa-1"><input v-model="itemRel.identifier" :placeholder="$t('ItemRelationsList.Identifier')" :disabled="itemRel.id > 0"></td>
+                  <td v-if="getOption(identifier, 'hideIdentifier', '') !== 'true'" class="pa-1"><input v-model="itemRel.identifier" :placeholder="$t('ItemRelationsList.Identifier')" :disabled="itemRel.id > 0"></td>
                   <td class="pa-1">
                     <span v-if="componentType === 'source' && itemRel.target">
+                      <template v-if="!getOption2(itemRel.target.type, 'hideIdentifier', false)">
                         <router-link :to="'/item/' + itemRel.target.identifier">{{ itemRel.target.identifier }}</router-link>
                         <span class="ml-2">- {{ itemRel.target.name[currentLanguage.identifier] || '[' + itemRel.target.name[defaultLanguageIdentifier] + ']' }}</span>
+                      </template>
+                      <template v-else>
+                        <router-link :to="'/item/' + itemRel.target.identifier">{{ itemRel.target.name[currentLanguage.identifier] || '[' + itemRel.target.name[defaultLanguageIdentifier] + ']' }}</router-link>
+                      </template>
                     </span>
                     <span v-if="componentType === 'target' && itemRel.item">
-                      <router-link :to="'/item/' + itemRel.item.identifier">{{ itemRel.item.identifier }}</router-link>
-                      <span class="ml-2">- {{ itemRel.item.name[currentLanguage.identifier] || '[' + itemRel.item.name[defaultLanguageIdentifier] + ']' }}</span>
+                      <template v-if="!getOption2(itemRel.item.type, 'hideIdentifier', false)">
+                        <router-link :to="'/item/' + itemRel.item.identifier">{{ itemRel.item.identifier }}</router-link>
+                        <span class="ml-2">- {{ itemRel.item.name[currentLanguage.identifier] || '[' + itemRel.item.name[defaultLanguageIdentifier] + ']' }}</span>
+                      </template>
+                      <template v-else>
+                        <router-link :to="'/item/' + itemRel.item.identifier">{{ itemRel.item.name[currentLanguage.identifier] || '[' + itemRel.item.name[defaultLanguageIdentifier] + ']' }}</router-link>
+                      </template>
                     </span>
                     <v-tooltip top v-if="canEditItemRelation">
                       <template v-slot:activator="{ on }">
@@ -338,6 +348,8 @@ export default {
     function add (identifier) {
       const rel = relations.find(rel => rel.identifier === identifier)
 
+      props.item.type = findType(props.item.typeId).node
+
       if (props.componentType === 'source') {
         if (!rel.multi && sourceRelations[identifier].length > 0) {
           showError(i18n.t('ItemRelationsList.OnlyOne'))
@@ -434,6 +446,7 @@ export default {
             const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
             itemRels[parameters.identifier].forEach(itemRel => {
               if (itemRel.id === parameters.itemRelId) {
+                items[0].type = findType(items[0].typeId).node
                 root.$set(itemRel, props.componentType === 'source' ? 'target' : 'item', items[0])
                 if (!itemRel.identifier) {
                   const newIdentifier = props.componentType === 'source' ? props.item.identifier + '_' + items[0].identifier + '_' + nextId : items[0].identifier + '_' + props.item.identifier + '_' + nextId
@@ -467,6 +480,19 @@ export default {
       if (rel.options) {
         const tst = rel.options.find(elem => elem.name === name)
         return tst ? tst.value : defaultValue
+      }
+      return defaultValue
+    }
+
+    function getOption2 (obj, name, defaultValue) {
+      if (obj && obj.options) {
+        const tst = obj.options.find(elem => elem.name === name)
+        if (tst) {
+          if (tst.value === 'null') return null
+          if (tst.value === 'true') return true
+          if (tst.value === 'false') return false
+          return tst.value
+        }
       }
       return defaultValue
     }
@@ -508,6 +534,7 @@ export default {
       pageSizeChanged,
       hasAccess,
       getOption,
+      getOption2,
       groupsRef,
       groupRelationsRef,
       selectedGroupRef,

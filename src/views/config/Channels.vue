@@ -60,12 +60,33 @@
                 </template>
               </v-radio-group>
 
+              <v-radio-group v-if="channelFactory.hasSync" v-model="selectedRef.config.syncStart" :readonly="!canEditConfigRef">
+                <v-radio :label="$t('Config.Channels.SyncStartManual')" :value="1"></v-radio>
+
+                <v-radio :label="$t('Config.Channels.SyncStartInterval')" :value="2"></v-radio>
+                <div v-if="selectedRef.config.syncStart === 2">
+                  <input :readonly="!canEditConfigRef" class="ml-5" v-model="selectedRef.config.syncInterval" type="number" :placeholder="$t('Config.Channels.Interval')"/> {{$t('Config.Channels.IntervalUOM')}}
+                </div>
+
+                <v-radio :label="$t('Config.Channels.SyncStartAt')" :value="3"></v-radio>
+                <template v-if="selectedRef.config.syncStart === 3">
+                  <v-menu ref="timeMenuRef2" :disabled="!canEditConfigRef" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
+                    <template v-slot:activator="{ on }">
+                      <v-text-field  class="ml-5" v-model="selectedRef.config.syncTime" :label="$t('Config.Channels.Time')" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
+                    </template>
+                    <v-time-picker v-if="timeMenu" v-model="selectedRef.config.syncTime" format="24hr" full-width @click:minute="timeMenuRef2.save(time)"></v-time-picker>
+                  </v-menu>
+                </template>
+              </v-radio-group>
+
+              <v-select v-if="(selectedRef.config.start && selectedRef.config.start != 1) || (selectedRef.config.syncStart && selectedRef.config.syncStart != 1)" v-model="selectedRef.config.language" :items="languages" :readonly="!canEditConfigRef" :label="$t('Config.Channels.Language')" item-text="name.ru" item-value='identifier' clearable></v-select>
+
               <ValidVisibleComponent :elem="selectedRef" :canEditConfig="canEditConfigRef"/>
 
               <v-checkbox class="ml-2" v-model="selectedRef.config.statusOnHead" :label="$t('Config.Channels.StatusOnHead')" required></v-checkbox>
             </v-tab-item>
             <v-tab-item>
-              <component v-if="configComponent" :is="configComponent" :channel="selectedRef" :readonly="!canEditConfigRef" ></component>
+              <component v-if="channelFactory.getConfigCompoment()" :is="channelFactory.getConfigCompoment()" :channel="selectedRef" :readonly="!canEditConfigRef" ></component>
             </v-tab-item>
           </v-tabs-items>
 
@@ -105,7 +126,9 @@ export default {
 
     const {
       currentLanguage,
-      defaultLanguageIdentifier
+      defaultLanguageIdentifier,
+      loadAllLanguages,
+      languages
     } = langStore.useStore()
 
     const {
@@ -149,8 +172,8 @@ export default {
       }
     })
 
-    const configComponent = computed(() => {
-      return getChannelFactory(selectedRef.value.type).getConfigCompoment()
+    const channelFactory = computed(() => {
+      return getChannelFactory(selectedRef.value.type)
     })
 
     function add () {
@@ -183,7 +206,7 @@ export default {
     onMounted(() => {
       canViewConfigRef.value = canViewConfig('channels')
       canEditConfigRef.value = canEditConfig('channels')
-      Promise.all([loadAllChannelTypes(), loadAllChannels()]).then(() => {
+      Promise.all([loadAllLanguages(), loadAllChannelTypes(), loadAllChannels()]).then(() => {
         types.value = types.value.filter(elem => channelTypes.includes(elem.value))
 
         const id = router.currentRoute.params.id
@@ -228,11 +251,12 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       types,
-      configComponent,
+      channelFactory,
       timeMenuRef,
       timeMenu,
       time,
       tabRef,
+      languages,
       identifierRules: [
         v => identifierValidation(v)
       ],

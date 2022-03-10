@@ -6,6 +6,7 @@ import YMFactory from './ym'
 function getConfigCompoment () { return null }
 function getStandardAttributes () { return null }
 const empty = {
+  hasSync: false,
   hasExecutions: false,
   hasItemSync: false,
   getConfigCompoment,

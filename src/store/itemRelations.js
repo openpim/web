@@ -3,6 +3,7 @@ import { serverFetch, objectToGraphgl } from './utils'
 import * as relStore from './relations'
 import * as attrStore from './attributes'
 import * as userStore from './users'
+import * as typeStore from './types'
 
 const sourceRelations = reactive({})
 const targetRelations = reactive({})
@@ -76,12 +77,14 @@ const actions = {
               id
               identifier
               name
+              typeId
               updatedAt
             }
             target {
                 id
                 identifier
                 name
+                typeId
                 updatedAt
               }
             values
@@ -89,6 +92,10 @@ const actions = {
         } }`)
         const itemRels = res.getSourceRelations
         if (itemRels && itemRels.count > 0) {
+          itemRels.rows.forEach(row => {
+            row.item.type = typeStore.store.findType(row.item.typeId).node
+            row.target.type = typeStore.store.findType(row.target.typeId).node
+          })
           createLanguageDependentValues(rel.id, itemRels.rows)
           root.$set(sourceRelations, rel.identifier, itemRels.rows)
           root.$set(sourceRelationsTotal, rel.identifier, itemRels.count)
@@ -124,12 +131,14 @@ const actions = {
               id
               identifier
               name
+              typeId
               updatedAt
             }
             target {
                 id
                 identifier
                 name
+                typeId
                 updatedAt
               }
             values
@@ -137,6 +146,10 @@ const actions = {
         } }`)
     const itemRels = res.getSourceRelations
     if (itemRels && itemRels.count > 0) {
+      itemRels.rows.forEach(row => {
+        row.item.type = typeStore.store.findType(row.item.typeId).node
+        row.target.type = typeStore.store.findType(row.target.typeId).node
+      })
       createLanguageDependentValues(rel.id, itemRels.rows)
       root.$set(sourceRelations, identifier, itemRels.rows)
     } else {
@@ -173,12 +186,14 @@ const actions = {
               id
               identifier
               name
+              typeId
               updatedAt
             }
             target {
                 id
                 identifier
                 name
+                typeId
                 updatedAt
               }
             values
@@ -186,6 +201,10 @@ const actions = {
         } }`)
         const itemRels = res.getTargetRelations
         if (itemRels && itemRels.count > 0) {
+          itemRels.rows.forEach(row => {
+            row.item.type = typeStore.store.findType(row.item.typeId).node
+            row.target.type = typeStore.store.findType(row.target.typeId).node
+          })
           createLanguageDependentValues(rel.id, itemRels.rows)
           root.$set(targetRelations, rel.identifier, itemRels.rows)
           root.$set(targetRelationsTotal, rel.identifier, itemRels.count)
@@ -290,12 +309,14 @@ const actions = {
               id
               identifier
               name
+              typeId
               updatedAt
             }
             target {
                 id
                 identifier
                 name
+                typeId
                 updatedAt
               }
             values
@@ -303,6 +324,10 @@ const actions = {
         } }`)
     const itemRels = res.getTargetRelations
     if (itemRels && itemRels.count > 0) {
+      itemRels.rows.forEach(row => {
+        row.item.type = typeStore.store.findType(row.item.typeId).node
+        row.target.type = typeStore.store.findType(row.target.typeId).node
+      })
       createLanguageDependentValues(rel.id, itemRels.rows)
       root.$set(targetRelations, identifier, itemRels.rows)
     } else {
