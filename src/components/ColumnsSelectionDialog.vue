@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="selectionDialogRef" persistent max-width="1000px">
+  <v-dialog v-model="selectionDialogRef" persistent max-width="95%">
     <v-card>
       <v-card-title>
         <span class="headline">{{ $t('ColumnsSelection.Title') }}</span>
@@ -10,7 +10,7 @@
             <v-col cols="7"  class="pt-0">
               <v-text-field v-model="leftFilterRef" :label="$t('Filter')" required></v-text-field>
               <div>{{$t('ColumnsSelection.AvailableColumns')}}</div>
-              <v-list nav dense style="max-height: 300px" class="overflow-y-auto">
+              <v-list nav dense style="max-height: 400px" class="overflow-y-auto">
                 <v-list-item-group multiple v-model="selectedLeftRef" color="primary">
                   <v-list-item v-for="(elem, i) in availableColumnsComputed" :key="i">
                     <v-list-item-content>
@@ -31,7 +31,7 @@
             <v-col cols="4" class="pt-0">
               <v-text-field v-model="rightFilterRef" :label="$t('Filter')" required></v-text-field>
               <div>{{$t('ColumnsSelection.SelectedColumns')}}</div>
-              <v-list nav dense style="max-height: 300px" class="overflow-y-auto">
+              <v-list nav dense style="max-height: 400px" class="overflow-y-auto">
                 <v-list-item-group multiple v-model="selectedRightRef" color="primary">
                   <v-list-item v-for="(elem, i) in selectedColumnsComputed" :key="i">
                     <v-list-item-content>
