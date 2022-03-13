@@ -358,7 +358,6 @@
   "Item.thumbnail": "Thumbnail",
   "Item.typeIdentifier": "Type identifier",
   "Item.level": "Level",
-
   "ItemRelation.id": "Id",
   "ItemRelation.identifier": "Identifier",
   "ItemRelation.itemIdentifier": "Item identifier",
@@ -366,7 +365,6 @@
   "ItemRelation.relationIdentifier": "Relation identifier",
   "ItemRelation.targetIdentifier": "Target identifier",
   "ItemRelation.targetName": "Target name",
-
   "Home.Search.Title": "Items search",
   "Home.Search.TitleExtended": "Extended search",
   "Search.Title.Items": "Items search",
@@ -513,5 +511,6 @@
   "MappingConfigComponent.Table.ChannelAttribute": "Channel attribute",
   "MappingConfigComponent.Table.Attribute": "Attribute",
   "MappingConfigComponent.Table.Expression": "Expression",
-  "MappingConfigComponent.Table.DictionaryLink": "Details about dictionary for this channel attribute"
+  "MappingConfigComponent.Table.DictionaryLink": "Details about dictionary for this channel attribute",
+  "AttributeValue.Date.Input": "Date input"
 }

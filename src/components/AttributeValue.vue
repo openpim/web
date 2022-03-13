@@ -107,18 +107,32 @@
       </v-text-field>
 
       <!-- Date -->
-      <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && !attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
-        <template v-slot:activator="{ on }">
-          <v-text-field clearable @input="attrInput" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
-        </template>
-        <v-date-picker v-model="values[attr.identifier]" @input="dateMenu = false"></v-date-picker>
-      </v-menu>
-      <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
-        <template v-slot:activator="{ on }">
-          <v-text-field clearable @input="attrInput" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
-        </template>
-        <v-date-picker v-model="values[attr.identifier][currentLanguage.identifier]" @input="dateMenu = false"></v-date-picker>
-      </v-menu>
+        <v-dialog ref="dateDialog" v-if="attr.type === AttributeType.Date && !attr.languageDependent" :disabled="attr.readonly" v-model="dateModal" :return-value.sync="date" persistent width="290px" @input="dateDialogChanged">
+          <template v-slot:activator="{ on }">
+            <v-text-field clearable @input="attrInput" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+          </template>
+          <v-date-picker v-model="values[attr.identifier]">
+            <v-spacer></v-spacer>
+            <div style="flex-wrap: wrap;">
+            <v-text-field dense @blur="attrBlur" v-model="date" :label="$t('AttributeValue.Date.Input')" required style="flex-basis: 100%;" @input="dateValidation" hint="DD/MM/YYYY" :error-messages="dateError" @keydown.enter.prevent="dateEnterPressed"></v-text-field>
+            <v-btn text color="primary" @click="values[attr.identifier] = dateSaveValue;dateModal = false">{{ $t('Cancel') }}</v-btn>
+            <v-btn text color="primary" @click="dateDialog.save(date)">{{ $t('Save') }}</v-btn>
+            </div>
+          </v-date-picker>
+        </v-dialog>
+        <v-dialog ref="dateDialog" v-if="attr.type === AttributeType.Date && attr.languageDependent" :disabled="attr.readonly" v-model="dateModal" :return-value.sync="date" persistent width="290px" @input="dateDialogChanged">
+          <template v-slot:activator="{ on }">
+            <v-text-field clearable @input="attrInput" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+          </template>
+          <v-date-picker v-model="values[attr.identifier][currentLanguage.identifier]">
+            <v-spacer></v-spacer>
+            <div style="flex-wrap: wrap;">
+            <v-text-field dense @blur="attrBlur" v-model="date" :label="$t('AttributeValue.Date.Input')" required style="flex-basis: 100%;" @input="dateValidation" hint="DD/MM/YYYY" :error-messages="dateError" @keydown.enter.prevent="dateEnterPressed"></v-text-field>
+            <v-btn text color="primary" @click="values[attr.identifier][currentLanguage.identifier] = dateSaveValue;dateModal = false">{{ $t('Cancel') }}</v-btn>
+            <v-btn text color="primary" @click="dateDialog.save(date)">{{ $t('Save') }}</v-btn>
+            </div>
+          </v-date-picker>
+        </v-dialog>
 
       <!-- Time -->
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && !attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
@@ -340,6 +354,12 @@ export default {
 
     const lovData = ref([])
 
+    const dateModal = ref(false)
+    const dateDialog = ref(null)
+    const date = ref(null)
+    const dateError = ref('')
+    const dateSaveValue = ref('')
+
     function isValid () {
       return validRef.value
     }
@@ -401,6 +421,36 @@ export default {
       const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
       return dateFormat(Date.parse(val), process.env.VUE_APP_DATE_ONLY_FORMAT)
     })
+
+    function dateValidation () {
+      if (date.value) {
+        const arr = date.value.split('/')
+        if (arr.length === 3) {
+          const tst = new Date(parseInt(arr[2]), parseInt(arr[1]) - 1, parseInt(arr[0]))
+          if (tst.toString() !== 'Invalid Date') {
+            dateError.value = ''
+            const df = 'yyyy-mm-dd'
+            if (props.attr.languageDependent) props.values[props.attr.identifier][currentLanguage.identifier] = dateFormat(tst, df)
+            else props.values[props.attr.identifier] = dateFormat(tst, df)
+            return true
+          }
+        }
+        dateError.value = 'Неверная дата'
+      } else {
+        dateError.value = ''
+      }
+      return false
+    }
+
+    function dateEnterPressed () {
+      if (dateValidation) dateModal.value = false
+    }
+
+    function dateDialogChanged (open) {
+      if (open) {
+        dateSaveValue.value = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
+      }
+    }
 
     onMounted(() => {
       if (joditRef.value) {
@@ -472,7 +522,15 @@ export default {
       joditRef,
       joditConfig: { readonly: props.attr.readonly, toolbarAdaptive: false, toolbarButtonSize: 'small' },
       getTextOption,
-      formatedDate
+      formatedDate,
+      dateModal,
+      dateDialog,
+      date,
+      dateError,
+      dateValidation,
+      dateDialogChanged,
+      dateSaveValue,
+      dateEnterPressed
     }
   }
 }

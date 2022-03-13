@@ -511,5 +511,6 @@
   "MappingConfigComponent.Table.ChannelAttribute": "Атрибут из канала",
   "MappingConfigComponent.Table.Attribute": "Атрибут",
   "MappingConfigComponent.Table.Expression": "Выражение",
-  "MappingConfigComponent.Table.DictionaryLink": "Описание словара для этого атрибута"
+  "MappingConfigComponent.Table.DictionaryLink": "Описание словара для этого атрибута",
+  "AttributeValue.Date.Input": "Ввод даты"
 }
