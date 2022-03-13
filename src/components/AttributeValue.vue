@@ -109,13 +109,13 @@
       <!-- Date -->
       <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && !attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field clearable @input="attrInput" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+          <v-text-field clearable @input="attrInput" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
         </template>
         <v-date-picker v-model="values[attr.identifier]" @input="dateMenu = false"></v-date-picker>
       </v-menu>
       <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field clearable @input="attrInput" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+          <v-text-field clearable @input="attrInput" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
         </template>
         <v-date-picker v-model="values[attr.identifier][currentLanguage.identifier]" @input="dateMenu = false"></v-date-picker>
       </v-menu>
@@ -280,6 +280,7 @@ import AttributeType from '../constants/attributeTypes'
 import i18n from '../i18n'
 import XRegExp from 'xregexp'
 import eventBus from '../eventBus'
+import dateFormat from 'dateformat'
 
 // Jodit
 import 'jodit/build/jodit.min.css'
@@ -396,6 +397,11 @@ export default {
       if (!skipInput) attrInput(val)
     }
 
+    const formatedDate = computed(() => {
+      const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
+      return dateFormat(Date.parse(val), process.env.VUE_APP_DATE_ONLY_FORMAT)
+    })
+
     onMounted(() => {
       if (joditRef.value) {
         const handler = () => {
@@ -465,7 +471,8 @@ export default {
       AttributeType,
       joditRef,
       joditConfig: { readonly: props.attr.readonly, toolbarAdaptive: false, toolbarButtonSize: 'small' },
-      getTextOption
+      getTextOption,
+      formatedDate
     }
   }
 }
