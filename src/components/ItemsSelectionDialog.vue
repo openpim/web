@@ -13,8 +13,8 @@
                 <v-tab v-text="$t('Items.SelectionDialog.Search')"></v-tab>
               </v-tabs>
               <v-tabs-items v-model="tabRef">
-                <v-tab-item> <!-- select -->
-                  <v-treeview v-if="selectionDialogRef" dense selectable selection-type="independent" hoverable :items="itemsTree" :load-children="loadChildren" v-model="selectedItemsRef" @input="onSelect">
+                <v-tab-item> <!-- tree -->
+                  <v-treeview v-if="selectionDialogRef" dense selectable selection-type="independent" hoverable :items="itemsTreeFiltered" :load-children="loadChildren" v-model="selectedItemsRef" @input="onSelect">
                     <template v-slot:prepend="{ item }">
                       <v-icon v-if="item.typeIcon" :color="item.typeIconColor">mdi-{{ item.typeIcon }}</v-icon>
                     </template>
@@ -23,9 +23,9 @@
                     </template>
                   </v-treeview>
                 </v-tab-item>
-                <v-tab-item> <!-- search -->
+                <v-tab-item>  <!-- search -->
                   <v-text-field @keydown.enter.prevent="searchEnterPressed" v-model="searchTextRef" @input="searchChanged" :label="$t('Search')" append-icon="mdi-magnify" class="ml-5 mr-5"></v-text-field>
-                  <v-list dense v-if="searchResultsRef.length > 0">
+                  <v-list dense v-if="searchResultsRef && searchResultsRef.length > 0">
                     <v-list-item-group v-model="searchSelectedRef" color="primary">
                       <v-list-item v-for="(elem, i) in searchResultsRef" :key="i" dense>
                         <v-list-item-content>
@@ -51,8 +51,9 @@
 </template>
 <script>
 import * as itemStore from '../store/item'
+import * as typesStore from '../store/types'
 import * as langStore from '../store/languages'
-import { ref } from '@vue/composition-api'
+import { ref, computed } from '@vue/composition-api'
 
 export default {
   name: 'ItemSelection',
@@ -69,6 +70,10 @@ export default {
       defaultLanguageIdentifier
     } = langStore.useStore()
 
+    const {
+      findType
+    } = typesStore.useStore()
+
     const tabRef = ref(null)
     const selectedItemsRef = ref([])
     const selectionDialogRef = ref(false)
@@ -76,7 +81,7 @@ export default {
     const searchSelectedRef = ref(null)
     const searchResultsRef = ref([])
     let awaitingSearch = null
-    let typesFilter = null
+    const typesFilter = ref(null)
 
     let initiator
 
@@ -100,7 +105,7 @@ export default {
       performSearch()
     }
     function performSearch () {
-      const typesExpr = typesFilter && typesFilter.length > 0 ? '{typeId: {OP_in: ' + JSON.stringify(typesFilter) + '}}' : ''
+      const typesExpr = typesFilter.value && typesFilter.value.length > 0 ? '{typeId: {OP_in: ' + JSON.stringify(typesFilter.value) + '}}' : ''
       searchItem(searchTextRef.value, typesExpr).then(data => {
         searchResultsRef.value = data.rows
       })
@@ -122,7 +127,7 @@ export default {
     }
 
     function showDialog (init, typesToFilter) {
-      typesFilter = typesToFilter
+      typesFilter.value = typesToFilter
       selectedItemsRef.value = []
       initiator = init
       if (itemsTree.length === 0) {
@@ -149,8 +154,29 @@ export default {
       return loadItems(item.id, item.internalId, item.typeId)
     }
 
+    const itemsTreeFiltered = computed(() => {
+      if (typesFilter.value && typesFilter.value.length > 0) {
+        return itemsTree.filter(item => {
+          const type = findType(item.typeId)
+          function hasTypes (node, typesArr) {
+            if (typesArr.includes(node.internalId)) return true
+            if (node.children && node.children.length > 0) {
+              for (let i = 0; i < node.children.length; i++) {
+                const child = node.children[i]
+                if (hasTypes(child, typesArr)) return true
+              }
+            }
+            return false
+          }
+          return hasTypes(type.node, typesFilter.value)
+        })
+      } else {
+        return itemsTree
+      }
+    })
+
     return {
-      itemsTree,
+      itemsTreeFiltered,
       loadChildren,
       selectionDialogRef,
       selected,
