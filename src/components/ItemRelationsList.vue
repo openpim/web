@@ -431,7 +431,8 @@ export default {
     }
 
     function select (identifier, itemRel) {
-      itemSelectionDialogRef.value.showDialog({ identifier: identifier, itemRelId: itemRel.id, itemRelIdentifier: itemRel.identifier })
+      const rel = relations.find(rel => rel.identifier === identifier)
+      itemSelectionDialogRef.value.showDialog({ identifier: identifier, itemRelId: itemRel.id, itemRelIdentifier: itemRel.identifier }, props.componentType === 'source' ? rel.targets : rel.sources)
     }
 
     const changedRelations = ref([])

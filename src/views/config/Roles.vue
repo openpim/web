@@ -389,7 +389,7 @@ export default {
     const fromItemsSelectedRef = ref(null)
 
     function addFromItems () {
-      itemSelectionDialogRef.value.showDialog('visible', selectedRef.value.itemAccess.fromItems)
+      itemSelectionDialogRef.value.showDialog('visible')
     }
 
     function itemsSelected (id) {

@@ -371,7 +371,7 @@ const actions = {
       }}`)
     return data.getMainImages || []
   },
-  searchItem: async (text) => {
+  searchItem: async (text, additionFilter) => {
     const txt = text.replaceAll('\\', '\\\\').replaceAll('"', '\\"')
     const attrs = getAttributesForSearch()
     let attrExpr = ''
@@ -379,6 +379,10 @@ const actions = {
       attrExpr += '{ values: { ' + attr.identifier + ': { OP_iLike:"%' + txt + '%"}}},'
     })
     const mainExpr = '{ identifier: { OP_iLike: "%' + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + '%"}}}'
+    let andExpr = ''
+    if (additionFilter) {
+      andExpr = '{OP_and: [' + additionFilter + ','
+    }
     const data = await serverFetch(
       `query { search(
         requests: [
@@ -386,7 +390,7 @@ const actions = {
                 entity: ITEM, 
                 offset: 0, 
                 limit: 100,
-                where: {OP_or: [` + attrExpr + mainExpr + `] },
+                where: ` + andExpr + '{OP_or: [' + attrExpr + mainExpr + '] }' + (andExpr ? ']}' : '') + `,
                 order: [["id", "ASC"]]
             }]
         ) {

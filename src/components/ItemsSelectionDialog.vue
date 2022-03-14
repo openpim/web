@@ -7,14 +7,13 @@
       <v-card-text>
         <v-container class="pa-0">
           <v-row>
-            <v-col cols="12" class="pa-0">
+            <v-col cols="12" class="pa-0 overflow-y-auto" style="max-height: 70vh">
               <v-tabs v-model="tabRef">
                 <v-tab v-text="$t('Items.SelectionDialog.Selection')"></v-tab>
                 <v-tab v-text="$t('Items.SelectionDialog.Search')"></v-tab>
               </v-tabs>
               <v-tabs-items v-model="tabRef">
                 <v-tab-item> <!-- select -->
-                  <div style="max-height: 70%" class="overflow-y-auto">
                   <v-treeview v-if="selectionDialogRef" dense selectable selection-type="independent" hoverable :items="itemsTree" :load-children="loadChildren" v-model="selectedItemsRef" @input="onSelect">
                     <template v-slot:prepend="{ item }">
                       <v-icon v-if="item.typeIcon" :color="item.typeIconColor">mdi-{{ item.typeIcon }}</v-icon>
@@ -23,11 +22,10 @@
                       {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}
                     </template>
                   </v-treeview>
-                  </div>
                 </v-tab-item>
                 <v-tab-item> <!-- search -->
-                  <v-text-field v-model="searchTextRef" @input="searchChanged" :label="$t('Search')" append-icon="mdi-magnify" class="ml-5 mr-5"></v-text-field>
-                  <v-list dense v-if="searchResultsRef.length > 0" style="max-height: 70%" class="overflow-y-auto">
+                  <v-text-field @keydown.enter.prevent="searchEnterPressed" v-model="searchTextRef" @input="searchChanged" :label="$t('Search')" append-icon="mdi-magnify" class="ml-5 mr-5"></v-text-field>
+                  <v-list dense v-if="searchResultsRef.length > 0">
                     <v-list-item-group v-model="searchSelectedRef" color="primary">
                       <v-list-item v-for="(elem, i) in searchResultsRef" :key="i" dense>
                         <v-list-item-content>
@@ -77,22 +75,35 @@ export default {
     const searchTextRef = ref('')
     const searchSelectedRef = ref(null)
     const searchResultsRef = ref([])
-    let awaitingSearch = false
+    let awaitingSearch = null
+    let typesFilter = null
 
     let initiator
 
     function searchChanged () {
       if (searchTextRef.value.length > 1) {
+        if (awaitingSearch) {
+          clearTimeout(awaitingSearch)
+          awaitingSearch = null
+        }
         if (!awaitingSearch) {
-          setTimeout(() => {
-            searchItem(searchTextRef.value).then(data => {
-              searchResultsRef.value = data.rows
-            })
-            awaitingSearch = false
+          awaitingSearch = setTimeout(() => {
+            performSearch()
           }, 1000)
         }
-        awaitingSearch = true
       }
+    }
+    function searchEnterPressed () {
+      if (awaitingSearch) {
+        clearTimeout(awaitingSearch)
+      }
+      performSearch()
+    }
+    function performSearch () {
+      const typesExpr = typesFilter && typesFilter.length > 0 ? '{typeId: {OP_in: ' + JSON.stringify(typesFilter) + '}}' : ''
+      searchItem(searchTextRef.value, typesExpr).then(data => {
+        searchResultsRef.value = data.rows
+      })
     }
 
     function selectItem (idx) {
@@ -110,7 +121,8 @@ export default {
       }
     }
 
-    function showDialog (init) {
+    function showDialog (init, typesToFilter) {
+      typesFilter = typesToFilter
       selectedItemsRef.value = []
       initiator = init
       if (itemsTree.length === 0) {
@@ -153,7 +165,8 @@ export default {
       searchTextRef,
       searchSelectedRef,
       searchResultsRef,
-      searchChanged
+      searchChanged,
+      searchEnterPressed
     }
   }
 }

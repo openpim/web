@@ -116,7 +116,7 @@ export default {
     }
 
     function addVisible () {
-      itemSelectionDialogRef.value.showDialog('visible', props.elem.visible)
+      itemSelectionDialogRef.value.showDialog('visible')
     }
 
     function itemsSelected (id) {
