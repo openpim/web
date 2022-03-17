@@ -458,12 +458,37 @@ export default {
             }
           }
         })
-
+        arr.sort((a, b) => a.order - b.order)
         return arr
       } else {
         return []
       }
     })
+
+    let beforeShowActions = []
+    function reloadBeforeShowActions (item) {
+      if (item) {
+        const pathArr = item.path.split('.').map(elem => parseInt(elem))
+        const arr = []
+
+        actions.forEach(action => {
+          for (let i = 0; i < action.triggers.length; i++) {
+            const trigger = action.triggers[i]
+
+            const result = parseInt(trigger.type) === 1 && parseInt(trigger.event) === 7 && // before show
+                  parseInt(item.typeId) === parseInt(trigger.itemType) &&
+                  pathArr.includes(parseInt(trigger.itemFrom))
+            if (result) {
+              arr.push(action)
+            }
+          }
+        })
+        arr.sort((a, b) => a.order - b.order)
+        beforeShowActions = arr
+      } else {
+        beforeShowActions = []
+      }
+    }
 
     const channelsOnHead = computed(() => {
       if (itemRef.value) {
@@ -657,7 +682,27 @@ export default {
     function enrichItem (item) {
       const arr = getAttributesForItem(item.typeId, item.path)
 
+      reloadBeforeShowActions(item)
+      if (beforeShowActions.length > 0) {
+        for (let i = 0; i < beforeShowActions.length; i++) {
+          const action = beforeShowActions[i]
+          try {
+            const utils = {
+              canEditItem: () => {
+                return canEditItem(item.typeId, item.path)
+              }
+            }
+            // eslint-disable-next-line no-new-func
+            const func = new Function('item', 'attributes', 'user', 'roles', 'utils', '"use strict"; ' + action.code)
+            func(item, arr, currentUserRef.value, currentRoles, utils)
+          } catch (err) {
+            console.error('Failed to evaluate expression: "' + action.code + '" for action: ' + action.identifier, err)
+          }
+        }
+      }
+
       attrGroups.value = arr.filter(group => {
+        if (!group.visible) return false
         const expr = getOption(group, 'visible', null)
         if (expr) {
           try {
