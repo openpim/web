@@ -47,7 +47,7 @@
         <div class="ml-5">
         <v-text-field v-if="channel" v-model="channel.config.file" :readonly="readonly" label="Имя генерируемого файла" required></v-text-field>
         <v-text-field v-if="channel" v-model="channel.config.mime" :readonly="readonly" label="Mime тип генерируемого файла" required></v-text-field>
-        <v-text-field v-if="channel" v-model="channel.config.extCmd" :readonly="readonly" label="Запустить эту программу после генерации файла (если надо). Файл будет передан как последний параметр." required></v-text-field>
+        <v-text-field v-if="channel" v-model="channel.config.extCmd" :readonly="readonly" label="Запустить эту программу после генерации файла (если надо). Файл будет передан как {file} параметр." required></v-text-field>
         </div>
       </v-tab-item>
     </v-tabs-items>
