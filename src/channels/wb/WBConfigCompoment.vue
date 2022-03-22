@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-text-field v-if="channel" v-model="channel.config.wbToken" :readonly="readonly" label="API token" required></v-text-field>
-    <v-text-field v-if="channel" v-model="channel.config.wbSupplierID" :readonly="readonly" label="Идентификатор поставщика" required></v-text-field>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.wbIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить product ID" clearable/>
 
     <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly ></MappingConfigCompoment>
@@ -67,9 +66,6 @@ export default {
     watch(() => props.channel, (chan, previousValue) => {
       if (chan && !chan.config.wbToken) {
         root.$set(chan.config, 'wbToken', '')
-      }
-      if (chan && !chan.config.wbSupplierID) {
-        root.$set(chan.config, 'wbSupplierID', '')
       }
       if (chan && !chan.config.wbKeyAttribute) {
         root.$set(chan.config, 'wbKeyAttribute', '')
