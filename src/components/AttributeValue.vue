@@ -458,8 +458,9 @@ export default {
           const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
           attrInput(val)
         }
-        joditRef.value.editor.events.on('keyup', handler)
-        joditRef.value.editor.events.on('afterPaste', handler)
+        // joditRef.value.editor.events.on('keyup', handler)
+        // joditRef.value.editor.events.on('afterPaste', handler)
+        joditRef.value.editor.events.on('change', handler)
       }
 
       const tst = props.attr.options.find(opt => opt.name === 'lovFilter')
