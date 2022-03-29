@@ -336,7 +336,6 @@ export default {
             attr.expr = tst.expr
           }
         }
-        console.log(mapping)
       }
     }
 
