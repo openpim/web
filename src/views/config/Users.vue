@@ -12,19 +12,20 @@
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
+        <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
         <v-list nav dense>
           <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, i) in users" :key="i">
+            <v-list-item v-for="(item, i) in userFiltered" :key="i">
               <v-list-item-icon><v-icon>mdi-account</v-icon></v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="item.name"></v-list-item-title>
+                <v-list-item-title>{{item.login + ' - ' + item.name}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
         </v-list>
       </v-col>
       <v-col cols="8">
-        <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id != -1">
+        <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef && selectedRef.id != -1">
           <div class="d-inline-flex align-center">
             <v-text-field style="min-width: 100%" v-model="selectedRef.login" :error-messages="loginErrors" :disabled="selectedRef.internalId !== 0" :rules="loginRules" :label="$t('Config.Users.Login')" required></v-text-field>
             <SystemInformation :data="selectedRef"></SystemInformation>
@@ -197,6 +198,26 @@ export default {
       selectedRef.value.roles = arr
     }
 
+    const searchRef = ref('')
+    const userFiltered = computed(() => {
+      let arr = users
+      if (searchRef.value) {
+        const s = searchRef.value.toLowerCase()
+        arr = users.filter(item => item.login.toLowerCase().indexOf(s) > -1 || item.name.toLowerCase().indexOf(s) > -1)
+      }
+      return arr.sort((a, b) => {
+        if (a.name && b.name) {
+          return a.name.localeCompare(b.name)
+        } else {
+          return 0
+        }
+      })
+    })
+    function clearSelection () {
+      selectedRef.value = null
+      itemRef.value = null
+    }
+
     onMounted(() => {
       loadAllRoles()
       loadAllUsers().then(() => {
@@ -246,6 +267,9 @@ export default {
       passwordErrors,
       canViewConfigRef,
       canEditConfigRef,
+      searchRef,
+      userFiltered,
+      clearSelection,
       loginRules: [
         v => loginValidation(v)
       ],

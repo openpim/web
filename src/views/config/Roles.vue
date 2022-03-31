@@ -12,19 +12,20 @@
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
+        <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
         <v-list nav dense>
           <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, i) in roles" :key="i">
+            <v-list-item v-for="(item, i) in rolesFiltered" :key="i">
               <v-list-item-icon><v-icon>mdi-account-check</v-icon></v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="item.name"></v-list-item-title>
+                <v-list-item-title>{{item.identifier + ' - ' + item.name}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
         </v-list>
       </v-col>
       <v-col cols="9">
-        <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id != -1">
+        <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef && selectedRef.id != -1">
           <div class="d-inline-flex align-center">
             <v-text-field style="min-width: 100%" v-model="selectedRef.identifier" :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Roles.Identifier')" required></v-text-field>
             <SystemInformation :data="selectedRef"></SystemInformation>
@@ -503,6 +504,26 @@ export default {
       })
     }
 
+    const searchRef = ref('')
+    const rolesFiltered = computed(() => {
+      let arr = roles
+      if (searchRef.value) {
+        const s = searchRef.value.toLowerCase()
+        arr = roles.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || item.name.toLowerCase().indexOf(s) > -1)
+      }
+      return arr.sort((a, b) => {
+        if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
+          return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
+        } else {
+          return 0
+        }
+      })
+    })
+    function clearSelection () {
+      selectedRef.value = null
+      itemRef.value = null
+    }
+
     onMounted(() => {
       loadAllChannels()
       loadAllTypes()
@@ -585,6 +606,9 @@ export default {
       addFromItems,
       itemsSelected,
       removeFromItems,
+      searchRef,
+      rolesFiltered,
+      clearSelection,
       configSelection: [
         { text: i18n.t('Config.Roles.Select.Config1'), value: 0 },
         { text: i18n.t('Config.Roles.Select.Config2'), value: 1 },
