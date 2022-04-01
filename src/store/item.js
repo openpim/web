@@ -460,11 +460,11 @@ const actions = {
     }
     return res
   },
-  importItems: async (rows) => {
+  importItems: async (rows, mode) => {
     let query = `
       mutation { import(
         config: {
-            mode: CREATE_UPDATE
+            mode: ` + mode + `
             errors: PROCESS_WARN
         },
         items: [`

@@ -261,11 +261,11 @@ const actions = {
     }
     return res
   },
-  importItemRelations: async (rows) => {
+  importItemRelations: async (rows, mode) => {
     let query = `
       mutation { import(
         config: {
-            mode: CREATE_UPDATE
+            mode: ` + mode + `
             errors: PROCESS_WARN
         },
         itemRelations: [`

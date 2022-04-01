@@ -18,8 +18,7 @@
       </v-tooltip>
       <v-tooltip top v-if="!talendExportSelection && importXLSEnabled">
         <template v-slot:activator="{ on }">
-          <input ref="fileUploadRef" style="display: none" type="file" @change="importExcel"/>
-          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="fileUploadRef.click()"><v-icon>mdi-application-import</v-icon></v-btn>
+          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="importConfigDialogRef = true"><v-icon>mdi-application-import</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ImportExcel') }}</span>
       </v-tooltip>
@@ -226,6 +225,34 @@
         </v-dialog>
       </v-row>
     </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="importConfigDialogRef" persistent width="80%">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('DataTable.ExcelImport.Config') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-file-input chips show-size v-model="fileUploadRef" :label="$t('DataTable.ExcelImport.FileUpload')"></v-file-input>
+                    <v-select v-model="importModeRef" :items="importModes" :label="$t('DataTable.ExcelImport.ImportMode')"></v-select>
+                    <v-checkbox v-model="importStopOnErrorRef" :label="$t('DataTable.ExcelImport.ErrorStop')" required></v-checkbox>
+                    <v-text-field type="number" v-model="importPageSizeRef" :label="$t('DataTable.ExcelImport.PageSize')" required></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="fileUploadRef=null;importConfigDialogRef=false">{{ $t('Cancel') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="importExcel" :disabled="!fileUploadRef || importPageSizeRef <= 0">{{ $t('DataTable.ExcelImport.Start') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
 
 </div>
 </template>
@@ -333,7 +360,6 @@ export default {
     const columnsSaveDialogRef = ref(null)
     const attrSelectionDialogRef = ref(null)
 
-    const fileUploadRef = ref(null)
     const excelDialogRef = ref(false)
     const excelDialogProgressRef = ref(0)
     const excelDialogTitleRef = ref('import')
@@ -368,6 +394,17 @@ export default {
 
     const importFinishedDialogRef = ref(null)
     const importFinishedLogRef = ref([])
+    const importConfigDialogRef = ref(null)
+
+    const fileUploadRef = ref(null)
+    const importModeRef = ref('UPDATE_ONLY')
+    const importStopOnErrorRef = ref(false)
+    const importPageSizeRef = ref(100)
+    const importModes = [
+      { text: i18n.t('DataTable.ExcelImport.CREATE_ONLY'), value: 'CREATE_ONLY' },
+      { text: i18n.t('DataTable.ExcelImport.UPDATE_ONLY'), value: 'UPDATE_ONLY' },
+      { text: i18n.t('DataTable.ExcelImport.CREATE_UPDATE'), value: 'CREATE_UPDATE' }
+    ]
 
     function pageSizeChanged (itemsPerPage) {
       optionsRef.value.itemsPerPage = parseInt(itemsPerPage)
@@ -637,10 +674,11 @@ export default {
     }
 
     function importExcel (event) {
+      importConfigDialogRef.value = false
       excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleImport')
-      const pageSize = 100
+      const pageSize = importPageSizeRef.value
 
-      const file = event.target.files[0]
+      const file = fileUploadRef.value
       if (!file) return
 
       const log = [['identifier', 'result', 'errors', 'warnings']]
@@ -779,7 +817,7 @@ export default {
     }
 
     async function importRows (rows, log) {
-      const returnRows = await props.importEntities(rows)
+      const returnRows = await props.importEntities(rows, importModeRef.value)
       let errors = ''
       returnRows.forEach(row => {
         if (row.errors.length > 0) {
@@ -787,7 +825,7 @@ export default {
         }
         log.push([row.identifier, row.result, JSON.stringify(row.errors), JSON.stringify(row.warnings)])
       })
-      if (errors.length > 0) {
+      if (importStopOnErrorRef.value && errors.length > 0) {
         showError(errors)
         excelDialogRef.value = false
       }
@@ -1239,6 +1277,11 @@ export default {
       getParentNameByItemId,
       importFinishedDialogRef,
       importFinishedLogRef,
+      importConfigDialogRef,
+      importModeRef,
+      importModes,
+      importStopOnErrorRef,
+      importPageSizeRef,
       downloadImportFinishedLog,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
