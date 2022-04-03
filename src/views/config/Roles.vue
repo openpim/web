@@ -327,12 +327,12 @@ export default {
         router.push('/config/roles')
         return
       }
-      if (selected < roles.length) {
-        if (previous && roles[previous].internalId === 0) {
+      if (selected < rolesFiltered.value.length) {
+        if (previous && rolesFiltered.value[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
 
-        selectedRef.value = roles[selected]
+        selectedRef.value = rolesFiltered.value[selected]
         if (selectedRef.value.itemAccess.fromItems) {
           loadItemsByIds(selectedRef.value.itemAccess.fromItems, false).then(items => {
             fromItems.value = items

@@ -154,11 +154,11 @@ export default {
         router.push('/config/relations')
         return
       }
-      if (selected < relations.length) {
-        if (previous && relations[previous].internalId === 0) {
+      if (selected < relationsFiltered.value.length) {
+        if (previous && relationsFiltered.value[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
-        selectedRef.value = relations[selected]
+        selectedRef.value = relationsFiltered.value[selected]
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
           router.push('/config/relations/' + selectedRef.value.identifier)
         } else {

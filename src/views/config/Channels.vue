@@ -180,11 +180,11 @@ export default {
         selectedRef.value = empty
         return
       }
-      if (selected < channels.length) {
-        if (previous && channels[previous].internalId === 0) {
+      if (selected < chanFiltered.value.length) {
+        if (previous && chanFiltered.value[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
-        selectedRef.value = channels[selected]
+        selectedRef.value = chanFiltered.value[selected]
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
           router.push('/config/channels/' + selectedRef.value.identifier)
         } else {

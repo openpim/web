@@ -253,11 +253,11 @@ export default {
         selectedRef.value = empty
         return
       }
-      if (selected < actions.length) {
-        if (previous && actions[previous].internalId === 0) {
+      if (selected < actionsFiltered.value.length) {
+        if (previous && actionsFiltered.value[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
-        setSelected(actions[selected])
+        setSelected(actionsFiltered.value[selected])
       }
     })
 
