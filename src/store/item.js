@@ -134,6 +134,9 @@ const actions = {
         })
         order = 'order:' + objectToGraphgl(sort)
       }
+    } else {
+      const sort = [['values.topOrder', 'ASC'], ['id', 'ASC']]
+      order = 'order:' + objectToGraphgl(sort)
     }
 
     const data = await serverFetch('query { getItems(parentId: "' + (parentId || '') + '", offset: 0, limit: 500, ' + order + `) { 
