@@ -123,9 +123,15 @@ function objectToGraphgl (value) {
       } else if (Object.prototype.toString.call(obj) === '[object String]') {
         const attr = attrStore.store.findByIdentifier(prop)
         if (obj) {
-          let tmp = obj
-          if (tmp.endsWith('"')) tmp += ' '
-          result += prop + ':"""' + tmp + '""",'
+          if (attr && attr.item.type === 3) { // Integer
+            result += prop + ':' + parseInt(obj) + ','
+          } else if (attr && attr.item.type === 4) { // Float
+            result += prop + ':' + parseFloat(obj) + ','
+          } else {
+            let tmp = obj
+            if (tmp.endsWith('"')) tmp += ' '
+            result += prop + ':"""' + tmp + '""",'
+          }
         } else {
           const noEmpty = attr ? attr.item.options.some(elem => elem.name === 'noEmptyValue' && elem.value === 'true') : false
           if (attr && (attr.item.type === 3 || attr.item.type === 4)) { // set to null for Integer or Float attributes if we have "" as value
