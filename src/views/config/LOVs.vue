@@ -32,7 +32,7 @@
           </div>
 
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Languages.Name')"></LanguageDependentField>
-        <v-simple-table dense class="mb-4">
+        <v-simple-table dense  fixed-header height="60vh"  class="mb-4">
             <template v-slot:default>
               <thead>
                 <tr>
