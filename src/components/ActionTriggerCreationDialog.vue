@@ -53,6 +53,7 @@
                   </template>
                   <template v-if="triggerRef.type === 3"> <!-- button -->
                     <v-text-field v-model="triggerRef.itemButton" :label="$t('Config.Actions.Triggers.ButtonText')" required></v-text-field>
+                    <v-checkbox v-model="triggerRef.askBeforeExec" :label="$t('Config.Actions.Triggers.AskBeforeExec')" required></v-checkbox>
                     <div><div class="d-inline-flex align-center">
                       <div v-if="selectedType">
                         <router-link :to="'/config/types/' + selectedType.identifier">{{ selectedType.identifier }}</router-link><span class="ml-2">- {{ selectedType.name[currentLanguage.identifier] || '[' + selectedType.name[defaultLanguageIdentifier] + ']' }}</span>

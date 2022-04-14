@@ -78,7 +78,7 @@
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
             <v-btn v-if="hasChannels" text @click="submit" v-text="$t('Submit')"></v-btn>
             <template v-if="canEditSelected">
-              <v-btn text @click="executeAction(trigger.itemButton)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
+              <v-btn text @click="executeAction(trigger.itemButton, trigger.askBeforeExec)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
             <AfterButtonsComponent></AfterButtonsComponent>
             <v-spacer></v-spacer>
@@ -774,7 +774,10 @@ export default {
       }
     }
 
-    function executeAction (button) {
+    function executeAction (button, askBeforeExec) {
+      if (askBeforeExec) {
+        if (!confirm(i18n.t('Execute') + '?')) return
+      }
       executeButtonAction(itemRef.value.internalId, button).then((result) => {
         if (result.compileError) {
           showError('Compile error: ' + result.compileError)

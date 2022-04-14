@@ -83,6 +83,7 @@
                         <router-link :to="'/config/types/' + type.identifier">{{ type.identifier }}</router-link>
                         {{ $t('Config.Actions.Triggers.Item2') }}
                         <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
+                        {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
                       </div>
                     </v-list-item-title>
                   </v-list-item-content>
