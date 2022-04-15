@@ -239,6 +239,7 @@
                     <v-file-input chips show-size v-model="fileUploadRef" :label="$t('DataTable.ExcelImport.FileUpload')"></v-file-input>
                     <v-select v-model="importModeRef" :items="importModes" :label="$t('DataTable.ExcelImport.ImportMode')"></v-select>
                     <v-checkbox v-model="importStopOnErrorRef" :label="$t('DataTable.ExcelImport.ErrorStop')" required></v-checkbox>
+                    <v-checkbox v-model="importEmptyValuesRef" :label="$t('DataTable.ExcelImport.EmptyValues')" required></v-checkbox>
                     <v-text-field type="number" v-model="importPageSizeRef" :label="$t('DataTable.ExcelImport.PageSize')" required></v-text-field>
                   </v-col>
                 </v-row>
@@ -399,6 +400,7 @@ export default {
     const fileUploadRef = ref(null)
     const importModeRef = ref('UPDATE_ONLY')
     const importStopOnErrorRef = ref(false)
+    const importEmptyValuesRef = ref(false)
     const importPageSizeRef = ref(100)
     const importModes = [
       { text: i18n.t('DataTable.ExcelImport.CREATE_ONLY'), value: 'CREATE_ONLY' },
@@ -723,31 +725,33 @@ export default {
             const item = {}
             for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
               const cell = ws[XLSX.utils.encode_cell({ r: rowNum, c: colNum })]
-              if (!cell) continue
               const header = headers[colNum]
+
               if (header === 'parent') {
-                item.parentIdentifier = '' + cell.v
+                if (cell && cell.v) item.parentIdentifier = '' + cell.v
               } else if (header === 'itemIdentifier') {
-                item.itemIdentifier = '' + cell.v
+                if (cell && cell.v) item.itemIdentifier = '' + cell.v
               } else if (header === 'relationIdentifier') {
-                item.relationIdentifier = '' + cell.v
+                if (cell && cell.v) item.relationIdentifier = '' + cell.v
               } else if (header === 'targetIdentifier') {
-                item.targetIdentifier = '' + cell.v
+                if (cell && cell.v) item.targetIdentifier = '' + cell.v
               } else if (header === 'type') {
-                item.typeIdentifier = '' + cell.v
+                if (cell && cell.v) item.typeIdentifier = '' + cell.v
               } else if (header === 'identifier') {
-                item.identifier = '' + cell.v
+                if (cell && cell.v) item.identifier = '' + cell.v
               } else if (header === '#delete#') {
-                item.delete = cell.v
+                if (cell && cell.v) item.delete = cell.v
               } else if (header.startsWith('name')) {
-                const arr = ('' + header).split('_')
-                const lang = arr[1]
-                if (!item.name) item.name = {}
-                item.name[lang] = '' + cell.v
-              } else if (header.startsWith('attr') && cell.v !== null && cell.v !== undefined) {
+                if (cell && cell.v) {
+                  const arr = ('' + header).split('_')
+                  const lang = arr[1]
+                  if (!item.name) item.name = {}
+                  item.name[lang] = '' + cell.v
+                }
+              } else if (header.startsWith('attr') && ((cell && cell.v) || ((!cell || !cell.v) && importEmptyValuesRef.value))) {
                 if (!item.values) item.values = {}
                 let attr = header.substring(5)
-                let cellVal = cell.v
+                let cellVal = cell ? cell.v : null
                 // check LOV
                 const tst = attr.indexOf('#')
                 if (tst !== -1) {
@@ -756,7 +760,7 @@ export default {
 
                   const lovValues = lovsMap[lov]
                   if (lovValues) {
-                    const val = cell.v
+                    const val = cell ? cell.v : null
                     if (val.includes(',')) { // multivalue lov
                       cellVal = val.split(',').reduce((accumulator, currentValue) => {
                         const tmp = currentValue.trim()
@@ -813,7 +817,11 @@ export default {
 
     function convertValueIfNecessary (attr, cellVal) {
       const attrNode = findByIdentifier(attr)
-      return attrNode && attrNode.item.type === AttributeType.Text ? '' + cellVal : cellVal
+      if (!cellVal) {
+        return attrNode && attrNode.item.type === AttributeType.Text ? '' : null
+      } else {
+        return attrNode && attrNode.item.type === AttributeType.Text ? '' + cellVal : cellVal
+      }
     }
 
     async function importRows (rows, log) {
@@ -1281,6 +1289,7 @@ export default {
       importModeRef,
       importModes,
       importStopOnErrorRef,
+      importEmptyValuesRef,
       importPageSizeRef,
       downloadImportFinishedLog,
       dateFormat,

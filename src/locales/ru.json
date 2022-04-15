@@ -433,6 +433,7 @@
   "DataTable.ExcelImport.FileUpload" : "Файл",
   "DataTable.ExcelImport.ImportMode" : "Режим загрузки",
   "DataTable.ExcelImport.ErrorStop" : "Остановить загрузку при ошибке",
+  "DataTable.ExcelImport.EmptyValues" : "Загружать пустые значения",
   "DataTable.ExcelImport.PageSize" : "Количество записей на запрос",
   "DataTable.ExcelImport.Start" : "Загрузить",
   "DataTable.ExcelImport.CREATE_ONLY" : "Только создавать новые (не изменять существующие)",

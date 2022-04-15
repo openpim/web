@@ -433,6 +433,7 @@
   "DataTable.ExcelImport.FileUpload" : "File",
   "DataTable.ExcelImport.ImportMode" : "Import mode",
   "DataTable.ExcelImport.ErrorStop" : "Stop import on error",
+  "DataTable.ExcelImport.EmptyValues" : "Import empty values",
   "DataTable.ExcelImport.PageSize" : "Page size",
   "DataTable.ExcelImport.Start" : "Import",
   "DataTable.ExcelImport.CREATE_ONLY" : "Create only (do not update existing)",
