@@ -323,7 +323,7 @@ export default {
             attr.expr = tst.expr
           }
         }
-        console.log(mapping)
+        categoryRef.value.params = mapping.params
       }
     }
 
