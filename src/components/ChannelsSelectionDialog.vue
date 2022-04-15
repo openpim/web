@@ -8,9 +8,10 @@
         <v-container>
           <v-row>
             <v-col cols="12">
+            <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
             <v-list nav dense>
               <v-list-item-group v-model="selectedChannelsRef" color="primary" :multiple="multiselect">
-                <v-list-item v-for="(item, i) in channelsListRef" :key="i">
+                <v-list-item v-for="(item, i) in chanFiltered" :key="i">
                   <v-list-item-icon><v-icon>mdi-access-point</v-icon></v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
@@ -31,7 +32,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref } from '@vue/composition-api'
+import { ref, computed } from '@vue/composition-api'
 import * as channelsStore from '../store/channels'
 import * as langStore from '../store/languages'
 
@@ -67,15 +68,36 @@ export default {
     function selected () {
       let arr
       if (props.multiselect) {
-        arr = selectedChannelsRef.value.filter(idx => idx !== -1).map(idx => channelsListRef.value[idx].internalId)
+        arr = selectedChannelsRef.value.filter(idx => idx !== -1).map(idx => chanFiltered.value[idx].internalId)
       } else {
-        arr = [channelsListRef.value[selectedChannelsRef.value].internalId]
+        arr = [chanFiltered.value[selectedChannelsRef.value].internalId]
       }
       emit('selected', arr, initiator)
     }
 
+    const searchRef = ref('')
+    const chanFiltered = computed(() => {
+      let arr = channels
+      if (!arr) return []
+      if (searchRef.value) {
+        const s = searchRef.value.toLowerCase()
+        arr = channelsListRef.value.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
+      }
+      return arr.sort((a, b) => {
+        if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
+          return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
+        } else {
+          return 0
+        }
+      })
+    })
+    function clearSelection () {
+      selectedChannelsRef.value = []
+    }
+
     function showDialog (init, selected) {
       initiator = init
+      clearSelection()
       if (channels.length === 0) {
         loadAllChannels().then(() => {
           selectionDialogRef.value = true
@@ -102,6 +124,9 @@ export default {
       selectedChannelsRef,
       showDialog,
       closeDialog,
+      searchRef,
+      clearSelection,
+      chanFiltered,
       currentLanguage,
       defaultLanguageIdentifier
     }
