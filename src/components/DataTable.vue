@@ -727,6 +727,8 @@ export default {
               const cell = ws[XLSX.utils.encode_cell({ r: rowNum, c: colNum })]
               const header = headers[colNum]
 
+              if (!header) continue
+
               if (header === 'parent') {
                 if (cell && cell.v) item.parentIdentifier = '' + cell.v
               } else if (header === 'itemIdentifier') {
