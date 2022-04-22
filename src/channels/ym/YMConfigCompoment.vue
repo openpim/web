@@ -8,7 +8,7 @@
     </v-tabs>
     <v-tabs-items v-model="tabRef">
       <v-tab-item>
-          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0"  :readonly="readonly" :attributes="channel.config.ymShopAttributes" :pimAttributes="pimAttributesRef" :channelAttributes="ymShopAttributes" />
+          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0"  :readonly="readonly" :canManageAttributes="false" :attributes="channel.config.ymShopAttributes" :pimAttributes="pimAttributesRef" :channelAttributes="ymShopAttributes" />
       </v-tab-item>
       <v-tab-item>
         <v-card class="mb-5 mt-5">
@@ -37,7 +37,7 @@
           <v-btn color="blue darken-1" v-if="!readonly" text @click="itemSelectionDialogRef.showDialog()">Выбрать</v-btn>
         </div>
 
-        <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0"  :readonly="readonly" :attributes="channel.config.ymCategoryAttributes" :pimAttributes="pimAttributesRef" :channelAttributes="ymCategoryAttributes" />
+        <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0"  :readonly="readonly" :canManageAttributes="false" :attributes="channel.config.ymCategoryAttributes" :pimAttributes="pimAttributesRef" :channelAttributes="ymCategoryAttributes" />
 
       </v-tab-item>
       <v-tab-item>

@@ -525,5 +525,6 @@
   "MappingConfigComponent.Table.Attribute": "Атрибут",
   "MappingConfigComponent.Table.Expression": "Выражение",
   "MappingConfigComponent.Table.DictionaryLink": "Описание словара для этого атрибута",
+  "MappingConfigComponent.Attr.ConfirmExist": "Конфигурация уже существует, вы хотите создать новый атрибут?",
   "AttributeValue.Date.Input": "Ввод даты"
 }

@@ -525,5 +525,6 @@
   "MappingConfigComponent.Table.Attribute": "Attribute",
   "MappingConfigComponent.Table.Expression": "Expression",
   "MappingConfigComponent.Table.DictionaryLink": "Details about dictionary for this channel attribute",
+  "MappingConfigComponent.Attr.ConfirmExist": "There is already an attribute mapped, do you want to change this?",
   "AttributeValue.Date.Input": "Date input"
 }

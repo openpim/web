@@ -38,6 +38,7 @@ export default {
   hasSync: true,
   hasExecutions: true,
   hasItemSync: true,
+  canManageAttributes: true,
   getConfigCompoment,
   getStandardAttributes
 }

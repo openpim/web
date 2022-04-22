@@ -9,6 +9,7 @@ const empty = {
   hasSync: false,
   hasExecutions: false,
   hasItemSync: false,
+  canManageAttributes: false,
   getConfigCompoment,
   getStandardAttributes
 }

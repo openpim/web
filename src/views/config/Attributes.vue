@@ -40,7 +40,8 @@
 
         <!-- attribute -->
         <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id != -1 && !selectedRef.group">
-          <div class="d-inline-flex align-center">
+          <AttributeViewComponent :attr="selectedRef" :canEditConfig="canEditConfigRef" />
+          <!-- div class="d-inline-flex align-center">
             <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :readonly="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Attributes.Identifier')" required></v-text-field>
             <SystemInformation :data="selectedRef"></SystemInformation>
           </div>
@@ -89,7 +90,7 @@
             </v-tab-item>
           </v-tabs-items>
 
-          <OptionsTable :options="selectedRef.options" />
+          <OptionsTable :options="selectedRef.options" / -->
 
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-menu offset-y v-if="canEditConfigRef">
@@ -133,33 +134,26 @@
         </v-dialog>
       </v-row>
     </template>
-    <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="true" @selected="relationsSelected"/>
   </v-container>
 </template>
 
 <script>
 import * as attrStore from '../../store/attributes'
-import * as relStore from '../../store/relations'
 import { ref, computed, onMounted } from '@vue/composition-api'
 import i18n from '../../i18n'
 import router from '../../router'
 import * as errorStore from '../../store/error'
 import * as langStore from '../../store/languages'
 import LanguageDependentField from '../../components/LanguageDependentField'
-import RelationsSelectionDialog from '../../components/RelationsSelectionDialog'
 import * as userStore from '../../store/users'
-import * as lovStore from '../../store/lovs'
-import AttributeType from '../../constants/attributeTypes'
 import SystemInformation from '../../components/SystemInformation'
 import OptionsTable from '../../components/OptionsTable'
-import ValidVisibleComponent from '../../components/ValidVisibleComponent'
+import AttributeViewComponent from '../../components/AttributeViewComponent.vue'
 
 export default {
-  components: { LanguageDependentField, RelationsSelectionDialog, SystemInformation, OptionsTable, ValidVisibleComponent },
+  components: { LanguageDependentField, SystemInformation, OptionsTable, AttributeViewComponent },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
-
-    const { getLOVsForSelect } = lovStore.useStore()
 
     const {
       showInfo,
@@ -173,11 +167,6 @@ export default {
     } = langStore.useStore()
 
     const {
-      relations,
-      loadAllRelations
-    } = relStore.useStore()
-
-    const {
       groups,
       findById,
       findByIdentifier,
@@ -189,7 +178,6 @@ export default {
       removeAttribute
     } = attrStore.useStore()
 
-    const tabRef = ref(null)
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
@@ -202,34 +190,14 @@ export default {
     const selectedRef = ref(empty)
     const activeRef = ref([])
     const openRef = ref([])
-    const relSelectionDialogRef = ref(null)
     const selectedGroupsRef = ref([])
     const connectGroups = computed(() => {
       return selectedGroupsRef.value ? groups.filter((grp) => !selectedGroupsRef.value.find((item) => item.id === grp.id)) : []
     })
 
-    const lovSelection = ref([])
-
     function filter (item, search, textKey) {
       const s = search.toLowerCase()
       return item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1))
-    }
-
-    const attrRelations = computed(() => {
-      if (selectedRef.value.relations) {
-        return selectedRef.value.relations.map(id => relations.find(rel => rel.id === id))
-      } else {
-        return []
-      }
-    })
-
-    function editRelations () {
-      relSelectionDialogRef.value.showDialog('', selectedRef.value.relations)
-    }
-
-    function relationsSelected (arr) {
-      relSelectionDialogRef.value.closeDialog()
-      selectedRef.value.relations = arr
     }
 
     function activeChanged (active) {
@@ -322,12 +290,7 @@ export default {
     }
 
     onMounted(() => {
-      loadAllLanguages().then(() =>
-        getLOVsForSelect().then((arr) => {
-          lovSelection.value = arr
-        })
-      )
-      loadAllRelations()
+      loadAllLanguages()
       loadAllAttributes().then(() => {
         canViewConfigRef.value = canViewConfig('attributes')
         canEditConfigRef.value = canEditConfig('attributes')
@@ -368,7 +331,6 @@ export default {
     return {
       canViewConfigRef,
       canEditConfigRef,
-      tabRef,
       groups,
       activeChanged,
       searchRef,
@@ -387,30 +349,11 @@ export default {
       attrDeletionRef,
       currentLanguage,
       defaultLanguageIdentifier,
-      attrRelations,
-      editRelations,
-      relationsSelected,
-      relSelectionDialogRef,
-      lovSelection,
-      AttributeType,
       identifierRules: [
         v => identifierValidation(v)
       ],
       nameRules: [
         v => !!v || i18n.t('Config.Attributes.Error.NameRequired')
-      ],
-      typeRules: [
-        v => !!v || i18n.t('Config.Attributes.Error.TypeRequired')
-      ],
-      typeSelection: [
-        { text: i18n.t('Config.Attribute.Type.Text'), value: AttributeType.Text },
-        { text: i18n.t('Config.Attribute.Type.Boolean'), value: AttributeType.Boolean },
-        { text: i18n.t('Config.Attribute.Type.Integer'), value: AttributeType.Integer },
-        { text: i18n.t('Config.Attribute.Type.Float'), value: AttributeType.Float },
-        { text: i18n.t('Config.Attribute.Type.Date'), value: AttributeType.Date },
-        { text: i18n.t('Config.Attribute.Type.Time'), value: AttributeType.Time },
-        { text: i18n.t('Config.Attribute.Type.LOV'), value: AttributeType.LOV },
-        { text: i18n.t('Config.Attribute.Type.URL'), value: AttributeType.URL }
       ]
     }
   }

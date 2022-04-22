@@ -27,7 +27,7 @@
             </v-col>
           </v-row>
 
-          <MappingAttributesCompoment v-if="categoryRef && pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="categoryAttributes" />
+          <MappingAttributesCompoment v-if="categoryRef && pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :canManageAttributes="true" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="categoryAttributes" />
 
           <div class="mt-2">Дополнительные параметры</div>
           <v-simple-table dense class="mb-4" v-if="categoryRef">

@@ -55,7 +55,7 @@
             </v-col>
           </v-row>
 
-          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
+          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :canManageAttributes="channelFactory.canManageAttributes" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
         </div>
       </v-col>
       <v-col cols="1">
@@ -412,7 +412,8 @@ export default {
       add,
       remove,
       relCategoryDialogRef,
-      categoryToCopySelected
+      categoryToCopySelected,
+      channelFactory: getChannelFactory(props.channel.type)
     }
   }
 }

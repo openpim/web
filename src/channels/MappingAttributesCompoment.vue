@@ -29,7 +29,8 @@
                       </v-tooltip>
                     </td>
                     <td class="pa-1">
-                      <v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributes" clearable></v-autocomplete>
+                      <!-- v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributes" clearable></v-autocomplete -->
+                      <v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributes" clearable :append-outer-icon="canManageAttributes ? 'mdi-format-list-bulleted-type' : ''" @click:append-outer="manageAttribute(i, attributes[i])"></v-autocomplete>
                     </td>
                     <td class="pa-1">
                       <v-text-field v-model="attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[i])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[i])" />
@@ -85,6 +86,7 @@
 <script>
 import { ref } from '@vue/composition-api'
 import OptionsTable from '../components/OptionsTable.vue'
+import i18n from '../i18n'
 
 export default {
   components: { OptionsTable },
@@ -101,6 +103,10 @@ export default {
     readonly: {
       type: Boolean,
       required: true
+    },
+    canManageAttributes: {
+      type: Boolean,
+      default: false
     }
   },
   setup (props, { root }) {
@@ -148,6 +154,12 @@ export default {
       optDialogRef.value = true
     }
 
+    function manageAttribute (i, attr) {
+      const chanAttr = props.channelAttributes[i]
+      if ((attr.attrIdent || attr.expr) && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
+      console.log(chanAttr, attr)
+    }
+
     return {
       getAttribute,
       openWindow,
@@ -157,7 +169,8 @@ export default {
       exprDialogRef,
       exprAttrRef,
       optDialogRef,
-      optAttrRef
+      optAttrRef,
+      manageAttribute
     }
   }
 }
