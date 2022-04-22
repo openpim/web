@@ -41,56 +41,6 @@
         <!-- attribute -->
         <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id != -1 && !selectedRef.group">
           <AttributeViewComponent :attr="selectedRef" :canEditConfig="canEditConfigRef" />
-          <!-- div class="d-inline-flex align-center">
-            <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :readonly="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Attributes.Identifier')" required></v-text-field>
-            <SystemInformation :data="selectedRef"></SystemInformation>
-          </div>
-
-          <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Attributes.Name')"></LanguageDependentField>
-          <v-checkbox v-model="selectedRef.languageDependent" :label="$t('Config.Attributes.LanguageDependent')"></v-checkbox>
-
-          <v-select v-model="selectedRef.type" :items="typeSelection" :rules="typeRules" :label="$t('Config.Attribute.Type')"></v-select>
-
-          <v-checkbox v-if="selectedRef.type === AttributeType.Text" v-model="selectedRef.multiLine" :label="$t('Config.Attribute.MultiLine')"></v-checkbox>
-          <v-checkbox v-if="selectedRef.type === AttributeType.Text" v-model="selectedRef.richText" :label="$t('Config.Attribute.RichText')"></v-checkbox>
-
-          <v-text-field v-if="selectedRef.type === AttributeType.Text || selectedRef.type === AttributeType.Integer || selectedRef.type === AttributeType.Float || selectedRef.type === AttributeType.Date || selectedRef.type === AttributeType.DateTime" v-model="selectedRef.pattern" :label="$t('Config.Attribute.Pattern')" required></v-text-field>
-          <LanguageDependentField v-if="selectedRef.type === AttributeType.Text || selectedRef.type === AttributeType.Integer || selectedRef.type === AttributeType.Float || selectedRef.type === AttributeType.Date || selectedRef.type === AttributeType.DateTime" :values="selectedRef.errorMessage" v-model="selectedRef.errorMessage[currentLanguage.identifier]" :label="$t('Config.Attribute.ErrorMessage')"></LanguageDependentField>
-
-          <v-select v-if="selectedRef.type === AttributeType.LOV" v-model="selectedRef.lov" :items="lovSelection" :label="$t('Config.Attribute.LOV')"></v-select>
-
-          <v-text-field v-model="selectedRef.order" type="number" :label="$t('Config.Attributes.Order')" required></v-text-field>
-
-          <v-tabs v-model="tabRef">
-            <v-tab v-text="$t('Config.Attributes.ForObjects')"></v-tab>
-            <v-tab v-text="$t('Config.Attributes.ForRelations')"></v-tab>
-          </v-tabs>
-          <v-tabs-items v-model="tabRef">
-            <v-tab-item>
-              <ValidVisibleComponent :elem="selectedRef" :canEditConfig="canEditConfigRef"/>
-            </v-tab-item>
-            <v-tab-item>
-              <v-card class="mb-5 mt-2">
-                <v-card-title class="subtitle-2 font-weight-bold" >
-                  <div style="width:90%">{{ $t('Config.Attributes.ForRelations') }}</div>
-                  <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="editRelations"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
-                    </template>
-                    <span>{{ $t('Edit') }}</span>
-                  </v-tooltip>
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-list dense class="pt-0 pb-0">
-                  <v-list-item v-for="(item, i) in attrRelations" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
-                    <router-link :to="'/config/relations/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
-                  </v-list-item-content></v-list-item>
-                </v-list>
-              </v-card>
-            </v-tab-item>
-          </v-tabs-items>
-
-          <OptionsTable :options="selectedRef.options" / -->
 
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-menu offset-y v-if="canEditConfigRef">

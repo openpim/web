@@ -81,15 +81,19 @@
         </v-dialog>
       </v-row>
     </template>
+    <AttributeManageDialog ref="attrManageDialogRef" />
   </div>
 </template>
 <script>
-import { ref } from '@vue/composition-api'
+import { ref, onMounted } from '@vue/composition-api'
+import * as langStore from '../store/languages'
 import OptionsTable from '../components/OptionsTable.vue'
+import AttributeManageDialog from './AttributeManageDialog.vue'
 import i18n from '../i18n'
+import AttributeType from '../constants/attributeTypes'
 
 export default {
-  components: { OptionsTable },
+  components: { OptionsTable, AttributeManageDialog },
   props: {
     attributes: {
       required: true
@@ -98,6 +102,9 @@ export default {
       required: true
     },
     channelAttributes: {
+      required: true
+    },
+    channel: {
       required: true
     },
     readonly: {
@@ -110,10 +117,16 @@ export default {
     }
   },
   setup (props, { root }) {
+    const {
+      currentLanguage,
+      loadAllLanguages
+    } = langStore.useStore()
+
     const exprAttrRef = ref(null)
     const exprDialogRef = ref(null)
     const optAttrRef = ref(null)
     const optDialogRef = ref(null)
+    const attrManageDialogRef = ref(null)
 
     function getAttribute (id) {
       return props.channelAttributes.find(elem => elem.id === id)
@@ -154,11 +167,36 @@ export default {
       optDialogRef.value = true
     }
 
-    function manageAttribute (i, attr) {
+    function manageAttribute (i, attrMapping) {
+      if ((attrMapping.attrIdent || attrMapping.expr) && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
+
+      // TODO: check if such attribute was already created 'channel' + props.channel.type + 'attribute'
+
       const chanAttr = props.channelAttributes[i]
-      if ((attr.attrIdent || attr.expr) && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
-      console.log(chanAttr, attr)
+      // console.log(chanAttr, attrMapping)
+
+      const name = {}
+      name[currentLanguage.value.identifier] = chanAttr.name
+      const errorMessage = {}
+      errorMessage[currentLanguage.value.identifier] = ''
+      const pimAttr = { identifier: chanAttr.id, id: Date.now(), internalId: 0, type: AttributeType.Text, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name: name, errorMessage: errorMessage, options: [] }
+
+      if (chanAttr.description) {
+        pimAttr.options.push({ name: 'description', value: chanAttr.description })
+      }
+      pimAttr.options.push({ name: 'channel' + props.channel.type + 'attribute', value: chanAttr.id })
+
+      if (chanAttr.name.includes('(Integer)')) pimAttr.type = AttributeType.Integer
+      else if (chanAttr.name.includes('(Decimal)')) pimAttr.type = AttributeType.Float
+      else if (chanAttr.name.includes('(число)')) pimAttr.type = AttributeType.Float
+      else if (chanAttr.name.includes('[число]')) pimAttr.type = AttributeType.Float
+
+      attrManageDialogRef.value.showDialog(pimAttr)
     }
+
+    onMounted(() => {
+      loadAllLanguages()
+    })
 
     return {
       getAttribute,
@@ -170,7 +208,8 @@ export default {
       exprAttrRef,
       optDialogRef,
       optAttrRef,
-      manageAttribute
+      manageAttribute,
+      attrManageDialogRef
     }
   }
 }

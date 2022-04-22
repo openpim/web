@@ -4,7 +4,7 @@
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.wbIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить product ID" clearable/>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.wbCodeAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где находится артикул товара" clearable/>
 
-    <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly ></MappingConfigCompoment>
+    <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :variants="true" ></MappingConfigCompoment>
 
     <v-btn v-if="!readonly" class="mb-5 mt-5" text @click="sync">Синхронизация данных</v-btn>
     <v-checkbox :readonly="readonly" v-model="channel.config.debug" label="Выводить отладочную информацию при работе" required></v-checkbox>
