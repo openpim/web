@@ -10,7 +10,7 @@
             <v-row>
               <v-col cols="12">
                 <v-form ref="formRef" lazy-validation>
-                  <v-autocomplete item-text="text" item-value='id' v-model="groupRef" :items="groupsSelectionRef" :label="$t('AttributeManageDialog.Group')" clearable/>
+                  <v-autocomplete chips deletable-chips :multiple="initialGroups && initialGroups.length > 0" :readonly="initialGroups && initialGroups.length > 0" :clearable="!initialGroups" item-text="text" item-value='id' v-model="groupRef" :items="groupsSelectionRef" :label="$t('AttributeManageDialog.Group')"/>
                   <AttributeViewComponent :attr="attrRef" :canEditConfig="true" />
                 </v-form>
               </v-col>
@@ -20,7 +20,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Cancel') }}</v-btn>
-          <v-btn color="blue darken-1" text @click="manage" :disabled="!groupRef">{{ $t('Create') }}</v-btn>
+          <v-btn color="blue darken-1" text @click="manage" :disabled="!groupRef || groupRef.length === 0">{{ $t('Execute') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -38,13 +38,6 @@ export default {
     const {
       groups,
       loadAllAttributes
-      /* findById,
-      findByIdentifier,
-      checkIdentifier,
-      saveData,
-      assignData,
-      removeGroup,
-      removeAttribute */
     } = attrStore.useStore()
 
     const {
@@ -54,17 +47,28 @@ export default {
 
     const dialogRef = ref(false)
     const attrRef = ref(null)
-    const groupRef = ref(null)
+    const groupRef = ref([])
     const groupsSelectionRef = ref([])
+    const initialGroups = ref(null)
+    const formRef = ref(null)
+    let mapping = null
 
-    function showDialog (attr) {
-      groupRef.value = null
+    function showDialog (attr, groups, attrMapping) {
+      mapping = attrMapping
+      initialGroups.value = groups
+      groupRef.value = groups || []
       attrRef.value = attr
       dialogRef.value = true
     }
 
+    function closeDialog () {
+      dialogRef.value = false
+    }
+
     function manage () {
-      // emit('created', triggerRef.value)
+      if (formRef.value.validate()) {
+        emit('manage', { attr: attrRef.value, groups: groupRef.value, attrMapping: mapping })
+      }
     }
 
     onMounted(() => {
@@ -78,12 +82,15 @@ export default {
 
     return {
       dialogRef,
+      formRef,
       attrRef,
       showDialog,
+      closeDialog,
       manage,
       groupRef,
       groupsSelectionRef,
-      currentLanguage
+      currentLanguage,
+      initialGroups
     }
   }
 }

@@ -528,5 +528,9 @@
   "MappingConfigComponent.Attr.ConfirmExist": "Конфигурация уже существует, вы хотите создать новый атрибут?",
   "AttributeValue.Date.Input": "Ввод даты",
   "AttributeManageDialog.Title"  : "Создание аттрибута",
-  "AttributeManageDialog.Group"  : "Группа"
+  "AttributeManageDialog.Group"  : "Группа",
+  "AttributeManageDialog.DictionaryFailed"  : "Ошибка загрузки словаря, обратитесь в поддержку",
+  "AttributeManageDialog.DictionaryTooBig"  : "Словарь слишком большой чтобы загрузить его в систему, тип атрибута выставлен как Текст",
+  "AttributeManageDialog.ConfirmDictionary"  : "Был найдел словарь для этого атрибута, создать в системе список значений для него?",
+  "AttributeManageDialog.AttributeFound"  : "Соответствующий атрибут уже был создан в системе."
 }

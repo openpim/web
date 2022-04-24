@@ -528,5 +528,9 @@
   "MappingConfigComponent.Attr.ConfirmExist": "There is already an attribute mapped, do you want to change this?",
   "AttributeValue.Date.Input": "Date input",
   "AttributeManageDialog.Title"  : "Create new attribute",
-  "AttributeManageDialog.Group"  : "Group"
+  "AttributeManageDialog.Group"  : "Group",
+  "AttributeManageDialog.DictionaryFailed"  : "Failed to load dictionary",
+  "AttributeManageDialog.DictionaryTooBig"  : "Dictionary is too big to convert to list of values, attribute type set as Text",
+  "AttributeManageDialog.ConfirmDictionary"  : "Dictionary was found, create list of values for it?",
+  "AttributeManageDialog.AttributeFound"  : "Corresponding attribute was already created in the system"
 }

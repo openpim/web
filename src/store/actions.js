@@ -35,7 +35,6 @@ const actionList = {
         ', order: ' + action.order +
         `)
       }`
-      console.log(query)
       const data = await serverFetch(query)
       const newId = parseInt(data.createAction)
       action.internalId = newId
@@ -47,7 +46,6 @@ const actionList = {
         ', order: ' + action.order +
         `)
       }`
-      console.log(query)
       await serverFetch(query)
     }
   },

@@ -44,7 +44,7 @@ const actions = {
   checkIdentifier: (identifier) => {
     return findByComparator(identifier, (identifier, item) => item.identifier === identifier && item.internalId !== 0)
   },
-  saveData: async (item) => {
+  saveData: async (item, groupId) => {
     if (item.internalId === 0) {
       let query
       let newId
@@ -58,10 +58,14 @@ const actions = {
         const data = await serverFetch(query)
         newId = parseInt(data.createAttributeGroup)
       } else {
-        const attrData = findByComparator(item.id, (id, item) => item.id === id)
+        let grpId = groupId
+        if (!groupId) {
+          const attrData = findByComparator(item.id, (id, item) => item.id === id)
+          grpId = attrData.groups[0].internalId
+        }
         query = `
           mutation { createAttribute(identifier: "` + item.identifier + '", name: ' + objectToGraphgl(item.name) +
-          ', groupId: "' + attrData.groups[0].internalId +
+          ', groupId: "' + grpId +
           '", order: ' + item.order +
           ', languageDependent: ' + item.languageDependent +
           ', type: ' + item.type +

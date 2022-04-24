@@ -29,7 +29,6 @@
                       </v-tooltip>
                     </td>
                     <td class="pa-1">
-                      <!-- v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributes" clearable></v-autocomplete -->
                       <v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributes" clearable :append-outer-icon="canManageAttributes ? 'mdi-format-list-bulleted-type' : ''" @click:append-outer="manageAttribute(i, attributes[i])"></v-autocomplete>
                     </td>
                     <td class="pa-1">
@@ -81,7 +80,7 @@
         </v-dialog>
       </v-row>
     </template>
-    <AttributeManageDialog ref="attrManageDialogRef" />
+    <AttributeManageDialog ref="attrManageDialogRef" @manage="manageDialogClosed"/>
   </div>
 </template>
 <script>
@@ -91,6 +90,9 @@ import OptionsTable from '../components/OptionsTable.vue'
 import AttributeManageDialog from './AttributeManageDialog.vue'
 import i18n from '../i18n'
 import AttributeType from '../constants/attributeTypes'
+import * as attrStore from '../store/attributes'
+import * as errorStore from '../store/error'
+import * as lovStore from '../store/lovs'
 
 export default {
   components: { OptionsTable, AttributeManageDialog },
@@ -121,6 +123,23 @@ export default {
       currentLanguage,
       loadAllLanguages
     } = langStore.useStore()
+
+    const {
+      groups,
+      findByIdentifier,
+      loadAllAttributes,
+      saveData
+      /* assignData,
+      removeGroup,
+      removeAttribute */
+    } = attrStore.useStore()
+
+    const {
+      saveLOV,
+      lovs,
+      loadAllLOVs
+    } = lovStore.useStore()
+    const { showInfo, showError } = errorStore.useStore()
 
     const exprAttrRef = ref(null)
     const exprDialogRef = ref(null)
@@ -167,35 +186,109 @@ export default {
       optDialogRef.value = true
     }
 
-    function manageAttribute (i, attrMapping) {
-      if ((attrMapping.attrIdent || attrMapping.expr) && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
-
-      // TODO: check if such attribute was already created 'channel' + props.channel.type + 'attribute'
+    async function manageAttribute (i, attrMapping) {
+      if (attrMapping.expr && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
 
       const chanAttr = props.channelAttributes[i]
-      // console.log(chanAttr, attrMapping)
 
-      const name = {}
-      name[currentLanguage.value.identifier] = chanAttr.name
-      const errorMessage = {}
-      errorMessage[currentLanguage.value.identifier] = ''
-      const pimAttr = { identifier: chanAttr.id, id: Date.now(), internalId: 0, type: AttributeType.Text, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name: name, errorMessage: errorMessage, options: [] }
+      const pimAttr = findByIdentifier(attrMapping.attrIdent)
+      if (attrMapping.attrIdent && !attrMapping.expr && pimAttr) {
+        const pimAttr = findByIdentifier(attrMapping.attrIdent)
+        attrManageDialogRef.value.showDialog(pimAttr.item, pimAttr.groups.map(grp => grp.id), attrMapping)
+      } else {
+        // TODO: check if such attribute was already created 'channel' + props.channel.type + 'attribute'
+        // check if necessary attribute was already created
+        const check = 'channel' + props.channel.type + 'attribute'
+        let found = null
+        // eslint-disable-next-line no-labels
+        end:
+        for (let i = 0; i < groups.length; i++) {
+          const group = groups[i]
+          for (let j = 0; j < group.attributes.length; j++) {
+            const tst = group.attributes[j]
+            if (tst.options.some(option => option.name === check && option.value === chanAttr.id)) {
+              found = tst
+              // eslint-disable-next-line no-labels
+              break end
+            }
+          }
+        }
+        if (found) {
+          showInfo(i18n.t('AttributeManageDialog.AttributeFound'))
+          const pimAttr = findByIdentifier(found.identifier)
+          attrManageDialogRef.value.showDialog(pimAttr.item, pimAttr.groups.map(grp => grp.id), attrMapping)
+        } else {
+          const name = {}
+          name[currentLanguage.value.identifier] = chanAttr.name
+          const errorMessage = {}
+          errorMessage[currentLanguage.value.identifier] = ''
+          const pimAttr = { identifier: chanAttr.id, id: Date.now(), internalId: 0, type: AttributeType.Text, group: false, languageDependent: false, order: 0, visible: props.channel.visible, valid: props.channel.valid, relations: [], name: name, errorMessage: errorMessage, options: [] }
 
-      if (chanAttr.description) {
-        pimAttr.options.push({ name: 'description', value: chanAttr.description })
+          if (chanAttr.description) {
+            pimAttr.options.push({ name: 'description', value: chanAttr.description })
+          }
+          pimAttr.options.push({ name: 'channel' + props.channel.type + 'attribute', value: chanAttr.id })
+
+          if (chanAttr.name.includes('(Integer)')) pimAttr.type = AttributeType.Integer
+          else if (chanAttr.name.includes('(Decimal)')) pimAttr.type = AttributeType.Float
+          else if (chanAttr.name.includes('(число)')) pimAttr.type = AttributeType.Float
+          else if (chanAttr.name.includes('[число]')) pimAttr.type = AttributeType.Float
+
+          // TODO now support ozon only, support wb also
+          if (chanAttr.dictionary && chanAttr.dictionaryLink && chanAttr.dictionaryLinkPost) { // LOV
+            const resp = await fetch(chanAttr.dictionaryLink, {
+              method: 'POST',
+              headers: chanAttr.dictionaryLinkPost.headers,
+              body: JSON.stringify(chanAttr.dictionaryLinkPost.body)
+            })
+            if (resp.ok) {
+              const json = await resp.json()
+              if (!json.has_next) {
+                const tst = lovs.find(lov => lov.identifier === chanAttr.id)
+                if (tst) {
+                  pimAttr.type = AttributeType.LOV
+                  pimAttr.lov = parseInt(tst.internalId || tst.id)
+                } else if (confirm(i18n.t('AttributeManageDialog.ConfirmDictionary'))) {
+                  const lov = { identifier: chanAttr.id, id: Date.now(), internalId: 0, name: name, values: [] }
+                  json.result.forEach(elem => {
+                    const val = {}
+                    val[currentLanguage.value.identifier] = elem.value
+                    lov.values.push({ id: elem.id, value: val })
+                  })
+                  await saveLOV(lov)
+                  lovs.push(lov)
+                  pimAttr.type = AttributeType.LOV
+                  pimAttr.lov = lov.internalId
+                }
+              } else {
+                showError(i18n.t('AttributeManageDialog.DictionaryTooBig'))
+              }
+            } else {
+              showError(i18n.t('AttributeManageDialog.DictionaryFailed'))
+              console.error('Failed to load dictionary: ' + JSON.stringify(chanAttr))
+            }
+          }
+          attrManageDialogRef.value.showDialog(pimAttr, null, attrMapping)
+        }
       }
-      pimAttr.options.push({ name: 'channel' + props.channel.type + 'attribute', value: chanAttr.id })
+    }
 
-      if (chanAttr.name.includes('(Integer)')) pimAttr.type = AttributeType.Integer
-      else if (chanAttr.name.includes('(Decimal)')) pimAttr.type = AttributeType.Float
-      else if (chanAttr.name.includes('(число)')) pimAttr.type = AttributeType.Float
-      else if (chanAttr.name.includes('[число]')) pimAttr.type = AttributeType.Float
-
-      attrManageDialogRef.value.showDialog(pimAttr)
+    function manageDialogClosed (data) {
+      attrManageDialogRef.value.closeDialog()
+      const newAttr = data.attr.internalId === 0
+      saveData(data.attr, data.groups)
+      if (newAttr) {
+        props.pimAttributes.push({ value: data.attr.identifier, text: data.attr.name[currentLanguage.value.identifier] })
+        const grp = groups.find(group => group.id === data.groups)
+        grp.attributes.push(data.attr)
+      }
+      data.attrMapping.attrIdent = data.attr.identifier
     }
 
     onMounted(() => {
+      loadAllLOVs()
       loadAllLanguages()
+      loadAllAttributes()
     })
 
     return {
@@ -209,7 +302,8 @@ export default {
       optDialogRef,
       optAttrRef,
       manageAttribute,
-      attrManageDialogRef
+      attrManageDialogRef,
+      manageDialogClosed
     }
   }
 }
