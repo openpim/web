@@ -3,7 +3,9 @@
     <v-dialog v-model="dialogRef" persistent width="80%">
       <v-card v-if="attrRef">
         <v-card-title>
-          <span class="headline">{{ $t('AttributeManageDialog.Title') }}</span>
+          <span :class="initialGroups && initialGroups.length > 0 ? 'headline indigo--text' : 'headline pink--text'">
+            {{ initialGroups && initialGroups.length > 0 ? $t('AttributeManageDialog.TitleExisting') : $t('AttributeManageDialog.TitleNew') }}
+          </span>
         </v-card-title>
         <v-card-text>
           <v-container style="max-height: 500px" class="overflow-y-auto">
