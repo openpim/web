@@ -124,9 +124,9 @@ function objectToGraphgl (value) {
         const attr = attrStore.store.findByIdentifier(prop)
         if (obj) {
           if (attr && attr.item.type === 3) { // Integer
-            result += prop + ':' + parseInt(obj) + ','
+            result += prop + ':' + (isNaN(parseInt(obj)) ? null : parseInt(obj)) + ','
           } else if (attr && attr.item.type === 4) { // Float
-            result += prop + ':' + parseFloat(obj) + ','
+            result += prop + ':' + (isNaN(parseFloat(obj)) ? null : parseFloat(obj)) + ','
           } else {
             let tmp = obj
             if (tmp.endsWith('"')) tmp += ' '

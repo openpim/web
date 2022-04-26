@@ -678,7 +678,7 @@ export default {
     function importExcel (event) {
       importConfigDialogRef.value = false
       excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleImport')
-      const pageSize = importPageSizeRef.value
+      const pageSize = parseInt(importPageSizeRef.value)
 
       const file = fileUploadRef.value
       if (!file) return
