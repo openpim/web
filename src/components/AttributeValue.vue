@@ -288,7 +288,7 @@
 <script>
 import * as langStore from '../store/languages'
 import * as lovStore from '../store/lovs'
-import { ref, computed, onMounted, onUnmounted } from '@vue/composition-api'
+import { ref, computed, onMounted, onUnmounted, onBeforeUpdate } from '@vue/composition-api'
 import LanguageDependentField from './LanguageDependentField'
 import AttributeType from '../constants/attributeTypes'
 import i18n from '../i18n'
@@ -411,14 +411,14 @@ export default {
     }
 
     function lovChanged (skipInput) {
-      const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
+      const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier]
       const data = { attr: props.attr.identifier, lov: props.attr.lov, value: val }
       eventBus.emit('lov_value_changed', data)
       if (!skipInput) attrInput(val)
     }
 
     const formatedDate = computed(() => {
-      const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
+      const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier]
       return dateFormat(Date.parse(val), process.env.VUE_APP_DATE_ONLY_FORMAT)
     })
 
@@ -430,7 +430,7 @@ export default {
           if (tst.toString() !== 'Invalid Date') {
             dateError.value = ''
             const df = 'yyyy-mm-dd'
-            if (props.attr.languageDependent) props.values[props.attr.identifier][currentLanguage.identifier] = dateFormat(tst, df)
+            if (props.attr.languageDependent) props.values[props.attr.identifier][currentLanguage.value.identifier] = dateFormat(tst, df)
             else props.values[props.attr.identifier] = dateFormat(tst, df)
             return true
           }
@@ -448,19 +448,26 @@ export default {
 
     function dateDialogChanged (open) {
       if (open) {
-        dateSaveValue.value = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
+        dateSaveValue.value = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier]
       }
     }
 
+    const handler = () => {
+      const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier]
+      attrInput(val)
+    }
+    onBeforeUpdate(() => {
+      if (joditRef.value) {
+        joditRef.value.editor.events.on('keyup', handler)
+        joditRef.value.editor.events.on('afterPaste', handler)
+      }
+    })
+
     onMounted(() => {
       if (joditRef.value) {
-        const handler = () => {
-          const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
-          attrInput(val)
-        }
-        // joditRef.value.editor.events.on('keyup', handler)
-        // joditRef.value.editor.events.on('afterPaste', handler)
-        joditRef.value.editor.events.on('change', handler)
+        joditRef.value.editor.events.on('keyup', handler)
+        joditRef.value.editor.events.on('afterPaste', handler)
+        // joditRef.value.editor.events.on('change', handler)
       }
 
       const tst = props.attr.options.find(opt => opt.name === 'lovFilter')
