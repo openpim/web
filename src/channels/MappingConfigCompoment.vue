@@ -29,7 +29,7 @@
     </v-row>
     <v-row>
       <v-col cols="11">
-        <v-autocomplete v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')" clearable></v-autocomplete>
+        <v-autocomplete v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories.filter(elem => !elem.deleted)" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')" clearable></v-autocomplete>
 
         <div v-if="categoryIdRef">
           <v-row>
@@ -259,7 +259,8 @@ export default {
 
     function remove () {
       if (confirm(i18n.t('MappingConfigComponent.Remove.Confirm'))) {
-        root.$delete(props.channel.mappings, categoryIdRef.value)
+        props.channel.mappings[categoryIdRef.value] = { deleted: true }
+        // root.$delete(props.channel.mappings, categoryIdRef.value)
         categoryIdRef.value = null
       }
     }

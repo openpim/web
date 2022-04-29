@@ -8,7 +8,7 @@
     </v-row>
     <v-row>
       <v-col cols="11">
-        <v-select v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')"></v-select>
+        <v-autocomplete v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories.filter(elem => !elem.deleted)" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')"></v-autocomplete>
 
         <div v-if="categoryIdRef">
           <ValidVisibleComponent v-if="categoryIdRef !== '_default'" :elem="categoryRef" :canEditConfig="!readonly"/>
@@ -295,7 +295,8 @@ export default {
 
     function remove () {
       if (confirm(i18n.t('MappingConfigComponent.Remove.Confirm'))) {
-        root.$delete(props.channel.mappings, categoryIdRef.value)
+        props.channel.mappings[categoryIdRef.value] = { deleted: true }
+        // root.$delete(props.channel.mappings, categoryIdRef.value)
         categoryIdRef.value = null
       }
     }
