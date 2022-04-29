@@ -156,7 +156,10 @@ const actions = {
     }
 
     data.groups.forEach((grp) => {
-      const idx = grp.attributes.findIndex(item => item.internalId === data.item.internalId)
+      if (!full && fullData.groups.length > 1) {
+        if (grp.id !== data.groups[0].internalId) return
+      }
+      const idx = grp.attributes.findIndex(item => item.identifier === data.item.identifier)
       grp.attributes.splice(idx, 1)
     })
   },
