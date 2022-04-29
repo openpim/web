@@ -55,7 +55,7 @@
             </v-col>
           </v-row>
 
-          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
+          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
         </div>
       </v-col>
       <v-col cols="1">
@@ -115,6 +115,7 @@ import * as langStore from '../store/languages'
 import * as relStore from '../store/relations'
 import * as lovsStore from '../store/lovs'
 import * as errorStore from '../store/error'
+import * as userStore from '../store/users'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
 import MappingAttributesCompoment from './MappingAttributesCompoment'
@@ -143,6 +144,8 @@ export default {
     const {
       showError
     } = errorStore.useStore()
+
+    const { canEditConfig } = userStore.useStore()
 
     const {
       lovs,
@@ -386,6 +389,7 @@ export default {
     })
 
     return {
+      canEditConfig,
       mappedCategories,
       categoriesTreeRef,
       treeSearchRef,

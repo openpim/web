@@ -27,7 +27,7 @@
             </v-col>
           </v-row>
 
-          <MappingAttributesCompoment v-if="categoryRef && pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly"  :channel="channel" :canManageAttributes="true" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="categoryAttributes" />
+          <MappingAttributesCompoment v-if="categoryRef && pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly"  :channel="channel" :canManageAttributes="canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="categoryAttributes" />
 
           <div class="mt-2">Дополнительные параметры</div>
           <v-simple-table dense class="mb-4" v-if="categoryRef">
@@ -115,6 +115,7 @@ import { ref, onMounted, computed, watch } from '@vue/composition-api'
 import * as attrStore from '../../store/attributes'
 import * as langStore from '../../store/languages'
 import * as relStore from '../../store/relations'
+import * as userStore from '../../store/users'
 import ValidVisibleComponent from '../../components/ValidVisibleComponent'
 import MappingAttributesCompoment from '../MappingAttributesCompoment'
 import ChannelsCategorySelectionDialog from '../../components/ChannelsCategorySelectionDialog.vue'
@@ -148,6 +149,8 @@ export default {
       relations,
       loadAllRelations
     } = relStore.useStore()
+
+    const { canEditConfig } = userStore.useStore()
 
     const mappedCategories = computed(() => {
       if (props.channel && props.channel.mappings) {
@@ -362,6 +365,7 @@ export default {
     })
 
     return {
+      canEditConfig,
       mappedCategories,
       categoryRef,
       categoryIdRef,
