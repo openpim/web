@@ -729,7 +729,7 @@ export default {
           let attrValue = getOption(attr, 'default', null)
           if (attrValue && attr.lov) attrValue = parseInt(attrValue)
 
-          if (!item.values[attr.identifier]) {
+          if (item.values[attr.identifier] === null || item.values[attr.identifier] === undefined) {
             if (attr.languageDependent) {
               item.values[attr.identifier] = {}
               item.values[attr.identifier][currentLanguage.value.identifier] = attrValue
