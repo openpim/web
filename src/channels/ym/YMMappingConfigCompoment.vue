@@ -218,6 +218,7 @@ export default {
       { id: 'url', name: 'url', required: false, description: 'URL страницы товара на сайте магазина. Максимальная длина ссылки — 2048 символов.' },
       { id: 'price', name: 'price', required: true, description: 'Актуальная цена товара. Формат: целое или дробное число. Разделитель целой и дробной части — точка.' },
       { id: 'count', name: 'count', required: false, description: 'Остатки товара — общее количество товара, доступное для продажи на Маркете и зарезервированное под заказы. Если товара нет в наличии, укажите 0. Если у вас включена опция передачи данных об остатках товаров и вы не укажете элемент count, товар не будет размещен на Маркете.' },
+      { id: 'outlets', name: 'outlets', required: false, description: 'Остатки товара по складам. На вход принимается массив массивов [[id1,stock1],[id2,stock2]]' },
       { id: 'oldprice', name: 'oldprice', required: false, description: 'Старая цена товара, должна быть выше текущей. Маркет автоматически рассчитывает разницу и показывает пользователям скидку.' },
       { id: 'purchase_price', name: 'purchase_price', required: false, description: 'Закупочная цена товара. Она нужна для расчета наценки и настройки стратегии по маржинальности в PriceLabs.' },
       { id: 'enable_auto_discounts', name: 'enable_auto_discounts', required: false, description: 'Автоматический расчет и показ скидок для предложения.' },
