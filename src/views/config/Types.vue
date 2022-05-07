@@ -61,7 +61,7 @@
                 </v-list>
               </v-card>
 
-            <OptionsTable :options="selectedRef.options" />
+            <OptionsTable :options="selectedRef.options" @changed="optionsChanged" />
 
             <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
             <v-btn class="mr-4" v-if="canEditConfigRef" @click="link">{{ $t('Config.Types.Link') }}</v-btn>
@@ -180,6 +180,10 @@ export default {
       }
     })
 
+    function optionsChanged (val) {
+      selectedRef.value.options = val
+    }
+
     function link () {
       typeSelectionDialogRef.value.showDialog()
     }
@@ -295,6 +299,7 @@ export default {
       linkParent,
       toLink,
       currentLanguage,
+      optionsChanged,
       defaultLanguageIdentifier,
       editRelations,
       relationsSelected,

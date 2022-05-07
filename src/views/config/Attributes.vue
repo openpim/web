@@ -33,7 +33,7 @@
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Attributes.Name')"></LanguageDependentField>
           <v-text-field v-model="selectedRef.order" type="number" :label="$t('Config.Attributes.Order')" required></v-text-field>
           <v-checkbox v-model="selectedRef.visible" :label="$t('Config.Attributes.Group.Visible')"></v-checkbox>
-          <OptionsTable :options="selectedRef.options" />
+          <OptionsTable :options="selectedRef.options" @changed="optionsChanged"/>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
@@ -169,6 +169,10 @@ export default {
       }
     }
 
+    function optionsChanged (val) {
+      selectedRef.value.options = val
+    }
+
     function add () {
       if (selectedRef.value && selectedRef.value.group) {
         const name = {}
@@ -298,6 +302,7 @@ export default {
       dialogRef,
       attrDeletionRef,
       currentLanguage,
+      optionsChanged,
       defaultLanguageIdentifier,
       identifierRules: [
         v => identifierValidation(v)

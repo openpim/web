@@ -226,7 +226,7 @@
             </v-tab-item>
           </v-tabs-items>
 
-          <OptionsTable :options="selectedRef.options" />
+          <OptionsTable :options="selectedRef.options" @changed="optionsChanged" />
 
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save" :disabled="selectedRef.identifier && selectedRef.identifier === 'admin'">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.identifier && selectedRef.identifier === 'admin'">{{ $t('Remove') }}</v-btn>
@@ -385,6 +385,10 @@ export default {
         return []
       }
     })
+
+    function optionsChanged (val) {
+      selectedRef.value.options = val
+    }
 
     const fromItems = ref([])
     const fromItemsSelectedRef = ref(null)
@@ -605,6 +609,7 @@ export default {
       fromItemsSelectedRef,
       addFromItems,
       itemsSelected,
+      optionsChanged,
       removeFromItems,
       searchRef,
       rolesFiltered,

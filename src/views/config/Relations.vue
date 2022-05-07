@@ -73,7 +73,7 @@
 
           <v-text-field v-model="selectedRef.order" type="number" :label="$t('Config.Relations.Order')" required></v-text-field>
 
-          <OptionsTable :options="selectedRef.options" />
+          <OptionsTable :options="selectedRef.options" @changed="optionsChanged" />
 
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
@@ -197,6 +197,10 @@ export default {
       typeSelectionDialogRef.value.showDialog('targets', selectedRef.value.targets)
     }
 
+    function optionsChanged (val) {
+      selectedRef.value.options = val
+    }
+
     function typesSelected (arr, initiator) {
       typeSelectionDialogRef.value.closeDialog()
       if (initiator === 'sources') {
@@ -284,6 +288,7 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       searchRef,
+      optionsChanged,
       relationsFiltered,
       clearSelection,
       identifierRules: [

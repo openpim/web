@@ -55,7 +55,7 @@
           <v-text-field type="password" v-if="canEditConfigRef" :error-messages="passwordErrors" v-model="selectedRef.password1" :label="$t('Config.Users.Password1')" required></v-text-field>
           <v-text-field type="password" v-if="canEditConfigRef" :error-messages="passwordErrors" v-model="selectedRef.password2" :label="$t('Config.Users.Password2')" required></v-text-field>
 
-          <OptionsTable :options="selectedRef.options" />
+          <OptionsTable :options="selectedRef.options" @changed="optionsChanged" />
 
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove">{{ $t('Remove') }}</v-btn>
@@ -198,6 +198,10 @@ export default {
       selectedRef.value.roles = arr
     }
 
+    function optionsChanged (val) {
+      selectedRef.value.options = val
+    }
+
     const searchRef = ref('')
     const userFiltered = computed(() => {
       let arr = users
@@ -268,6 +272,7 @@ export default {
       canViewConfigRef,
       canEditConfigRef,
       searchRef,
+      optionsChanged,
       userFiltered,
       clearSelection,
       loginRules: [

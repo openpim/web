@@ -49,7 +49,7 @@
             </v-tab-item>
           </v-tabs-items>
 
-          <OptionsTable :options="attr.options" />
+          <OptionsTable :options="attr.options" @changed="optionsChanged" />
     <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="true" @selected="relationsSelected"/>
   </div>
 </template>
@@ -129,6 +129,10 @@ export default {
       )
     })
 
+    function optionsChanged (val) {
+      props.attr.options = val
+    }
+
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_]*$/.test(v)) {
         return i18n.t('Wrong.Identifier')
@@ -164,6 +168,7 @@ export default {
       typeRules: [
         v => !!v || i18n.t('Config.Attributes.Error.TypeRequired')
       ],
+      optionsChanged,
       typeSelection: [
         { text: i18n.t('Config.Attribute.Type.Text'), value: AttributeType.Text },
         { text: i18n.t('Config.Attribute.Type.Boolean'), value: AttributeType.Boolean },

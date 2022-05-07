@@ -67,7 +67,7 @@
               <v-container>
                 <v-row>
                   <v-col cols="12">
-                    <OptionsTable :options="optAttrRef.options" />
+                    <OptionsTable :options="optAttrRef.options" @changed="optionsChanged" />
                   </v-col>
                 </v-row>
               </v-container>
@@ -186,6 +186,10 @@ export default {
       optDialogRef.value = true
     }
 
+    function optionsChanged (val) {
+      optAttrRef.value.options = val
+    }
+
     async function manageAttribute (i, attrMapping) {
       if (attrMapping.expr && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
 
@@ -301,6 +305,7 @@ export default {
       exprAttrRef,
       optDialogRef,
       optAttrRef,
+      optionsChanged,
       manageAttribute,
       attrManageDialogRef,
       manageDialogClosed
