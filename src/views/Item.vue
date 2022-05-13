@@ -799,6 +799,9 @@ export default {
           if (result.data.router) {
             router.push(result.data.router)
           }
+          if (result.data.openUrl) {
+            window.open(result.data.openUrl)
+          }
         }
       })
     }
