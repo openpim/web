@@ -48,11 +48,11 @@
                   <td v-if="getOption(identifier, 'hideIdentifier', '') !== 'true'" class="pa-1"><input v-model="itemRel.identifier" :placeholder="$t('ItemRelationsList.Identifier')" :disabled="itemRel.id > 0"></td>
 
                   <td>
-                    <a target="_blank" :href="damUrl + 'asset/' + itemRel.item.id + '?inline=true&token=' + token" style="text-decoration: none">
+                    <a v-if="itemRel.item" target="_blank" :href="damUrl + 'asset/' + itemRel.item.id + '?inline=true&token=' + token" style="text-decoration: none">
                       <v-icon v-if="itemRel.item.fileOrigName && !itemRel.item.mimeType.startsWith('image/')">mdi-download-circle-outline</v-icon>
                       <v-img v-if="itemRel.item.fileOrigName && itemRel.item.mimeType.startsWith('image/')" max-width="5vw" max-height="5vh" :src="damUrl + 'asset/' + itemRel.item.id + '/thumb?token=' + token" contain></v-img>
                     </a>
-                    <a target="_blank" :href="damUrl + 'asset/' + itemRel.target.id + '?inline=true&token=' + token" style="text-decoration: none">
+                    <a  v-if="itemRel.target" target="_blank" :href="damUrl + 'asset/' + itemRel.target.id + '?inline=true&token=' + token" style="text-decoration: none">
                       <v-icon v-if="itemRel.target.fileOrigName && !itemRel.target.mimeType.startsWith('image/')">mdi-download-circle-outline</v-icon>
                       <v-img v-if="itemRel.target.fileOrigName && itemRel.target.mimeType.startsWith('image/')" max-width="5vw" max-height="5vh" :src="damUrl + 'asset/' + itemRel.target.id + '/thumb?token=' + token" contain></v-img>
                     </a>
