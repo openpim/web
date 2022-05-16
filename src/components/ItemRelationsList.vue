@@ -22,6 +22,8 @@
                 <tr>
                   <th v-if="getOption(identifier, 'hideIdentifier', '') !== 'true'" class="text-left">{{$t('ItemRelationsList.Identifier')}}</th>
 
+                  <th></th>
+
                   <th class="text-left" v-if="componentType === 'source'">{{$t('ItemRelationsList.Target')}}</th>
                   <th class="text-left" v-if="componentType === 'target'">{{$t('ItemRelationsList.Source')}}</th>
 
@@ -44,6 +46,18 @@
               <tbody>
                 <tr v-for="(itemRel, j) in rel" :key="'T'+j" :set="canEditItemRelation = canEditItemRelationByIdentifier(identifier)">
                   <td v-if="getOption(identifier, 'hideIdentifier', '') !== 'true'" class="pa-1"><input v-model="itemRel.identifier" :placeholder="$t('ItemRelationsList.Identifier')" :disabled="itemRel.id > 0"></td>
+
+                  <td>
+                    <a target="_blank" :href="damUrl + 'asset/' + itemRel.item.id + '?inline=true&token=' + token" style="text-decoration: none">
+                      <v-icon v-if="itemRel.item.fileOrigName && !itemRel.item.mimeType.startsWith('image/')">mdi-download-circle-outline</v-icon>
+                      <v-img v-if="itemRel.item.fileOrigName && itemRel.item.mimeType.startsWith('image/')" max-width="5vw" max-height="5vh" :src="damUrl + 'asset/' + itemRel.item.id + '/thumb?token=' + token" contain></v-img>
+                    </a>
+                    <a target="_blank" :href="damUrl + 'asset/' + itemRel.target.id + '?inline=true&token=' + token" style="text-decoration: none">
+                      <v-icon v-if="itemRel.target.fileOrigName && !itemRel.target.mimeType.startsWith('image/')">mdi-download-circle-outline</v-icon>
+                      <v-img v-if="itemRel.target.fileOrigName && itemRel.target.mimeType.startsWith('image/')" max-width="5vw" max-height="5vh" :src="damUrl + 'asset/' + itemRel.target.id + '/thumb?token=' + token" contain></v-img>
+                    </a>
+                  </td>
+
                   <td class="pa-1">
                     <span v-if="componentType === 'source' && itemRel.target">
                       <template v-if="!getOption2(itemRel.target.type, 'hideIdentifier', false)">
@@ -541,6 +555,8 @@ export default {
       selectedGroupRef,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive'),
+      damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
+      token: localStorage.getItem('token'),
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }

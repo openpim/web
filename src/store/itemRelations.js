@@ -78,6 +78,8 @@ const actions = {
               identifier
               name
               typeId
+              fileOrigName
+              mimeType
               updatedAt
             }
             target {
@@ -85,6 +87,8 @@ const actions = {
                 identifier
                 name
                 typeId
+                fileOrigName
+                mimeType
                 updatedAt
               }
             values
@@ -132,6 +136,8 @@ const actions = {
               identifier
               name
               typeId
+              fileOrigName
+              mimeType
               updatedAt
             }
             target {
@@ -139,6 +145,8 @@ const actions = {
                 identifier
                 name
                 typeId
+                fileOrigName
+                mimeType
                 updatedAt
               }
             values
@@ -187,6 +195,8 @@ const actions = {
               identifier
               name
               typeId
+              fileOrigName
+              mimeType
               updatedAt
             }
             target {
@@ -194,6 +204,8 @@ const actions = {
                 identifier
                 name
                 typeId
+                fileOrigName
+                mimeType
                 updatedAt
               }
             values
@@ -310,6 +322,8 @@ const actions = {
               identifier
               name
               typeId
+              fileOrigName
+              mimeType
               updatedAt
             }
             target {
@@ -317,6 +331,8 @@ const actions = {
                 identifier
                 name
                 typeId
+                fileOrigName
+                mimeType
                 updatedAt
               }
             values
