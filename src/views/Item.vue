@@ -77,7 +77,7 @@
             <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
             <v-btn v-if="hasChannels" text @click="submit" v-text="$t('Submit')"></v-btn>
-            <template v-if="canEditSelected">
+            <template>
               <v-btn text @click="executeAction(trigger.itemButton, trigger.askBeforeExec)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
             <AfterButtonsComponent></AfterButtonsComponent>
