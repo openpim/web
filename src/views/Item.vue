@@ -454,7 +454,7 @@ export default {
                   parseInt(itemRef.value.typeId) === parseInt(trigger.itemType) &&
                   pathArr.includes(parseInt(trigger.itemFrom))
             if (result) {
-              arr.push(trigger)
+              arr.push({ ...trigger, order: action.order })
             }
           }
         })
