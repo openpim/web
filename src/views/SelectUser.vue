@@ -6,7 +6,7 @@
               <v-card-text>
                 <v-form>
                   <v-select v-model="selectedTenantRef" @change="tenantChanged" :items="tenantsRef" :label="$t('UserSelect.Tenant')"></v-select>
-                  <v-select v-model="selectedUserRef" :items="usersRef" :label="$t('UserSelect.User')"></v-select>
+                  <v-autocomplete v-model="selectedUserRef" :items="usersRef" :label="$t('UserSelect.User')"></v-autocomplete>
                 </v-form>
               </v-card-text>
               <v-card-actions>
