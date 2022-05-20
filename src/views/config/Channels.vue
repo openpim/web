@@ -116,9 +116,10 @@ import ExtConfigCompoment from '../../channels/ext/ExtConfigCompoment'
 import WBConfigCompoment from '../../channels/wb/WBConfigCompoment'
 import OzonConfigCompoment from '../../channels/ozon/OzonConfigCompoment'
 import YMConfigCompoment from '../../channels/ym/YMConfigCompoment'
+import ExtMapConfigCompoment from '../../channels/extmap/ExtMapConfigCompoment'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment, YMConfigCompoment },
+  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment, YMConfigCompoment, ExtMapConfigCompoment },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
@@ -221,7 +222,8 @@ export default {
       { value: 1, text: i18n.t('Channels.Type.External') },
       { value: 2, text: i18n.t('Channels.Type.WB') },
       { value: 3, text: i18n.t('Channels.Type.Ozon') },
-      { value: 4, text: i18n.t('Channels.Type.YM') }
+      { value: 4, text: i18n.t('Channels.Type.YM') },
+      { value: 5, text: i18n.t('Channels.Type.ExternalWithMapping') }
     ])
 
     onMounted(() => {
