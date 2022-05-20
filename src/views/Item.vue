@@ -77,6 +77,19 @@
             <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
             <v-btn v-if="hasChannels" text @click="submit" v-text="$t('Submit')"></v-btn>
+            <template v-if="sourceRelationSearch.length > 0 || targetRelationSearch.length > 0">
+              <v-menu offset-y>
+                <template v-slot:activator="{ on }"><v-btn text class="mr-4" v-on="on"> {{ $t('ItemView.Search') }}</v-btn></template>
+                <v-list>
+                  <v-list-item v-for="(rel, index) in sourceRelationSearch" :key="index" @click="performRelationSearch(rel.identifier, 'source')">
+                    <v-list-item-title>{{ rel.name[currentLanguage.identifier] || '[' + rel.name[defaultLanguageIdentifier] + ']' }}</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item v-for="(rel, index) in targetRelationSearch" :key="index" @click="performRelationSearch(rel.identifier, 'target')">
+                    <v-list-item-title>{{ rel.name[currentLanguage.identifier] || '[' + rel.name[defaultLanguageIdentifier] + ']' }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
             <template>
               <v-btn text @click="executeAction(trigger.itemButton, trigger.askBeforeExec)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
@@ -464,6 +477,39 @@ export default {
         return []
       }
     })
+
+    const sourceRelationSearch = computed(() => {
+      const type = itemType.value
+      if (type && type.options.some(option => option.name === 'sourceRelationSearch')) {
+        const option = type.options.find(option => option.name === 'sourceRelationSearch')
+        if (option.value) {
+          const relIdents = option.value.split(',')
+          return relations.filter(elem => relIdents.includes(elem.identifier))
+        }
+      }
+      return []
+    })
+    const targetRelationSearch = computed(() => {
+      const type = itemType.value
+      if (type && type.options.some(option => option.name === 'targetRelationSearch')) {
+        const option = type.options.find(option => option.name === 'targetRelationSearch')
+        if (option.value) {
+          const relIdents = option.value.split(',')
+          return relations.filter(elem => relIdents.includes(elem.identifier))
+        }
+      }
+      return []
+    })
+
+    function performRelationSearch (relIdent, type) {
+      const oppositeType = type === 'source' ? 'target' : 'source'
+      const lquery = itemRef.value.path + '.*'
+      const where = { include: [{ as: type + 'Relation', required: true, where: { relationIdentifier: relIdent }, include: [{ as: oppositeType + 'Item', required: true, where: { path: { OP_regexp: lquery } } }] }] }
+
+      const search = { user: '', filters: [], whereClause: where, extended: true }
+      localStorage.setItem('search_to_open', JSON.stringify(search))
+      window.open('/#/search', '_blank')
+    }
 
     let beforeShowActions = []
     function reloadBeforeShowActions (item) {
@@ -1000,6 +1046,9 @@ export default {
       syncItem,
       itemChangedRef,
       refreshChannels,
+      sourceRelationSearch,
+      targetRelationSearch,
+      performRelationSearch,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
