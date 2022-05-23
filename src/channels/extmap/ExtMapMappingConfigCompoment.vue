@@ -4,7 +4,7 @@
       <v-col cols="11">
               <v-card class="mb-5 mt-2">
                 <v-card-title class="subtitle-2 font-weight-bold" >
-                  <div style="width:90%">Зависимости для изображений</div>
+                  <div style="width:90%">{{$t('MappingConfigComponent.ImageRelations')}}</div>
                   <v-tooltip bottom v-if="!readonly">
                     <template v-slot:activator="{ on }">
                       <v-btn icon v-on="on" @click="editRelations"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
@@ -23,8 +23,8 @@
     </v-row>
     <v-row v-if="variants">
       <v-col cols="11">
-        <v-checkbox v-model="channel.config.variantsSupport" label="Поддержка вариантов" required></v-checkbox>
-        <v-text-field v-if= "channel.config.variantsSupport" v-model="channel.config.variantExpr" dense class="ml-5" label="Выражение для определения вариант или нет" />
+        <v-checkbox v-model="channel.config.variantsSupport" :label="$t('MappingConfigComponent.VariantsSupport')" required></v-checkbox>
+        <v-text-field v-if= "channel.config.variantsSupport" v-model="channel.config.variantExpr" dense class="ml-5" :label="$t('MappingConfigComponent.VariantsExpr')" />
       </v-col>
     </v-row>
     <v-row>
@@ -41,17 +41,25 @@
                 <template v-slot:activator="{ on }">
                   <v-btn icon v-on="on" @click="relCategoryDialogRef.showDialog()"><v-icon>mdi-content-copy</v-icon></v-btn>
                 </template>
-                <span>Скопировать настройки из другой категории</span>
+                <span>{{$t('MappingConfigComponent.CopyMapping')}}</span>
               </v-tooltip>
+
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="addAttribute"><v-icon>mdi-plus</v-icon></v-btn>
+                </template>
+                <span>{{$t('MappingConfigComponent.AddAttribute')}}</span>
+              </v-tooltip>
+
             </v-col>
           </v-row>
-          <v-textarea :rows="1" :readonly="readonly" v-model="categoryRef.categoryExpr" label="Выражение для определения категории" required/>
+          <v-textarea :rows="1" :readonly="readonly" v-model="categoryRef.categoryExpr" :label="$t('MappingConfigComponent.CategoryExpr')" required/>
           <v-row>
             <v-col cols="6">
-              <v-autocomplete @input="lovChanged" item-text="name.ru" item-value='identifier' v-model="categoryRef.categoryAttr" :items="lovAttributes" :readonly="readonly" label="Атрибут где находится категория" clearable/>
+              <v-autocomplete @input="lovChanged" item-text="name[defaultLanguageIdentifier]" item-value='identifier' v-model="categoryRef.categoryAttr" :items="lovAttributes" :readonly="readonly" :label="$t('MappingConfigComponent.AttributeForCategory')" clearable/>
             </v-col>
             <v-col cols="6">
-              <v-autocomplete item-text="value.ru" item-value='id' v-model="categoryRef.categoryAttrValue" :items="categoryLovValues" :readonly="readonly" label="Значение атрибута" clearable/>
+              <v-autocomplete item-text="value[defaultLanguageIdentifier]" item-value='id' v-model="categoryRef.categoryAttrValue" :items="categoryLovValues" :readonly="readonly" :label="$t('MappingConfigComponent.CategoryAttributeValue')" clearable/>
             </v-col>
           </v-row>
 
@@ -79,13 +87,13 @@
         <v-dialog v-model="dialogRef" persistent max-width="600px">
           <v-card>
             <v-card-title>
-              <span class="headline">Создание новой категории</span>
+              <span class="headline">{{$t('MappingConfigComponent.CategoryAdd')}}</span>
             </v-card-title>
             <v-card-text>
               <v-container>
                 <v-row>
                   <v-col cols="12">
-                    <v-text-field v-model="newCategoryNameRef" label="Название категории" required></v-text-field>
+                    <v-text-field v-model="newCategoryNameRef" :label="$t('MappingConfigComponent.CategoryName')" required></v-text-field>
                   </v-col>
                 </v-row>
               </v-container>
@@ -105,12 +113,10 @@
 </template>
 <script>
 import { ref, onMounted, computed } from '@vue/composition-api'
-import * as channelsStore from '../../store/channels'
 import * as attrStore from '../../store/attributes'
 import * as langStore from '../../store/languages'
 import * as relStore from '../../store/relations'
 import * as lovsStore from '../../store/lovs'
-import * as errorStore from '../../store/error'
 import * as userStore from '../../store/users'
 import ValidVisibleComponent from '../../components/ValidVisibleComponent'
 import RelationsSelectionDialog from '../../components/RelationsSelectionDialog'
@@ -137,10 +143,6 @@ export default {
   },
   components: { ValidVisibleComponent, RelationsSelectionDialog, MappingAttributesCompoment, ChannelsCategorySelectionDialog },
   setup (props, { root }) {
-    const {
-      showError
-    } = errorStore.useStore()
-
     const { canEditConfig } = userStore.useStore()
 
     const {
@@ -153,11 +155,6 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier
     } = langStore.useStore()
-
-    const {
-      getChannelCategories,
-      getChannelAttributes
-    } = channelsStore.useStore()
 
     const {
       loadAllAttributes,
@@ -198,22 +195,6 @@ export default {
     const relationsLoadedRef = ref(false)
     const relCategoryDialogRef = ref(null)
 
-    function loadCategories () {
-      if (props.channel) {
-        getChannelCategories(props.channel.internalId)
-          .then(data => {
-            if (data.tree) {
-              categoriesTreeRef.value = data.tree
-            } else {
-              categoriesRef.value = data.list
-            }
-          })
-          .catch((error) => {
-            showError(error.message)
-          })
-      }
-    }
-
     function add () {
       newCategoryNameRef.value = null
       dialogRef.value = true
@@ -222,7 +203,7 @@ export default {
     function addCategory () {
       dialogRef.value = false
       const id = 'cat' + Date.now()
-      categoryRef.value = { id: id, name: newCategoryNameRef.value, valid: props.channel.valid || [], visible: [], type: 'simple', attributes: [], params: [] }
+      categoryRef.value = { id: id, name: newCategoryNameRef.value, valid: props.channel.valid || [], visible: [], type: 'simple', attributes: [], params: [], categoryAttributes: [] }
       root.$set(props.channel.mappings, id, categoryRef.value)
       categoryIdRef.value = id
     }
@@ -241,30 +222,9 @@ export default {
     }
 
     function loadAttributes () {
-      /* if (!props.channel.type) return
+      if (!props.channel.type) return
 
-      getChannelAttributes(props.channel.internalId, categoryRef.value.id).then(arr => {
-        channelAttributesRef.value = arr.sort((a, b) => {
-          if (a.required && !b.required) return -1
-          if (!a.required && b.required) return 1
-          return 0
-        })
-
-        const stAttributes = getChannelFactory(props.channel.type).getStandardAttributes()
-        channelAttributesRef.value = stAttributes.concat(channelAttributesRef.value)
-
-        channelAttributesRef.value.forEach((attr, idx) => {
-          if (!categoryRef.value.attributes.find(elem => elem.id === attr.id)) {
-            categoryRef.value.attributes.splice(idx, 0, { id: attr.id, attrIdent: '', expr: '' })
-          }
-        })
-        // remove attributes not in channel
-        categoryRef.value.attributes = categoryRef.value.attributes.filter(elem => channelAttributesRef.value.find(attr => elem.id === attr.id))
-      })
-        .catch((error) => {
-          showError(error.message)
-        })
-        */
+      channelAttributesRef.value = categoryRef.value.categoryAttributes
     }
 
     const imgRelations = computed(() => {
@@ -310,6 +270,12 @@ export default {
       }
     }
 
+    function addAttribute () {
+      const id = '' + Date.now()
+      channelAttributesRef.value.push({ id: id, name: 'Тест', required: true, dictionary: false })
+      categoryRef.value.attributes.push({ id: id, expr: '', attrIdent: '' })
+    }
+
     onMounted(() => {
       loadAllLOVs()
       loadAllRelations().then(() => { relationsLoadedRef.value = true })
@@ -352,7 +318,6 @@ export default {
 
         pimAttributesRef.value = arr
       })
-      loadCategories()
     })
 
     return {
@@ -385,6 +350,7 @@ export default {
       relCategoryDialogRef,
       categoryToCopySelected,
       newCategoryNameRef,
+      addAttribute,
       channelFactory: getChannelFactory(props.channel.type)
     }
   }
