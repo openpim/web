@@ -107,6 +107,33 @@
         </v-dialog>
       </v-row>
     </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="attrDialogRef" persistent max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{$t('MappingConfigComponent.AttributeAdd')}}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field v-model="newAttrIdRef" :label="$t('MappingConfigComponent.AttributeId')" required></v-text-field>
+                    <v-text-field v-model="newAttrNameRef" :label="$t('MappingConfigComponent.AttributeName')" required></v-text-field>
+                    <v-checkbox v-model="newAttrRequiredRef" :label="$t('MappingConfigComponent.AttributeRequired')" required></v-checkbox>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="attrDialogRef = false">{{ $t('Cancel') }}</v-btn>
+              <v-btn color="blue darken-1" text :disabled="!newAttrIdRef || !newAttrNameRef" @click="addAttributeFinish">{{ $t('Save') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
     <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="true" @selected="relationsSelected"/>
     <ChannelsCategorySelectionDialog ref="relCategoryDialogRef" :channelType="channel.type" @selected="categoryToCopySelected"/>
   </div>
@@ -195,6 +222,11 @@ export default {
     const relationsLoadedRef = ref(false)
     const relCategoryDialogRef = ref(null)
 
+    const attrDialogRef = ref(null)
+    const newAttrIdRef = ref('')
+    const newAttrNameRef = ref('')
+    const newAttrRequiredRef = ref('')
+
     function add () {
       newCategoryNameRef.value = null
       dialogRef.value = true
@@ -258,7 +290,7 @@ export default {
 
     function categoryToCopySelected (mapping) {
       relCategoryDialogRef.value.closeDialog()
-      if (confirm('Все настройки атрибутов будут переписаны. Продолжать?')) {
+      if (confirm(i18n.t('MappingConfigComponent.CopyMappingConfirmation'))) {
         for (let i = 0; i < categoryRef.value.attributes.length; i++) {
           const attr = categoryRef.value.attributes[i]
           const tst = mapping.attributes.find(elem => elem.id === attr.id)
@@ -271,9 +303,18 @@ export default {
     }
 
     function addAttribute () {
-      const id = '' + Date.now()
-      channelAttributesRef.value.push({ id: id, name: 'Тест', required: true, dictionary: false })
-      categoryRef.value.attributes.push({ id: id, expr: '', attrIdent: '' })
+      newAttrIdRef.value = ''
+      newAttrNameRef.value = ''
+      newAttrRequiredRef.value = false
+      attrDialogRef.value = true
+    }
+
+    function addAttributeFinish () {
+      attrDialogRef.value = false
+      const attr = { id: newAttrIdRef.value, name: newAttrNameRef.value, required: newAttrRequiredRef.value, dictionary: false }
+      channelAttributesRef.value.push(attr)
+      categoryRef.value.attributes.push({ id: newAttrIdRef.value, expr: '', attrIdent: '' })
+      categoryRef.value.categoryAttributes.push(attr)
     }
 
     onMounted(() => {
@@ -292,11 +333,11 @@ export default {
         }
         lovAttributes.value = lovArr
 
-        const arr = [{ value: '$id', text: 'Внутренний номер объекта' }, { value: '$parentId', text: 'Внутренний номер родительского объекта' }]
+        const arr = [{ value: '$id', text: i18n.t('MappingConfigComponent.Id') }, { value: '$parentId', text: i18n.t('MappingConfigComponent.ParentId') }]
         for (let i = 0; i < languages.length; i++) {
           const lang = languages[i]
           const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-          arr.push({ value: '$name#' + lang.identifier, text: 'Наименование объекта' + langText })
+          arr.push({ value: '$name#' + lang.identifier, text: i18n.t('MappingConfigComponent.Name') + langText })
         }
 
         const attrs = getAllItemsAttributes()
@@ -351,6 +392,11 @@ export default {
       categoryToCopySelected,
       newCategoryNameRef,
       addAttribute,
+      addAttributeFinish,
+      attrDialogRef,
+      newAttrIdRef,
+      newAttrNameRef,
+      newAttrRequiredRef,
       channelFactory: getChannelFactory(props.channel.type)
     }
   }
