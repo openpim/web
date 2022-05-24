@@ -14,7 +14,7 @@
               </v-tabs>
               <v-tabs-items v-model="tabRef">
                 <v-tab-item> <!-- tree -->
-                  <v-treeview v-if="selectionDialogRef" dense selectable selection-type="independent" hoverable :items="itemsTreeFiltered" :load-children="loadChildren" v-model="selectedItemsRef" @input="onSelect">
+                  <v-treeview v-if="selectionDialogRef" dense selectable selection-type="independent" hoverable :items="treeRef" :load-children="loadChildren" v-model="selectedItemsRef" @input="onSelect">
                     <template v-slot:prepend="{ item }">
                       <v-icon v-if="item.typeIcon" :color="item.typeIconColor">mdi-{{ item.typeIcon }}</v-icon>
                     </template>
@@ -132,9 +132,11 @@ export default {
       initiator = init
       if (itemsTree.length === 0) {
         loadItems().then(() => {
+          treeRef.value = itemsTreeFiltered.value
           selectionDialogRef.value = true
         })
       } else {
+        treeRef.value = itemsTreeFiltered.value
         selectionDialogRef.value = true
       }
     }
@@ -151,9 +153,11 @@ export default {
     }
 
     async function loadChildren (item) {
-      return loadItems(item.id, item.internalId, item.typeId)
+      await loadItems(item.id, item.internalId, item.typeId)
+      treeRef.value = itemsTreeFiltered.value
     }
 
+    const treeRef = ref([]) // have to provide tree as separate variable because tree view is not working with computed property
     const itemsTreeFiltered = computed(() => {
       if (typesFilter.value && typesFilter.value.length > 0) {
         return itemsTree.filter(item => {
@@ -192,7 +196,8 @@ export default {
       searchSelectedRef,
       searchResultsRef,
       searchChanged,
-      searchEnterPressed
+      searchEnterPressed,
+      treeRef
     }
   }
 }
