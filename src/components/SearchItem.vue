@@ -43,8 +43,7 @@
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
                     <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="filter.operation !== 10 && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
-                    <v-text-field v-if="filter.operation !== 10 && filter.attr && filter.attr === 'typeIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)"></v-text-field>
+                    <v-text-field v-if="filter.operation !== 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
                     <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
@@ -72,7 +71,6 @@
   <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
   <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
   <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
-  <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="false" @selected="typesSelected"/>
   </v-row>
 </template>
 <script>
@@ -90,17 +88,15 @@ import * as channelsStore from '../store/channels'
 import SearchSaveDialog from '../components/SearchSaveDialog'
 import SearchLoadDialog from '../components/SearchLoadDialog'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
-import TypeSelectionDialog from '../components/TypeSelectionDialog'
 import router from '../router'
 
 export default {
-  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, TypeSelectionDialog },
+  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog },
   setup (props, context) {
     const { showError } = errorStore.useStore()
 
     const {
-      loadAllTypes,
-      findType
+      loadAllTypes
     } = typesStore.useStore()
 
     const {
@@ -140,7 +136,6 @@ export default {
     const { loadAllChannels, getAvailableChannels } = channelsStore.useStore()
 
     const itemSelectionDialogRef = ref(null)
-    const typeSelectionDialogRef = ref(null)
     const searchSaveDialogRef = ref(null)
     const searchLoadDialogRef = ref(null)
     const selectedFilterRef = ref(null)
@@ -340,11 +335,6 @@ export default {
       })
     }
 
-    function typesSelected (id, filter) {
-      typeSelectionDialogRef.value.closeDialog()
-      filter.value = findType(parseInt(id)).node.identifier
-    }
-
     function enterKeyListener (e) {
       if (e.key === 'Enter') {
         search()
@@ -449,8 +439,6 @@ export default {
     })
 
     return {
-      typeSelectionDialogRef,
-      typesSelected,
       searchSaveDialogRef,
       searchLoadDialogRef,
       selectedRef,
