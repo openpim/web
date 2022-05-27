@@ -52,8 +52,7 @@
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
                     <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="filter.operation !== 10 && filter.attr && filter.attr !== '#level#' && filter.attr != 'relationIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
-                    <v-text-field v-if="filter.operation !== 10 && filter.attr && filter.attr === 'relationIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="relSelectionDialogRef.showDialog(filter)"></v-text-field>
+                    <v-text-field v-if="filter.operation !== 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
                     <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
@@ -81,7 +80,6 @@
   <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
   <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
   <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
-  <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="false" @selected="relationsSelected"/>
   </v-row>
 </template>
 <script>
@@ -99,12 +97,10 @@ import * as lovsStore from '../store/lovs'
 import SearchSaveDialog from '../components/SearchSaveDialog'
 import SearchLoadDialog from '../components/SearchLoadDialog'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
-import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
-import * as relStore from '../store/relations'
 import router from '../router'
 
 export default {
-  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, RelationsSelectionDialog },
+  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog },
   setup (props, context) {
     const { showError } = errorStore.useStore()
 
@@ -146,14 +142,9 @@ export default {
       getLOVData
     } = lovsStore.useStore()
 
-    const {
-      relations
-    } = relStore.useStore()
-
     // const { loadAllChannels, getAvailableChannels } = channelsStore.useStore()
 
     const itemSelectionDialogRef = ref(null)
-    const relSelectionDialogRef = ref(null)
     const searchSaveDialogRef = ref(null)
     const searchLoadDialogRef = ref(null)
     const selectedFilterRef = ref(null)
@@ -353,19 +344,6 @@ export default {
       })
     }
 
-    function relationsSelected (id, filter) {
-      relSelectionDialogRef.value.closeDialog()
-      filter.value = findRel(id)
-    }
-
-    function findRel (id) {
-      for (let i = 0; i < relations.length; i++) {
-        if (relations[i].id === parseInt(id)) {
-          return relations[i].identifier
-        }
-      }
-    }
-
     onMounted(() => {
       Promise.all([loadAllTypes(), loadAllLanguages(), loadAllAttributes()]).then(() => {
         const name = {}
@@ -436,8 +414,6 @@ export default {
     })
 
     return {
-      relationsSelected,
-      relSelectionDialogRef,
       searchSaveDialogRef,
       searchLoadDialogRef,
       selectedRef,
