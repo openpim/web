@@ -35,6 +35,7 @@
           <v-row>
             <v-col cols="11">
               <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>
+              <v-select clearable class="mb-5" v-model="categoryRef.visibleRelation" item-text="name.ru" item-value="id" :items="relations" label="Зависимость связывающая товар и видимо от"></v-select>
             </v-col>
             <v-col cols="1">
               <v-tooltip bottom>
@@ -418,6 +419,7 @@ export default {
       remove,
       relCategoryDialogRef,
       categoryToCopySelected,
+      relations,
       channelFactory: getChannelFactory(props.channel.type)
     }
   }
