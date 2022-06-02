@@ -402,12 +402,12 @@ export default {
               const lang = languages[i]
               const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
               const val = 'attr#' + attr.identifier + '#' + lang.identifier
-              arr.push({ value: val, text: nameText + langText, lov: attr.lov })
+              arr.push({ value: val, text: attr.identifier + ' - ' + nameText + langText, lov: attr.lov })
               checkLOV(attr, val)
             }
           } else {
             const val = 'attr#' + attr.identifier
-            arr.push({ value: val, text: nameText, lov: attr.lov })
+            arr.push({ value: val, text: attr.identifier + ' - ' + nameText, lov: attr.lov })
             if (attr.lov) lovsMap[val] = attr.lov
             checkLOV(attr, val)
           }
