@@ -319,7 +319,11 @@ export default {
       }
       return arr.sort((a, b) => {
         if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
-          return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
+          if (a.order === b.order) {
+            return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
+          } else {
+            return a.order - b.order
+          }
         } else {
           return 0
         }
