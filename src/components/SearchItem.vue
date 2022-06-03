@@ -238,6 +238,15 @@ export default {
               case 12:
                 operation = 'OP_iLike'
                 break
+              case 13:
+                operation = 'OP_notLike'
+                break
+              case 14:
+                operation = 'OP_notILike'
+                break
+              case 15:
+                operation = 'OP_notILike'
+                break
             }
 
             if (filter.attr.startsWith('channel#')) {
@@ -256,7 +265,7 @@ export default {
               const lang = filter.attr.substring(5)
               data.name = {}
               data.name[lang] = {}
-              data.name[lang][operation] = filter.operation === 12 ? '%' + filter.value + '%' : filter.value
+              data.name[lang][operation] = filter.operation === 12 || filter.operation === 13 || filter.operation === 15 ? '%' + filter.value + '%' : filter.value
             } else if (filter.attr.startsWith('attr#')) {
               const idx = filter.attr.indexOf('#', 5)
               if (idx === -1) {
@@ -288,7 +297,7 @@ export default {
     }
 
     function parseValue (attrObj, attr, value, filter) {
-      if (filter.operation === 12) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
+      if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
       else if (filter.operation === 10) {
         const arr = []
         const split = ('' + value).split(/\r\n|\n|\r/)
@@ -487,9 +496,12 @@ export default {
         { text: i18n.t('Search.Filter.Operation.StartWith'), value: 7 },
         { text: i18n.t('Search.Filter.Operation.EndWith'), value: 8 },
         { text: i18n.t('Search.Filter.Operation.Substring'), value: 9 },
+        { text: i18n.t('Search.Filter.Operation.NotSubstring'), value: 13 },
         { text: i18n.t('Search.Filter.Operation.List'), value: 10 },
         { text: i18n.t('Search.Filter.Operation.EqICase'), value: 11 },
-        { text: i18n.t('Search.Filter.Operation.SubstringICase'), value: 12 }
+        { text: i18n.t('Search.Filter.Operation.NotEqICase'), value: 14 },
+        { text: i18n.t('Search.Filter.Operation.SubstringICase'), value: 12 },
+        { text: i18n.t('Search.Filter.Operation.NotSubstringICase'), value: 15 }
       ]
 
     }
