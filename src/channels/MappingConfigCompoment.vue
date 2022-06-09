@@ -293,8 +293,13 @@ export default {
             categoryRef.value.attributes.splice(idx, 0, { id: attr.id, attrIdent: '', expr: '' })
           }
         })
-        // remove attributes not in channel
-        categoryRef.value.attributes = categoryRef.value.attributes.filter(elem => channelAttributesRef.value.find(attr => elem.id === attr.id))
+        // remove attributes not in channel and sort attributes
+        let tmp = categoryRef.value.attributes
+        tmp = tmp.filter(elem => channelAttributesRef.value.find(attr => elem.id === attr.id))
+        tmp.sort((a, b) => {
+          return channelAttributesRef.value.findIndex(elem => elem.id === a.id) - channelAttributesRef.value.findIndex(elem => elem.id === b.id)
+        })
+        categoryRef.value.attributes = tmp
       })
         .catch((error) => {
           showError(error.message)
