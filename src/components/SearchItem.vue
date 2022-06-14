@@ -313,6 +313,8 @@ export default {
     function parseSimpleValue (attrObj, attr, value) {
       if (lovsMap[attr]) return '' + value
 
+      if (value === 'null') return null
+
       if (Object.prototype.toString.call(value) !== '[object String]') return value
       if (attrObj && attrObj.type === 1) return '' + value
       if (attr === 'identifier' ||
