@@ -394,6 +394,8 @@
   "Search.Filter.Operation.NotEqICase": "не равно (без регистра)",
   "Search.Filter.Operation.SubstringICase": "имеет (без регистра)",
   "Search.Filter.Operation.NotSubstringICase": "не имеет (без регистра)",
+  "Search.Filter.Operation.Empty": "пусто",
+  "Search.Filter.Operation.NotEmpty": "не пусто",
   "Search.Extended.Label": "Условие выборки",
   "Search.Extended.Error": "неверное условие выборки: ",
   "Search.Or": "ИЛИ",

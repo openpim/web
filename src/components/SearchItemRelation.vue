@@ -52,8 +52,8 @@
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
                     <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="filter.operation !== 10 && filter.attr && filter.attr !== '#level#' && filter.attr != 'relationIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
-                    <v-text-field v-if="filter.operation !== 10 && filter.attr && filter.attr === 'relationIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="relSelectionDialogRef.showDialog(filter)"></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr != 'relationIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'relationIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="relSelectionDialogRef.showDialog(filter)"></v-text-field>
                     <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
@@ -260,6 +260,12 @@ export default {
               case 15:
                 operation = 'OP_iLike'
                 break
+              case 16:
+                operation = 'OP_or'
+                break
+              case 17:
+                operation = 'OP_and'
+                break
             }
 
             if (filter.attr.startsWith('channel#')) {
@@ -310,6 +316,8 @@ export default {
     }
 
     function parseValue (attrObj, attr, value, filter) {
+      if (filter.operation === 16) return [{ OP_eq: '' }, { OP_eq: null }]
+      if (filter.operation === 17) return [{ OP_ne: '' }, { OP_ne: null }]
       if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
       else if (filter.operation === 10) {
         const arr = []
@@ -490,7 +498,9 @@ export default {
         { text: i18n.t('Search.Filter.Operation.EqICase'), value: 11 },
         { text: i18n.t('Search.Filter.Operation.NotEqICase'), value: 14 },
         { text: i18n.t('Search.Filter.Operation.SubstringICase'), value: 12 },
-        { text: i18n.t('Search.Filter.Operation.NotSubstringICase'), value: 15 }
+        { text: i18n.t('Search.Filter.Operation.NotSubstringICase'), value: 15 },
+        { text: i18n.t('Search.Filter.Operation.Empty'), value: 16 },
+        { text: i18n.t('Search.Filter.Operation.NotEmpty'), value: 17 }
       ]
 
     }
