@@ -610,8 +610,15 @@ export default {
         }
       })
 
-      const sortBy = optionsRef.value.sortBy && optionsRef.value.sortBy.length > 0 ? optionsRef.value.sortBy : ['id']
-      const sortDesc = optionsRef.value.sortDesc && optionsRef.value.sortDesc.length > 0 ? optionsRef.value.sortDesc : [false]
+      let sortBy = ['id']
+      let sortDesc = [false]
+      if (optionsRef.value.sortBy && optionsRef.value.sortBy.length > 0) {
+        sortBy = optionsRef.value.sortBy
+        sortBy.push('id')
+        sortDesc = optionsRef.value.sortDesc
+        sortDesc.push(false)
+      }
+
       do {
         page++
         const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: sortBy, sortDesc: sortDesc })
