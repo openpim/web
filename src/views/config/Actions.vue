@@ -229,6 +229,8 @@ export default {
         return i18n.t('Config.Actions.Triggers.Event.AfterDelete')
       } else if (event === 7) {
         return i18n.t('Config.Actions.Triggers.Event.BeforeShow')
+      } else if (event === 8) {
+        return i18n.t('Config.Actions.Triggers.Event.ChangedOnClient')
       } else {
         return '???'
       }

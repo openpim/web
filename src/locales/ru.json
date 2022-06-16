@@ -230,6 +230,7 @@
   "Config.Actions.Triggers.Event.AfterUpdate": "после изменения",
   "Config.Actions.Triggers.Event.BeforeDelete": "перед удалением",
   "Config.Actions.Triggers.Event.AfterDelete": "после удаления",
+  "Config.Actions.Triggers.Event.ChangedOnClient": "после изменения на клиенте",
   "Config.Actions.Triggers.Event.BeforeShow": "перед показом",
   "Config.Actions.Triggers.SelectType.Button": "Выбрать тип объекта",
   "Config.Actions.Triggers.SelectItem.Button": "Выбрать объект",

@@ -230,6 +230,7 @@
   "Config.Actions.Triggers.Event.AfterUpdate": "after update",
   "Config.Actions.Triggers.Event.BeforeDelete": "before delete",
   "Config.Actions.Triggers.Event.AfterDelete": "after delete",
+  "Config.Actions.Triggers.Event.ChangedOnClient": "after change on client",
   "Config.Actions.Triggers.Event.BeforeShow": "before show",
   "Config.Actions.Triggers.SelectType.Button": "Select item type",
   "Config.Actions.Triggers.SelectItem.Button": "Select item",
