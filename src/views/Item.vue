@@ -825,15 +825,6 @@ export default {
         if (!confirm(i18n.t('Execute') + '?')) return
       }
       executeButtonAction(itemRef.value.internalId, button).then((result) => {
-        if (result.compileError) {
-          showError('Compile error: ' + result.compileError)
-        } else if (result.error) {
-          showError(result.error)
-        } else if (result.message) {
-          showInfo(result.message)
-        } else {
-          showInfo(i18n.t('Started'))
-        }
         if (result.data) {
           if (result.data.removeItem) {
             removeItemFromTree(result.data.removeItem)
@@ -848,6 +839,15 @@ export default {
           if (result.data.openUrl) {
             window.open(result.data.openUrl)
           }
+        }
+        if (result.compileError) {
+          showError('Compile error: ' + result.compileError)
+        } else if (result.error) {
+          showError(result.error)
+        } else if (result.message) {
+          showInfo(result.message)
+        } else {
+          showInfo(i18n.t('Started'))
         }
       })
     }

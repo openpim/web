@@ -35,6 +35,7 @@
           <v-row>
             <v-col cols="11">
               <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>
+              <v-select clearable class="mb-5" v-model="categoryRef.visibleRelation" item-text="name.ru" item-value="id" :items="relations" label="Зависимость связывающая товар и видимо от"></v-select>
             </v-col>
             <v-col cols="1">
               <v-tooltip bottom>
@@ -292,8 +293,13 @@ export default {
             categoryRef.value.attributes.splice(idx, 0, { id: attr.id, attrIdent: '', expr: '' })
           }
         })
-        // remove attributes not in channel
-        categoryRef.value.attributes = categoryRef.value.attributes.filter(elem => channelAttributesRef.value.find(attr => elem.id === attr.id))
+        // remove attributes not in channel and sort attributes
+        let tmp = categoryRef.value.attributes
+        tmp = tmp.filter(elem => channelAttributesRef.value.find(attr => elem.id === attr.id))
+        tmp.sort((a, b) => {
+          return channelAttributesRef.value.findIndex(elem => elem.id === a.id) - channelAttributesRef.value.findIndex(elem => elem.id === b.id)
+        })
+        categoryRef.value.attributes = tmp
       })
         .catch((error) => {
           showError(error.message)
@@ -418,6 +424,7 @@ export default {
       remove,
       relCategoryDialogRef,
       categoryToCopySelected,
+      relations,
       channelFactory: getChannelFactory(props.channel.type)
     }
   }
