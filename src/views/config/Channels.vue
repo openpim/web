@@ -59,6 +59,11 @@
                     <v-time-picker v-if="timeMenu" v-model="selectedRef.config.time" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
                   </v-menu>
                 </template>
+
+                <v-radio :label="$t('Config.Channels.StartCron')" :value="4"></v-radio>
+                <template v-if="selectedRef.config.start === 4">
+                  <input :readonly="!canEditConfigRef" class="ml-5" v-model="selectedRef.config.cron" :placeholder="$t('Config.Channels.Cron')"/>
+                </template>
               </v-radio-group>
 
               <v-radio-group v-if="channelFactory.hasSync" v-model="selectedRef.config.syncStart" :readonly="!canEditConfigRef">
@@ -77,6 +82,10 @@
                     </template>
                     <v-time-picker v-if="timeMenu" v-model="selectedRef.config.syncTime" format="24hr" full-width @click:minute="timeMenuRef2.save(time)"></v-time-picker>
                   </v-menu>
+                </template>
+                <v-radio :label="$t('Config.Channels.SyncStartCron')" :value="4"></v-radio>
+                <template v-if="selectedRef.config.syncStart === 4">
+                  <input :readonly="!canEditConfigRef" class="ml-5" v-model="selectedRef.config.syncCron" :placeholder="$t('Config.Channels.Cron')"/>
                 </template>
               </v-radio-group>
 
