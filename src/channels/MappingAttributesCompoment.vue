@@ -207,15 +207,24 @@ export default {
     }
 
     function up (i) {
-      if (i > 0) arrayMove(props.attributes, i, i - 1)
+      if (i > 0) {
+        arrayMove(props.attributes, i, i - 1)
+        arrayMove(props.channelAttributes, i, i - 1)
+      }
     }
 
     function down (i) {
-      if (i < props.attributes.length) arrayMove(props.attributes, i, i + 1)
+      if (i < props.attributes.length) {
+        arrayMove(props.attributes, i, i + 1)
+        arrayMove(props.channelAttributes, i, i + 1)
+      }
     }
 
     function remove (i) {
-      if (confirm(i18n.t('Remove') + '?')) props.attributes.splice(i, 1)
+      if (confirm(i18n.t('Remove') + '?')) {
+        props.attributes.splice(i, 1)
+        props.channelAttributes.splice(i, 1)
+      }
     }
 
     async function manageAttribute (i, attrMapping) {

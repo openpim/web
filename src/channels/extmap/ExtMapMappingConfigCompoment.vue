@@ -235,6 +235,7 @@ export default {
 
     function addCategory () {
       dialogRef.value = false
+      channelAttributesRef.value = []
       const id = 'cat' + Date.now()
       categoryRef.value = { id: id, name: newCategoryNameRef.value, valid: props.channel.valid || [], visible: [], type: 'simple', attributes: [], params: [], categoryAttributes: [] }
       root.$set(props.channel.mappings, id, categoryRef.value)
@@ -312,17 +313,10 @@ export default {
 
     function addAttributeFinish () {
       attrDialogRef.value = false
-      const attr = { id: newAttrIdRef.value, name: newAttrNameRef.value, required: newAttrRequiredRef.value, dictionary: false }
+      const attr = { id: newAttrIdRef.value, name: newAttrNameRef.value, required: newAttrRequiredRef.value, dictionary: false, description: 'id: ' + newAttrIdRef.value }
 
-      // attribute with such id can exists if it was deleted before
-      const idx = channelAttributesRef.value.findIndex(elem => elem.id === attr.id)
-      if (idx) {
-        channelAttributesRef.value[idx].name = attr.name
-        channelAttributesRef.value[idx].required = attr.required
-      } else {
-        channelAttributesRef.value.push(attr)
-      }
-      categoryRef.value.attributes.push({ id: newAttrIdRef.value, expr: '', attrIdent: '' })
+      channelAttributesRef.value.push(attr)
+      categoryRef.value.attributes.push({ id: newAttrIdRef.value, expr: '', attrIdent: '', description: 'id: ' + newAttrIdRef.value })
       categoryRef.value.categoryAttributes = channelAttributesRef.value
     }
 
