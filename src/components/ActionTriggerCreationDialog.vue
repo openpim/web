@@ -42,6 +42,7 @@
                       <v-radio :label="$t('Config.Actions.Triggers.Event.AfterUpdate')" value="4"></v-radio>
                       <v-radio :label="$t('Config.Actions.Triggers.Event.BeforeDelete')" value="5"></v-radio>
                       <v-radio :label="$t('Config.Actions.Triggers.Event.AfterDelete')" value="6"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.ChangedOnClient')" value="8"></v-radio>
                     </v-radio-group>
                     <div class="d-inline-flex align-center">
                       <div v-if="selectedRelation">

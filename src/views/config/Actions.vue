@@ -229,6 +229,8 @@ export default {
         return i18n.t('Config.Actions.Triggers.Event.AfterDelete')
       } else if (event === 7) {
         return i18n.t('Config.Actions.Triggers.Event.BeforeShow')
+      } else if (event === 8) {
+        return i18n.t('Config.Actions.Triggers.Event.ChangedOnClient')
       } else {
         return '???'
       }
@@ -319,7 +321,11 @@ export default {
       }
       return arr.sort((a, b) => {
         if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
-          return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
+          if (a.order === b.order) {
+            return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
+          } else {
+            return a.order - b.order
+          }
         } else {
           return 0
         }

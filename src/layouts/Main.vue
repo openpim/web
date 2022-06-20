@@ -4,7 +4,7 @@
     <v-navigation-drawer :width="drawerWidth" v-model="drawer" ref="drawerRef" :clipped="$vuetify.breakpoint.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
       <router-view name="menu"></router-view>
 
-      <v-bottom-navigation grow height="50" class="mt-2" v-model="activeBottom" v-if="!isExportSearch">
+      <v-bottom-navigation grow height="50" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">
         <v-btn to="/">
             <span>{{ $t('Main.Work') }}</span>
             <v-icon>mdi-sitemap</v-icon>
@@ -22,6 +22,7 @@
             <v-icon>mdi-cog-outline</v-icon>
         </v-btn>
       </v-bottom-navigation>
+      <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
     </v-navigation-drawer>
 
     <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="primary" dark dense>
@@ -360,3 +361,10 @@ export default {
   }
 }
 </script>
+<style>
+.copyright-link, .copyright-link:visited, .copyright-link:hover, .copyright-link:active {
+  color: gray;
+  text-align: center;
+  font-size:x-small;
+}
+</style>

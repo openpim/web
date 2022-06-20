@@ -48,6 +48,12 @@
                       </template>
                       <span>{{ $t('Add') }}</span>
                     </v-tooltip>
+                    <v-tooltip topclass="ml-4">
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" class="pa-0" icon color="primary" @click="exportData"><v-icon dark>mdi-export</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('Config.LOV.Export') }}</span>
+                    </v-tooltip>
                   </th>
                 </tr>
               </thead>
@@ -147,6 +153,8 @@ import * as userStore from '../../store/users'
 import router from '../../router'
 import SystemInformation from '../../components/SystemInformation'
 import ItemsSelectionDialog from '../../components/ItemsSelectionDialog'
+import XLSX from 'xlsx'
+import { saveAs } from 'file-saver'
 
 export default {
   components: { LanguageDependentField, SystemInformation, ItemsSelectionDialog },
@@ -308,6 +316,30 @@ export default {
       selectedRef.value.values.splice(idx, 1)
     }
 
+    /* generate a download */
+    function s2ab (s) {
+      var buf = new ArrayBuffer(s.length)
+      var view = new Uint8Array(buf)
+      for (var i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF
+      return buf
+    }
+    function exportData () {
+      const data = [['identifier', 'name', 'id', 'value']]
+      selectedRef.value.values.forEach(elem => {
+        const row = [selectedRef.value.identifier, selectedRef.value.name[defaultLanguageIdentifier.value]]
+        row.push(elem.id)
+        for (const prop in elem.value) {
+          row.push(elem.value[prop])
+        }
+        data.push(row)
+      })
+      const ws = XLSX.utils.aoa_to_sheet(data)
+      var wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Data')
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+      saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'data.xlsx')
+    }
+
     onMounted(() => {
       loadAllTypes()
       Promise.all([loadAllLOVs(), loadAllChannels()]).then(() => {
@@ -373,6 +405,7 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       awailableChannelsRef,
+      exportData,
       identifierRules: [
         v => identifierValidation(v)
       ],

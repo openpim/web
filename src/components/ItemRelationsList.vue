@@ -27,8 +27,8 @@
                   <th class="text-left" v-if="componentType === 'source'">{{$t('ItemRelationsList.Target')}}</th>
                   <th class="text-left" v-if="componentType === 'target'">{{$t('ItemRelationsList.Source')}}</th>
 
-                  <th class="text-left" v-if="componentType === 'source'">{{$t('ItemRelationsList.TargetDate')}}</th>
-                  <th class="text-left" v-if="componentType === 'target'">{{$t('ItemRelationsList.SourceDate')}}</th>
+                  <th class="text-left" v-if="componentType === 'source' && getOption(identifier, 'showItemUpdateDate', '') === 'true'" >{{$t('ItemRelationsList.TargetDate')}}</th>
+                  <th class="text-left" v-if="componentType === 'target' && getOption(identifier, 'showItemUpdateDate', '') === 'true'">{{$t('ItemRelationsList.SourceDate')}}</th>
 
                   <th class="text-left" v-for="(attr, j) in getAttributesForRelation(identifier)" :key="'A'+j">
                     {{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}
@@ -84,7 +84,7 @@
                       <span>{{ $t('Select') }}</span>
                     </v-tooltip>
                   </td>
-                  <td class="pa-1">
+                  <td class="pa-1" v-if="getOption(identifier, 'showItemUpdateDate', '') === 'true'">
                     <span v-if="componentType === 'source' && itemRel.target">
                       {{  itemRel.target.updatedAt ? dateFormat(new Date(itemRel.target.updatedAt), DATE_FORMAT) : '' }}
                     </span>
@@ -93,7 +93,7 @@
                     </span>
                   </td>
                   <td class="text-left" v-for="(attr, idx) in getAttributesForRelation(identifier)" :key="'attr'+idx">
-                    <AttributeValue @input="attrChange(itemRel)" :item="item" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
+                    <AttributeValue @input="attrChange(itemRel, attr)" :item="item" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
                   </td>
                   <td class="pa-1" v-if="canEditItemRelation">
                     <v-tooltip top>
@@ -174,12 +174,13 @@
 </template>
 <script>
 import { ref, reactive, watch, computed } from '@vue/composition-api'
+import * as actionsStore from '../store/actions'
+import * as auditStore from '../store/audit'
 import * as errorStore from '../store/error'
-import * as langStore from '../store/languages'
-import * as relStore from '../store/relations'
 import * as itemRelStore from '../store/itemRelations'
 import * as itemStore from '../store/item'
-import * as auditStore from '../store/audit'
+import * as langStore from '../store/languages'
+import * as relStore from '../store/relations'
 import * as typesStore from '../store/types'
 import ItemsSelectionDialog from './ItemsSelectionDialog'
 import i18n from '../i18n'
@@ -218,6 +219,10 @@ export default {
     } = relStore.useStore()
 
     const {
+      actions
+    } = actionsStore.useStore()
+
+    const {
       currentLanguage,
       defaultLanguageIdentifier
     } = langStore.useStore()
@@ -239,6 +244,7 @@ export default {
 
     const {
       loadItemsByIds,
+      loadItemByIdentifier,
       nextId
     } = itemStore.useStore()
 
@@ -470,6 +476,7 @@ export default {
                 } else {
                   router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
                 }
+                executeClientAction(itemRel, { type: props.componentType })
                 changedRelations.value.push(itemRel.id)
               }
             })
@@ -480,7 +487,52 @@ export default {
       })
     }
 
-    function attrChange (itemRel) {
+    /* change = {
+      type = source|target|attribute
+      attr
+    } */
+    function executeClientAction (itemRel, change) {
+      const relationChangedActions = filterRelationChangedActions(itemRel)
+      for (let i = 0; i < relationChangedActions.length; i++) {
+        const action = relationChangedActions[i]
+        try {
+          const itemStore = {
+            loadItemByIdentifier: (identifier) => {
+              return loadItemByIdentifier(identifier)
+            }
+          }
+          // for feature usage
+          const relStore = {}
+          // eslint-disable-next-line no-new-func
+          const func = new Function('itemRel', 'itemStore', 'relStore', 'change', '"use strict"; ' + action.code)
+          func(itemRel, itemStore, relStore, change)
+        } catch (err) {
+          console.error('Failed to evaluate expression: "' + action.code + '" for action: ' + action.identifier, err)
+        }
+      }
+    }
+
+    function filterRelationChangedActions (itemRel) {
+      let relationChangedActions = []
+      if (itemRel) {
+        const arr = []
+        actions.forEach(action => {
+          for (let i = 0; i < action.triggers.length; i++) {
+            const trigger = action.triggers[i]
+            const result = parseInt(trigger.type) === 2 && parseInt(trigger.event) === 8 && parseInt(trigger.relation) === parseInt(itemRel.relationId)
+            if (result) {
+              arr.push(action)
+            }
+          }
+        })
+        arr.sort((a, b) => a.order - b.order)
+        relationChangedActions = arr
+      }
+      return relationChangedActions
+    }
+
+    function attrChange (itemRel, attr) {
+      executeClientAction(itemRel, { type: 'attribute', attr })
       router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
       changedRelations.value.push(itemRel.id)
     }
@@ -540,6 +592,7 @@ export default {
       pageChanged,
       getAttributesForRelation,
       canEditItemRelationByIdentifier,
+      executeClientAction,
       panels,
       changedRelations,
       historyDialogRef,

@@ -43,7 +43,8 @@
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
                     <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="filter.operation !== 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)"></v-text-field>
                     <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
@@ -71,6 +72,7 @@
   <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
   <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
   <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
+  <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="false" @selected="typesSelected"/>
   </v-row>
 </template>
 <script>
@@ -88,15 +90,17 @@ import * as channelsStore from '../store/channels'
 import SearchSaveDialog from '../components/SearchSaveDialog'
 import SearchLoadDialog from '../components/SearchLoadDialog'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
+import TypeSelectionDialog from '../components/TypeSelectionDialog'
 import router from '../router'
 
 export default {
-  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog },
+  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, TypeSelectionDialog },
   setup (props, context) {
     const { showError } = errorStore.useStore()
 
     const {
-      loadAllTypes
+      loadAllTypes,
+      findType
     } = typesStore.useStore()
 
     const {
@@ -136,6 +140,7 @@ export default {
     const { loadAllChannels, getAvailableChannels } = channelsStore.useStore()
 
     const itemSelectionDialogRef = ref(null)
+    const typeSelectionDialogRef = ref(null)
     const searchSaveDialogRef = ref(null)
     const searchLoadDialogRef = ref(null)
     const selectedFilterRef = ref(null)
@@ -233,6 +238,21 @@ export default {
               case 12:
                 operation = 'OP_iLike'
                 break
+              case 13:
+                operation = 'OP_notLike'
+                break
+              case 14:
+                operation = 'OP_notILike'
+                break
+              case 15:
+                operation = 'OP_notILike'
+                break
+              case 16:
+                operation = 'OP_or'
+                break
+              case 17:
+                operation = 'OP_and'
+                break
             }
 
             if (filter.attr.startsWith('channel#')) {
@@ -251,7 +271,7 @@ export default {
               const lang = filter.attr.substring(5)
               data.name = {}
               data.name[lang] = {}
-              data.name[lang][operation] = filter.operation === 12 ? '%' + filter.value + '%' : filter.value
+              data.name[lang][operation] = filter.operation === 12 || filter.operation === 13 || filter.operation === 15 ? '%' + filter.value + '%' : filter.value
             } else if (filter.attr.startsWith('attr#')) {
               const idx = filter.attr.indexOf('#', 5)
               if (idx === -1) {
@@ -283,7 +303,9 @@ export default {
     }
 
     function parseValue (attrObj, attr, value, filter) {
-      if (filter.operation === 12) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
+      if (filter.operation === 16) return [{ OP_eq: '' }, { OP_eq: null }]
+      if (filter.operation === 17) return [{ OP_ne: '' }, { OP_ne: null }]
+      if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
       else if (filter.operation === 10) {
         const arr = []
         const split = ('' + value).split(/\r\n|\n|\r/)
@@ -298,6 +320,8 @@ export default {
 
     function parseSimpleValue (attrObj, attr, value) {
       if (lovsMap[attr]) return '' + value
+
+      if (value === 'null') return null
 
       if (Object.prototype.toString.call(value) !== '[object String]') return value
       if (attrObj && attrObj.type === 1) return '' + value
@@ -333,6 +357,11 @@ export default {
         filter.value = item.name[currentLanguage.value.identifier] || '[' + item.name[defaultLanguageIdentifier.value] + ']'
         filter.path = item.path
       })
+    }
+
+    function typesSelected (id, filter) {
+      typeSelectionDialogRef.value.closeDialog()
+      filter.value = findType(parseInt(id)).node.identifier
     }
 
     function enterKeyListener (e) {
@@ -401,12 +430,12 @@ export default {
               const lang = languages[i]
               const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
               const val = 'attr#' + attr.identifier + '#' + lang.identifier
-              arr.push({ value: val, text: nameText + langText, lov: attr.lov })
+              arr.push({ value: val, text: attr.identifier + ' - ' + nameText + langText, lov: attr.lov })
               checkLOV(attr, val)
             }
           } else {
             const val = 'attr#' + attr.identifier
-            arr.push({ value: val, text: nameText, lov: attr.lov })
+            arr.push({ value: val, text: attr.identifier + ' - ' + nameText, lov: attr.lov })
             if (attr.lov) lovsMap[val] = attr.lov
             checkLOV(attr, val)
           }
@@ -439,6 +468,8 @@ export default {
     })
 
     return {
+      typeSelectionDialogRef,
+      typesSelected,
       searchSaveDialogRef,
       searchLoadDialogRef,
       selectedRef,
@@ -475,9 +506,14 @@ export default {
         { text: i18n.t('Search.Filter.Operation.StartWith'), value: 7 },
         { text: i18n.t('Search.Filter.Operation.EndWith'), value: 8 },
         { text: i18n.t('Search.Filter.Operation.Substring'), value: 9 },
+        { text: i18n.t('Search.Filter.Operation.NotSubstring'), value: 13 },
         { text: i18n.t('Search.Filter.Operation.List'), value: 10 },
         { text: i18n.t('Search.Filter.Operation.EqICase'), value: 11 },
-        { text: i18n.t('Search.Filter.Operation.SubstringICase'), value: 12 }
+        { text: i18n.t('Search.Filter.Operation.NotEqICase'), value: 14 },
+        { text: i18n.t('Search.Filter.Operation.SubstringICase'), value: 12 },
+        { text: i18n.t('Search.Filter.Operation.NotSubstringICase'), value: 15 },
+        { text: i18n.t('Search.Filter.Operation.Empty'), value: 16 },
+        { text: i18n.t('Search.Filter.Operation.NotEmpty'), value: 17 }
       ]
 
     }
