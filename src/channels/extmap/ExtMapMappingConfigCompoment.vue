@@ -35,6 +35,7 @@
           <v-row>
             <v-col cols="11">
               <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>
+              <v-select clearable class="mb-5" v-model="categoryRef.visibleRelation" :item-text="item => item.name[defaultLanguageIdentifier]" item-value="id" :items="relations" :label="$t('MappingConfigComponent.VisibleRelation')"></v-select>
             </v-col>
             <v-col cols="1">
               <v-tooltip bottom>
@@ -56,14 +57,14 @@
           <v-textarea :rows="1" :readonly="readonly" v-model="categoryRef.categoryExpr" :label="$t('MappingConfigComponent.CategoryExpr')" required/>
           <v-row>
             <v-col cols="6">
-              <v-autocomplete @input="lovChanged" item-text="name[defaultLanguageIdentifier]" item-value='identifier' v-model="categoryRef.categoryAttr" :items="lovAttributes" :readonly="readonly" :label="$t('MappingConfigComponent.AttributeForCategory')" clearable/>
+              <v-autocomplete @input="lovChanged" :item-text="item => item.name[defaultLanguageIdentifier]" item-value='identifier' v-model="categoryRef.categoryAttr" :items="lovAttributes" :readonly="readonly" :label="$t('MappingConfigComponent.AttributeForCategory')" clearable/>
             </v-col>
             <v-col cols="6">
-              <v-autocomplete item-text="value[defaultLanguageIdentifier]" item-value='id' v-model="categoryRef.categoryAttrValue" :items="categoryLovValues" :readonly="readonly" :label="$t('MappingConfigComponent.CategoryAttributeValue')" clearable/>
+              <v-autocomplete :item-text="item => item.value[defaultLanguageIdentifier]" item-value='id' v-model="categoryRef.categoryAttrValue" :items="categoryLovValues" :readonly="readonly" :label="$t('MappingConfigComponent.CategoryAttributeValue')" clearable/>
             </v-col>
           </v-row>
 
-          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
+          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" :canManageOrder="true" />
         </div>
       </v-col>
       <v-col cols="1">
@@ -312,9 +313,17 @@ export default {
     function addAttributeFinish () {
       attrDialogRef.value = false
       const attr = { id: newAttrIdRef.value, name: newAttrNameRef.value, required: newAttrRequiredRef.value, dictionary: false }
-      channelAttributesRef.value.push(attr)
+
+      // attribute with such id can exists if it was deleted before
+      const idx = channelAttributesRef.value.findIndex(elem => elem.id === attr.id)
+      if (idx) {
+        channelAttributesRef.value[idx].name = attr.name
+        channelAttributesRef.value[idx].required = attr.required
+      } else {
+        channelAttributesRef.value.push(attr)
+      }
       categoryRef.value.attributes.push({ id: newAttrIdRef.value, expr: '', attrIdent: '' })
-      categoryRef.value.categoryAttributes.push(attr)
+      categoryRef.value.categoryAttributes = channelAttributesRef.value
     }
 
     onMounted(() => {
@@ -397,6 +406,7 @@ export default {
       newAttrIdRef,
       newAttrNameRef,
       newAttrRequiredRef,
+      relations,
       channelFactory: getChannelFactory(props.channel.type)
     }
   }

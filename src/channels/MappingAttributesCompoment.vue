@@ -32,7 +32,13 @@
                       <v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributes" clearable :append-outer-icon="canManageAttributes ? 'mdi-format-list-bulleted-type' : ''" @click:append-outer="manageAttribute(i, attributes[i])"></v-autocomplete>
                     </td>
                     <td class="pa-1">
-                      <v-text-field v-model="attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[i])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[i])" />
+                      <v-text-field v-if="!canManageOrder" v-model="attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[i])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[i])" />
+                      <template v-if="canManageOrder">
+                        <v-text-field v-model="attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3 d-inline-flex" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[i])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[i])" />
+                        <v-btn icon @click="up(i)" class="d-inline-flex"><v-icon>mdi-arrow-up-circle-outline</v-icon></v-btn>
+                        <v-btn icon @click="down(i)" class="d-inline-flex"><v-icon>mdi-arrow-down-circle-outline</v-icon></v-btn>
+                        <v-btn icon @click="remove(i)" class="d-inline-flex"><v-icon>mdi-minus-circle-outline</v-icon></v-btn>
+                      </template>
                     </td>
                   </tr>
                 </tbody>
@@ -116,6 +122,10 @@ export default {
     canManageAttributes: {
       type: Boolean,
       default: false
+    },
+    canManageOrder: {
+      type: Boolean,
+      default: false
     }
   },
   setup (props, { root }) {
@@ -188,6 +198,24 @@ export default {
 
     function optionsChanged (val) {
       optAttrRef.value.options = val
+    }
+
+    function arrayMove (arr, fromIndex, toIndex) {
+      var element = arr[fromIndex]
+      arr.splice(fromIndex, 1)
+      arr.splice(toIndex, 0, element)
+    }
+
+    function up (i) {
+      if (i > 0) arrayMove(props.attributes, i, i - 1)
+    }
+
+    function down (i) {
+      if (i < props.attributes.length) arrayMove(props.attributes, i, i + 1)
+    }
+
+    function remove (i) {
+      if (confirm(i18n.t('Remove') + '?')) props.attributes.splice(i, 1)
     }
 
     async function manageAttribute (i, attrMapping) {
@@ -308,7 +336,10 @@ export default {
       optionsChanged,
       manageAttribute,
       attrManageDialogRef,
-      manageDialogClosed
+      manageDialogClosed,
+      up,
+      down,
+      remove
     }
   }
 }

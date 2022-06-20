@@ -564,6 +564,7 @@
   "MappingConfigComponent.AttributeId": "ID",
   "MappingConfigComponent.AttributeName": "Наименование",
   "MappingConfigComponent.AttributeRequired": "Обязательный",
+  "MappingConfigComponent.VisibleRelation":"Зависимость связывающая товар и видимо от",
   "AttributeValue.Date.Input": "Ввод даты",
   "AttributeManageDialog.TitleNew"  : "Создание нового аттрибута",
   "AttributeManageDialog.TitleExisting"  : "Редактирование существующего атрибута",

@@ -564,6 +564,7 @@
   "MappingConfigComponent.AttributeId": "ID",
   "MappingConfigComponent.AttributeName": "Name",
   "MappingConfigComponent.AttributeRequired": "Required",
+  "MappingConfigComponent.VisibleRelation":"Relation for visible from",
   "AttributeValue.Date.Input": "Date input",
   "AttributeManageDialog.TitleNew"  : "Create new attribute",
   "AttributeManageDialog.TitleExisting"  : "Managing attribute",
