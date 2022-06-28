@@ -769,7 +769,7 @@ export default {
 
                   const lovValues = lovsMap[lov]
                   if (lovValues) {
-                    const val = cell ? cell.v : null
+                    const val = cell ? '' + cell.v : ''
                     if (val.includes(',')) { // multivalue lov
                       cellVal = val.split(',').reduce((accumulator, currentValue) => {
                         const tmp = currentValue.trim()
