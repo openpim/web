@@ -25,6 +25,7 @@ import * as searchStore from '../store/search'
 import * as userStore from '../store/users'
 import i18n from '../i18n'
 import DataTable from '../components/DataTable'
+import AttributeType from '../constants/attributeTypes'
 
 export default {
   components: { DataTable },
@@ -98,12 +99,12 @@ export default {
             const lang = languages[i]
             const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
             const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameText + langText, textLong: nameText + langText, textShort: nameShort + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
-            if (attr.lov) data.lov = attr.lov
+            if (attr.type === AttributeType.LOV && attr.lov) data.lov = attr.lov
             arr.push(data)
           }
         } else {
           const data = { identifier: 'attr_' + attr.identifier, text: nameText, textLong: nameText, textShort: nameShort, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
-          if (attr.lov) data.lov = attr.lov
+          if (attr.type === AttributeType.LOV && attr.lov) data.lov = attr.lov
           arr.push(data)
         }
       }
