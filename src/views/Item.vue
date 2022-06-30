@@ -807,6 +807,17 @@ export default {
               // attr was changed to NOT languageDependent and it has old data that must be cleared
               item.values[attr.identifier + '_text'] = null
             }
+          } else if (attr.type === AttributeType.Date) {
+            // check that date is right
+            const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
+            if (!Object.prototype.toString.call(val) !== '[object String]') {
+              if (attr.languageDependent) {
+                item.values[attr.identifier] = {}
+                item.values[attr.identifier][currentLanguage.value.identifier] = ''
+              } else {
+                item.values[attr.identifier] = ''
+              }
+            }
           }
         })
       })

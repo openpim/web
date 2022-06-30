@@ -419,7 +419,7 @@ export default {
 
     const formatedDate = computed(() => {
       const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier]
-      return dateFormat(Date.parse(val), process.env.VUE_APP_DATE_ONLY_FORMAT)
+      return val ? dateFormat(Date.parse(val), process.env.VUE_APP_DATE_ONLY_FORMAT) : ''
     })
 
     function dateValidation () {
