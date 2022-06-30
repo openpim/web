@@ -1034,6 +1034,13 @@ export default {
         const tst = page * itemsPerPage * 100 / total
         excelDialogProgressRef.value = tst > 100 ? 100 : tst
       } while (page * itemsPerPage < total)
+
+      const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: [], sortDesc: [] })
+      if (!excelDialogRef.value) return // exit if process was canceled
+      data.rows.forEach(row => {
+        submitItem(row.id, row.typeId, row.path, arr)
+      })
+
       excelDialogRef.value = false
       showInfo(i18n.t('Submitted'))
     }
