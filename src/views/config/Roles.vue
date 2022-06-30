@@ -380,7 +380,11 @@ export default {
 
     const valid = computed(() => {
       if (selectedRef.value.itemAccess && selectedRef.value.itemAccess.valid) {
-        return selectedRef.value.itemAccess.valid.map((id) => findType(id).node)
+        return selectedRef.value.itemAccess.valid.map((id) => {
+          const tst = findType(id).node
+          if (!tst) console.log('Failed to find type by id: ' + id)
+          return tst
+        }).filter(elem => elem)
       } else {
         return []
       }
@@ -416,7 +420,11 @@ export default {
 
     const roleRelations = computed(() => {
       if (selectedRef.value.relAccess.relations) {
-        return selectedRef.value.relAccess.relations.map(id => relations.find(rel => rel.id === id))
+        return selectedRef.value.relAccess.relations.map(id => {
+          const tst = relations.find(rel => rel.id === id)
+          if (!tst) console.log('Failed to find role by id: ' + id)
+          return tst
+        }).filter(elem => elem)
       } else {
         return []
       }
@@ -427,8 +435,12 @@ export default {
         return selectedRef.value.relAccess.groups.map(data => {
           const res = { groupId: data.groupId, access: data.access }
           res.group = groups.find(group => group.id === data.groupId)
-          return res
-        })
+          if (res.group) return res
+          else {
+            console.log('Failed to find group by id: ' + data.groupId)
+            return null
+          }
+        }).filter(elem => elem)
       } else {
         return []
       }
@@ -439,8 +451,12 @@ export default {
         return selectedRef.value.itemAccess.groups.map(data => {
           const res = { groupId: data.groupId, access: data.access }
           res.group = groups.find(group => group.internalId === data.groupId)
-          return res
-        })
+          if (res.group) return res
+          else {
+            console.log('Failed to find group by id: ' + data.groupId)
+            return null
+          }
+        }).filter(elem => elem)
       } else {
         return []
       }
