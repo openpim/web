@@ -771,15 +771,34 @@ export default {
                   if (lovValues) {
                     const val = cell ? '' + cell.v : ''
                     if (val.includes(',')) { // multivalue lov
+                      let errors = ''
                       cellVal = val.split(',').reduce((accumulator, currentValue) => {
                         const tmp = currentValue.trim()
                         const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === tmp)
                         if (tst2) accumulator.push(tst2.id)
+                        else {
+                          errors += i18n.t('DataTable.ExcelImport.NoLOVValue', { val: tmp, attr: attr })
+                        }
                         return accumulator
                       }, [])
+                      if (errors.length > 0) {
+                        log.push([item.identifier, 'ERROR', errors])
+                        if (importStopOnErrorRef.value) {
+                          showError(errors)
+                          excelDialogRef.value = false
+                        }
+                      }
                     } else {
                       const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === val)
                       if (tst2) cellVal = tst2.id
+                      else {
+                        const err = i18n.t('DataTable.ExcelImport.NoLOVValue', { val: val, attr: attr })
+                        log.push([item.identifier, 'ERROR', err])
+                        if (importStopOnErrorRef.value) {
+                          showError(err)
+                          excelDialogRef.value = false
+                        }
+                      }
                     }
                   }
                 }
