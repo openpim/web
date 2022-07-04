@@ -1,12 +1,12 @@
 <template>
 <div>
-  <v-text-field @blur="valueBlur" :readonly="readonly" :value="value" @input="handleInput" :rules="rules" :label="label" required  :error-messages="errors">
+  <v-text-field @blur="valueBlur" :readonly="readonly" :value="value" @input="handleInput" :rules="rules" :label="label" required  :error-messages="errors" :set="desc = getTextOption('description', '')">
         <template #append>
-          <v-tooltip bottom v-if="getTextOption('description', null)" color="blue-grey darken-4">
+          <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
-              <v-icon v-on="on" class="mr-2">mdi-help-circle-outline</v-icon>
+              <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
             </template>
-            <p v-html="getTextOption('description', '').replaceAll('\n', '<br>')"/>
+            <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
           <v-btn @click="showAllValues" v-if="languages.length > 1" icon><v-icon>mdi-web-box</v-icon></v-btn>
         </template>
@@ -86,7 +86,11 @@ export default {
         const tst = props.attr.options.find(elem => elem.name === name)
         if (tst) return tst.value
       }
-      return defaultValue
+      return props.attr && name === 'description' ? props.attr.identifier : defaultValue
+    }
+
+    function showAlert (text) {
+      alert(text)
     }
 
     return {
@@ -98,7 +102,8 @@ export default {
       showMenuRef,
       availableValues,
       xRef,
-      yRef
+      yRef,
+      showAlert
     }
   }
 }
