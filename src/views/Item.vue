@@ -183,10 +183,13 @@
               <v-carousel-item v-for="(file, i) in filesRef" :key="i">
                 <v-card v-if="file.image" class="ma-4" flat style="background: white">
                   <v-card-text>
-                    <router-link :to="'/item/' + file.identifier">
-                      <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</div>
-                    </router-link>
-                    <a target="_blank" :href="damUrl + 'asset/' + file.id + '?inline=true&token=' + token"><v-img :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="600"></v-img></a>
+                    <div class="d-inline-flex">
+                      <router-link :to="'/item/' + file.identifier">
+                        <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</div>
+                      </router-link>
+                      <a :href="damUrl + 'asset/' + file.id + '?token=' + token" class="ml-1" style="text-decoration: none"><v-icon color="grey darken-1">mdi-download-circle-outline</v-icon></a>
+                    </div>
+                    <a target="_blank" :href="damUrl + 'asset/' + file.id + '?inline=true&token=' + token" class=""><v-img :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="600"></v-img></a>
                   </v-card-text>
                 </v-card>
                 <v-card v-if="!file.image" class="ma-4" style="background: white;border:1px solid grey">
