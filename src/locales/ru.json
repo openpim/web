@@ -246,6 +246,8 @@
   "Config.Actions.Triggers.Item2": "начиная с объекта",
   "Config.Actions.Triggers.Relation": "Зависимость",
   "Config.Actions.Triggers.AskBeforeExec": "Запросить подтверждение выполнения",
+  "Config.Actions.Triggers.ButtonSelectItems": "Выбрать объект перед выполнением",
+  "Config.Actions.Triggers.ButtonSelectItemsFilter": "Фильтровать типы по id",
   "Config.Actions.Test": "Тестировать",
   "Config.Actions.TestResult.Title": "Результаты тестирования",
   "Config.Actions.TestResult.Success": "Выполнено успешно",

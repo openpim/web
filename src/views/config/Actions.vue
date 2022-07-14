@@ -84,6 +84,7 @@
                         {{ $t('Config.Actions.Triggers.Item2') }}
                         <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
                         {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
+                        {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
                       </div>
                     </v-list-item-title>
                   </v-list-item-content>

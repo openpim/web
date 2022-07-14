@@ -55,6 +55,8 @@
                   <template v-if="triggerRef.type === 3"> <!-- button -->
                     <v-text-field v-model="triggerRef.itemButton" :label="$t('Config.Actions.Triggers.ButtonText')" required></v-text-field>
                     <v-checkbox v-model="triggerRef.askBeforeExec" :label="$t('Config.Actions.Triggers.AskBeforeExec')" required></v-checkbox>
+                    <v-checkbox v-model="triggerRef.selectItems" :label="$t('Config.Actions.Triggers.ButtonSelectItems')" required></v-checkbox>
+                    <v-text-field v-if="triggerRef.selectItems" v-model="triggerRef.selectItemsFilter" :label="$t('Config.Actions.Triggers.ButtonSelectItemsFilter')" required></v-text-field>
                     <div><div class="d-inline-flex align-center">
                       <div v-if="selectedType">
                         <router-link :to="'/config/types/' + selectedType.identifier">{{ selectedType.identifier }}</router-link><span class="ml-2">- {{ selectedType.name[currentLanguage.identifier] || '[' + selectedType.name[defaultLanguageIdentifier] + ']' }}</span>

@@ -91,7 +91,7 @@
               </v-menu>
             </template>
             <template>
-              <v-btn text @click="executeAction(trigger.itemButton, trigger.askBeforeExec)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
+              <v-btn text @click="executeAction(trigger)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
             <AfterButtonsComponent></AfterButtonsComponent>
             <v-spacer></v-spacer>
@@ -259,7 +259,7 @@
         </v-tabs-items>
       </v-col>
     </v-row>
-    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemToMoveSelected"/>
+    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelectionDialogSelected"/>
     <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
     <ItemDuplicationDialog ref="itemDuplicationDialogRef" @duplicated="itemDuplicated"/>
     <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
@@ -669,25 +669,30 @@ export default {
     }
 
     function move () {
-      itemSelectionDialogRef.value.showDialog()
+      itemSelectionDialogRef.value.showDialog('move')
     }
 
-    function itemToMoveSelected (id) {
+    function itemSelectionDialogSelected (id, initiator) {
       itemSelectionDialogRef.value.closeDialog()
-      loadItemsByIds([id], false).then(items => {
-        const parent = items[0]
-        const parentType = findType(parent.typeId).node
-        const tstType = parentType.children.find(elem => (elem.identifier === itemType.value.identifier) || (elem.link === itemType.value.id))
-        if (tstType) {
-          moveItem(itemRef.value, id).then(() => {
-            itemPathRef.value = []
-            loadItemPath(itemRef.value.path)
-            showInfo(i18n.t('Saved'))
-          })
-        } else {
-          showError(i18n.t('ItemView.Move.WrongParent'))
-        }
-      })
+      if (initiator !== 'move') {
+        const trigger = initiator
+        processButtonAction(trigger, id)
+      } else { // move
+        loadItemsByIds([id], false).then(items => {
+          const parent = items[0]
+          const parentType = findType(parent.typeId).node
+          const tstType = parentType.children.find(elem => (elem.identifier === itemType.value.identifier) || (elem.link === itemType.value.id))
+          if (tstType) {
+            moveItem(itemRef.value, id).then(() => {
+              itemPathRef.value = []
+              loadItemPath(itemRef.value.path)
+              showInfo(i18n.t('Saved'))
+            })
+          } else {
+            showError(i18n.t('ItemView.Move.WrongParent'))
+          }
+        })
+      }
     }
 
     async function remove () {
@@ -834,11 +839,19 @@ export default {
       }
     }
 
-    function executeAction (button, askBeforeExec) {
-      if (askBeforeExec) {
+    function executeAction (trigger) {
+      if (trigger.askBeforeExec) {
         if (!confirm(i18n.t('Execute') + '?')) return
       }
-      executeButtonAction(itemRef.value.internalId, button).then((result) => {
+      if (trigger.selectItems) {
+        itemSelectionDialogRef.value.showDialog(trigger, trigger.selectItemsFilter ? trigger.selectItemsFilter.split(',').map(elem => parseInt(elem)) : null)
+      } else {
+        processButtonAction(trigger)
+      }
+    }
+
+    function processButtonAction (trigger, itemId) {
+      executeButtonAction(itemRef.value.internalId, trigger.itemButton, itemId).then((result) => {
         if (result.data) {
           if (result.data.removeItem) {
             removeItemFromTree(result.data.removeItem)
@@ -1037,7 +1050,7 @@ export default {
       sourcesLoaded,
       targetsLoaded,
       itemSelectionDialogRef,
-      itemToMoveSelected,
+      itemSelectionDialogSelected,
       fileUploadDialogRef,
       linkNewFile,
       hasFileUpload,

@@ -246,6 +246,8 @@
   "Config.Actions.Triggers.Item2": "starting from item",
   "Config.Actions.Triggers.Relation": "Relation",
   "Config.Actions.Triggers.AskBeforeExec": "Ask before execution",
+  "Config.Actions.Triggers.ButtonSelectItems": "Select items before execution",
+  "Config.Actions.Triggers.ButtonSelectItemsFilter": "Filter type ids",
   "Config.Actions.Test": "Test",
   "Config.Actions.TestResult.Title": "Test results",
   "Config.Actions.TestResult.Success": "Finished successfully",
