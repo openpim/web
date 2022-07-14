@@ -109,7 +109,7 @@
       <!-- Date -->
         <v-dialog ref="dateDialog" v-if="attr.type === AttributeType.Date && !attr.languageDependent" :disabled="attr.readonly" v-model="dateModal" :return-value.sync="date" persistent width="290px" @input="dateDialogChanged">
           <template v-slot:activator="{ on }">
-            <v-text-field clearable @input="attrInput" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+            <v-text-field clearable @input="attrInput" @click:clear="values[attr.identifier] = ''" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
           </template>
           <v-date-picker v-model="values[attr.identifier]">
             <v-spacer></v-spacer>
@@ -122,7 +122,7 @@
         </v-dialog>
         <v-dialog ref="dateDialog" v-if="attr.type === AttributeType.Date && attr.languageDependent" :disabled="attr.readonly" v-model="dateModal" :return-value.sync="date" persistent width="290px" @input="dateDialogChanged">
           <template v-slot:activator="{ on }">
-            <v-text-field clearable @input="attrInput" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+            <v-text-field clearable @input="attrInput" @click:clear="values[attr.identifier][currentLanguage.identifier] = ''" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
           </template>
           <v-date-picker v-model="values[attr.identifier][currentLanguage.identifier]">
             <v-spacer></v-spacer>
