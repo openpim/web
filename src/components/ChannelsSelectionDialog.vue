@@ -77,7 +77,7 @@ export default {
 
     const searchRef = ref('')
     const chanFiltered = computed(() => {
-      let arr = channels
+      let arr = channelsListRef.value
       if (!arr) return []
       if (searchRef.value) {
         const s = searchRef.value.toLowerCase()
