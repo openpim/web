@@ -90,9 +90,21 @@
                 </v-list>
               </v-menu>
             </template>
-            <template>
+
+            <template v-if="buttonActions && buttonActions.length <= 3">
               <v-btn text @click="executeAction(trigger)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
+            <template v-if="buttonActions && buttonActions.length > 3">
+              <v-menu offset-y>
+                <template v-slot:activator="{ on }"><v-btn text class="mr-4" v-on="on"> {{ $t('ItemView.More') }}</v-btn></template>
+                <v-list>
+                  <v-list-item v-for="(trigger, i) in buttonActions" :key="i" @click="executeAction(trigger)">
+                    <v-list-item-title>{{trigger.itemButton}}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+
             <AfterButtonsComponent></AfterButtonsComponent>
             <v-spacer></v-spacer>
             <v-btn v-if="!itemRef.typeFile && canEditSelected && hasFileUpload" text @click="fileUploadDialogRef.showDialog()" v-text="$t('ItemView.UploadFile')"></v-btn>

@@ -326,6 +326,7 @@
   "ItemView.Channels.Waiting": "Waiting",
   "ItemView.Channels.SyncItem": "Sync",
   "ItemView.Search": "Search",
+  "ItemView.More": "More",
   "Items.SelectionDialog.Title": "Select items",
   "Items.SelectionDialog.Selection": "Select",
   "Items.SelectionDialog.Search": "Search",
