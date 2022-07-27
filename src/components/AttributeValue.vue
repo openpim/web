@@ -288,7 +288,7 @@
 <script>
 import * as langStore from '../store/languages'
 import * as lovStore from '../store/lovs'
-import { ref, computed, onMounted, onUnmounted, onBeforeUpdate } from '@vue/composition-api'
+import { ref, computed, onMounted, onUnmounted, onBeforeUpdate, watch } from '@vue/composition-api'
 import LanguageDependentField from './LanguageDependentField'
 import AttributeType from '../constants/attributeTypes'
 import i18n from '../i18n'
@@ -339,6 +339,10 @@ export default {
 
       const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
       return arr
+    })
+
+    const itemId = computed(() => {
+      return props.item.id
     })
 
     const dateMenu = ref(false)
@@ -493,6 +497,15 @@ export default {
 
     onUnmounted(() => {
       eventBus.off('lov_value_changed')
+    })
+
+    watch(itemId, (current, previous) => {
+      if (props.attr.type === AttributeType.LOV && props.attr.lov) {
+        multivalueRef.value = getOption('multivalue', false)
+        getLOVData(props.attr.lov).then((data) => {
+          lovData.value = data
+        })
+      }
     })
 
     function getOption (name, defaultValue) {
