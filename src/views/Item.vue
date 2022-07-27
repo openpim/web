@@ -745,6 +745,7 @@ export default {
       // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
       if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
     }
+
     function enrichItem (item) {
       const arr = getAttributesForItem(item.typeId, item.path)
 
@@ -794,7 +795,7 @@ export default {
         group.itemAttributes.forEach(attr => {
           let attrValue = getOption(attr, 'default', null)
           if (attrValue && attr.lov) attrValue = parseInt(attrValue)
-
+          const isMultivalue = getOption(attr, 'multivalue', false)
           if (item.values[attr.identifier] === null || item.values[attr.identifier] === undefined) {
             if (attr.languageDependent) {
               item.values[attr.identifier] = {}
@@ -837,6 +838,16 @@ export default {
               } else {
                 item.values[attr.identifier] = ''
               }
+            }
+          } else if (attr.type === AttributeType.LOV && isMultivalue) {
+            const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
+            if (!Array.isArray(val)) {
+              item.values[attr.identifier] = [val]
+            }
+          } else if (attr.type === AttributeType.LOV && !isMultivalue) {
+            const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
+            if (Array.isArray(val) && val.length) {
+              item.values[attr.identifier] = val[0]
             }
           }
         })
