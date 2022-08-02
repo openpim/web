@@ -134,8 +134,8 @@ export default {
     }
 
     function identifierValidation (v) {
-      if (!/^[A-Za-z0-9_]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+      if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(v)) {
+        return i18n.t('Wrong.Attribute.Identifier')
       }
       if (!v) {
         return i18n.t('Config.Attributes.Error.IdentifierRequired')

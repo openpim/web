@@ -1,7 +1,12 @@
 <template>
   <v-menu v-model="showMenuRef" :close-on-content-click="false" :nudge-width="200" offset-y>
-    <template v-slot:activator="{ on }">
-      <v-btn v-on="on" icon><v-icon>mdi-information-outline</v-icon></v-btn>
+    <template #activator="{ on: onMenu }">
+      <v-tooltip bottom>
+        <template #activator="{ on: onTooltip }">
+          <v-btn v-on="{ ...onMenu, ...onTooltip }" icon><v-icon>mdi-information-outline</v-icon></v-btn>
+        </template>
+        <span>{{ $t('SystemInformation.Tooltip') }}</span>
+      </v-tooltip>
     </template>
     <v-list>
       <v-list-item><v-list-item-title>{{ 'id: ' + (data.internalId || data.id) }}</v-list-item-title></v-list-item>

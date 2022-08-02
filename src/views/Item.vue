@@ -13,6 +13,14 @@
                 <v-col :cols="mainImage ? (12-getOption(itemType, 'thumbnail_cols', '1')-(channelsOnHead.length>0?3:0)): 12-(channelsOnHead.length>0?3:0)" class="mb-2">
                     <span class="mr-0" :class="getOption(itemType, 'name_head_class', '')" :style="getOption(itemType, 'name_head_style', '')">{{ itemRef.name[currentLanguage.identifier] || '[' + itemRef.name[defaultLanguageIdentifier] + ']' }}</span>
                     <SystemInformation :data="itemRef"></SystemInformation>
+                    <template>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn v-on="on" @click="showInNavigationTree" icon><v-icon>mdi-file-tree</v-icon></v-btn>
+                        </template>
+                        <span>{{ $t('ItemView.ShowInNavigationTree.Tooltip') }}</span>
+                      </v-tooltip>
+                    </template>
                     <div class="caption">
                       <v-icon :color="itemType ? itemType.iconColor : null">{{itemType ? 'mdi-'+itemType.icon : null}}</v-icon> {{$t('Item.type')}}: <router-link :to="'/config/types/' + itemType.identifier">{{ itemType.identifier }}</router-link><span class="ml-0"> ({{ itemType.name[currentLanguage.identifier] || '[' + itemType.name[defaultLanguageIdentifier] + ']' }})</span>
                     </div>
@@ -524,6 +532,10 @@ export default {
       const search = { user: '', filters: [], whereClause: where, extended: true }
       localStorage.setItem('search_to_open', JSON.stringify(search))
       window.open('/#/search', '_blank')
+    }
+
+    function showInNavigationTree () {
+      eventBus.emit('show_in_navigation_tree', itemRef.value)
     }
 
     let beforeShowActions = []
@@ -1048,6 +1060,7 @@ export default {
       move,
       duplicate,
       remove,
+      showInNavigationTree,
       isImage,
       isFile,
       currentLanguage,

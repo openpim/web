@@ -33,7 +33,6 @@ import * as userStore from '../store/users'
 import { useRouter } from '../router/useRouter'
 
 import ItemCreationDialog from '../components/ItemCreationDialog'
-
 import eventBus from '../eventBus'
 
 export default {
@@ -53,6 +52,7 @@ export default {
       createItem,
       findItem,
       loadItems,
+      loadItemsByIds,
       loadItemRelationsChildren
     } = itemStore.useStore()
 
@@ -116,6 +116,7 @@ export default {
         itemCreatedInternal(item)
       }
     }
+
     function itemCreatedInternal (item) {
       createItem(item, selectedRef.value).then(() => {
         openRef.value.push(selectedRef.value.id)
@@ -126,9 +127,31 @@ export default {
     }
 
     onMounted(() => {
+      eventBus.on('show_in_navigation_tree', async (item) => {
+        const pathArr = item.path.split('.')
+        const itemsArr = await loadItemsByIds(pathArr, true)
+        openRef.value = []
+        activeRef.value = []
+        for (let i = 0; i < itemsArr.length - 1; i++) {
+          const itemInTree = findItem(itemsArr[i].id).node
+          if (!itemInTree.children || !itemInTree.children.length) {
+            await loadChildren(itemsArr[i])
+          }
+          openRef.value.push(itemsArr[i].id)
+        }
+        activeRef.value = [itemsArr[itemsArr.length - 1].id]
+        selectedRef.value = itemsArr[itemsArr.length - 1]
+        // scroll to selected component in tree view
+        setTimeout(() => {
+          const activeNode = document.querySelector('.v-treeview-node--active')
+          if (activeNode) activeNode.scrollIntoView({ block: 'center' })
+        }, 1000)
+      })
+
       eventBus.on('item_selected', item => {
         activeRef.value = [item.id]
       })
+
       loadAllTypes().then(() => {
         if (itemsTree.length === 0) loadItems()
       })
@@ -136,6 +159,7 @@ export default {
 
     onUnmounted(() => {
       eventBus.off('item_selected')
+      eventBus.off('show_in_navigation_tree')
     })
 
     return {

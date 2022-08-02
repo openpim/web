@@ -175,8 +175,14 @@
         <v-container v-if="!attr.readonly" class="pa-0">
           <v-row>
             <v-col cols="6">
-              <v-text-field @input="attrInput" @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier])" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+              <v-text-field @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
                 <template #append>
+                  <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon @click="goto(values[attr.identifier])" :disabled="!values[attr.identifier] || values[attr.identifier] === ''" v-on="on" class="ml-3"><v-icon>mdi-arrow-right-bold-box</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Config.Attribute.OpenUrl.Tooltip') }}</span>
+                  </v-tooltip>
                   <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
                     <template v-slot:activator="{ on }">
                       <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
@@ -198,8 +204,14 @@
         <v-container v-if="!attr.readonly" class="pa-0">
           <v-row>
             <v-col cols="6">
-              <v-text-field @input="attrInput" @blur="attrBlur" append-icon="mdi-arrow-right-bold-box" @click:append="goto(values[attr.identifier][currentLanguage.identifier])" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+              <v-text-field @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
                 <template #append>
+                  <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon @click="goto(values[attr.identifier][currentLanguage.identifier])" :disabled="!values[attr.identifier] || values[attr.identifier] === ''" v-on="on" class="ml-3"><v-icon>mdi-arrow-right-bold-box</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Config.Attribute.OpenUrl.Tooltip') }}</span>
+                  </v-tooltip>
                   <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
                     <template v-slot:activator="{ on }">
                       <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
