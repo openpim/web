@@ -11,6 +11,7 @@
     <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :variants="false"></MappingConfigCompoment>
 
     <v-btn v-if="!readonly" class="mb-5 mt-5" text @click="sync">Синхронизация данных</v-btn>
+    <v-btn v-if="!readonly" class="mb-5 mt-5" text @click="clearCache">Очистить кеш</v-btn>
     <v-checkbox :readonly="readonly" v-model="channel.config.debug" label="Выводить отладочную информацию при работе" required></v-checkbox>
 
   </div>
@@ -63,6 +64,10 @@ export default {
       if (confirm('Запустить синхронизацию?')) triggerChannel(props.channel.internalId, { sync: true })
     }
 
+    function clearCache () {
+      if (confirm('Запустить?')) triggerChannel(props.channel.internalId, { clearCache: true })
+    }
+
     const allAttributes = ref([])
     onMounted(() => {
       loadAllAttributes().then(() => {
@@ -82,7 +87,8 @@ export default {
     return {
       dialogRef,
       allAttributes,
-      sync
+      sync,
+      clearCache
     }
   }
 }
