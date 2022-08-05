@@ -3,6 +3,7 @@ import router from '../router'
 import * as err from './error'
 import { serverFetch, objectToGraphgl } from './utils'
 import * as rolesStore from './roles'
+import i18n from '../i18n'
 
 const users = reactive([])
 const currentUserRef = ref(null)
@@ -96,6 +97,7 @@ const actions = {
         body: JSON.stringify({ query: 'mutation {signIn(login: "' + login + '", password: "' + password + '") { token, user {id internalId login name email roles tenantId options} }}' })
       })
       if (resp.ok) {
+        localStorage.setItem('locale', i18n.locale)
         const data = (await resp.json()).data
         await userLogin(data.signIn.token, data.signIn.user, pathAfterLogin)
       } else {

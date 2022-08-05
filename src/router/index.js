@@ -330,6 +330,10 @@ router.clearDataChanged = function (dataId) {
 }
 
 router.beforeEach(async (to, from, next) => {
+  const tst = localStorage.getItem('locale')
+  if (tst && i18n.locale !== tst) {
+    i18n.locale = tst
+  }
   if (Object.keys(router.preventRoute).length > 0) {
     let text = i18n.t('Router.Changed.NotSaved') + '\n'
     let idx = 1
