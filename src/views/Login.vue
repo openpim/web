@@ -96,7 +96,8 @@ export default {
       languageSelect: process.env.VUE_APP_I18N_LANGUAGE_SELECT === 'true',
       localeSelection: [
         { text: i18n.t('Language.English'), value: 'en' },
-        { text: i18n.t('Language.Russian'), value: 'ru' }
+        { text: i18n.t('Language.Russian'), value: 'ru' },
+        { text: i18n.t('Language.Chinese'), value: 'ch' }
       ]
     }
   }
