@@ -279,6 +279,25 @@
         </v-tabs-items>
       </v-col>
     </v-row>
+    <template>
+      <div class="text-center">
+        <v-dialog v-model="buttonActionStatusDialog" width="500">
+        <v-card>
+          <v-card-title class="text-h5 grey lighten-2">
+            {{$t('ButtonActionStatusDialog.Title')}}
+          </v-card-title>
+          <div class="text-center" style="margin: 20px;">
+            <v-progress-circular :size="50" color="primary" indeterminate v-if="buttonActionStatusDialog"></v-progress-circular>
+          </div>
+        <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" text @click="buttonActionStatusDialog = false">{{$t('Close')}}</v-btn>
+          </v-card-actions>
+        </v-card>
+        </v-dialog>
+      </div>
+    </template>
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelectionDialogSelected"/>
     <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
     <ItemDuplicationDialog ref="itemDuplicationDialogRef" @duplicated="itemDuplicated"/>
@@ -428,6 +447,7 @@ export default {
     const itemDuplicationDialogRef = ref(null)
     const chanSelectionDialogRef = ref(null)
     const awailableChannelsRef = ref([])
+    const buttonActionStatusDialog = ref(false)
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -890,8 +910,9 @@ export default {
       }
     }
 
-    function processButtonAction (trigger, itemId) {
-      executeButtonAction(itemRef.value.internalId, trigger.itemButton, itemId).then((result) => {
+    async function processButtonAction (trigger, itemId) {
+      buttonActionStatusDialog.value = true
+      await executeButtonAction(itemRef.value.internalId, trigger.itemButton, itemId).then((result) => {
         if (result.data) {
           if (result.data.removeItem) {
             removeItemFromTree(result.data.removeItem)
@@ -916,7 +937,10 @@ export default {
         } else {
           showInfo(i18n.t('Started'))
         }
+      }).finally(() => {
+        buttonActionStatusDialog.value = false
       })
+      buttonActionStatusDialog.value = false
     }
 
     function getOption (attr, name, defaultValue) {
@@ -1052,6 +1076,7 @@ export default {
     }
 
     return {
+      buttonActionStatusDialog,
       AttributeType,
       executeAction,
       buttonActions,

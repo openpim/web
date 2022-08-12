@@ -581,5 +581,6 @@
   "AttributeManageDialog.DictionaryFailed"  : "Failed to load dictionary",
   "AttributeManageDialog.DictionaryTooBig"  : "Dictionary is too big to convert to list of values, attribute type set as Text",
   "AttributeManageDialog.ConfirmDictionary"  : "Dictionary was found, create list of values for it?",
-  "AttributeManageDialog.AttributeFound"  : "Corresponding attribute was already created in the system"
+  "AttributeManageDialog.AttributeFound"  : "Corresponding attribute was already created in the system",
+  "ButtonActionStatusDialog.Title": "The operation in progress"
 }

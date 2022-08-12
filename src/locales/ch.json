@@ -574,5 +574,7 @@
 	"AttributeManageDialog.DictionaryFailed": "字典下载错误，请联系热线",
 	"AttributeManageDialog.DictionaryTooBig": "字典太大，无法下载到系统中，属性类型设置为文本",
 	"AttributeManageDialog.ConfirmDictionary": "此属性字典已找到，是否为其创建值列表?",
-	"AttributeManageDialog.AttributeFound": "系统中已存在同样的属性."
+	"AttributeManageDialog.AttributeFound": "系统中已存在同样的属性.",
+	"ButtonActionStatusDialog.Title": "正在进行的行动"
+	
 }
