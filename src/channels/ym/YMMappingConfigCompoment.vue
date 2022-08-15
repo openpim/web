@@ -30,7 +30,8 @@
           <MappingAttributesCompoment v-if="categoryRef && pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly"  :channel="channel" :canManageAttributes="canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="categoryAttributes" />
 
           <div class="mt-2">Дополнительные параметры</div>
-          <v-simple-table dense class="mb-4" v-if="categoryRef">
+           <v-data-table v-if="categoryRef && categoryRef.params && categoryRef.params.length > 200" :headers="paramHeaders" :items="categoryRef.params" :items-per-page="10" class="elevation-1"></v-data-table>
+          <v-simple-table  v-if="categoryRef && categoryRef.params && categoryRef.params.length <= 200" dense class="mb-4">
               <template v-slot:default>
                 <thead>
                   <tr>
@@ -399,6 +400,23 @@ export default {
         { text: 'Билеты на мероприятия', value: 'event-ticket' },
         { text: 'Туры', value: 'tour' },
         { text: 'Алкоголь', value: 'alco' } */
+      ],
+      paramHeaders: [
+        {
+          text: 'Наименование',
+          sortable: false,
+          value: 'id'
+        },
+        {
+          text: 'Атрибут',
+          sortable: false,
+          value: 'attrIdent'
+        },
+        {
+          text: 'Выражение',
+          sortable: false,
+          value: 'expr'
+        }
       ]
     }
   }
