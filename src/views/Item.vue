@@ -283,7 +283,7 @@
       <div class="text-center">
         <v-dialog v-model="buttonActionStatusDialog" width="500">
         <v-card>
-          <v-card-title class="text-h5 grey lighten-2">
+          <v-card-title class="grey lighten-2">
             {{$t('ButtonActionStatusDialog.Title')}}
           </v-card-title>
           <div class="text-center" style="margin: 20px;">
