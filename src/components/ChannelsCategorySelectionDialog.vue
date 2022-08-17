@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="selectionDialogRef" persistent max-width="600px">
+  <v-dialog v-model="selectionDialogRef" persistent max-width="90%">
     <v-card>
       <v-card-title>
         <span class="headline">Выбор категорий</span>
