@@ -12,8 +12,8 @@
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
-        <v-text-field v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-treeview :search="searchRef" :filter="filter" dense activatable hoverable :items="groups" item-children="attributes" @update:active="activeChanged" :active="activeRef" :open="openRef">
+        <v-text-field @input="searchChanged" @clear="searchChanged" v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
+        <v-treeview dense activatable hoverable :items="groupsFiltered" @update:active="activeChanged" :active="activeRef" :open="openRef">
           <template v-slot:prepend="{ item }">
             <v-icon>{{ item.group ? 'mdi-format-list-bulleted-type' : 'mdi-alpha-a-box-outline' }}</v-icon>
           </template>
@@ -131,6 +131,7 @@ export default {
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
+    const groupsFiltered = ref([])
     const searchRef = ref('')
 
     const attrDeletionRef = ref('link')
@@ -141,9 +142,52 @@ export default {
     const activeRef = ref([])
     const openRef = ref([])
     const selectedGroupsRef = ref([])
+    const maxChiidrenNumber = 100
+
     const connectGroups = computed(() => {
       return selectedGroupsRef.value ? groups.filter((grp) => !selectedGroupsRef.value.find((item) => item.id === grp.id)) : []
     })
+
+    let awaitingSearch = null
+    function searchChanged () {
+      if (searchRef.value && searchRef.value.length > 2) {
+        if (awaitingSearch) {
+          clearTimeout(awaitingSearch)
+          awaitingSearch = null
+        }
+        if (!awaitingSearch) {
+          awaitingSearch = setTimeout(() => {
+            performSearch()
+          }, 1000)
+        }
+      } else {
+        groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
+      }
+    }
+
+    function performSearch () {
+      openRef.value = []
+      activeRef.value = []
+      selectedRef.value = empty
+      groupsFiltered.value = []
+      for (let k = 0; k < groups.length; k++) {
+        const group = groups[k]
+        if (group.name[currentLanguage.value.identifier].toLowerCase().includes(searchRef.value.toLowerCase())) {
+          groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) })
+          continue
+        }
+        const foundAttr = []
+        const attr = group.attributes
+        for (let i = 0; i < attr.length; i++) {
+          if (attr[i].name[currentLanguage.value.identifier].toLowerCase().includes(searchRef.value.toLowerCase()) || attr[i].identifier.toLowerCase().includes(searchRef.value.toLowerCase())) {
+            foundAttr.push(attr[i])
+          }
+        }
+        if (foundAttr.length) {
+          groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: foundAttr.slice(0, maxChiidrenNumber) })
+        }
+      }
+    }
 
     function filter (item, search, textKey) {
       const s = search.toLowerCase()
@@ -181,6 +225,8 @@ export default {
         errorMessage[currentLanguage.value.identifier] = ''
         const newAttr = { id: Date.now(), internalId: 0, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name: name, errorMessage: errorMessage, options: [] }
         selectedRef.value.attributes.push(newAttr)
+        const groupFiltered = groupsFiltered.value.find((el) => el.id === selectedRef.value.id)
+        groupFiltered.children.push(newAttr)
         openRef.value = [selectedRef.value.id]
         selectedRef.value = newAttr
         selectedGroupsRef.value = []
@@ -189,6 +235,9 @@ export default {
         name[currentLanguage.value.identifier] = i18n.t('Config.Attributes.Group.NewName')
         const newGroup = { id: Date.now(), internalId: 0, group: true, attributes: [], order: 0, visible: false, name: name, options: [] }
         groups.push(newGroup)
+        const newGroupInTree = { ...newGroup }
+        newGroupInTree.children = []
+        groupsFiltered.value.push(newGroupInTree)
         selectedRef.value = newGroup
         selectedGroupsRef.value = []
       }
@@ -200,6 +249,10 @@ export default {
       if (selectedRef.value.group) {
         if (confirm(i18n.t('Config.Attributes.Confirm.Delete', { name: selectedRef.value.name }))) {
           activeRef.value.pop()
+          const indxToRemove = groupsFiltered.value.findIndex((el) => el.id === selectedRef.value.id)
+          if (indxToRemove > -1) {
+            groupsFiltered.value.splice(indxToRemove, 1)
+          }
           removeGroup(selectedRef.value.id).then(() => {
             showInfo(i18n.t('Saved'))
           })
@@ -214,6 +267,25 @@ export default {
     function removeAttr () {
       dialogRef.value = false
       activeRef.value.pop()
+      if (attrDeletionRef.value !== 'link') {
+        for (let i = 0; i < groupsFiltered.value.length; i++) {
+          const group = groupsFiltered.value[i]
+          const indxToRemove = group.children.findIndex((el) => el.id === selectedRef.value.id)
+          if (indxToRemove > -1) {
+            group.children.splice(indxToRemove, 1)
+          }
+        }
+      } else {
+        const data = findById(selectedRef.value.id)
+        if (data.groups.length) {
+          const grpId = data.groups[0].id
+          const group = groupsFiltered.value.find((el) => el.id === grpId)
+          const indxToRemove = group.children.findIndex((el) => el.id === selectedRef.value.id)
+          if (indxToRemove > -1) {
+            group.children.splice(indxToRemove, 1)
+          }
+        }
+      }
       removeAttribute(selectedRef.value.id, attrDeletionRef.value !== 'link').then(() => {
         showInfo(i18n.t('Saved'))
       })
@@ -241,6 +313,8 @@ export default {
         openRef.value.push(grp.item.id)
         showInfo(i18n.t('Saved'))
       })
+      const groupFiltered = groupsFiltered.value.find((el) => el.id === grpId)
+      groupFiltered.children.push(attr.item)
     }
 
     onMounted(() => {
@@ -248,7 +322,6 @@ export default {
       loadAllAttributes().then(() => {
         canViewConfigRef.value = canViewConfig('attributes')
         canEditConfigRef.value = canEditConfig('attributes')
-
         const id = router.currentRoute.params.id
         if (id) {
           const result = findByIdentifier(id)
@@ -263,6 +336,7 @@ export default {
             router.push('/config/attributes')
           }
         }
+        groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
       })
     })
 
@@ -288,6 +362,7 @@ export default {
       groups,
       activeChanged,
       searchRef,
+      searchChanged,
       filter,
       add,
       remove,
@@ -298,6 +373,7 @@ export default {
       activeRef,
       openRef,
       connectGroups,
+      groupsFiltered,
       assign,
       dialogRef,
       attrDeletionRef,

@@ -217,19 +217,23 @@ const actions = {
   },
   getAllItemsAttributes: () => {
     const attrArr = []
-    groups.forEach(group => {
+    const addedAttrs = {}
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i]
       if (group.visible) {
-        group.attributes.forEach(attr => {
+        for (let k = 0; k < group.attributes.length; k++) {
+          const attr = group.attributes[k]
           if (attr.valid.length > 0) {
-            if (!attrArr.find(tst => tst.identifier === attr.identifier)) {
-              const tmp = { ...attr }
+            if (!addedAttrs[attr.identifier]) {
+              const tmp = attr
               tmp.linkToGroup = group
               attrArr.push(tmp)
+              addedAttrs[attr.identifier] = true
             }
           }
-        })
+        }
       }
-    })
+    }
     if (attrArr.length > 0) {
       attrArr.sort((a, b) => a.order - b.order)
     }
@@ -237,19 +241,22 @@ const actions = {
   },
   getAllItemRelationsAttributes: () => {
     const attrArr = []
-    groups.forEach(group => {
+    const addedAttrs = {}
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i]
       if (group.visible) {
         group.attributes.forEach(attr => {
           if (attr.relations.length > 0) {
-            if (!attrArr.find(tst => tst.identifier === attr.identifier)) {
+            if (!addedAttrs[attr.identifier]) {
               const tmp = { ...attr }
               tmp.linkToGroup = group
               attrArr.push(tmp)
+              addedAttrs[attr.identifier] = true
             }
           }
         })
       }
-    })
+    }
     if (attrArr.length > 0) {
       attrArr.sort((a, b) => a.order - b.order)
     }
