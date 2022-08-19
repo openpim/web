@@ -225,7 +225,7 @@ const actions = {
           const attr = group.attributes[k]
           if (attr.valid.length > 0) {
             if (!addedAttrs[attr.identifier]) {
-              const tmp = attr
+              const tmp = { ...attr }
               tmp.linkToGroup = group
               attrArr.push(tmp)
               addedAttrs[attr.identifier] = true
