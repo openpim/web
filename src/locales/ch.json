@@ -575,6 +575,13 @@
 	"AttributeManageDialog.DictionaryTooBig": "字典太大，无法下载到系统中，属性类型设置为文本",
 	"AttributeManageDialog.ConfirmDictionary": "此属性字典已找到，是否为其创建值列表?",
 	"AttributeManageDialog.AttributeFound": "系统中已存在同样的属性.",
-	"ButtonActionStatusDialog.Title": "正在进行的行动"
+	"ButtonActionStatusDialog.Title": "正在进行的行动",
+	"DatePickerDialog.Title": "日期和时间选择",
+	"DatePickerDialog.ExactTime": "确切时间",
+	"DatePickerDialog.RelativeTime": "相对时间",
+	"DatePickerDialog.Numberofdays": "天数",
+	"DatePickerDialog.DAY": "日",
+	"DatePickerDialog.HOUR": "时间",
+	"DatePickerDialog.MIN": "分钟"
 	
 }

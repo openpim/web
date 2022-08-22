@@ -43,8 +43,9 @@
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
                     <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !dateType(filter, fieldsSelection) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
                     <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)"></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && dateType(filter, fieldsSelection)  && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(filter)"></v-text-field>
                     <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
@@ -72,6 +73,7 @@
   <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
   <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
   <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
+  <DatePickerDialog ref="datePickerDialogRef" @selected="datePicker"/>
   <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="false" @selected="typesSelected"/>
   </v-row>
 </template>
@@ -91,10 +93,11 @@ import SearchSaveDialog from '../components/SearchSaveDialog'
 import SearchLoadDialog from '../components/SearchLoadDialog'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import TypeSelectionDialog from '../components/TypeSelectionDialog'
+import DatePickerDialog from '../components/DatePickerDialog'
 import router from '../router'
 
 export default {
-  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, TypeSelectionDialog },
+  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, TypeSelectionDialog, DatePickerDialog },
   setup (props, context) {
     const { showError } = errorStore.useStore()
 
@@ -143,6 +146,7 @@ export default {
     const typeSelectionDialogRef = ref(null)
     const searchSaveDialogRef = ref(null)
     const searchLoadDialogRef = ref(null)
+    const datePickerDialogRef = ref(null)
     const selectedFilterRef = ref(null)
     // const selectedRef = ref(null)
     const fieldsSelection = ref([])
@@ -291,7 +295,7 @@ export default {
               }
             } else {
               data[filter.attr] = {}
-              data[filter.attr][operation] = parseValue(null, filter.attr, filter.value, filter)
+              data[filter.attr][operation] = parseValue(null, filter.attr, filter.value, filter, filter.date)
             }
             where[orAndOperation].push(data)
           }
@@ -370,6 +374,24 @@ export default {
       }
     }
 
+    function dateType (filter, fieldsSelection) {
+      for (var i in fieldsSelection) {
+        try {
+          if (fieldsSelection[i].type === 'date' && fieldsSelection[i].value === filter.attr) {
+            return true
+          }
+        } catch (e) {
+          return true
+        }
+      }
+      return false
+    }
+
+    function datePicker (id, filter) {
+      datePickerDialogRef.value.closeDialog()
+      filter.value = id
+    }
+
     onMounted(() => {
       document.addEventListener('keypress', enterKeyListener)
       Promise.all([loadAllTypes(), loadAllLanguages(), loadAllAttributes(), loadAllChannels()]).then(() => {
@@ -386,9 +408,9 @@ export default {
           { value: 'typeIdentifier', text: i18n.t('Item.typeIdentifier') },
           { value: '#level#', text: i18n.t('Item.level') },
           { value: 'createdBy', text: i18n.t('CreatedBy') },
-          { value: 'createdAt', text: i18n.t('CreatedAt') },
+          { value: 'createdAt', text: i18n.t('CreatedAt'), type: 'date' },
           { value: 'updatedBy', text: i18n.t('UpdatedBy') },
-          { value: 'updatedAt', text: i18n.t('UpdatedAt') },
+          { value: 'updatedAt', text: i18n.t('UpdatedAt'), type: 'date' },
           { value: 'fileOrigName', text: i18n.t('Item.fileOrigName') },
           { value: 'mimeType', text: i18n.t('Item.mimeType') }
         ]
@@ -401,7 +423,8 @@ export default {
           })
           arr.push({
             value: 'channel#' + channel.identifier + '#submittedAt',
-            text: i18n.t('ColumnsSelection.SubmittedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+            text: i18n.t('ColumnsSelection.SubmittedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+            type: 'date'
           })
           arr.push({
             value: 'channel#' + channel.identifier + '#submittedBy',
@@ -409,7 +432,8 @@ export default {
           })
           arr.push({
             value: 'channel#' + channel.identifier + '#syncedAt',
-            text: i18n.t('ColumnsSelection.SyncedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+            text: i18n.t('ColumnsSelection.SyncedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+            type: 'date'
           })
           arr.push({
             value: 'channel#' + channel.identifier + '#message',
@@ -468,6 +492,8 @@ export default {
     })
 
     return {
+      datePicker,
+      dateType,
       typeSelectionDialogRef,
       typesSelected,
       searchSaveDialogRef,
@@ -476,6 +502,7 @@ export default {
       selectedFilterRef,
       searchSelected,
       itemSelectionDialogRef,
+      datePickerDialogRef,
       itemSelected,
       add,
       remove,
