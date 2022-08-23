@@ -73,12 +73,13 @@ export default {
     const availableColumnsRef = ref([])
     const selectedColumnsRef = ref([])
     const selectionDialogRef = ref(false)
+    const maxColumnsNumber = 100
 
     const availableColumnsComputed = computed(() => {
       if (leftFilterRef.value) {
-        return availableColumnsRef.value.filter(elem => elem.text.toLowerCase().indexOf(leftFilterRef.value.toLowerCase()) !== -1)
+        return availableColumnsRef.value.filter(elem => elem.text.toLowerCase().indexOf(leftFilterRef.value.toLowerCase()) !== -1).slice(0, maxColumnsNumber)
       } else {
-        return availableColumnsRef.value
+        return availableColumnsRef.value.slice(0, maxColumnsNumber)
       }
     })
 
