@@ -375,16 +375,7 @@ export default {
     }
 
     function dateType (filter, fieldsSelection) {
-      for (var i in fieldsSelection) {
-        try {
-          if (fieldsSelection[i].type === 'date' && fieldsSelection[i].value === filter.attr) {
-            return true
-          }
-        } catch (e) {
-          return true
-        }
-      }
-      return false
+      return fieldsSelection.some(elem => elem.type && elem.type === 'date' && elem.value === filter.attr)
     }
 
     function datePicker (id, filter) {
