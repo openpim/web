@@ -582,5 +582,12 @@
   "AttributeManageDialog.DictionaryTooBig"  : "Dictionary is too big to convert to list of values, attribute type set as Text",
   "AttributeManageDialog.ConfirmDictionary"  : "Dictionary was found, create list of values for it?",
   "AttributeManageDialog.AttributeFound"  : "Corresponding attribute was already created in the system",
-  "ButtonActionStatusDialog.Title": "The operation in progress"
+  "ButtonActionStatusDialog.Title": "The operation in progress",
+  "DatePickerDialog.Title": "Date and time selection",
+  "DatePickerDialog.ExactTime": "Exact time",
+  "DatePickerDialog.RelativeTime": "Relative time",
+  "DatePickerDialog.Numberofdays": "Number of days",
+  "DatePickerDialog.DAY": "Day",
+  "DatePickerDialog.HOUR": "Hour",
+  "DatePickerDialog.MIN": "Minute"
 }
