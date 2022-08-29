@@ -115,7 +115,7 @@
 
             <AfterButtonsComponent></AfterButtonsComponent>
             <v-spacer></v-spacer>
-            <v-btn v-if="!itemRef.typeFile && canEditSelected && hasFileUpload" text @click="fileUploadDialogRef.showDialog()" v-text="$t('ItemView.UploadFile')"></v-btn>
+            <v-btn v-if="!itemRef.typeFile && hasFileUpload" text @click="fileUploadDialogRef.showDialog()" v-text="$t('ItemView.UploadFile')"></v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -376,7 +376,7 @@ export default {
 
     const { showInfo, showError } = errorStore.useStore()
 
-    const { currentUserRef, currentRoles, canEditItem, hasAccess } = userStore.useStore()
+    const { currentUserRef, currentRoles, canEditItem, hasAccess, canEditItemRelation } = userStore.useStore()
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
@@ -484,7 +484,7 @@ export default {
         let found = false
         const typeId = parseInt(itemRef.value.typeId)
         relations.forEach(relation => {
-          if (relation.sources.includes(typeId)) {
+          if (relation.sources.includes(typeId) && canEditItemRelation(relation.id)) {
             relation.targets.forEach(targetTypeId => {
               const targetType = findType(targetTypeId).node
               if (targetType && targetType.file) found = true

@@ -56,6 +56,7 @@ import * as typesStore from '../store/types'
 import * as relStore from '../store/relations'
 import * as langStore from '../store/languages'
 import * as itemStore from '../store/item'
+import * as userStore from '../store/users'
 import * as errorStore from '../store/error'
 import ItemsSelectionDialog from './ItemsSelectionDialog'
 import i18n from '../i18n'
@@ -70,6 +71,8 @@ export default {
   components: { ItemsSelectionDialog },
   setup (props, { emit }) {
     const { showError } = errorStore.useStore()
+
+    const { canEditItemRelation } = userStore.useStore()
 
     const {
       currentLanguage,
@@ -105,7 +108,7 @@ export default {
       const arr = []
       const typeId = parseInt(props.typeId)
       relations.forEach(relation => {
-        if (relation.sources.includes(typeId)) {
+        if (relation.sources.includes(typeId) && canEditItemRelation(relation.id)) {
           for (let i = 0; i < relation.targets.length; i++) {
             const targetTypeId = relation.targets[i]
             const targetType = findType(targetTypeId).node
