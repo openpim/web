@@ -60,7 +60,8 @@ export default {
     let initiator
 
     function selected () {
-      const arr = selectedGroupsRef.value.map(idx => groupsToShow.value[idx].internalId)
+      let arr = selectedGroupsRef.value.map(idx => groupsToShow.value[idx]?.internalId)
+      arr = arr.filter(elem => elem)
       emit('selected', arr, initiator)
     }
 

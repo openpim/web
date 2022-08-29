@@ -327,7 +327,7 @@ export default {
         router.push('/config/roles')
         return
       }
-      if (selected < rolesFiltered.value.length) {
+      if (rolesFiltered && selected < rolesFiltered.value.length) {
         if (previous && rolesFiltered.value[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
