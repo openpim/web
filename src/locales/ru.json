@@ -160,6 +160,7 @@
   "Config.Users.Email": "Электронная почта",
   "Config.Users.Password1": "Пароль",
   "Config.Users.Password2": "Подтверждение пароля",
+  "Config.Users.External": "Внешний пользователь, сменить пароль невозможно",
   "Config.Users.Roles": "Роли",
   "Config.Users.Confirm.Delete": "Удалить роль {name}?",
   "Config.Users.Error.LoginRequired": "Не введено имя пользователя",

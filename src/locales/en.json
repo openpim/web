@@ -163,6 +163,7 @@
   "Config.Users.Email": "Email",
   "Config.Users.Password1": "Password",
   "Config.Users.Password2": "Password confirmation",
+  "Config.Users.External": "User is external, password can not be changed",
   "Config.Users.Roles": "Roles",
   "Config.Users.Confirm.Delete": "Remove user {name}?",
   "Config.Users.Error.LoginRequired": "Login required",

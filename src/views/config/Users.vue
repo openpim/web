@@ -52,8 +52,13 @@
           </v-card>
 
           <v-text-field v-model="selectedRef.email" :label="$t('Config.Users.Email')" required></v-text-field>
-          <v-text-field type="password" v-if="canEditConfigRef" :error-messages="passwordErrors" v-model="selectedRef.password1" :label="$t('Config.Users.Password1')" required></v-text-field>
-          <v-text-field type="password" v-if="canEditConfigRef" :error-messages="passwordErrors" v-model="selectedRef.password2" :label="$t('Config.Users.Password2')" required></v-text-field>
+          <template v-if="selectedRef.external">
+            {{$t('Config.Users.External')}}
+          </template>
+          <template v-else>
+            <v-text-field type="password" v-if="canEditConfigRef" :error-messages="passwordErrors" v-model="selectedRef.password1" :label="$t('Config.Users.Password1')" required></v-text-field>
+            <v-text-field type="password" v-if="canEditConfigRef" :error-messages="passwordErrors" v-model="selectedRef.password2" :label="$t('Config.Users.Password2')" required></v-text-field>
+          </template>
 
           <OptionsTable :options="selectedRef.options" @changed="optionsChanged" />
 

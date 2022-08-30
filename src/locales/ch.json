@@ -158,6 +158,7 @@
 	"Config.Users.Email": "邮箱",
 	"Config.Users.Password1": "密码",
 	"Config.Users.Password2": "确认密码",
+	"Config.Users.External": "用户是外部的，密码不能更改",
 	"Config.Users.Roles": "角色",
 	"Config.Users.Confirm.Delete": "删掉用户 {名称}?",
 	"Config.Users.Error.LoginRequired": "未输入用户名",

@@ -27,7 +27,7 @@ async function userLogin (token, user, pathAfterLogin) {
 const actions = {
   loadAllUsers: async () => {
     if (users.length > 0) return
-    const data = await serverFetch('query { getUsers {id internalId login name email roles options createdAt createdBy updatedAt updatedBy } }')
+    const data = await serverFetch('query { getUsers {id internalId login name email roles options external createdAt createdBy updatedAt updatedBy } }')
     if (data.getUsers) {
       data.getUsers.forEach(element => {
         users.push(element)
@@ -94,7 +94,7 @@ const actions = {
           'Content-Type': 'application/json',
           Accept: 'application/json'
         },
-        body: JSON.stringify({ query: 'mutation {signIn(login: "' + login + '", password: "' + password + '") { token, user {id internalId login name email roles tenantId options} }}' })
+        body: JSON.stringify({ query: 'mutation {signIn(login: "' + login + '", password: "' + password + '") { token, user {id internalId login name email roles tenantId options external} }}' })
       })
       if (resp.ok) {
         localStorage.setItem('locale', i18n.locale)
@@ -111,7 +111,7 @@ const actions = {
     }
   },
   signInAs: async (id) => {
-    const data = await serverFetch('mutation {signInAs(id: "' + id + '") { token, user {id internalId login name email roles tenantId options} }}')
+    const data = await serverFetch('mutation {signInAs(id: "' + id + '") { token, user {id internalId login name email roles tenantId options external} }}')
     await userLogin(data.signInAs.token, data.signInAs.user, '/')
   },
   reloadModel: async () => {
