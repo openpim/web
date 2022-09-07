@@ -32,6 +32,7 @@
   "Main.Search": "Search",
   "Main.Settings": "Settings",
   "Main.Channels": "Channels",
+  "Main.Dashboards": "Dashboards",
   "Wrong.Identifier": "Identifier must not has spaces and must be in English only",
   "Wrong.Attribute.Identifier": "Identifier must not has spaces, leading digits and must be in English only",
   "Config.Types": "Types",

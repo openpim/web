@@ -6,7 +6,7 @@
 
       <v-bottom-navigation grow height="50" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">
         <v-btn to="/">
-            <span>{{ $t('Main.Work') }}</span>
+            <span>{{ hasDashboards ? $t('Main.Dashboards') : $t('Main.Work') }}</span>
             <v-icon>mdi-sitemap</v-icon>
         </v-btn>
         <v-btn to="/search" v-if="hasSearchAccess">
@@ -111,6 +111,7 @@ import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
 import * as attrStore from '../store/attributes'
 import * as rolesStore from '../store/roles'
+import * as dashStore from '../store/dashboards'
 import i18n from '../i18n'
 import router from '../router'
 import TitleComponent from '../_customizations/toolbar/title/TitleComponent'
@@ -163,6 +164,11 @@ export default {
       loadAllChannels
     } = channelsStore.useStore()
 
+    const {
+      loadAllDashboards,
+      getDashboardsForCurrentUser
+    } = dashStore.useStore()
+
     const drawer = ref(null)
     const drawerRef = ref(null)
     const drawerWidth = ref(localStorage.getItem('drawerWidth') || '25%')
@@ -182,6 +188,8 @@ export default {
 
     const hasSearchAccess = ref(false)
     const isUserAdmin = ref(false)
+
+    const hasDashboards = ref(false)
 
     watch(searchRef, (val) => {
       if (val && val.length > 1) {
@@ -316,6 +324,9 @@ export default {
       setBorderWidth()
       setResizeEvents()
       loadAllRoles().then(() => {
+        loadAllDashboards().then(() => {
+          hasDashboards.value = getDashboardsForCurrentUser().length > 0
+        })
         isUserAdmin.value = isAdmin()
         hasSearchAccess.value = hasAccess('search') || hasAccess('searchRelations')
         if (currentUserRef.value.tenantId !== '0') {
@@ -360,6 +371,7 @@ export default {
       isExportSearch: props.export,
       hasSearchAccess,
       isUserAdmin,
+      hasDashboards,
       nameRules: [
         v => !!v || i18n.t('Config.Users.Error.NameRequired')
       ]
