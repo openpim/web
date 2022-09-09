@@ -216,11 +216,14 @@ const actions = {
     return groupsArr.sort((a, b) => a.order - b.order)
   },
   getAllItemsAttributes: () => {
+    return actions.getAllItemsAttributes2(true)
+  },
+  getAllItemsAttributes2: (checkGroupVisible) => {
     const attrArr = []
     const addedAttrs = {}
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i]
-      if (group.visible) {
+      if (!checkGroupVisible || (checkGroupVisible && group.visible)) {
         for (let k = 0; k < group.attributes.length; k++) {
           const attr = group.attributes[k]
           if (attr.valid.length > 0) {

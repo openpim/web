@@ -72,7 +72,7 @@
                 <template v-if="selectedRef.components[componentRef].type !== 3">
                   <v-select v-model="selectedRef.components[componentRef].chart" :items="chartSelection" :label="$t('Config.Dashboards.Components.ChartType')"></v-select>
 
-                  <v-select v-if="selectedRef.components[componentRef].type === 1" v-model="selectedRef.components[componentRef].groupBy" :items="availableAttributes" :label="$t('Config.Dashboards.Components.Attribute')"></v-select>
+                  <v-autocomplete v-if="selectedRef.components[componentRef].type === 1" v-model="selectedRef.components[componentRef].groupBy" :items="availableAttributes" :label="$t('Config.Dashboards.Components.Attribute')"></v-autocomplete>
                   <v-textarea v-if="selectedRef.components[componentRef].type === 1" v-model="selectedRef.components[componentRef].groupWhere" :label="$t('Config.Dashboards.Components.Where')" rows="3"></v-textarea>
 
                   <template v-if="selectedRef.components[componentRef].type === 2">
@@ -145,7 +145,7 @@ export default {
 
     const {
       loadAllAttributes,
-      getAllItemsAttributes
+      getAllItemsAttributes2
     } = attrStore.useStore()
 
     const {
@@ -272,7 +272,7 @@ export default {
         const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
         arr.push({ value: 'name#' + lang.identifier, text: i18n.t('Item.name') + langText })
       }
-      const attrs = getAllItemsAttributes()
+      const attrs = getAllItemsAttributes2(false)
       for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i]
         const nameText = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
@@ -280,10 +280,10 @@ export default {
           for (let i = 0; i < languages.length; i++) {
             const lang = languages[i]
             const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-            arr.push({ value: 'attr#' + attr.identifier + '#' + lang.identifier, text: nameText + langText })
+            arr.push({ value: 'attr#' + attr.identifier + '#' + lang.identifier, text: attr.identifier + ' - ' + nameText + langText })
           }
         } else {
-          arr.push({ value: 'attr#' + attr.identifier, text: nameText })
+          arr.push({ value: 'attr#' + attr.identifier, text: attr.identifier + ' - ' + nameText })
         }
       }
 
