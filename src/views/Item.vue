@@ -2,6 +2,7 @@
   <v-container v-if="itemRef" class="pa-0">
     <v-row no-gutters>
       <v-col cols="12">
+        <v-btn x-small fab fixed bottom right color="primary" @click="toTop"><v-icon>mdi-arrow-up-thick</v-icon></v-btn>
         <v-card class="mx-auto mb-1" outlined>
           <v-card-title class="pt-0 pb-0">
             <v-breadcrumbs v-if="parents.length > 0" class="pa-1" dense :items="parents"></v-breadcrumbs>
@@ -307,6 +308,7 @@
 
 <script>
 import { ref, onMounted, watch, computed, onBeforeUpdate, onUnmounted } from '@vue/composition-api'
+import goTo from 'vuetify/lib/services/goto'
 import { useRouter } from '../router/useRouter'
 import * as itemStore from '../store/item'
 import * as attrStore from '../store/attributes'
@@ -1004,6 +1006,10 @@ export default {
       }
     }
 
+    function toTop () {
+      goTo(0)
+    }
+
     let timer
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
@@ -1142,6 +1148,7 @@ export default {
       sourceRelationSearch,
       targetRelationSearch,
       performRelationSearch,
+      toTop,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
