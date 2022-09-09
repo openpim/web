@@ -5,9 +5,13 @@
       <router-view name="menu"></router-view>
 
       <v-bottom-navigation grow height="50" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">
-        <v-btn to="/">
-            <span>{{ hasDashboards ? $t('Main.Dashboards') : $t('Main.Work') }}</span>
+        <v-btn to="/" v-if="hasDashboards">
+            <span>{{ $t('Main.Dashboards') }}</span>
             <v-icon>mdi-sitemap</v-icon>
+        </v-btn>
+        <v-btn to="/">
+            <span>{{ $t('Main.Work') }}</span>
+            <v-icon>mdi-home</v-icon>
         </v-btn>
         <v-btn to="/search" v-if="hasSearchAccess">
             <span>{{ $t('Main.Search') }}</span>
