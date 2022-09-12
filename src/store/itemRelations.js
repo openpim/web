@@ -438,7 +438,7 @@ const actions = {
     const idx = itemRels[identifier].findIndex(elem => elem.id === id)
     const itemRel = itemRels[identifier][idx]
 
-    if (itemRel.id !== -1) {
+    if (itemRel.id > 0) {
       const query = `
         mutation { removeItemRelation(id: "` + itemRel.id + `")
       }`

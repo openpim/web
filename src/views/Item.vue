@@ -875,7 +875,7 @@ export default {
             }
           } else if (attr.type === AttributeType.LOV && isMultivalue) {
             const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
-            if (val !== null || val !== undefined) {
+            if (val !== null && val !== undefined) {
               if (!Array.isArray(val)) {
                 item.values[attr.identifier] = [val]
               } else {
