@@ -11,8 +11,10 @@ const actionList = {
     if (dashboards.length > 0) return
     const data = await serverFetch('query { getDashboards {id identifier name users components createdAt createdBy updatedAt updatedBy} }')
     if (dashboards.length > 0) return
-    if (data.getDashboards) {
-      data.getDashboards.forEach(element => {
+    const arr = data.getDashboards
+    if (arr && arr.length > 0) {
+      arr.sort((a, b) => a.name[currentLanguage.value.identifier].localeCompare(b.name[currentLanguage.value.identifier]))
+      arr.forEach(element => {
         element.internalId = element.id
         element.usersStr = element.users.join()
         dashboards.push(element)
