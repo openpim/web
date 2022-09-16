@@ -394,7 +394,7 @@ const actions = {
                 offset: 0, 
                 limit: 100,
                 where: ` + andExpr + '{OP_or: [' + attrExpr + mainExpr + '] }' + (andExpr ? ']}' : '') + `,
-                order: [["id", "ASC"]]
+                order: [["\\"typeId\\"", "ASC"],["id", "ASC"]]
             }]
         ) {
         responses {
