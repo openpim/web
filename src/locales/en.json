@@ -589,5 +589,7 @@
   "DatePickerDialog.Numberofdays": "Number of days",
   "DatePickerDialog.DAY": "Day",
   "DatePickerDialog.HOUR": "Hour",
-  "DatePickerDialog.MIN": "Minute"
+  "DatePickerDialog.MIN": "Minute",
+  "DatePickerDialog.Title.Dateonly": "Date selection",
+  "DatePickerDialog.Title.Timeonly": "Time selection"
 }

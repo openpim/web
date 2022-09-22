@@ -36,16 +36,15 @@
                     <v-select dense v-model="filter.operation" :items="operationSelection" :label="$t('Search.Filter.Attribute.Operation')"></v-select>
                   </v-col>
                 </v-row>
-
                 <v-row no-gutters v-if="filter.attr && !filter.attr.endsWith('#status')">
                   <v-col cols="12">
                     <template v-if="filter.attr === '#level#'">
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
                     <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !dateType(filter, fieldsSelection) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
                     <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)"></v-text-field>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && dateType(filter, fieldsSelection)  && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(filter)"></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)"></v-text-field>
                     <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
@@ -94,6 +93,7 @@ import SearchLoadDialog from '../components/SearchLoadDialog'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import TypeSelectionDialog from '../components/TypeSelectionDialog'
 import DatePickerDialog from '../components/DatePickerDialog'
+import AttributeType from '../constants/attributeTypes'
 import router from '../router'
 
 export default {
@@ -374,8 +374,9 @@ export default {
       }
     }
 
-    function dateType (filter, fieldsSelection) {
-      return fieldsSelection.some(elem => elem.type && elem.type === 'date' && elem.value === filter.attr)
+    function getDateType (filter) {
+      const arrattr = fieldsSelection.value.find(elem => elem.value === filter.attr)
+      return arrattr ? arrattr.type : null
     }
 
     function datePicker (id, filter) {
@@ -399,9 +400,9 @@ export default {
           { value: 'typeIdentifier', text: i18n.t('Item.typeIdentifier') },
           { value: '#level#', text: i18n.t('Item.level') },
           { value: 'createdBy', text: i18n.t('CreatedBy') },
-          { value: 'createdAt', text: i18n.t('CreatedAt'), type: 'date' },
+          { value: 'createdAt', text: i18n.t('CreatedAt'), type: 'datetime' },
           { value: 'updatedBy', text: i18n.t('UpdatedBy') },
-          { value: 'updatedAt', text: i18n.t('UpdatedAt'), type: 'date' },
+          { value: 'updatedAt', text: i18n.t('UpdatedAt'), type: 'datetime' },
           { value: 'fileOrigName', text: i18n.t('Item.fileOrigName') },
           { value: 'mimeType', text: i18n.t('Item.mimeType') }
         ]
@@ -415,7 +416,7 @@ export default {
           arr.push({
             value: 'channel#' + channel.identifier + '#submittedAt',
             text: i18n.t('ColumnsSelection.SubmittedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
-            type: 'date'
+            type: 'datetime'
           })
           arr.push({
             value: 'channel#' + channel.identifier + '#submittedBy',
@@ -424,7 +425,7 @@ export default {
           arr.push({
             value: 'channel#' + channel.identifier + '#syncedAt',
             text: i18n.t('ColumnsSelection.SyncedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
-            type: 'date'
+            type: 'datetime'
           })
           arr.push({
             value: 'channel#' + channel.identifier + '#message',
@@ -450,7 +451,13 @@ export default {
             }
           } else {
             const val = 'attr#' + attr.identifier
-            arr.push({ value: val, text: attr.identifier + ' - ' + nameText, lov: attr.lov })
+            const data = { value: val, text: attr.identifier + ' - ' + nameText, lov: attr.lov }
+            if (attr.type === AttributeType.Date) {
+              data.type = 'date'
+            } else if (attr.type === AttributeType.Time) {
+              data.type = 'time'
+            }
+            arr.push(data)
             if (attr.lov) lovsMap[val] = attr.lov
             checkLOV(attr, val)
           }
@@ -483,8 +490,8 @@ export default {
     })
 
     return {
+      getDateType,
       datePicker,
-      dateType,
       typeSelectionDialogRef,
       typesSelected,
       searchSaveDialogRef,
