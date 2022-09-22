@@ -52,8 +52,9 @@
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
                     <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr != 'relationIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr != 'relationIdentifier' && !getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
                     <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'relationIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="relSelectionDialogRef.showDialog(filter)"></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)"></v-text-field>
                     <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
@@ -82,6 +83,7 @@
   <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
   <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
   <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="false" @selected="relationsSelected"/>
+  <DatePickerDialog ref="datePickerDialogRef" @selected="datePicker"/>
   </v-row>
 </template>
 <script>
@@ -100,11 +102,13 @@ import SearchSaveDialog from '../components/SearchSaveDialog'
 import SearchLoadDialog from '../components/SearchLoadDialog'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
+import DatePickerDialog from '../components/DatePickerDialog'
+import AttributeType from '../constants/attributeTypes'
 import * as relStore from '../store/relations'
 import router from '../router'
 
 export default {
-  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, RelationsSelectionDialog },
+  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, RelationsSelectionDialog, DatePickerDialog },
   setup (props, context) {
     const { showError } = errorStore.useStore()
 
@@ -156,6 +160,7 @@ export default {
     const relSelectionDialogRef = ref(null)
     const searchSaveDialogRef = ref(null)
     const searchLoadDialogRef = ref(null)
+    const datePickerDialogRef = ref(null)
     const selectedFilterRef = ref(null)
     // const selectedRef = ref(null)
     const fieldsSelection = ref([])
@@ -385,6 +390,16 @@ export default {
       }
     }
 
+    function getDateType (filter) {
+      const arrattr = fieldsSelection.value.find(elem => elem.value === filter.attr)
+      return arrattr ? arrattr.type : null
+    }
+
+    function datePicker (id, filter) {
+      datePickerDialogRef.value.closeDialog()
+      filter.value = id
+    }
+
     onMounted(() => {
       Promise.all([loadAllTypes(), loadAllLanguages(), loadAllAttributes()]).then(() => {
         const name = {}
@@ -401,9 +416,9 @@ export default {
           { value: 'relationIdentifier', text: i18n.t('ItemRelation.relationIdentifier') },
           { value: 'targetIdentifier', text: i18n.t('ItemRelation.targetIdentifier') },
           { value: 'createdBy', text: i18n.t('CreatedBy') },
-          { value: 'createdAt', text: i18n.t('CreatedAt') },
+          { value: 'createdAt', text: i18n.t('CreatedAt'), type: 'datetime' },
           { value: 'updatedBy', text: i18n.t('UpdatedBy') },
-          { value: 'updatedAt', text: i18n.t('UpdatedAt') }
+          { value: 'updatedAt', text: i18n.t('UpdatedAt'), type: 'datetime' }
         ]
 
         for (let i = 0; i < languages.length; i++) {
@@ -426,7 +441,13 @@ export default {
             }
           } else {
             const val = 'attr#' + attr.identifier
-            arr.push({ value: val, text: attr.identifier + ' - ' + nameText, lov: attr.lov })
+            const data = { value: val, text: attr.identifier + ' - ' + nameText, lov: attr.lov }
+            if (attr.type === AttributeType.Date) {
+              data.type = 'date'
+            } else if (attr.type === AttributeType.Time) {
+              data.type = 'time'
+            }
+            arr.push(data)
             if (attr.lov) lovsMap[val] = attr.lov
             checkLOV(attr, val)
           }
@@ -455,6 +476,8 @@ export default {
     })
 
     return {
+      datePicker,
+      getDateType,
       relationsSelected,
       relSelectionDialogRef,
       searchSaveDialogRef,
@@ -463,6 +486,7 @@ export default {
       selectedFilterRef,
       searchSelected,
       itemSelectionDialogRef,
+      datePickerDialogRef,
       itemSelected,
       add,
       remove,

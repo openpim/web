@@ -584,6 +584,7 @@
 	"DatePickerDialog.Numberofdays": "天数",
 	"DatePickerDialog.DAY": "日",
 	"DatePickerDialog.HOUR": "时间",
-	"DatePickerDialog.MIN": "分钟"
-	
+	"DatePickerDialog.MIN": "分钟",
+	"DatePickerDialog.Title.Dateonly": "日期选择",
+	"DatePickerDialog.Title.Timeonly": "时间选择"
 }

@@ -588,5 +588,7 @@
   "DatePickerDialog.Numberofdays": "Количество дней",
   "DatePickerDialog.DAY": "День",
   "DatePickerDialog.HOUR": "Час",
-  "DatePickerDialog.MIN": "Минута"
+  "DatePickerDialog.MIN": "Минута",
+  "DatePickerDialog.Title.Dateonly": "Выбор даты",
+  "DatePickerDialog.Title.Timeonly": "Выбор времени"
 }

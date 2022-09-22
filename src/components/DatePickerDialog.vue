@@ -2,7 +2,9 @@
   <v-dialog v-model="datePickerDialogRef" persistent width="45%">
     <v-card>
       <v-card-title>
-        <span class="headline">{{ $t('DatePickerDialog.Title') }}</span>
+        <span class="headline" v-if="dateortime == 'datetime'">{{ $t('DatePickerDialog.Title') }}</span>
+        <span class="headline" v-if="dateortime == 'date'">{{ $t('DatePickerDialog.Title.Dateonly') }}</span>
+        <span class="headline" v-if="dateortime == 'time'">{{ $t('DatePickerDialog.Title.Timeonly') }}</span>
       </v-card-title>
       <v-card-text>
         <v-container class="pa-0">
@@ -15,8 +17,8 @@
               <v-tabs-items v-model="tabRef">
                 <v-tab-item>
                   <v-row justify="space-around">
-                    <v-date-picker v-model="date" flat scrollable class="ma-4"></v-date-picker>
-                    <v-time-picker v-model="time" flat format="24hr" scrollable class="ma-4"></v-time-picker>
+                    <v-date-picker v-if="dateortime == 'date' || dateortime == 'datetime'" v-model="date" flat scrollable class="ma-4"></v-date-picker>
+                    <v-time-picker v-if="dateortime == 'time' || dateortime == 'datetime'" v-model="time" flat format="24hr" scrollable class="ma-4"></v-time-picker>
                   </v-row>
                   <v-row>
                     <v-text-field v-model="datetime" class="ml-5 mr-5"></v-text-field>
@@ -52,17 +54,6 @@ import i18n from '../i18n'
 
 export default {
   name: 'DatePickerDialog',
-  props: {
-    Date: {
-      required: false
-    },
-    Time: {
-      required: false
-    },
-    Datetime: {
-      required: false
-    }
-  },
   setup (props, { emit }) {
     const {
       currentLanguage,
@@ -77,11 +68,12 @@ export default {
     const items = [i18n.t('DatePickerDialog.DAY'), i18n.t('DatePickerDialog.HOUR'), i18n.t('DatePickerDialog.MIN')]
     const perem = ref(items[0])
     const numberofdays = ref(null)
+    const dateortime = ref(null)
 
     let initiator
 
     function selected () {
-      if (tabRef.value === 0) {
+      if (tabRef.value === 0 || tabRef.value === null) {
         emit('selected', datetime.value, initiator)
       } else {
         const memory = perem.value
@@ -101,8 +93,10 @@ export default {
       }
     }
 
-    function showDialog (init, value) {
+    function showDialog (param, init) {
+      dateortime.value = param
       initiator = init
+      datetime.value = init.value
       datePickerDialogRef.value = true
     }
 
@@ -111,18 +105,41 @@ export default {
     }
 
     watch(() => date.value, (elemNew, elemOld) => {
-      if (elemNew !== null && time.value !== null) {
-        datetime.value = date.value + 'T' + time.value + ':00.000Z'
+      if (elemNew !== null) {
+        if (dateortime.value === 'date') {
+          datetime.value = date.value
+        }
+        if (dateortime.value === 'time') {
+          datetime.value = time.value
+        }
+        if (dateortime.value === 'datetime') {
+          datetime.value = date.value
+          if (time.value !== null) {
+            datetime.value = date.value + 'T' + time.value + ':00.000Z'
+          }
+        }
       }
     })
 
     watch(() => time.value, (elemNew, elemOld) => {
-      if (elemNew !== null && date.value !== null) {
-        datetime.value = date.value + 'T' + time.value + ':00.000Z'
+      if (elemNew !== null) {
+        if (dateortime.value === 'date') {
+          datetime.value = date.value
+        }
+        if (dateortime.value === 'time') {
+          datetime.value = time.value
+        }
+        if (dateortime.value === 'datetime') {
+          datetime.value = date.value
+          if (time.value !== null) {
+            datetime.value = date.value + 'T' + time.value + ':00.000Z'
+          }
+        }
       }
     })
 
     return {
+      dateortime,
       perem,
       numberofdays,
       items,
@@ -140,9 +157,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-  .v-picker__title__btn {
-    font-size: 40px
-  }
-</style>
