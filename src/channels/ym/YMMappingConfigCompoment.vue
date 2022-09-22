@@ -26,45 +26,8 @@
               </v-tooltip>
             </v-col>
           </v-row>
-
           <MappingAttributesCompoment v-if="categoryRef && pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly"  :channel="channel" :canManageAttributes="canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="categoryAttributes" />
-
-          <div class="mt-2">Дополнительные параметры</div>
-           <v-data-table v-if="categoryRef && categoryRef.params && categoryRef.params.length > 200" :headers="paramHeaders" :items="categoryRef.params" :items-per-page="10" class="elevation-1"></v-data-table>
-          <v-simple-table  v-if="categoryRef && categoryRef.params && categoryRef.params.length <= 200" dense class="mb-4">
-              <template v-slot:default>
-                <thead>
-                  <tr>
-                    <th class="text-left">Наименование</th>
-                    <th class="text-left">Атрибут</th>
-                    <th class="text-left">Выражение</th>
-                    <th class="text-left">
-                      <v-tooltip top>
-                        <template v-slot:activator="{ on }">
-                          <v-btn v-on="on" class="pa-0" icon color="primary" @click="addValue"><v-icon dark>mdi-plus</v-icon></v-btn>
-                        </template>
-                        <span>{{ $t('Add') }}</span>
-                      </v-tooltip>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(elem, j) in categoryRef.params" :key="j">
-                    <td class="pa-1">
-                      <input v-model="elem.id" :placeholder="наименование">
-                    </td>
-                    <td class="pa-1">
-                      <v-autocomplete dense :readonly="readonly" v-model="elem.attrIdent" :items="pimAttributesRef" clearable></v-autocomplete>
-                    </td>
-                    <td class="pa-1" colspan="2">
-                      <textarea rows="1"  cols="50" v-model="elem.expr"/>
-                      <v-btn class="pa-0" icon color="primary" @click="removeValue(j)"><v-icon dark>mdi-close-circle-outline</v-icon></v-btn>
-                    </td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
-
+          <YMAdditionalParams v-if="categoryRef && categoryRef.params && pimAttributesRef" :headers="paramHeaders" :data="categoryRef.params" :pimAttributesRef="pimAttributesRef" :readonly="readonly"/>
         </div>
       </v-col>
       <v-col cols="1">
@@ -120,6 +83,7 @@ import * as userStore from '../../store/users'
 import ValidVisibleComponent from '../../components/ValidVisibleComponent'
 import MappingAttributesCompoment from '../MappingAttributesCompoment'
 import ChannelsCategorySelectionDialog from '../../components/ChannelsCategorySelectionDialog.vue'
+import YMAdditionalParams from '../ym/YMAdditionalParams.vue'
 
 import i18n from '../../i18n'
 
@@ -133,7 +97,7 @@ export default {
       required: true
     }
   },
-  components: { ValidVisibleComponent, MappingAttributesCompoment, ChannelsCategorySelectionDialog },
+  components: { ValidVisibleComponent, MappingAttributesCompoment, ChannelsCategorySelectionDialog, YMAdditionalParams },
   setup (props, { root }) {
     const {
       languages,
@@ -310,14 +274,6 @@ export default {
       categoryRef.value = mappedCategories.value.find(elem => elem.id === categoryIdRef.value)
     }
 
-    function addValue () {
-      categoryRef.value.params.push({ id: '', attrIdent: '', expr: '' })
-    }
-
-    function removeValue (idx) {
-      categoryRef.value.params.splice(idx, 1)
-    }
-
     function categoryToCopySelected (mapping) {
       relCategoryDialogRef.value.closeDialog()
       if (confirm('Все настройки атрибутов будут переписаны. Продолжать?')) {
@@ -384,8 +340,6 @@ export default {
       refreshAttributes,
       add,
       remove,
-      addValue,
-      removeValue,
       relCategoryDialogRef,
       categoryToCopySelected,
       relations,
@@ -416,6 +370,11 @@ export default {
           text: 'Выражение',
           sortable: false,
           value: 'expr'
+        },
+        {
+          text: 'Действия',
+          value: 'actions',
+          sortable: false
         }
       ]
     }
