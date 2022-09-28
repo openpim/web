@@ -588,7 +588,7 @@
   "DatePickerDialog.Title": "Date and time selection",
   "DatePickerDialog.ExactTime": "Exact time",
   "DatePickerDialog.RelativeTime": "Relative time",
-  "DatePickerDialog.Numberofdays": "Number of days",
+  "DatePickerDialog.Numberofdays": "Number",
   "DatePickerDialog.DAY": "Day",
   "DatePickerDialog.HOUR": "Hour",
   "DatePickerDialog.MIN": "Minute",
