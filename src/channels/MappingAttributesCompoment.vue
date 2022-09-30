@@ -99,6 +99,7 @@ import AttributeType from '../constants/attributeTypes'
 import * as attrStore from '../store/attributes'
 import * as errorStore from '../store/error'
 import * as lovStore from '../store/lovs'
+import * as chanStore from '../store/channels'
 
 export default {
   components: { OptionsTable, AttributeManageDialog },
@@ -151,6 +152,10 @@ export default {
     } = lovStore.useStore()
     const { showInfo, showError } = errorStore.useStore()
 
+    const {
+      getChannelAttributeValues
+    } = chanStore.useStore()
+
     const exprAttrRef = ref(null)
     const exprDialogRef = ref(null)
     const optAttrRef = ref(null)
@@ -166,6 +171,13 @@ export default {
       if (!attr.dictionaryLinkPost) {
         window.open(attr.dictionaryLink, '_blank').focus()
       } else {
+        getChannelAttributeValues(props.channel.id, attr.category, attr.id)
+          .then(json => {
+            const newWin = window.open('', '_blank')
+            newWin.document.write('<pre>' + JSON.stringify(json, null, 2) + '</pre>')
+            newWin.focus()
+          })
+        /*
         fetch(attr.dictionaryLink, {
           method: 'POST',
           headers: attr.dictionaryLinkPost.headers,
@@ -174,7 +186,7 @@ export default {
           const newWin = window.open('', '_blank')
           newWin.document.write('<pre>' + JSON.stringify(json, null, 2) + '</pre>')
           newWin.focus()
-        })
+        }) */
       }
     }
 
@@ -277,13 +289,8 @@ export default {
 
           // TODO now support ozon only, support wb also
           if (chanAttr.dictionary && chanAttr.dictionaryLink && chanAttr.dictionaryLinkPost) { // LOV
-            const resp = await fetch(chanAttr.dictionaryLink, {
-              method: 'POST',
-              headers: chanAttr.dictionaryLinkPost.headers,
-              body: JSON.stringify(chanAttr.dictionaryLinkPost.body)
-            })
-            if (resp.ok) {
-              const json = await resp.json()
+            const json = await getChannelAttributeValues(props.channel.id, chanAttr.category, chanAttr.id)
+            if (json) {
               if (!json.has_next) {
                 const tst = lovs.find(lov => lov.identifier === chanAttr.id)
                 if (tst) {
