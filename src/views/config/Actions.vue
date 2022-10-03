@@ -62,7 +62,7 @@
             </v-toolbar>
             <v-list nav dense class="mb-4">
               <v-list-item-group v-model="triggerRef" color="primary">
-                <v-list-item v-for="(trigger, i) in selectedRef.triggers" :key="i" :v1="relation = getRelation(trigger.relation)" :v2="type = getType(trigger.itemType)" :v3="item = getItem(trigger.itemFrom)">
+                <v-list-item v-for="(trigger, i) in selectedRef.triggers" :key="i" :v1="relation = getRelation(trigger.relation)" :v2="type = getType(trigger.itemType)" :v3="item = getItem(trigger.itemFrom)" :v4="roles = getRoles(trigger.roles)">
                   <v-list-item-icon><v-icon>mdi-flash-outline</v-icon></v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
@@ -83,6 +83,9 @@
                         <router-link :to="'/config/types/' + type.identifier">{{ type.identifier }}</router-link>
                         {{ $t('Config.Actions.Triggers.Item2') }}
                         <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
+                        <br />
+                        {{ $t('Config.Roles') + ': ' }}
+                        {{ roles.map(role => role.name).join(', ') }}
                         {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
                         {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
                       </div>
@@ -147,6 +150,7 @@ import * as errorStore from '../../store/error'
 import * as relStore from '../../store/relations'
 import * as typesStore from '../../store/types'
 import * as itemStore from '../../store/item'
+import * as rolesStore from '../../store/roles'
 import i18n from '../../i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
@@ -265,6 +269,16 @@ export default {
       }
     })
 
+    const {
+      roles,
+      loadAllRoles
+    } = rolesStore.useStore()
+
+    function getRoles (triggerRoles) {
+      if (!triggerRoles) return []
+      else return triggerRoles.map(id => roles.find(role => role.id === id || role.internalId === id))
+    }
+
     function setSelected (action) {
       selectedRef.value = action
       const ids = []
@@ -339,6 +353,7 @@ export default {
 
     onMounted(() => {
       Promise.all([
+        loadAllRoles(),
         loadAllTypes(),
         loadAllRelations(),
         loadAllActions()]).then(() => {
@@ -377,6 +392,7 @@ export default {
     return {
       testResultRef,
       testDialogRef,
+      getRoles,
       itemSelected,
       getItem,
       getType,

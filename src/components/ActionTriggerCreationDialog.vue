@@ -57,18 +57,32 @@
                     <v-checkbox v-model="triggerRef.askBeforeExec" :label="$t('Config.Actions.Triggers.AskBeforeExec')" required></v-checkbox>
                     <v-checkbox v-model="triggerRef.selectItems" :label="$t('Config.Actions.Triggers.ButtonSelectItems')" required></v-checkbox>
                     <v-text-field v-if="triggerRef.selectItems" v-model="triggerRef.selectItemsFilter" :label="$t('Config.Actions.Triggers.ButtonSelectItemsFilter')" required></v-text-field>
-                    <div><div class="d-inline-flex align-center">
+                    <div>
+                    <div class="d-inline-flex align-center">
                       <div v-if="selectedType">
                         <router-link :to="'/config/types/' + selectedType.identifier">{{ selectedType.identifier }}</router-link><span class="ml-2">- {{ selectedType.name[currentLanguage.identifier] || '[' + selectedType.name[defaultLanguageIdentifier] + ']' }}</span>
                       </div>
                       <v-btn color="blue darken-1" text @click="typeSelectionDialogRef.showDialog()">{{ $t('Config.Actions.Triggers.SelectType.Button') }}</v-btn>
-                    </div></div>
+                    </div>
+                  </div>
+                  <div>
                     <div class="d-inline-flex align-center">
                       <div v-if="selectedItemRef">
                         <router-link :to="'/item/' + selectedItemRef.identifier">{{ selectedItemRef.identifier }}</router-link><span class="ml-2">- {{ selectedItemRef.name[currentLanguage.identifier] || '[' + selectedItemRef.name[defaultLanguageIdentifier] + ']' }}</span>
                       </div>
                       <v-btn color="blue darken-1" text @click="itemSelectionDialogRef.showDialog()">{{ $t('Config.Actions.Triggers.SelectItem.Button') }}</v-btn>
                     </div>
+                  </div>
+                  <div>
+                    <div class="align-center">
+                      <v-btn color="blue darken-1" text @click="editRoles">{{ $t('Config.Users.Roles') }}</v-btn>
+                        <v-list dense class="pt-0 pb-0">
+                          <v-list-item v-for="(item, i) in userRoles" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                            <router-link :to="'/config/roles/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name }}</span>
+                          </v-list-item-content></v-list-item>
+                        </v-list>
+                    </div>
+                  </div>
                   </template>
                 </v-form>
               </v-col>
@@ -85,6 +99,7 @@
     <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="false" @selected="typeSelected"/>
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
     <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="false" @selected="relationSelected"/>
+    <RolesSelectionDialog ref="rolesSelectionDialogRef" :multiselect="true" @selected="rolesSelected"/>
   </v-row>
 </template>
 <script>
@@ -93,14 +108,16 @@ import * as langStore from '../store/languages'
 import * as typesStore from '../store/types'
 import * as itemStore from '../store/item'
 import * as relStore from '../store/relations'
+import * as rolesStore from '../store/roles'
 import i18n from '../i18n'
+import RolesSelectionDialog from './RolesSelectionDialog'
 import TypeSelectionDialog from './TypeSelectionDialog'
 import ItemsSelectionDialog from './ItemsSelectionDialog'
 import RelationsSelectionDialog from './RelationsSelectionDialog'
 
 export default {
   name: 'ItemCreation',
-  components: { TypeSelectionDialog, ItemsSelectionDialog, RelationsSelectionDialog },
+  components: { TypeSelectionDialog, ItemsSelectionDialog, RelationsSelectionDialog, RolesSelectionDialog },
   setup (props, { emit }) {
     const {
       currentLanguage,
@@ -127,6 +144,7 @@ export default {
     const typeRef = ref(0)
     const triggerRef = ref(null)
     const selectedItemRef = ref(null)
+    const rolesSelectionDialogRef = ref(null)
 
     watch(typeRef, (val) => {
       if (!val) return
@@ -140,10 +158,33 @@ export default {
         triggerRef.value.itemFrom = 0
         triggerRef.value.itemButton = ''
         selectedItemRef.value = null
+      } else if (val === 3) {
+        triggerRef.value.itemButton = ''
       } else {
         triggerRef.value.event = 0
         triggerRef.value.relation = 0
         selectedItemRef.value = null
+      }
+    })
+
+    const {
+      roles
+    } = rolesStore.useStore()
+
+    function editRoles () {
+      rolesSelectionDialogRef.value.showDialog('', triggerRef.value.roles)
+    }
+
+    function rolesSelected (arr) {
+      rolesSelectionDialogRef.value.closeDialog()
+      triggerRef.value.roles = arr
+    }
+
+    const userRoles = computed(() => {
+      if (triggerRef.value.roles) {
+        return triggerRef.value.roles.map(id => roles.find(role => role.id === id || role.internalId === id))
+      } else {
+        return []
       }
     })
 
@@ -156,7 +197,7 @@ export default {
 
     function showDialog () {
       typeRef.value = 0
-      triggerRef.value = { type: 0, event: 0, itemType: 0, itemFrom: 0, relation: 0, itemButton: '' }
+      triggerRef.value = { type: 0, event: 0, itemType: 0, itemFrom: 0, relation: 0, itemButton: '', roles: [] }
       selectedItemRef.value = null
       dialogRef.value = true
     }
@@ -222,6 +263,10 @@ export default {
       selectedType,
       itemSelected,
       typeSelected,
+      editRoles,
+      rolesSelectionDialogRef,
+      rolesSelected,
+      userRoles,
       typeSelectionDialogRef,
       itemSelectionDialogRef,
       triggerRef,
