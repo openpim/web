@@ -326,6 +326,7 @@
 	"ItemView.Channels.Waiting": " 回复正在处理中",
 	"ItemView.Channels.SyncItem": "同步",
 	"ItemView.Search": "搜索",
+	"ItemView.Actions": "行动",
 	"ItemView.More": "More",
 	"Items.SelectionDialog.Title": "选择对象",
 	"Items.SelectionDialog.Selection": "选择",

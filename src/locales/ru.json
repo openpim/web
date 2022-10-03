@@ -328,6 +328,7 @@
   "ItemView.Channels.Waiting": "Ожидание ответа",
   "ItemView.Channels.SyncItem": "Синхронизация",
   "ItemView.Search": "Поиск",
+  "ItemView.Actions": "Действия",
   "ItemView.ShowInNavigationTree.Tooltip": "Показать в дереве",
   "ItemView.More": "Дополнительно",
   "Items.SelectionDialog.Title": "Выбор объекта",

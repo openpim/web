@@ -86,20 +86,6 @@
             <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
             <v-btn v-if="hasChannels" text @click="submit" v-text="$t('Submit')"></v-btn>
-            <template v-if="sourceRelationSearch.length > 0 || targetRelationSearch.length > 0">
-              <v-menu offset-y>
-                <template v-slot:activator="{ on }"><v-btn text class="mr-4" v-on="on"> {{ $t('ItemView.Search') }}</v-btn></template>
-                <v-list>
-                  <v-list-item v-for="(rel, index) in sourceRelationSearch" :key="index" @click="performRelationSearch(rel.identifier, 'source')">
-                    <v-list-item-title>{{ rel.name[currentLanguage.identifier] || '[' + rel.name[defaultLanguageIdentifier] + ']' }}</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item v-for="(rel, index) in targetRelationSearch" :key="index" @click="performRelationSearch(rel.identifier, 'target')">
-                    <v-list-item-title>{{ rel.name[currentLanguage.identifier] || '[' + rel.name[defaultLanguageIdentifier] + ']' }}</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </template>
-
             <template v-if="buttonActions && buttonActions.length <= 3">
               <v-btn text @click="executeAction(trigger)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
@@ -113,9 +99,25 @@
                 </v-list>
               </v-menu>
             </template>
-
             <AfterButtonsComponent></AfterButtonsComponent>
             <v-spacer></v-spacer>
+            <template v-if="sourceRelationSearch.length + targetRelationSearch.length === 1">
+              <v-btn v-if="sourceRelationSearch.length === 1" text @click="performRelationSearch(sourceRelationSearch[0].identifier, 'target')" v-text="getRelationSearchName(sourceRelationSearch[0]) || sourceRelationSearch[0].name[currentLanguage.identifier] || '[' + sourceRelationSearch[0].name[defaultLanguageIdentifier] + ']'"></v-btn>
+              <v-btn v-else text @click="performRelationSearch(targetRelationSearch[0].identifier, 'target')" v-text="getRelationSearchName(targetRelationSearch[0]) || targetRelationSearch[0].name[currentLanguage.identifier] || '[' + targetRelationSearch[0].name[defaultLanguageIdentifier] + ']'"></v-btn>
+            </template>
+            <template v-if="sourceRelationSearch.length + targetRelationSearch.length > 1">
+              <v-menu>
+                <template v-slot:activator="{ on }"><v-btn text class="mr-4" v-on="on"> {{ $t('ItemView.Actions') }}</v-btn></template>
+                <v-list>
+                  <v-list-item v-for="(rel, index) in sourceRelationSearch" :key="index" @click="performRelationSearch(rel.identifier, 'source')">
+                    <v-list-item-title>{{ getRelationSearchName(rel) || rel.name[currentLanguage.identifier] || '[' + rel.name[defaultLanguageIdentifier] + ']' }}</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item v-for="(rel, index) in targetRelationSearch" :key="index" @click="performRelationSearch(rel.identifier, 'target')">
+                    <v-list-item-title>{{ getRelationSearchName(rel) || rel.name[currentLanguage.identifier] || '[' + rel.name[defaultLanguageIdentifier] + ']' }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
             <v-btn v-if="!itemRef.typeFile && hasFileUpload" text @click="fileUploadDialogRef.showDialog()" v-text="$t('ItemView.UploadFile')"></v-btn>
           </v-card-actions>
         </v-card>
@@ -523,6 +525,16 @@ export default {
       }
     })
 
+    const getRelationSearchName = (rel) => {
+      if (rel && rel.options && rel.options.some(option => option.name === 'searchName')) {
+        const option = rel.options.find(option => option.name === 'searchName')
+        if (option.value) {
+          return option.value
+        }
+      }
+      return null
+    }
+
     const sourceRelationSearch = computed(() => {
       const type = itemType.value
       if (type && type.options.some(option => option.name === 'sourceRelationSearch')) {
@@ -534,6 +546,7 @@ export default {
       }
       return []
     })
+
     const targetRelationSearch = computed(() => {
       const type = itemType.value
       if (type && type.options.some(option => option.name === 'targetRelationSearch')) {
@@ -1147,6 +1160,7 @@ export default {
       refreshChannels,
       sourceRelationSearch,
       targetRelationSearch,
+      getRelationSearchName,
       performRelationSearch,
       toTop,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
