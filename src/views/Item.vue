@@ -516,7 +516,7 @@ export default {
             if (result) {
               const isAdmin = currentRoles.some(role => role.identifier === 'admin')
               const hasRole = currentRoles.some(role => trigger.roles && trigger.roles.includes(parseInt(role.id)))
-              if (isAdmin || hasRole) {
+              if (!trigger.roles || trigger.roles.length === 0 || isAdmin || hasRole) {
                 arr.push({ ...trigger, order: action.order })
               }
             }
