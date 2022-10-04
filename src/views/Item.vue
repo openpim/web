@@ -380,7 +380,7 @@ export default {
 
     const { showInfo, showError } = errorStore.useStore()
 
-    const { loadAllUsers, currentUserRef, currentRoles, canEditItem, hasAccess, canEditItemRelation } = userStore.useStore()
+    const { currentUserRef, currentRoles, canEditItem, hasAccess, canEditItemRelation } = userStore.useStore()
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
@@ -1035,7 +1035,6 @@ export default {
         awailableChannelsRef.value = getAvailableChannels(false)
       })
       Promise.all([
-        loadAllUsers(),
         checkAuditEnabled(),
         loadAllActions(),
         loadAllAttributes(),
