@@ -380,7 +380,7 @@ export default {
 
     const { showInfo, showError } = errorStore.useStore()
 
-    const { currentUserRef, currentRoles, canEditItem, hasAccess, canEditItemRelation } = userStore.useStore()
+    const { loadAllUsers, currentUserRef, currentRoles, canEditItem, hasAccess, canEditItemRelation } = userStore.useStore()
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
@@ -514,7 +514,11 @@ export default {
                   parseInt(itemRef.value.typeId) === parseInt(trigger.itemType) &&
                   pathArr.includes(parseInt(trigger.itemFrom))
             if (result) {
-              arr.push({ ...trigger, order: action.order })
+              const isAdmin = currentRoles.some(role => role.identifier === 'admin')
+              const hasRole = currentRoles.some(role => trigger.roles && trigger.roles.includes(parseInt(role.id)))
+              if (isAdmin || hasRole) {
+                arr.push({ ...trigger, order: action.order })
+              }
             }
           }
         })
@@ -1031,6 +1035,7 @@ export default {
         awailableChannelsRef.value = getAvailableChannels(false)
       })
       Promise.all([
+        loadAllUsers(),
         checkAuditEnabled(),
         loadAllActions(),
         loadAllAttributes(),
