@@ -203,25 +203,29 @@
           </v-tab-item>
           <v-tab-item v-if="!itemRef.typeFile && filesRef.length > 0">  <!-- MediaFiles -->
             <v-carousel height="500" show-arrows-on-hover>
-              <v-carousel-item v-for="(file, i) in filesRef" :key="i">
-                <v-card v-if="file.image" class="ma-4" flat style="background: white">
-                  <v-card-text>
-                    <div class="d-inline-flex">
-                      <router-link :to="'/item/' + file.identifier">
-                        <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</div>
-                      </router-link>
-                      <a :href="damUrl + 'asset/' + file.id + '?token=' + token" class="ml-1" style="text-decoration: none"><v-icon color="grey darken-1">mdi-download-circle-outline</v-icon></a>
-                    </div>
-                    <a target="_blank" :href="damUrl + 'asset/' + file.id + '?inline=true&token=' + token" class=""><v-img :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="600"></v-img></a>
-                  </v-card-text>
-                </v-card>
-                <v-card v-if="!file.image" class="ma-4" style="background: white;border:1px solid grey">
-                  <v-card-title>
-                    <a v-if="file.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + file.id + '?inline&token=' + token" target="_blank"><pdf :src="damUrl + 'asset/' + file.id + '?token=' + token"> </pdf></a>
-                    <a v-else :href="damUrl + 'asset/' + file.id + '?token=' + token">{{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</a>
-                    <v-btn :to="'/item/' + file.identifier" icon color="black" class="ml-4"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
-                  </v-card-title>
-                </v-card>
+              <v-carousel-item v-for="(file1, i) in filesRef" :key="i">
+                <v-row>
+                <v-col cols="12/parseInt(getOption(itemType, 'galeryPageLength',  '1'))" v-for="(n, j) in parseInt(getOption(itemType, 'galeryPageLength',  '1'))" :key="'img'+j" :set="file=i+j < filesRef.length ? filesRef[i+j] : null">
+                  <v-card v-if="file && file.image" class="ma-4" flat style="background: white">
+                    <v-card-text>
+                      <div class="d-inline-flex">
+                        <router-link :to="'/item/' + file.identifier">
+                          <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</div>
+                        </router-link>
+                        <a :href="damUrl + 'asset/' + file.id + '?token=' + token" class="ml-1" style="text-decoration: none"><v-icon color="grey darken-1">mdi-download-circle-outline</v-icon></a>
+                      </div>
+                      <a target="_blank" :href="damUrl + 'asset/' + file.id + '?inline=true&token=' + token" class=""><v-img :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="600"></v-img></a>
+                    </v-card-text>
+                  </v-card>
+                  <v-card v-if="file && !file.image" class="ma-4" style="background: white;border:1px solid grey">
+                    <v-card-title>
+                      <a v-if="file.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + file.id + '?inline&token=' + token" target="_blank"><pdf :src="damUrl + 'asset/' + file.id + '?token=' + token"> </pdf></a>
+                      <a v-else :href="damUrl + 'asset/' + file.id + '?token=' + token">{{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</a>
+                      <v-btn :to="'/item/' + file.identifier" icon color="black" class="ml-4"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
+                    </v-card-title>
+                  </v-card>
+                </v-col>
+                </v-row>
               </v-carousel-item>
             </v-carousel>
           </v-tab-item>
