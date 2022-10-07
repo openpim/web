@@ -65,6 +65,11 @@ const actionList = {
     const response = await serverFetch(query)
     return response.executeButtonAction
   },
+  executeActionByIdentifier: async (itemId, actionIdentifier, data) => {
+    const query = 'mutation { executeAction(itemId: "' + itemId + '", actionIdentifier: "' + actionIdentifier + '" ' + (data ? ',data: "' + data + '"' : '') + ') { error, compileError, message, data }}'
+    const response = await serverFetch(query)
+    return response.executeAction
+  },
   testAction: async (itemId, actionId) => {
     const query = 'mutation { testAction(itemId: "' + itemId + '", actionId: "' + actionId + '") { failed, log, error, compileError, message }}'
     const response = await serverFetch(query)
