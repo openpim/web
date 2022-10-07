@@ -369,7 +369,7 @@ export default {
     }
 
     function enterKeyListener (e) {
-      if (e.key === 'Enter') {
+      if (e.ctrlKey && e.key === 'Enter') {
         search()
       }
     }

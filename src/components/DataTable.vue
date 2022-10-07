@@ -70,12 +70,12 @@
       class="elevation-1">
     <template v-slot:header="{ props }">
       <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
-          <th v-for="header in props.headers" :key="header.identifier" style="position: relative">
+          <th v-for="header in props.headers" :key="header.identifier" class="dataTableHeader">
               <span class="ml-1 mr-1 subtitle-2">{{header.text}}</span>
               <v-btn small v-if="header.sortable" icon @click="headerSort(header)">
                 <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
               </v-btn>
-              <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" style="position:absolute; top: 0px; right: 0px; width: 5px; cursor: col-resize; user-select: none; height: 30px;"></div>
+              <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" class="resizer"></div>
           </th>
       </tr>
     </template>
@@ -98,8 +98,8 @@
           </v-container>
     </template>
     <template v-slot:item="{ item, headers }">
-      <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
-        <td v-for="(header, i) in headers" :key="i" @click="cellClicked(item, header)" class="truncate pl-1">
+      <tr @mouseup="divMouseUp" @mousemove="divMouseMove" class="zebra">
+        <td v-for="(header, i) in headers" :key="i" @click="cellClicked(item, header)" class="truncate p-1">
 
           <router-link v-if="header.identifier === 'identifier' && searchEntityRef === 'ITEM'" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
           <router-link v-if="header.identifier === 'parentIdentifier' && searchEntityRef === 'ITEM'" :to="'/item/' + item.parentIdentifier">{{ item.parentIdentifier }}</router-link>
@@ -138,8 +138,9 @@
 
           <template v-if="!header.identifier.startsWith('#channel_') && inplaceItem && item.identifier === inplaceItem.identifier && header.identifier === inplaceHeader.identifier">
             <!-- Text, Integer, Float, URL-->
-            <v-text-field v-if="!inplaceAttribute || (inplaceAttribute.type===AttributeType.Text || inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float || inplaceAttribute.type===AttributeType.URL)"
-              :type="inplaceAttribute && (inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float) ? 'number' : 'text'"
+            <v-textarea v-if="!inplaceAttribute || inplaceAttribute.type===AttributeType.Text" @blur="inplaceBlur" auto-grow no-resize autofocus dense v-model="inplaceValue" required></v-textarea>
+            <v-text-field v-if="inplaceAttribute && (inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float || inplaceAttribute.type===AttributeType.URL)"
+              :type="(inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float) ? 'number' : 'text'"
               @blur="inplaceBlur" autofocus dense v-model="inplaceValue" required></v-text-field>
             <!-- Boolean-->
             <v-checkbox v-if="inplaceAttribute && inplaceAttribute.type===AttributeType.Boolean" @click.stop="inplaceBlur" autofocus dense v-model="inplaceValue" required></v-checkbox>
@@ -1340,16 +1341,40 @@ export default {
 
 </script>
 <style>
-/* https://stackoverflow.com/questions/61022163/vuetify-data-table-component-truncate-text-in-cell-using-css */
   .truncate {
     max-width: 1px;
-    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    border-right: thin solid rgba(0, 0, 0, 0.12);
   }
-  th {
+
+  .truncate > span {
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: -webkit-box;
+    /* number of visible lines */
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
+  }
+
+  .zebra:nth-of-type(even) {
+    background-color: #FCFCFC;
+  }
+
+  th.dataTableHeader {
     white-space: nowrap;
-    height: 35px;
-    text-align: left;
+    height: 80px;
+    border-right: thin solid rgba(0, 0, 0, 0.12);
+    background-color: rgb(240, 240, 240);
+    position: relative;
+  }
+
+  div.resizer {
+    position:absolute;
+    top: 0px; right: -1px;
+    width: 5px;
+    cursor: col-resize;
+    user-select: none;
+    height: 80px;
   }
 </style>
