@@ -286,25 +286,7 @@
         </v-tabs-items>
       </v-col>
     </v-row>
-    <template>
-      <div class="text-center">
-        <v-dialog v-model="buttonActionStatusDialog" width="500">
-        <v-card>
-          <v-card-title class="grey lighten-2">
-            {{$t('ButtonActionStatusDialog.Title')}}
-          </v-card-title>
-          <div class="text-center" style="margin: 20px;">
-            <v-progress-circular :size="50" color="primary" indeterminate v-if="buttonActionStatusDialog"></v-progress-circular>
-          </div>
-        <v-divider></v-divider>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" text @click="buttonActionStatusDialog = false">{{$t('Close')}}</v-btn>
-          </v-card-actions>
-        </v-card>
-        </v-dialog>
-      </div>
-    </template>
+    <ActionStatusDialog ref="buttonActionStatusDialog" />
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelectionDialogSelected"/>
     <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
     <ItemDuplicationDialog ref="itemDuplicationDialogRef" @duplicated="itemDuplicated"/>
@@ -339,6 +321,7 @@ import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import FileUploadDialog from '../components/FileUploadDialog'
 import ItemDuplicationDialog from '../components/ItemDuplicationDialog'
 import ChannelsSelectionDialog from '../components/ChannelsSelectionDialog'
+import ActionStatusDialog from '../components/ActionStatusDialog'
 import HistoryTable from '../components/HistoryTable'
 
 import AfterButtonsComponent from '../_customizations/item/afterButtons/AfterButtonsComponent'
@@ -374,6 +357,7 @@ export default {
     BeforeAttributesComponent,
     AfterAttributesComponent,
     ChannelsSelectionDialog,
+    ActionStatusDialog,
     pdf
   },
   name: 'Home',
@@ -455,7 +439,7 @@ export default {
     const itemDuplicationDialogRef = ref(null)
     const chanSelectionDialogRef = ref(null)
     const awailableChannelsRef = ref([])
-    const buttonActionStatusDialog = ref(false)
+    const buttonActionStatusDialog = ref(null)
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -934,7 +918,7 @@ export default {
     }
 
     async function processButtonAction (trigger, itemId) {
-      buttonActionStatusDialog.value = true
+      buttonActionStatusDialog.value.showDialog()
       await executeButtonAction(itemRef.value.internalId, trigger.itemButton, itemId).then((result) => {
         if (result.data) {
           if (result.data.removeItem) {
@@ -961,9 +945,9 @@ export default {
           showInfo(i18n.t('Started'))
         }
       }).finally(() => {
-        buttonActionStatusDialog.value = false
+        buttonActionStatusDialog.value.closeDialog()
       })
-      buttonActionStatusDialog.value = false
+      buttonActionStatusDialog.value.closeDialog()
     }
 
     function getOption (attr, name, defaultValue) {
