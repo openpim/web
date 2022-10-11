@@ -333,6 +333,7 @@
   "ItemView.Search": "Search",
   "ItemView.Actions": "Actions",
   "ItemView.ShowInNavigationTree.Tooltip": "Show in navigation tree",
+  "ItemView.ToggleTabsMode.Tooltip": "Toggle tabs mode",
   "ItemView.More": "More",
   "Items.SelectionDialog.Title": "Select items",
   "Items.SelectionDialog.Selection": "Select",

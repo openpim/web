@@ -21,6 +21,12 @@
                         </template>
                         <span>{{ $t('ItemView.ShowInNavigationTree.Tooltip') }}</span>
                       </v-tooltip>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn v-on="on" @click="toggleTabsMode" icon><v-icon :color="tabsMode ? 'primary' : ''">mdi-tab</v-icon></v-btn>
+                        </template>
+                        <span>{{ $t('ItemView.ToggleTabsMode.Tooltip') }}</span>
+                      </v-tooltip>
                     </template>
                     <div class="caption">
                       <v-icon :color="itemType ? itemType.iconColor : null">{{itemType ? 'mdi-'+itemType.icon : null}}</v-icon> {{$t('Item.type')}}: <router-link :to="'/config/types/' + itemType.identifier">{{ itemType.identifier }}</router-link><span class="ml-0"> ({{ itemType.name[currentLanguage.identifier] || '[' + itemType.name[defaultLanguageIdentifier] + ']' }})</span>
@@ -141,11 +147,10 @@
             <div class="mt-3"></div>
             <v-text-field v-if="!getOption(itemType, 'hideIdentifier', false)" class="pb-0 pr-5 pl-5" v-model="itemRef.identifier" readonly :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
             <div :class="getOption(itemType, 'name_class', '')" :style="getOption(itemType, 'name_style', '')"><LanguageDependentField class="pb-0 pr-5 pl-5" @input="nameInput" :values="itemRef.name" v-model="itemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')"></LanguageDependentField></div>
-            <v-card flat>
+
+            <v-card flat v-if="!tabsMode">
               <v-card-text class="pt-2 pl-0 pr-0">
-
                 <BeforeAttributesComponent></BeforeAttributesComponent>
-
                 <v-expansion-panels popout multiple focusable>
                   <v-expansion-panel v-for="(group,i) in attrGroups" :key="i">
                     <v-expansion-panel-header>{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
@@ -164,11 +169,33 @@
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
-
                 <AfterAttributesComponent></AfterAttributesComponent>
-
               </v-card-text>
             </v-card>
+            <v-container class="pa-3" v-if="tabsMode">
+              <v-card elevation="2" class="m-1" v-if="attrGroups.length">
+                <v-card-text>
+                  <v-tabs v-model="attrTabRef" class="pb-5">
+                    <v-tab v-for="(group,i) in attrGroups" :key="i">{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-tab>
+                  </v-tabs>
+                  <v-tabs-items v-model="attrTabRef">
+                    <v-tab-item v-for="(group,i) in attrGroups" :key="i">
+                      <v-container class="pa-0">
+                        <v-row no-gutters>
+                          <template v-for="(attr,i) in group.itemAttributes">
+                            <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
+                              <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
+                            </v-col>
+                            <v-col :key="i+1000" v-if="getOption(attr, 'space', null)" :cols="getOption(attr, 'space', null)">
+                            </v-col>
+                          </template>
+                        </v-row>
+                      </v-container>
+                    </v-tab-item>
+                  </v-tabs-items>
+                </v-card-text>
+              </v-card>
+            </v-container>
           </v-tab-item>
           <v-tab-item v-if="itemRef.typeFile">  <!-- File -->
             <v-card flat :key="imageKeyRef">
@@ -440,6 +467,8 @@ export default {
     const chanSelectionDialogRef = ref(null)
     const awailableChannelsRef = ref([])
     const buttonActionStatusDialog = ref(null)
+    const tabsMode = ref(localStorage.getItem('tabsMode') === 'true' || false)
+    const attrTabRef = ref(null)
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -609,6 +638,11 @@ export default {
 
     function targetsLoaded (links) {
       hasTargets.value = links && Object.keys(links).length > 0
+    }
+
+    function toggleTabsMode () {
+      tabsMode.value = !tabsMode.value
+      localStorage.setItem('tabsMode', tabsMode.value)
     }
 
     function upload () {
@@ -1155,6 +1189,9 @@ export default {
       getRelationSearchName,
       performRelationSearch,
       toTop,
+      tabsMode,
+      attrTabRef,
+      toggleTabsMode,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
