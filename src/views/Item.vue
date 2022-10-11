@@ -17,15 +17,15 @@
                     <template>
                       <v-tooltip bottom>
                         <template v-slot:activator="{ on }">
-                          <v-btn v-on="on" @click="showInNavigationTree" icon><v-icon>mdi-file-tree</v-icon></v-btn>
-                        </template>
-                        <span>{{ $t('ItemView.ShowInNavigationTree.Tooltip') }}</span>
-                      </v-tooltip>
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
                           <v-btn v-on="on" @click="toggleTabsMode" icon><v-icon :color="tabsMode ? 'primary' : ''">mdi-tab</v-icon></v-btn>
                         </template>
                         <span>{{ $t('ItemView.ToggleTabsMode.Tooltip') }}</span>
+                      </v-tooltip>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn v-on="on" @click="showInNavigationTree" icon><v-icon>mdi-file-tree</v-icon></v-btn>
+                        </template>
+                        <span>{{ $t('ItemView.ShowInNavigationTree.Tooltip') }}</span>
                       </v-tooltip>
                     </template>
                     <div class="caption">
@@ -34,7 +34,7 @@
                 </v-col>
                 <v-col v-if="channelsOnHead.length>0" :cols="3">
                   <div v-for="(channel, i) in channelsOnHead" :key="i" >
-                  <v-card v-if="itemRef.channels[channel.identifier]" flat class="ma-0 pa-0">
+                  <v-card v-if="itemRef.channels[channel.identifier] && itemRef.channels[channel.identifier].status" flat class="ma-0 pa-0">
                     <v-card-title class="text-subtitle-2 pa-0 ma-0">
                       {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}:
                       <v-chip small v-if="itemRef.channels[channel.identifier].status === 1" class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip>
@@ -270,7 +270,7 @@
           </v-tab-item>
           <v-tab-item v-if="hasChannels" eager>  <!-- Channels -->
             <div v-for="(channel, i) in awailableChannelsRef" :key="i">
-              <v-card v-if="itemRef.channels && itemRef.channels[channel.identifier]">
+              <v-card v-if="itemRef.channels && itemRef.channels[channel.identifier] && itemRef.channels[channel.identifier].status">
                 <v-card-title class="text-subtitle-2">
                   {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}
                   <v-tooltip top v-if="getChannelFactory(channel.type).hasItemSync">
