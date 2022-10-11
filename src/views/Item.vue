@@ -125,6 +125,7 @@
               </v-menu>
             </template>
             <v-btn v-if="!itemRef.typeFile && hasFileUpload" text @click="fileUploadDialogRef.showDialog()" v-text="$t('ItemView.UploadFile')"></v-btn>
+            <AfterSpacerComponent :item="itemRef"></AfterSpacerComponent>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -352,6 +353,7 @@ import ActionStatusDialog from '../components/ActionStatusDialog'
 import HistoryTable from '../components/HistoryTable'
 
 import AfterButtonsComponent from '../_customizations/item/afterButtons/AfterButtonsComponent'
+import AfterSpacerComponent from '../_customizations/item/afterButtons/AfterSpacerComponent'
 import FirstTabsComponent from '../_customizations/item/tabs/firstTabs/TabsComponent'
 import FirstTabsItemComponent from '../_customizations/item/tabs/firstTabs/TabsItemComponent'
 import LastTabsComponent from '../_customizations/item/tabs/lastTabs/TabsComponent'
@@ -377,6 +379,7 @@ export default {
     ItemDuplicationDialog,
     HistoryTable,
     AfterButtonsComponent,
+    AfterSpacerComponent,
     FirstTabsComponent,
     FirstTabsItemComponent,
     LastTabsComponent,
