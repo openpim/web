@@ -370,7 +370,7 @@ export default {
     const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: [], sortDesc: [] })
     const loadingRef = ref(false)
 
-    const headersRef = ref(props.defaultHeadersArr)
+    const headersRef = ref([])
 
     const thumbnailsRef = ref([])
     const lovsMap = {}
@@ -1016,7 +1016,7 @@ export default {
       let arr = []
       if (savedColumnsRef.value[currentUserRef.value.login]) {
         arr.push({ header: currentUserRef.value.login + ':' })
-        const tmp = savedColumnsRef.value[currentUserRef.value.login].map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
+        const tmp = savedColumnsRef.value[currentUserRef.value.login].map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id, identifier: col.identifier } })
         arr = arr.concat(tmp)
         arr.push({ divider: true })
       }
@@ -1025,7 +1025,7 @@ export default {
         if (property !== currentUserRef.value.login) {
           const columns = savedColumnsRef.value[property]
           arr.push({ header: property + ':' })
-          const tmp = columns.map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
+          const tmp = columns.map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id, identifier: col.identifier } })
           arr = arr.concat(tmp)
           arr.push({ divider: true })
         }
@@ -1160,6 +1160,15 @@ export default {
       }
       const tst2 = localStorage.getItem('savedColumnsSelection')
       if (tst2) savedColumnsSelectionRef.value = tst2
+
+      if (!tst && !tst2 && headersRef.value.length === 0) {
+        const defColumns = savedColumnsOptionsRef.value.find(elem => elem.identifier === 'default')
+        if (defColumns) {
+          savedColumnsSelectionRef.value = defColumns.value
+        } else {
+          headersRef.value = props.defaultHeadersArr
+        }
+      }
       loadLOVs()
       DataChanged()
     })
