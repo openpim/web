@@ -489,6 +489,7 @@ export default {
         }
 
         headersRef.value = savedCols
+        localStorage.setItem('savedColumnsSelection', savedColumnsSelectionRef.value)
         loadLOVs()
       }
     })
@@ -505,6 +506,7 @@ export default {
 
     function columnsSelected (arr) {
       savedColumnsSelectionRef.value = null
+      localStorage.removeItem('savedColumnsSelection')
       columnsSelectionDialogRef.value.closeDialog()
       headersRef.value = arr
       loadLOVs()
@@ -1009,28 +1011,27 @@ export default {
       return savedColumnsOptionsRef.value && savedColumnsOptionsRef.value.length > 0
     }
 
-    function loadColumns (force) {
-      loadAllSavedColumns(force).then(() => {
-        let arr = []
-        if (savedColumnsRef.value[currentUserRef.value.login]) {
-          arr.push({ header: currentUserRef.value.login + ':' })
-          const tmp = savedColumnsRef.value[currentUserRef.value.login].map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
+    async function loadColumns (force) {
+      await loadAllSavedColumns(force)
+      let arr = []
+      if (savedColumnsRef.value[currentUserRef.value.login]) {
+        arr.push({ header: currentUserRef.value.login + ':' })
+        const tmp = savedColumnsRef.value[currentUserRef.value.login].map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
+        arr = arr.concat(tmp)
+        arr.push({ divider: true })
+      }
+
+      for (const property in savedColumnsRef.value) {
+        if (property !== currentUserRef.value.login) {
+          const columns = savedColumnsRef.value[property]
+          arr.push({ header: property + ':' })
+          const tmp = columns.map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
           arr = arr.concat(tmp)
           arr.push({ divider: true })
         }
+      }
 
-        for (const property in savedColumnsRef.value) {
-          if (property !== currentUserRef.value.login) {
-            const columns = savedColumnsRef.value[property]
-            arr.push({ header: property + ':' })
-            const tmp = columns.map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id } })
-            arr = arr.concat(tmp)
-            arr.push({ divider: true })
-          }
-        }
-
-        savedColumnsOptionsRef.value = arr
-      })
+      savedColumnsOptionsRef.value = arr
     }
 
     async function channelsSelected (arr) {
@@ -1134,12 +1135,12 @@ export default {
       loadLOVs()
     }
 
-    onMounted(() => {
+    onMounted(async () => {
       loadAllTypes()
       loadAllChannels().then(() => {
         hasChannelsRef.value = getAvailableChannels(true).length > 0
       })
-      loadColumns(false)
+      await loadColumns(false)
       let tst = localStorage.getItem(props.headersStorageName)
       if (tst) {
         // check for old format of headers list
@@ -1157,6 +1158,8 @@ export default {
         if (changed) localStorage.setItem(props.headersStorageName, JSON.stringify(tst))
         headersRef.value = tst
       }
+      const tst2 = localStorage.getItem('savedColumnsSelection')
+      if (tst2) savedColumnsSelectionRef.value = tst2
       loadLOVs()
       DataChanged()
     })
