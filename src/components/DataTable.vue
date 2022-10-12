@@ -65,18 +65,19 @@
       :loading="loadingRef"
       :headers="headersRef"
       :items="itemsRef"
+      height="calc(100vh - 300px)"
       hide-default-footer
       hide-default-header
       class="elevation-1">
     <template v-slot:header="{ props }">
       <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
-          <th v-for="header in props.headers" :key="header.identifier" class="dataTableHeader">
-              <span class="ml-1 mr-1 subtitle-2">{{header.text}}</span>
-              <v-btn small v-if="header.sortable" icon @click="headerSort(header)">
-                <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
-              </v-btn>
-              <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" class="resizer"></div>
-          </th>
+        <th v-for="header in props.headers" :key="header.identifier" class="dataTableHeader">
+            <span class="ml-1 mr-1 subtitle-2">{{header.text}}</span>
+            <v-btn small v-if="header.sortable" icon @click="headerSort(header)">
+              <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
+            </v-btn>
+            <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" class="resizer"></div>
+        </th>
       </tr>
     </template>
     <template v-slot:footer="{ props }">
@@ -367,7 +368,7 @@ export default {
     const excelDialogTitleRef = ref('import')
     const itemsRef = ref([])
     const totalItemsRef = ref(0)
-    const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: [], sortDesc: [] })
+    const optionsRef = ref({ page: 1, itemsPerPage: localStorage.getItem('searchItemsPerPage') ? parseInt(localStorage.getItem('searchItemsPerPage')) : 10, sortBy: [], sortDesc: [] })
     const loadingRef = ref(false)
 
     const headersRef = ref(props.defaultHeadersArr)
@@ -391,7 +392,7 @@ export default {
     const timeMenuRef = ref(null)
     const time = ref(null)
 
-    const pageSize = ref(10)
+    const pageSize = ref(localStorage.getItem('searchItemsPerPage') ? parseInt(localStorage.getItem('searchItemsPerPage')) : 10)
     const tableFooterRef = ref(1)
 
     const importFinishedDialogRef = ref(null)
@@ -411,6 +412,7 @@ export default {
 
     function pageSizeChanged (itemsPerPage) {
       optionsRef.value.itemsPerPage = parseInt(itemsPerPage)
+      localStorage.setItem('searchItemsPerPage', itemsPerPage)
       optionsRef.value.page = 1
     }
 
@@ -1345,6 +1347,7 @@ export default {
     max-width: 1px;
     overflow: hidden;
     border-right: thin solid rgba(0, 0, 0, 0.12);
+    border-bottom: thin solid rgba(0, 0, 0, 0.12);
   }
 
   .truncate > span {
@@ -1366,7 +1369,8 @@ export default {
     height: 80px;
     border-right: thin solid rgba(0, 0, 0, 0.12);
     background-color: rgb(240, 240, 240);
-    position: relative;
+    position: sticky;
+    top: 0;
   }
 
   div.resizer {
