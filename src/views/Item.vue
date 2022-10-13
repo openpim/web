@@ -233,7 +233,7 @@
             <v-carousel height="500" show-arrows-on-hover>
               <v-carousel-item v-for="(file1, i) in filesRef" :key="i">
                 <v-row>
-                <v-col cols="12/parseInt(getOption(itemType, 'galeryPageLength',  '1'))" v-for="(n, j) in parseInt(getOption(itemType, 'galeryPageLength',  '1'))" :key="'img'+j" :set="file=i+j < filesRef.length ? filesRef[i+j] : null">
+                <v-col cols="12/parseInt(getOption(itemType, 'galeryPageLength',  '1'))" v-for="(n, j) in parseInt(getOption(itemType, 'galeryPageLength',  '1'))" :key="'img'+j" :set="file=getGaleryFile(i, j)">
                   <v-card v-if="file && file.image" class="ma-4" flat style="background: white">
                     <v-card-text>
                       <div class="d-inline-flex">
@@ -1052,6 +1052,21 @@ export default {
       goTo(0)
     }
 
+    function getGaleryFile (i, j) {
+      const pageLength = parseInt(getOption(itemType.value, 'galeryPageLength', '1'))
+      if (pageLength === 1) return filesRef.value[i + j]
+
+      const oneSide = (pageLength - 1) / 2
+      const sum = i + j
+      if (sum < oneSide) {
+        return filesRef.value[filesRef.value.length - oneSide + sum]
+      } else if (sum >= filesRef.value.length + oneSide) {
+        return filesRef.value[sum - oneSide - filesRef.value.length]
+      } else {
+        return filesRef.value[sum - oneSide]
+      }
+    }
+
     let timer
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
@@ -1150,6 +1165,7 @@ export default {
       upload,
       imageKeyRef,
       filesRef,
+      getGaleryFile,
       mainImage,
       damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
       token: localStorage.getItem('token'),
