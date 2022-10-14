@@ -234,7 +234,7 @@
               <v-carousel-item v-for="(file1, i) in filesRef" :key="i" :set="mainFile=filesRef[i]">
                 <v-row class="justify-center">
                 <v-col class="pl-0 pr-0" :cols="12/parseInt(getOption(itemType, 'galeryPageLength',  '1'))" v-for="(n, j) in parseInt(getOption(itemType, 'galeryPageLength',  '1'))" :key="'img'+j" :set="file=getGaleryFile(i, j)">
-                  <v-card v-if="file && file.image" class="ma-2" flat style="background: white" >
+                  <v-card v-if="file && file.image" :class="mainFile.identifier == file.identifier ? 'ma-4'  : 'pl-10 pr-10 ml-10 mr-10 mt-2'" flat style="background: white" >
                     <v-card-text class="pa-0">
                       <div class="d-inline-flex">
                         <router-link :to="'/item/' + file.identifier">
@@ -242,10 +242,10 @@
                         </router-link>
                         <a :href="damUrl + 'asset/' + file.id + '?token=' + token" class="ml-1" style="text-decoration: none"><v-icon color="grey darken-1">mdi-download-circle-outline</v-icon></a>
                       </div>
-                      <a target="_blank" :href="damUrl + 'asset/' + file.id + '?inline=true&token=' + token" class=""><v-img :class="mainFile.identifier == file.identifier ? ''  : 'pl-10 pr-10 ml-10 mr-10'" :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain></v-img></a>
+                      <a target="_blank" :href="damUrl + 'asset/' + file.id + '?inline=true&token=' + token" class=""><v-img :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain></v-img></a>
                     </v-card-text>
                   </v-card>
-                  <v-card v-if="file && !file.image" class="ma-2" style="background: white;border:1px solid grey">
+                  <v-card v-if="file && !file.image" :class="mainFile.identifier == file.identifier ? 'ma-4'  : 'pl-10 pr-10 ml-10 mr-10 mt-2'" style="background: white;border:1px solid grey">
                     <v-card-title>
                       <a v-if="file.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + file.id + '?inline&token=' + token" target="_blank"><pdf :src="damUrl + 'asset/' + file.id + '?token=' + token"> </pdf></a>
                       <a v-else :href="damUrl + 'asset/' + file.id + '?token=' + token">{{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</a>
