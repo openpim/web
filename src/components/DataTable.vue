@@ -1179,6 +1179,7 @@ export default {
 
     function loadParentsIfNecessary () {
       let parents = []
+      if (props.headersStorageName !== 'item_headers') return parents // if not item search
 
       if (itemsRef.value.length > 0) {
         if (headersRef.value.some(elem => elem.identifier === '#parentName#')) {
@@ -1211,6 +1212,7 @@ export default {
     }
 
     function getParentName (item) {
+      if (props.headersStorageName !== 'item_headers') return null // if not item search
       const arr = item.path.split('.')
       const parentId = parseInt(arr[arr.length - 2])
       const parent = parentsRef.value.find(elem => elem.id === parentId)
