@@ -67,7 +67,7 @@ export default {
         { identifier: 'itemIdentifier', text: i18n.t('ItemRelation.itemIdentifier'), align: 'start', sortable: true, filterable: false, value: 'itemIdentifier' },
         { identifier: '#sourceParentName#', text: i18n.t('ItemRelation.itemName'), align: 'start', sortable: false, filterable: false, value: '#sourceParentName#' },
         { identifier: 'relationIdentifier', text: i18n.t('ItemRelation.relationIdentifier'), align: 'start', sortable: true, filterable: false, value: 'relationIdentifier' },
-        { identifier: 'targetIdentifier', text: i18n.t('ItemRelation.targetName'), align: 'start', sortable: true, filterable: false, value: 'targetIdentifier' },
+        { identifier: 'targetIdentifier', text: i18n.t('ItemRelation.targetIdentifier'), align: 'start', sortable: true, filterable: false, value: 'targetIdentifier' },
         { identifier: '#targetParentName#', text: i18n.t('ItemRelation.targetName'), align: 'start', sortable: false, filterable: false, value: '#targetParentName#' },
         { identifier: 'createdBy', text: i18n.t('CreatedBy'), align: 'start', sortable: true, filterable: false, value: 'createdBy' },
         { identifier: 'createdAt', text: i18n.t('CreatedAt'), align: 'start', sortable: true, filterable: false, value: 'createdAt' },
