@@ -9,28 +9,39 @@
             <v-container fluid class="pt-0 pb-0">
               <v-row dense>
                 <v-col v-if="mainImage" :cols="getOption(itemType, 'thumbnail_cols', '1')">
-                  <v-img :src="damUrl + 'asset/' + mainImage.id + '/thumb?token=' + token" contain></v-img>
+                  <v-img :src="damUrl + 'asset/' + mainImage.id + '/thumb?token=' + token" contain :max-height="getOption(itemType, 'max_image_height', 200)"></v-img>
                 </v-col>
-                <v-col :cols="mainImage ? (12-getOption(itemType, 'thumbnail_cols', '1')-(channelsOnHead.length>0?3:0)): 12-(channelsOnHead.length>0?3:0)" class="mb-2">
-                    <span class="mr-0" :class="getOption(itemType, 'name_head_class', '')" :style="getOption(itemType, 'name_head_style', '')">{{ itemRef.name[currentLanguage.identifier] || '[' + itemRef.name[defaultLanguageIdentifier] + ']' }}</span>
-                    <SystemInformation :data="itemRef"></SystemInformation>
-                    <template>
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <v-btn v-on="on" @click="toggleTabsMode" icon><v-icon :color="tabsMode ? 'primary' : ''">mdi-tab</v-icon></v-btn>
-                        </template>
-                        <span>{{ $t('ItemView.ToggleTabsMode.Tooltip') }}</span>
-                      </v-tooltip>
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <v-btn v-on="on" @click="showInNavigationTree" icon><v-icon>mdi-file-tree</v-icon></v-btn>
-                        </template>
-                        <span>{{ $t('ItemView.ShowInNavigationTree.Tooltip') }}</span>
-                      </v-tooltip>
+                <v-col :cols="mainImage ? (12-getOption(itemType, 'thumbnail_cols', '1')-(channelsOnHead.length>0?3:0)) : 12-(channelsOnHead.length > 0 ? 3 : 0)">
+                  <span class="mr-0" :class="getOption(itemType, 'name_head_class', '')" :style="getOption(itemType, 'name_head_style', '')">{{ itemRef.name[currentLanguage.identifier] || '[' + itemRef.name[defaultLanguageIdentifier] + ']' }}</span>
+                  <SystemInformation :data="itemRef"></SystemInformation>
+                  <template>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" @click="toggleTabsMode" icon><v-icon :color="tabsMode ? 'primary' : ''">mdi-tab</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('ItemView.ToggleTabsMode.Tooltip') }}</span>
+                    </v-tooltip>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" @click="showInNavigationTree" icon><v-icon>mdi-file-tree</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('ItemView.ShowInNavigationTree.Tooltip') }}</span>
+                    </v-tooltip>
+                  </template>
+                  <div class="caption mb-2 mt-n2">
+                    <v-icon :color="itemType ? itemType.iconColor : null">{{itemType ? 'mdi-'+itemType.icon : null}}</v-icon><span class="font-weight-bold">{{$t('Item.type')}} :</span> <router-link :to="'/config/types/' + itemType.identifier">{{ itemType.identifier }}</router-link><span class="ml-0"> ({{ itemType.name[currentLanguage.identifier] || '[' + itemType.name[defaultLanguageIdentifier] + ']' }})</span>
+                  </div>
+                  <div :key="headAttributesKeyRef">
+                    <template v-for="(attr) in headerAttrs">
+                      <v-col :cols="12" :key="attr.id" v-if="getOption(attr, 'head', null)" class="caption pa-0">
+                        <span class="font-weight-bold mr-2">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }} :</span>
+                          <span v-if="attr.type === AttributeType.URL">
+                            <a :href="attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]" target="_blank">{{attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]}}</a>
+                          </span>
+                          <span v-else>{{attr.lov? getLOVValue(attr) : (attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier])}}</span>
+                      </v-col>
                     </template>
-                    <div class="caption">
-                      <v-icon :color="itemType ? itemType.iconColor : null">{{itemType ? 'mdi-'+itemType.icon : null}}</v-icon> {{$t('Item.type')}}: <router-link :to="'/config/types/' + itemType.identifier">{{ itemType.identifier }}</router-link><span class="ml-0"> ({{ itemType.name[currentLanguage.identifier] || '[' + itemType.name[defaultLanguageIdentifier] + ']' }})</span>
-                    </div>
+                  </div>
                 </v-col>
                 <v-col v-if="channelsOnHead.length>0" :cols="3">
                   <div v-for="(channel, i) in channelsOnHead" :key="i" >
@@ -38,7 +49,6 @@
                     <v-card-title class="text-subtitle-2 pa-0 ma-0">
                       {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}:
                       <v-chip small v-if="itemRef.channels[channel.identifier].status === 1" class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip>
-
                       <template v-if="itemRef.channels[channel.identifier].status === 2">
                         <v-tooltip top :disabled="!itemRef.channels[channel.identifier].message">
                           <template v-slot:activator="{ on }">
@@ -71,19 +81,6 @@
                   <v-btn x-small text @click="refreshChannels" v-text="$t('DataTable.Refresh')" class="ma-0 pa-0"></v-btn>
                 </v-col>
               </v-row>
-              <div :key="headAttributesKeyRef">
-              <template v-for="(group) in attrGroups">
-                <template v-for="(attr) in group.itemAttributes">
-                  <v-col :cols="12" :key="attr.id" v-if="getOption(attr, 'head', null)" class="caption pa-0">
-                    {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }} :
-                      <span v-if="attr.type === AttributeType.URL">
-                        <a :href="attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]" target="_blank">{{attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]}}</a>
-                      </span>
-                      <span v-else>{{attr.lov? getLOVValue(attr) : (attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier])}}</span>
-                  </v-col>
-                </template>
-              </template>
-              </div>
             </v-container>
           </v-card-title>
           <v-card-actions>
@@ -519,6 +516,18 @@ export default {
       } else {
         return false
       }
+    })
+
+    const headerAttrs = computed(() => {
+      const arr = []
+      attrGroups.value.forEach(group => {
+        group.itemAttributes.forEach(attr => {
+          if (getOption(attr, 'head', null)) {
+            arr.push(attr)
+          }
+        })
+      })
+      return [...new Set(arr.map(o => o.identifier))].map(identifier => { return arr.find(s => s.identifier === identifier) })
     })
 
     const buttonActions = computed(() => {
@@ -1194,6 +1203,7 @@ export default {
       toTop,
       tabsMode,
       attrTabRef,
+      headerAttrs,
       toggleTabsMode,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
