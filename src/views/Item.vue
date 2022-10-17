@@ -228,18 +228,18 @@
           </v-tab-item>
           <v-tab-item v-if="!itemRef.typeFile && filesRef.length > 0">  <!-- MediaFiles -->
             <v-carousel height="500" show-arrows-on-hover>
-              <v-carousel-item v-for="(file1, i) in filesRef" :key="i">
-                <v-row>
-                <v-col cols="12/parseInt(getOption(itemType, 'galeryPageLength',  '1'))" v-for="(n, j) in parseInt(getOption(itemType, 'galeryPageLength',  '1'))" :key="'img'+j" :set="file=i+j < filesRef.length ? filesRef[i+j] : null">
-                  <v-card v-if="file && file.image" class="ma-4" flat style="background: white">
-                    <v-card-text>
+              <v-carousel-item v-for="(file1, i) in filesRef" :key="i" :set="mainFile=filesRef[i]">
+                <v-row class="justify-center">
+                <v-col class="pl-0 pr-0" :cols="12/parseInt(getOption(itemType, 'galeryPageLength',  '1'))" v-for="(n, j) in parseInt(getOption(itemType, 'galeryPageLength',  '1'))" :key="'img'+j" :set="file=getGaleryFile(i, j)">
+                  <v-card v-if="file && file.image" class="ma-2" flat style="background: white" >
+                    <v-card-text class="pa-0">
                       <div class="d-inline-flex">
                         <router-link :to="'/item/' + file.identifier">
-                          <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</div>
+                          <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }} </div>
                         </router-link>
                         <a :href="damUrl + 'asset/' + file.id + '?token=' + token" class="ml-1" style="text-decoration: none"><v-icon color="grey darken-1">mdi-download-circle-outline</v-icon></a>
                       </div>
-                      <a target="_blank" :href="damUrl + 'asset/' + file.id + '?inline=true&token=' + token" class=""><v-img :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain max-width="500" max-height="600"></v-img></a>
+                      <a target="_blank" :href="damUrl + 'asset/' + file.id + '?inline=true&token=' + token" class=""><v-img :aspect-ratio="getOption(file.type, 'aspect-ratio', undefined)" :src="damUrl + 'asset/' + file.id + '?token=' + token" contain></v-img></a>
                     </v-card-text>
                   </v-card>
                   <v-card v-if="file && !file.image" class="ma-4" style="background: white;border:1px solid grey">
@@ -1061,6 +1061,21 @@ export default {
       goTo(0)
     }
 
+    function getGaleryFile (i, j) {
+      const pageLength = parseInt(getOption(itemType.value, 'galeryPageLength', '1'))
+      if (pageLength === 1) return filesRef.value[i + j]
+
+      const oneSide = (pageLength - 1) / 2
+      const sum = i + j
+      if (sum < oneSide) {
+        return filesRef.value[filesRef.value.length - oneSide + sum]
+      } else if (sum >= filesRef.value.length + oneSide) {
+        return filesRef.value[sum - oneSide - filesRef.value.length]
+      } else {
+        return filesRef.value[sum - oneSide]
+      }
+    }
+
     let timer
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
@@ -1159,6 +1174,7 @@ export default {
       upload,
       imageKeyRef,
       filesRef,
+      getGaleryFile,
       mainImage,
       damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
       token: localStorage.getItem('token'),

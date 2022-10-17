@@ -61,12 +61,12 @@ const actionList = {
     actions.splice(idx, 1)
   },
   executeButtonAction: async (itemId, buttonText, data) => {
-    const query = 'mutation { executeButtonAction(itemId: "' + itemId + '", buttonText: "' + buttonText + '" ' + (data ? ',data: "' + data + '"' : '') + ') { error, compileError, message, data }}'
+    const query = 'mutation { executeButtonAction(itemId: "' + itemId + '", buttonText: "' + buttonText + '" ' + (data ? ',data: """' + data + '"""' : '') + ') { error, compileError, message, data }}'
     const response = await serverFetch(query)
     return response.executeButtonAction
   },
   executeActionByIdentifier: async (itemId, actionIdentifier, data) => {
-    const query = 'mutation { executeAction(itemId: "' + itemId + '", actionIdentifier: "' + actionIdentifier + '" ' + (data ? ',data: "' + data + '"' : '') + ') { error, compileError, message, data }}'
+    const query = 'mutation { executeAction(itemId: "' + itemId + '", actionIdentifier: "' + actionIdentifier + '" ' + (data ? ',data: """' + data + '"""' : '') + ') { error, compileError, message, data }}'
     const response = await serverFetch(query)
     return response.executeAction
   },

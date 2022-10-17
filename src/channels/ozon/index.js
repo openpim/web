@@ -56,6 +56,18 @@ function getStandardAttributes () {
       name: 'Высота упаковки, мм (число)',
       required: true,
       dictionary: false
+    },
+    {
+      id: '#videoUrls',
+      name: 'Ссылки на видео (массив)',
+      required: false,
+      dictionary: false
+    },
+    {
+      id: '#videoNames',
+      name: 'Названия видео (массив)',
+      required: false,
+      dictionary: false
     }
   ]
 }

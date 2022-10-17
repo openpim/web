@@ -379,9 +379,9 @@ const actions = {
     const attrs = getAttributesForSearch()
     let attrExpr = ''
     attrs.forEach(attr => {
-      attrExpr += '{ values: { ' + attr.identifier + ': { OP_iLike:"%' + txt + '%"}}},'
+      attrExpr += '{ values: { ' + attr.identifier + ': { OP_iLike:"""%' + txt + '%"""}}},'
     })
-    const mainExpr = '{ identifier: { OP_iLike: "%' + txt + '%" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"%' + txt + '%"}}}'
+    const mainExpr = '{ identifier: { OP_iLike: """%' + txt + '%""" }}, { name: { ' + currentLanguage.value.identifier + ': { OP_iLike:"""%' + txt + '%"""}}}'
     let andExpr = ''
     if (additionFilter) {
       andExpr = '{OP_and: [' + additionFilter + ','
