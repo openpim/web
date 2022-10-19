@@ -127,7 +127,8 @@
         </v-card>
       </v-col>
       <v-col cols="12">
-        <v-tabs v-model="tabRef">
+        <v-container ref="tabsContainerRef" class="ma-0 pa-0">
+          <v-tabs v-model="tabRef">
           <FirstTabsComponent></FirstTabsComponent>
           <v-tab v-text="$t('ItemView.Tab.Attributes')"></v-tab>
           <v-tab v-if="itemRef.typeFile" v-text="$t('ItemView.Tab.File')"></v-tab>
@@ -139,6 +140,7 @@
           <v-tab v-if="hasAccess('audit') && auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
           <LastTabsComponent></LastTabsComponent>
         </v-tabs>
+        </v-container>
         <v-tabs-items v-model="tabRef">
           <FirstTabsItemComponent></FirstTabsItemComponent>
           <v-tab-item> <!-- Attributes -->
@@ -262,7 +264,7 @@
           </v-tab-item>
           <v-tab-item v-if="totalChildrenRef === -1 || totalChildrenRef > 0" eager>  <!-- Children -->
 
-            <ItemsDataTable ref="itemRecordsTable" :loadItemChildren="loadDataFunction" @dataLoaded="childrenLoaded" :export="false" :item="itemRef"></ItemsDataTable>
+            <ItemsDataTable ref="itemRecordsTable" :loadItemChildren="loadDataFunction" @dataLoaded="childrenLoaded" :export="false" :item="itemRef" :marginTop="dataTableMarginTop"></ItemsDataTable>
 
           </v-tab-item>
           <v-tab-item v-if="hasChannels" eager>  <!-- Channels -->
@@ -389,6 +391,8 @@ export default {
   },
   name: 'Home',
   setup (params, context) {
+    const tabsContainerRef = ref(null)
+
     const itemRecordsTable = ref(null)
 
     const { route } = useRouter()
@@ -469,6 +473,7 @@ export default {
     const buttonActionStatusDialog = ref(null)
     const tabsMode = ref(localStorage.getItem('tabsMode') === 'true' || false)
     const attrTabRef = ref(null)
+    const dataTableMarginTop = ref(0)
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -1021,6 +1026,13 @@ export default {
       }
     })
 
+    // we calculate margin from the top of the page. it allows us to set fixed table height.
+    watch(tabsContainerRef, () => {
+      if (tabsContainerRef.value) {
+        dataTableMarginTop.value = tabsContainerRef.value.getBoundingClientRect().bottom
+      }
+    })
+
     function submit () {
       chanSelectionDialogRef.value.showDialog()
     }
@@ -1221,6 +1233,8 @@ export default {
       attrTabRef,
       headerAttrs,
       toggleTabsMode,
+      tabsContainerRef,
+      dataTableMarginTop,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')

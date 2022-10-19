@@ -65,7 +65,7 @@
       :loading="loadingRef"
       :headers="headersRef"
       :items="itemsRef"
-      height="calc(100vh - 300px)"
+      :height="'calc(100vh - '+ (parseInt(marginTop) + 220) +'px)'"
       hide-default-footer
       hide-default-header
       class="elevation-1">
@@ -326,6 +326,10 @@ export default {
     exportXLSEnabled: {
       required: false,
       default: false
+    },
+    marginTop: {
+      required: false,
+      default: 100
     }
   },
   setup (props, { emit, root }) {
