@@ -23,6 +23,12 @@
                     </v-tooltip>
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" @click="refresh" icon><v-icon>mdi-refresh</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('DataTable.Refresh') }}</span>
+                    </v-tooltip>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
                         <v-btn v-on="on" @click="showInNavigationTree" icon><v-icon>mdi-file-tree</v-icon></v-btn>
                       </template>
                       <span>{{ $t('ItemView.ShowInNavigationTree.Tooltip') }}</span>
@@ -1088,6 +1094,15 @@ export default {
       }
     }
 
+    function refresh () {
+      if (itemRef.value) {
+        loadItemByIdentifier(itemRef.value.identifier).then((item) => {
+          loadItemPath(item.path)
+          itemSelected(item)
+        })
+      }
+    }
+
     let timer
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
@@ -1235,6 +1250,7 @@ export default {
       toggleTabsMode,
       tabsContainerRef,
       dataTableMarginTop,
+      refresh,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
