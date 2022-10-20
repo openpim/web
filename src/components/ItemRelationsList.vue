@@ -255,7 +255,7 @@ export default {
       findType
     } = typesStore.useStore()
 
-    const pageSize = ref(5)
+    const pageSize = ref(localStorage.getItem('relPageSize') ? parseInt(localStorage.getItem('relPageSize')) : 5)
     const itemSelectionDialogRef = ref(null)
     const historyDialogRef = ref(false)
     const historySelectedRef = ref(null)
@@ -301,6 +301,7 @@ export default {
         if (props.componentType === 'source') pagesSource[identifier] = 1
         else pagesTarget[identifier] = 1
         pageChanged(identifier)
+        localStorage.setItem('relPageSize', pageSize.value)
       }
     }
 
