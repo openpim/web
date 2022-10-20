@@ -11,6 +11,7 @@
     :searchHeader="'Search.Title.ItemRelations'"
     :exportXLSEnabled="hasAccess('exportRelationsXLS')"
     :importXLSEnabled="hasAccess('importRelationsXLS')"
+    :marginTop="marginTop"
     v-if="hasAccess('searchRelations')"
   />
 </template>
@@ -33,6 +34,9 @@ export default {
     export: {
       type: Boolean,
       required: true
+    },
+    marginTop: {
+      required: false
     }
   },
   setup (props) {

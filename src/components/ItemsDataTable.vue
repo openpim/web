@@ -16,6 +16,7 @@
       :exportXLSEnabled="hasAccess('exportXLS')"
       :importXLSEnabled="hasAccess('importXLS')"
       :item="item"
+      :marginTop="marginTop"
       @dataLoaded="childrenLoaded"
     />
     <DataTable
@@ -32,6 +33,7 @@
       :sendToChannelBtnVisible="true"
       :exportXLSEnabled="hasAccess('exportXLS')"
       :importXLSEnabled="hasAccess('importXLS')"
+      :marginTop="marginTop"
       v-if="hasAccess('search') && !item"
     />
   </div>
@@ -62,6 +64,9 @@ export default {
     },
     loadItemChildren: {
       type: Function,
+      required: false
+    },
+    marginTop: {
       required: false
     }
   },
