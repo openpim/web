@@ -286,11 +286,17 @@
 
       <!-- URL -->
       <template v-if="attr.type === AttributeType.URL && !attr.languageDependent">
-        <input @change="attrInput" @blur="attrBlur" v-if="!attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+        <div style="display: flex;">
+          <input @change="attrInput" @blur="attrBlur" type="url" v-if="!attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+          <a :href="values[attr.identifier]" target="_blank">...</a>
+        </div>
         <a v-if="attr.readonly" :href="values[attr.identifier]" target="_blank">{{values[attr.identifier]}}</a>
       </template>
       <template v-if="attr.type === AttributeType.URL && attr.languageDependent">
-        <input @change="attrInput" @blur="attrBlur" v-if="!attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+        <div style="display: flex;">
+          <input @change="attrInput" @blur="attrBlur" type="url" v-if="!attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+          <a :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">...</a>
+        </div>
         <a v-if="attr.readonly" :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier][currentLanguage.identifier]}}</a>
       </template>
 
