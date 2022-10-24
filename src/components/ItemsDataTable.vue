@@ -115,6 +115,7 @@ export default {
       const arr = [
         { identifier: 'identifier', text: i18n.t('Item.identifier'), align: 'start', sortable: true, filterable: false, value: 'identifier' },
         { identifier: 'parentIdentifier', text: i18n.t('Item.parentIdentifier'), align: 'start', sortable: true, filterable: false, value: 'parentIdentifier' },
+        { identifier: 'typeIdentifier', text: i18n.t('Item.typeIdentifier'), align: 'start', sortable: true, filterable: false, value: 'typeIdentifier' },
         { identifier: '#parentName#', text: i18n.t('Item.parentName'), align: 'start', sortable: false, filterable: false, value: '#parentName#' },
         { identifier: '#thumbnail#', text: i18n.t('Item.thumbnail'), align: 'start', sortable: false, filterable: false, value: '#thumbnail#' },
         { identifier: 'createdBy', text: i18n.t('CreatedBy'), align: 'start', sortable: true, filterable: false, value: 'createdBy' },

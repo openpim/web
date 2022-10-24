@@ -584,7 +584,7 @@ export default {
 
       const columns = ['parent', 'type', 'Identifier']
       headersRef.value.forEach(header => {
-        if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#') {
+        if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' && header.identifier !== 'typeIdentifier') {
           columns.push(header.text)
         }
       })
@@ -610,7 +610,7 @@ export default {
 
       let idx = 3
       headersRef.value.forEach(header => {
-        if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#') {
+        if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' && header.identifier !== 'typeIdentifier') {
           cell = ws[XLSX.utils.encode_cell({ c: idx, r: 0 })]
           cell.c = []
           cell.c.hidden = true
@@ -639,7 +639,7 @@ export default {
           rowData.push(row.typeIdentifier)
           rowData.push(row.identifier)
           headersRef.value.forEach(header => {
-            if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#') {
+            if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' && header.identifier !== 'typeIdentifier') {
               rowData.push(getValueWithChannels(header, row, false))
             }
           })
