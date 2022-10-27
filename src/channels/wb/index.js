@@ -2,26 +2,8 @@ function getConfigCompoment () { return 'WBConfigCompoment' }
 function getStandardAttributes () {
   return [
     {
-      id: '#prodCountry',
-      name: 'Страна производства',
-      required: true,
-      dictionary: false
-    },
-    {
-      id: '#supplierCode',
-      name: 'Артикул поставщика',
-      required: true,
-      dictionary: false
-    },
-    {
       id: '#productCode',
       name: 'Артикул товара',
-      required: true,
-      dictionary: false
-    },
-    {
-      id: '#barcode',
-      name: 'Баркод',
       required: true,
       dictionary: false
     },
@@ -29,6 +11,30 @@ function getStandardAttributes () {
       id: '#price',
       name: 'Цена',
       required: true,
+      dictionary: false
+    },
+    {
+      id: '#barcode',
+      name: 'Штрихкод',
+      required: true,
+      dictionary: false
+    },
+    {
+      id: '#techSize',
+      name: 'Размер поставщика (пример S, M, L, XL, 42, 42-43)',
+      required: false,
+      dictionary: false
+    },
+    {
+      id: '#wbSize',
+      name: 'Рос. размер',
+      required: false,
+      dictionary: false
+    },
+    {
+      id: '#images',
+      name: 'Изображения (массив ссылок)',
+      required: false,
       dictionary: false
     }
   ]

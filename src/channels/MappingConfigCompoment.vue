@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row>
+    <v-row v-if="imageRelations">
       <v-col cols="11">
               <v-card class="mb-5 mt-2">
                 <v-card-title class="subtitle-2 font-weight-bold" >
@@ -137,6 +137,11 @@ export default {
     variants: {
       type: Boolean,
       required: true,
+      default: true
+    },
+    imageRelations: {
+      type: Boolean,
+      required: false,
       default: true
     }
   },
