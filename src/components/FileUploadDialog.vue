@@ -9,7 +9,7 @@
           <v-form ref="formRef" lazy-validation class="ml-7">
             <v-row>
               <v-col cols="12">
-                  <v-file-input @change="fileChanged" chips show-size v-model="fileRef" :label="$t('FileUploadDialog.NewFile')"></v-file-input>
+                  <v-file-input @change="fileChanged" multiple chips show-size v-model="fileRef" :label="$t('FileUploadDialog.NewFile')"></v-file-input>
                   <v-select v-model="relationRef" :items="relationsWithFiles" :label="$t('FileUploadDialog.FileType')"></v-select>
                   <div class="d-inline-flex align-center">
                     <div v-if="selectedParentRef">
@@ -22,7 +22,7 @@
             <v-row>
               <v-col cols="12" class="pa-0">
                 <v-expansion-panels flat focusable>
-                  <v-expansion-panel >
+                  <v-expansion-panel :disabled="fileRef && fileRef.length > 1">
                     <v-expansion-panel-header>{{ $t('FileUploadDialog.Additionally') }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
                        <v-container class="pa-0">
@@ -44,7 +44,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="closeDialog">{{ $t('Cancel') }}</v-btn>
-        <v-btn color="blue darken-1" text @click="upload" :disabled="!fileRef || !relationRef || !selectedParentRef">{{ $t('ItemView.Upload') }}</v-btn>
+        <v-btn color="blue darken-1" text @click="upload" :disabled="!fileRef || fileRef.length === 0 || !relationRef || !selectedParentRef">{{ $t('ItemView.Upload') }}</v-btn>
       </v-card-actions>
     </v-card>
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="parentSelected"/>
@@ -94,7 +94,7 @@ export default {
 
     const formRef = ref(null)
     const dialogRef = ref(false)
-    const fileRef = ref(null)
+    const fileRef = ref([])
     const relationRef = ref(0)
     const identifierRef = ref('')
     const nameRef = ref('')
@@ -103,6 +103,7 @@ export default {
     let initiator
     let fileItemTypeId
     let nextItemId = 0
+    let fItemType
 
     const relationsWithFiles = computed(() => {
       const arr = []
@@ -124,7 +125,9 @@ export default {
 
     // TODO: potential bug, if user change relation selection after parent selection fileItemType will be old one
     function parentSelected (id) {
+      if (!id) return
       loadItemsByIds([id], false).then(items => {
+        if (!items || items.length === 0) return
         const parent = items[0]
         const parentType = findType(parent.typeId).node
 
@@ -143,18 +146,22 @@ export default {
     }
 
     function fileChanged (file) {
-      nameRef.value = file.name
+      nameRef.value = file.length > 0 ? file[0].name : ''
     }
 
-    function upload () {
-      const arr = [{
-        file: fileRef.value,
-        fileItemTypeId: fileItemTypeId,
-        parentId: selectedParentRef.value.id,
-        relationId: relationRef.value,
-        fileName: nameRef.value,
-        fileIdentifier: identifierRef.value
-      }]
+    async function upload () {
+      const arr = await Promise.all(
+        fileRef.value.map(async (file) => {
+          return {
+            file: file,
+            fileItemTypeId: fileItemTypeId,
+            parentId: selectedParentRef.value.id,
+            relationId: relationRef.value,
+            fileName: fileRef.value.length === 1 ? nameRef.value : file.name,
+            fileIdentifier: fileRef.value.length === 1 ? identifierRef.value : fItemType.identifier + await nextId()
+          }
+        })
+      )
       emit('upload', arr, initiator)
     }
 
@@ -169,7 +176,7 @@ export default {
         if (defOption && !isNaN(parseInt(defOption.value))) parentSelected(parseInt(defOption.value))
 
         const fItemTypeId = rel.targets.find(typeId => findType(typeId).node.file)
-        const fItemType = findType(fItemTypeId).node
+        fItemType = findType(fItemTypeId).node
         identifierRef.value = fItemType.identifier + nextItemId
       }
     }
