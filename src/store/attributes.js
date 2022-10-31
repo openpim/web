@@ -264,6 +264,30 @@ const actions = {
       attrArr.sort((a, b) => a.order - b.order)
     }
     return attrArr
+  },
+  importAttributes: async (rows, mode) => {
+    let query = `
+      mutation { import(
+        config: {
+            mode: UPDATE_ONLY
+            errors: PROCESS_WARN
+        },
+        attributes: [`
+    rows.forEach(row => {
+      query += objectToGraphgl(row)
+    })
+    query += `]
+        ) {
+        attributes {
+        identifier
+        result
+        id
+        errors { code message }
+        warnings { code message }
+      }}}
+    `
+    const data = await serverFetch(query)
+    return data.import.attributes
   }
 }
 
