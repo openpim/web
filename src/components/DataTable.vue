@@ -539,8 +539,8 @@ export default {
         // replace previous sorting
         const prevHeader = headersRef.value.find(elem => elem.value === optionsRef.value.sortBy[0])
         if (prevHeader) prevHeader.icon = 'mdi-arrow-up-down'
-        optionsRef.value.sortBy = [header.value]
-        optionsRef.value.sortDesc = [false]
+        optionsRef.value.sortBy = [header.value, 'id']
+        optionsRef.value.sortDesc = [false, false]
         // replace previous sorting
 
         // optionsRef.value.sortBy.unshift(header.value)
