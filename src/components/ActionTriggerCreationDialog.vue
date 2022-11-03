@@ -84,6 +84,20 @@
                     </div>
                   </div>
                   </template>
+                  <template v-if="triggerRef.type === 4"> <!-- Attr group -->
+                    <v-radio-group v-model="triggerRef.event">
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterCreate')" value="2"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterUpdate')" value="4"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterDelete')" value="6"></v-radio>
+                    </v-radio-group>
+                  </template>
+                  <template v-if="triggerRef.type === 5"> <!-- Attribute -->
+                    <v-radio-group v-model="triggerRef.event">
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterCreate')" value="2"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterUpdate')" value="4"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterDelete')" value="6"></v-radio>
+                    </v-radio-group>
+                  </template>
                 </v-form>
               </v-col>
             </v-row>
@@ -213,6 +227,10 @@ export default {
         return triggerRef.value.event && triggerRef.value.relation
       } else if (typeRef.value === 3) {
         return triggerRef.value.itemButton && triggerRef.value.itemType && triggerRef.value.itemFrom
+      } else if (typeRef.value === 4) {
+        return triggerRef.value.event
+      } else if (typeRef.value === 5) {
+        return triggerRef.value.event
       } else {
         return false
       }
@@ -280,7 +298,9 @@ export default {
       typeSelection: [
         { text: i18n.t('Config.Actions.Triggers.Type.Item'), value: 1 },
         { text: i18n.t('Config.Actions.Triggers.Type.ItemRel'), value: 2 },
-        { text: i18n.t('Config.Actions.Triggers.Type.Button'), value: 3 }
+        { text: i18n.t('Config.Actions.Triggers.Type.Button'), value: 3 },
+        { text: i18n.t('Config.Actions.Triggers.Type.AttrGroup'), value: 4 },
+        { text: i18n.t('Config.Actions.Triggers.Type.Attribute'), value: 5 }
       ]
     }
   }

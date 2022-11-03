@@ -230,6 +230,8 @@
   "Config.Actions.Triggers.Type.Item": "Изменение объекта",
   "Config.Actions.Triggers.Type.ItemRel": "Изменение зависимости",
   "Config.Actions.Triggers.Type.Button": "Кнопка",
+  "Config.Actions.Triggers.Type.AttrGroup": "Группа атрибутов",
+  "Config.Actions.Triggers.Type.Attribute": "Атрибут",
   "Config.Actions.Triggers.Event.BeforeCreate": "перед созданием",
   "Config.Actions.Triggers.Event.AfterCreate": "после создания",
   "Config.Actions.Triggers.Event.BeforeUpdate": "перед изменением",

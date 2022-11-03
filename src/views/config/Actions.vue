@@ -89,6 +89,14 @@
                         {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
                         {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
                       </div>
+                      <div v-if="trigger.type === 4">
+                        {{ $t('Config.Actions.Triggers.Type.AttrGroup') }}
+                        ({{ displayEvent(trigger.event) }})
+                      </div>
+                      <div v-if="trigger.type === 5">
+                        {{ $t('Config.Actions.Triggers.Type.Attribute') }}
+                        ({{ displayEvent(trigger.event) }})
+                      </div>
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>

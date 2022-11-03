@@ -233,6 +233,8 @@
   "Config.Actions.Triggers.Type.Item": "Item changing",
   "Config.Actions.Triggers.Type.ItemRel": "Relation changing",
   "Config.Actions.Triggers.Type.Button": "Button",
+  "Config.Actions.Triggers.Type.AttrGroup": "Attribute Group",
+  "Config.Actions.Triggers.Type.Attribute": "Attribute",
   "Config.Actions.Triggers.Event.BeforeCreate": "before create",
   "Config.Actions.Triggers.Event.AfterCreate": "after create",
   "Config.Actions.Triggers.Event.BeforeUpdate": "before update",
