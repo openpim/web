@@ -2,7 +2,7 @@
   <v-dialog v-model="showAttributesDialogRef" persistent fullscreen>
     <v-card>
       <v-card-text>
-        <Attributes v-if="currentItem != {}" :item=currentItem />
+        <Attributes v-if="currentItem" :item=currentItem />
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>

@@ -354,27 +354,23 @@ export default {
             }
           }
         }
-        groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
       })
     })
 
-    const groupsNew = ref(groups)
-    if (typeof props.item !== 'undefined') {
-      watch(() => props.item, () => {
-        const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
-        const currentGroups = groupsNew.value
-        currentGroups.forEach(group => {
-          const groupAttr = []
-          group.attributes.forEach(attr => {
-            if (pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
-              groupAttr.push(attr)
-            }
-          })
-          group.attributes = groupAttr
+    watch(() => props.item, () => {
+      const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
+      groups.forEach(group => {
+        const groupAttr = []
+        group.attributes.forEach(attr => {
+          if (pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
+            groupAttr.push(attr)
+          }
         })
-        groupsFiltered.value = currentGroups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
+        group.itemAttributes = groupAttr
       })
-    }
+      groupsFiltered.value = groups.filter(group => group.itemAttributes && group.itemAttributes.length > 0).map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.itemAttributes.slice(0, maxChiidrenNumber) }))
+    })
+
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_]*$/.test(v)) {
         return i18n.t('Wrong.Identifier')
