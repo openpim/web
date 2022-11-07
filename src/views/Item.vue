@@ -21,7 +21,7 @@
                       </template>
                       <span>{{ $t('ItemView.ToggleTabsMode.Tooltip') }}</span>
                     </v-tooltip>
-                    <v-tooltip bottom>
+                    <v-tooltip bottom v-if="canViewAttrConfigRef">
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" @click="showAttributesShowDialog()" icon><v-icon>mdi-format-list-bulleted-type</v-icon></v-btn>
                       </template>
@@ -414,7 +414,7 @@ export default {
 
     const { showInfo, showError } = errorStore.useStore()
 
-    const { currentUserRef, currentRoles, canEditItem, hasAccess, canEditItemRelation } = userStore.useStore()
+    const { currentUserRef, currentRoles, canEditItem, hasAccess, canEditItemRelation, canViewConfig } = userStore.useStore()
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
@@ -490,6 +490,8 @@ export default {
     const tabsMode = ref(localStorage.getItem('tabsMode') === 'true' || false)
     const attrTabRef = ref(null)
     const dataTableMarginTop = ref(0)
+
+    const canViewAttrConfigRef = ref(false)
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -1137,6 +1139,7 @@ export default {
         if (route.value && route.value.params && route.value.params.id) {
           itemPathRef.value = []
           loadItemByIdentifier(route.value.params.id).then((item) => {
+            canViewAttrConfigRef.value = canViewConfig('attributes')
             loadItemPath(item.path)
             itemSelected(item)
           })
@@ -1272,6 +1275,7 @@ export default {
       tabsContainerRef,
       dataTableMarginTop,
       refresh,
+      canViewAttrConfigRef,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
