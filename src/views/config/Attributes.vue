@@ -89,7 +89,7 @@
 
 <script>
 import * as attrStore from '../../store/attributes'
-import { ref, computed, onMounted } from '@vue/composition-api'
+import { ref, computed, onMounted, watch } from '@vue/composition-api'
 import i18n from '../../i18n'
 import router from '../../router'
 import * as errorStore from '../../store/error'
@@ -102,7 +102,13 @@ import AttributeViewComponent from '../../components/AttributeViewComponent.vue'
 
 export default {
   components: { LanguageDependentField, SystemInformation, OptionsTable, AttributeViewComponent },
-  setup () {
+  props: {
+    item: {
+      type: Object,
+      required: false
+    }
+  },
+  setup (props) {
     const { canViewConfig, canEditConfig } = userStore.useStore()
 
     const {
@@ -205,11 +211,15 @@ export default {
           const tmp = findById(active[0])
           selectedRef.value = tmp.item
           selectedGroupsRef.value = tmp.groups
-          router.push('/config/attributes' + (selectedRef.value.identifier ? '/' + selectedRef.value.identifier : ''))
+          if (!props.item) {
+            router.push('/config/attributes' + (selectedRef.value.identifier ? '/' + selectedRef.value.identifier : ''))
+          }
         }
       } else {
         selectedRef.value = empty
-        router.push('/config/attributes')
+        if (!props.item) {
+          router.push('/config/attributes')
+        }
       }
     }
 
@@ -257,7 +267,9 @@ export default {
             showInfo(i18n.t('Saved'))
           })
           selectedRef.value = empty
-          router.push('/config/attributes')
+          if (!props.item) {
+            router.push('/config/attributes')
+          }
         }
       } else {
         dialogRef.value = true
@@ -290,12 +302,16 @@ export default {
         showInfo(i18n.t('Saved'))
       })
       selectedRef.value = empty
-      router.push('/config/attributes')
+      if (!props.item) {
+        router.push('/config/attributes')
+      }
     }
 
     function save () {
       if (formRef.value.validate()) {
-        router.push('/config/attributes/' + selectedRef.value.identifier)
+        if (!props.item) {
+          router.push('/config/attributes/' + selectedRef.value.identifier)
+        }
         saveData(selectedRef.value).then(() => {
           showInfo(i18n.t('Saved'))
         })
@@ -322,22 +338,38 @@ export default {
       loadAllAttributes().then(() => {
         canViewConfigRef.value = canViewConfig('attributes')
         canEditConfigRef.value = canEditConfig('attributes')
-        const id = router.currentRoute.params.id
-        if (id) {
-          const result = findByIdentifier(id)
-          if (result.item) {
-            selectedRef.value = result.item
-            selectedGroupsRef.value = result.groups
-            activeRef.value.push(result.item.id)
-            if (!result.item.group) {
-              openRef.value = result.groups.map(grp => grp.id)
+        if (!props.item) {
+          const id = router.currentRoute.params.id
+          if (id) {
+            const result = findByIdentifier(id)
+            if (result.item) {
+              selectedRef.value = result.item
+              selectedGroupsRef.value = result.groups
+              activeRef.value.push(result.item.id)
+              if (!result.item.group) {
+                openRef.value = result.groups.map(grp => grp.id)
+              }
+            } else {
+              router.push('/config/attributes')
             }
-          } else {
-            router.push('/config/attributes')
           }
         }
-        groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
+        if (!props.item) groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
       })
+    })
+
+    watch(() => props.item, () => {
+      const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
+      groups.forEach(group => {
+        const groupAttr = []
+        group.attributes.forEach(attr => {
+          if (pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
+            groupAttr.push(attr)
+          }
+        })
+        group.itemAttributes = groupAttr
+      })
+      groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.itemAttributes.slice(0, maxChiidrenNumber) }))
     })
 
     function identifierValidation (v) {

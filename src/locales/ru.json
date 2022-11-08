@@ -594,5 +594,6 @@
   "DatePickerDialog.HOUR": "Час",
   "DatePickerDialog.MIN": "Минута",
   "DatePickerDialog.Title.Dateonly": "Выбор даты",
-  "DatePickerDialog.Title.Timeonly": "Выбор времени"
+  "DatePickerDialog.Title.Timeonly": "Выбор времени",
+  "ShowAttributes": "Показать атрибуты"
 }

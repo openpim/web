@@ -21,6 +21,12 @@
                       </template>
                       <span>{{ $t('ItemView.ToggleTabsMode.Tooltip') }}</span>
                     </v-tooltip>
+                    <v-tooltip bottom v-if="canViewAttrConfigRef">
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" @click="showAttributesShowDialog()" icon><v-icon>mdi-format-list-bulleted-type</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('ShowAttributes') }}</span>
+                    </v-tooltip>
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" @click="refresh" icon><v-icon>mdi-refresh</v-icon></v-btn>
@@ -324,6 +330,7 @@
     <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
     <ItemDuplicationDialog ref="itemDuplicationDialogRef" @duplicated="itemDuplicated"/>
     <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
+    <ShowAttributesDialog ref="showAttributesDialogRef" @selected="showAttributes"/>
   </v-container>
 </template>
 
@@ -355,6 +362,7 @@ import FileUploadDialog from '../components/FileUploadDialog'
 import ItemDuplicationDialog from '../components/ItemDuplicationDialog'
 import ChannelsSelectionDialog from '../components/ChannelsSelectionDialog'
 import ActionStatusDialog from '../components/ActionStatusDialog'
+import ShowAttributesDialog from '../components/ShowAttributesDialog'
 import HistoryTable from '../components/HistoryTable'
 
 import AfterButtonsComponent from '../_customizations/item/afterButtons/AfterButtonsComponent'
@@ -393,6 +401,7 @@ export default {
     AfterAttributesComponent,
     ChannelsSelectionDialog,
     ActionStatusDialog,
+    ShowAttributesDialog,
     pdf
   },
   name: 'Home',
@@ -405,7 +414,7 @@ export default {
 
     const { showInfo, showError } = errorStore.useStore()
 
-    const { currentUserRef, currentRoles, canEditItem, hasAccess, canEditItemRelation } = userStore.useStore()
+    const { currentUserRef, currentRoles, canEditItem, hasAccess, canEditItemRelation, canViewConfig } = userStore.useStore()
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
@@ -475,11 +484,14 @@ export default {
     const fileUploadDialogRef = ref(null)
     const itemDuplicationDialogRef = ref(null)
     const chanSelectionDialogRef = ref(null)
+    const showAttributesDialogRef = ref(null)
     const awailableChannelsRef = ref([])
     const buttonActionStatusDialog = ref(null)
     const tabsMode = ref(localStorage.getItem('tabsMode') === 'true' || false)
     const attrTabRef = ref(null)
     const dataTableMarginTop = ref(0)
+
+    const canViewAttrConfigRef = ref(false)
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -1051,6 +1063,14 @@ export default {
       })
     }
 
+    function showAttributesShowDialog () {
+      showAttributesDialogRef.value.showDialog(itemRef.value)
+    }
+
+    function showAttributes () {
+      showAttributesDialogRef.value.closeDialog()
+    }
+
     const hasChannels = computed(() => {
       if (itemRef.value) {
         const pathArr = itemRef.value.path.split('.')
@@ -1119,6 +1139,7 @@ export default {
         if (route.value && route.value.params && route.value.params.id) {
           itemPathRef.value = []
           loadItemByIdentifier(route.value.params.id).then((item) => {
+            canViewAttrConfigRef.value = canViewConfig('attributes')
             loadItemPath(item.path)
             itemSelected(item)
           })
@@ -1230,8 +1251,11 @@ export default {
       channelsOnHead,
       hasChannels,
       submit,
+      showAttributesShowDialog,
       chanSelectionDialogRef,
+      showAttributesDialogRef,
       channelsSelected,
+      showAttributes,
       dateFormat,
       headAttributesKeyRef,
       getLOVValue,
@@ -1251,6 +1275,7 @@ export default {
       tabsContainerRef,
       dataTableMarginTop,
       refresh,
+      canViewAttrConfigRef,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
