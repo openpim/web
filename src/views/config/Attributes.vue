@@ -369,7 +369,7 @@ export default {
         })
         group.itemAttributes = groupAttr
       })
-      groupsFiltered.value = groups.filter(group => group.itemAttributes && group.itemAttributes.length > 0).map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.itemAttributes.slice(0, maxChiidrenNumber) }))
+      groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.itemAttributes.slice(0, maxChiidrenNumber) }))
     })
 
     function identifierValidation (v) {
