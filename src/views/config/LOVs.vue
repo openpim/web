@@ -269,7 +269,7 @@ export default {
     }
 
     const lovsFiltered = computed(() => {
-      if (!searchRef.value) return lovs
+      if (!searchRef.value) return lovs.slice(0, 100)
 
       const s = searchRef.value.toLowerCase()
       return lovs.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
@@ -391,7 +391,6 @@ export default {
       itemSelectionDialogRef,
       itemsSelected,
       editLevels,
-      lovs,
       lovsFiltered,
       clearSelection,
       searchRef,
