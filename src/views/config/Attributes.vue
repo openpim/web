@@ -359,6 +359,7 @@ export default {
     })
 
     watch(() => props.item, () => {
+      if (!props.item) return
       const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
       groups.forEach(group => {
         const groupAttr = []
