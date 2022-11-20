@@ -94,6 +94,7 @@
               <ValidVisibleComponent :elem="selectedRef" :canEditConfig="canEditConfigRef"/>
 
               <v-checkbox class="ml-2" v-model="selectedRef.config.statusOnHead" :label="$t('Config.Channels.StatusOnHead')" required></v-checkbox>
+              <v-checkbox class="ml-2 mt-0" v-model="selectedRef.config.showRemoveButton" :label="$t('Config.Channels.ShowRemoveButton')" required></v-checkbox>
             </v-tab-item>
             <v-tab-item>
               <component v-if="channelFactory.getConfigCompoment()" :is="channelFactory.getConfigCompoment()" :channel="selectedRef" :readonly="!canEditConfigRef" ></component>

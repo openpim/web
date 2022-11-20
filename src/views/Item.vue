@@ -284,6 +284,12 @@
               <v-card v-if="itemRef.channels && itemRef.channels[channel.identifier] && itemRef.channels[channel.identifier].status">
                 <v-card-title class="text-subtitle-2">
                   {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}
+                  <v-tooltip top v-if="channel.config.showRemoveButton && canEditSelected">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon v-on="on" @click="removeChannel(channel)" class="ml-3"><v-icon>mdi-delete-circle-outline</v-icon></v-btn>
+                    </template>
+                      <span>{{ $t('ItemView.Channels.RemoveChannel') }}</span>
+                  </v-tooltip>
                   <v-tooltip top v-if="getChannelFactory(channel.type).hasItemSync">
                     <template v-slot:activator="{ on }">
                       <v-btn icon v-on="on" @click="syncItem(channel)" class="ml-3"><v-icon>mdi-sync</v-icon></v-btn>
@@ -418,7 +424,7 @@ export default {
 
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
-    const { loadAllChannels, getAvailableChannels, submitItem, triggerChannel } = channelsStore.useStore()
+    const { loadAllChannels, getAvailableChannels, submitItem, triggerChannel, updateItemChannels } = channelsStore.useStore()
 
     const {
       findType,
@@ -1088,6 +1094,14 @@ export default {
       if (confirm('Запустить синхронизацию?')) triggerChannel(channel.internalId, { sync: true, item: itemRef.value.internalId })
     }
 
+    function removeChannel (channel) {
+      if (confirm(i18n.t('Config.Channels.ConfirmRemove'))) {
+        const channels = itemRef.value.channels
+        channels[channel.identifier].is_deleted = true
+        updateItemChannels(itemRef.value, channels)
+      }
+    }
+
     async function refreshChannels () {
       if (itemRef.value && channelsOnHead.value.length > 0) {
         const channels = await loadItemChannels(itemRef.value.identifier)
@@ -1275,6 +1289,7 @@ export default {
       tabsContainerRef,
       dataTableMarginTop,
       refresh,
+      removeChannel,
       canViewAttrConfigRef,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
