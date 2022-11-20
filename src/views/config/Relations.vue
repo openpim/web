@@ -238,6 +238,13 @@ export default {
 
         const id = router.currentRoute.params.id
         if (id) {
+          relations.sort((a, b) => {
+            if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
+              return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
+            } else {
+              return 0
+            }
+          })
           const idx = relations.findIndex((elem) => elem.identifier === id)
           if (idx !== -1) {
             selectedRef.value = relations[idx]
