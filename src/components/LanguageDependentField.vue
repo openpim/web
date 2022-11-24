@@ -2,6 +2,7 @@
 <div>
   <v-text-field @blur="valueBlur" :readonly="readonly" :value="value" @input="handleInput" :rules="rules" :label="label" required  :error-messages="errors" :set="desc = getTextOption('description', '')">
         <template #append>
+          &nbsp;
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
               <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
