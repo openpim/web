@@ -29,7 +29,7 @@
       <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
     </v-navigation-drawer>
 
-    <AppHeader :export="isExportSearch" :drawer="drawer" />
+    <AppHeader :export="isExportSearch" :drawer="drawer"/>
 
     <v-content>
       <v-container class="fill-height" fluid>
@@ -166,6 +166,7 @@ export default {
     }
 
     function setBorderWidth () {
+      if (!drawerRef.value) return
       const i = drawerRef.value.$el.querySelector(
         '.v-navigation-drawer__border'
       )
@@ -174,6 +175,7 @@ export default {
     }
 
     function setResizeEvents () {
+      if (!drawerRef.value) return
       const el = drawerRef.value.$el
       const drawerBorder = el.querySelector('.v-navigation-drawer__border')
       const direction = el.classList.contains('v-navigation-drawer--right')

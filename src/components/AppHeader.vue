@@ -5,7 +5,7 @@
       <TitleComponent></TitleComponent>
     </v-toolbar-title>
     <v-spacer />
-    <AppHeaderSearch :export="isExportSearch" />
+    <AppHeaderSearch :export="isExportSearch" v-if="drawer" />
     <AfterSearchComponent></AfterSearchComponent>
     <v-menu offset-y v-if="languages.length > 1">
       <template v-slot:activator="{ on }">
@@ -60,6 +60,7 @@ export default {
     } = langStore.useStore()
 
     onMounted(() => {
+      if (!props.drawer) return
       loadAllLanguages()
     })
 
