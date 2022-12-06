@@ -21,3 +21,5 @@ yarn-error.log*
 *.sw?
 .env copy
 web_run.bat
+.npmrc
+/.idea
