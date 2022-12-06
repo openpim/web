@@ -90,7 +90,7 @@
 <script>
 import TypeSelectionDialog from '../../components/TypeSelectionDialog'
 
-import { ref, computed, onMounted } from '@vue/composition-api'
+import { ref, computed, onMounted } from 'vue'
 import * as errorStore from '../../store/error'
 import * as typesStore from '../../store/types'
 import i18n from '../../i18n'

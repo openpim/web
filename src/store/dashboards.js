@@ -1,4 +1,4 @@
-import { reactive, provide, inject } from '@vue/composition-api'
+import { reactive, provide, inject } from 'vue'
 import i18n from '../i18n'
 import { serverFetch, objectToGraphgl } from './utils'
 import { currentUserRef } from './users'
@@ -45,7 +45,7 @@ const actionList = {
       dash.internalId = newId
     } else {
       const query = `
-        mutation($components:JSON!) { 
+        mutation($components:JSON!) {
           updateDashboard(id: "` + dash.internalId + '", name: ' + (dash.name ? '' + objectToGraphgl(dash.name) : '') +
         ', users: ' + objectToGraphgl(users) +
         ', components: $components' +

@@ -13,7 +13,7 @@
                 <v-list-item v-for="(item, i) in roles" :key="i">
                   <v-list-item-icon><v-icon>mdi-account-check</v-icon></v-list-item-icon>
                   <v-list-item-content>
-                    <v-list-item-title v-text="item.name"></v-list-item-title>
+                    <v-list-item-title>{{item.name}}</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
@@ -31,7 +31,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref } from '@vue/composition-api'
+import { ref } from 'vue'
 import * as rolesStore from '../store/roles'
 
 export default {

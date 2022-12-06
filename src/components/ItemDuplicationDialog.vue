@@ -37,7 +37,7 @@
 </template>
 <script>
 import * as itemsStore from '../store/item'
-import { ref } from '@vue/composition-api'
+import { ref } from 'vue'
 import * as langStore from '../store/languages'
 import * as typesStore from '../store/types'
 import * as attrStore from '../store/attributes'

@@ -84,7 +84,7 @@ import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
 import dateFormat from 'dateformat'
 import i18n from '../i18n'
-import { ref, onMounted, watch } from '@vue/composition-api'
+import { ref, onMounted, watch } from 'vue'
 
 export default {
   props: {

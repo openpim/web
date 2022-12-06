@@ -1,4 +1,4 @@
-import { reactive, provide, inject } from '@vue/composition-api'
+import { reactive, provide, inject } from 'vue'
 import i18n from '../i18n'
 import { serverFetch, objectToGraphgl, generateSorting } from './utils'
 import { currentLanguage } from './languages'
@@ -162,7 +162,7 @@ const actions = {
   loadExecutions: async (channelId, options) => {
     const offset = (options.page - 1) * options.itemsPerPage
     const order = generateSorting(options)
-    const data = await serverFetch('query { getExecutions(channelId: "' + channelId + '", offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) { 
+    const data = await serverFetch('query { getExecutions(channelId: "' + channelId + '", offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) {
       count, rows {id, status, startTime, finishTime, storagePath, log }}}`)
     return data.getExecutions
   },

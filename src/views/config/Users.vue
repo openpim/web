@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { computed, ref, watch, onMounted } from '@vue/composition-api'
+import { computed, ref, watch, onMounted } from 'vue'
 import * as errorStore from '../../store/error'
 import * as usersStore from '../../store/users'
 import * as rolesStore from '../../store/roles'

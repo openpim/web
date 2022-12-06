@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { ref, watch, onMounted } from '@vue/composition-api'
+import { ref, watch, onMounted } from 'vue'
 import * as langStore from '../store/languages'
 import * as dashStore from '../store/dashboards'
 import DashboardComponent from '../components/DashboardComponent'

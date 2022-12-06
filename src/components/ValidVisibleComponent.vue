@@ -51,7 +51,7 @@
   </div>
 </template>
 <script>
-import { ref, computed, onMounted, watch } from '@vue/composition-api'
+import { ref, computed, onMounted, watch } from 'vue'
 import * as typesStore from '../store/types'
 import * as langStore from '../store/languages'
 import * as itemStore from '../store/item'

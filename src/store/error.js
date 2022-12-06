@@ -1,4 +1,4 @@
-import { toRefs, reactive, computed, provide, inject } from '@vue/composition-api'
+import { toRefs, reactive, computed, provide, inject } from 'vue'
 
 const state = reactive({
   error: '',

@@ -13,7 +13,7 @@
 import * as searchStore from '../store/search'
 import ItemsDataTable from '../components/ItemsDataTable'
 import ItemRelationsDataTable from '../components/ItemRelationsDataTable'
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted } from 'vue'
 
 export default {
   components: { ItemsDataTable, ItemRelationsDataTable },

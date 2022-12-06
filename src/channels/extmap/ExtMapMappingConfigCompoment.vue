@@ -140,7 +140,7 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, computed } from '@vue/composition-api'
+import { ref, onMounted, computed } from 'vue'
 import * as attrStore from '../../store/attributes'
 import * as langStore from '../../store/languages'
 import * as relStore from '../../store/relations'

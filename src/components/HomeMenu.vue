@@ -25,7 +25,7 @@
   </v-row>
 </template>
 <script>
-import { ref, onMounted, computed, onUnmounted } from '@vue/composition-api'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import * as itemStore from '../store/item'
 import * as typesStore from '../store/types'
 import * as langStore from '../store/languages'

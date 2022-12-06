@@ -1,4 +1,4 @@
-import { reactive, provide, inject } from '@vue/composition-api'
+import { reactive, provide, inject } from 'vue'
 import { serverFetch, objectToGraphgl } from './utils'
 import * as userStore from './users'
 

@@ -8,11 +8,12 @@ import i18n from './i18n'
 
 Vue.config.productionTip = false
 
-const vue = new Vue({
-  router,
-  vuetify,
-  i18n,
+const vue = Vue.createApp({
   render: h => h(App)
-}).$mount('#app')
+})
+  .use(router)
+  .use(vuetify)
+  .use(i18n)
+  .mount('#app')
 
 export default vue

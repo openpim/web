@@ -9,8 +9,8 @@
           <v-row>
             <v-col cols="12" class="pa-0 overflow-y-auto" style="max-height: 70vh">
               <v-tabs v-model="tabRef">
-                <v-tab v-text="$t('Items.SelectionDialog.Selection')"></v-tab>
-                <v-tab v-text="$t('Items.SelectionDialog.Search')"></v-tab>
+                <v-tab>{{$t('Items.SelectionDialog.Selection')}}</v-tab>
+                <v-tab>{{$t('Items.SelectionDialog.Search')}}</v-tab>
               </v-tabs>
               <v-tabs-items v-model="tabRef">
                 <v-tab-item> <!-- tree -->
@@ -53,7 +53,7 @@
 import * as itemStore from '../store/item'
 import * as typesStore from '../store/types'
 import * as langStore from '../store/languages'
-import { ref, computed } from '@vue/composition-api'
+import { ref, computed } from 'vue'
 
 export default {
   name: 'ItemSelection',

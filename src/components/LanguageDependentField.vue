@@ -23,7 +23,7 @@
 </template>
 <script>
 import * as langStore from '../store/languages'
-import { ref, computed } from '@vue/composition-api'
+import { ref, computed } from 'vue'
 
 export default {
   props: {

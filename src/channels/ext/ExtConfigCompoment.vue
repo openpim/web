@@ -6,7 +6,7 @@
   </div>
 </template>
 <script>
-import { watch } from '@vue/composition-api'
+import { watch } from 'vue'
 
 export default {
   props: {

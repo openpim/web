@@ -89,7 +89,7 @@
 
 <script>
 import * as attrStore from '../../store/attributes'
-import { ref, computed, onMounted, watch } from '@vue/composition-api'
+import { ref, computed, onMounted, watch } from 'vue'
 import i18n from '../../i18n'
 import router from '../../router'
 import * as errorStore from '../../store/error'

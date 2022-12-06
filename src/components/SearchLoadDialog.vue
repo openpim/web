@@ -36,7 +36,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref } from '@vue/composition-api'
+import { ref } from 'vue'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'
 import * as userStore from '../store/users'

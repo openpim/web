@@ -35,7 +35,7 @@
   </div>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
+import { computed } from 'vue'
 
 export default {
   props: {

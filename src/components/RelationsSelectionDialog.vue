@@ -13,7 +13,7 @@
                 <v-list-item v-for="(item, i) in relations" :key="i">
                   <v-list-item-icon><v-icon>mdi-vector-line</v-icon></v-list-item-icon>
                   <v-list-item-content>
-                    <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+                    <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
@@ -31,7 +31,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref } from '@vue/composition-api'
+import { ref } from 'vue'
 import * as relStore from '../store/relations'
 import * as langStore from '../store/languages'
 

@@ -13,7 +13,7 @@
                 <v-list-item v-for="(item, i) in searchesRef" :key="i">
                   <v-list-item-icon><v-icon>mdi-magnify</v-icon></v-list-item-icon>
                   <v-list-item-content>
-                    <v-list-item-title v-text="item.name[currentLanguage.identifier]"></v-list-item-title>
+                    <v-list-item-title>{{item.name[currentLanguage.identifier]}}</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
@@ -42,7 +42,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref, watch } from '@vue/composition-api'
+import { ref, watch } from 'vue'
 import i18n from '../i18n'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'

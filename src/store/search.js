@@ -1,4 +1,4 @@
-import { ref, provide, inject } from '@vue/composition-api'
+import { ref, provide, inject } from 'vue'
 import { serverFetch, objectToGraphgl } from './utils'
 
 const currentWhereRef = ref(null)
@@ -33,8 +33,8 @@ const actions = {
     return data.getColumns
   },
   identifierExists: async (identifier) => {
-    const data = await serverFetch('query { getSearchByIdentifier(identifier: "' + identifier + `") { 
-      id 
+    const data = await serverFetch('query { getSearchByIdentifier(identifier: "' + identifier + `") {
+      id
     } }`)
     if (data.getSearchByIdentifier) {
       return true
@@ -43,8 +43,8 @@ const actions = {
     }
   },
   columnsIdentifierExists: async (identifier) => {
-    const data = await serverFetch('query { getColumnsByIdentifier(identifier: "' + identifier + `") { 
-      id 
+    const data = await serverFetch('query { getColumnsByIdentifier(identifier: "' + identifier + `") {
+      id
     } }`)
     if (data.getColumnsByIdentifier) {
       return true
@@ -53,7 +53,7 @@ const actions = {
     }
   },
   loadByIdentifier: async (identifier) => {
-    const data = await serverFetch('query { getSearchByIdentifier(identifier: "' + identifier + `") { 
+    const data = await serverFetch('query { getSearchByIdentifier(identifier: "' + identifier + `") {
       identifier entity name extended filters whereClause public user
     } }`)
     return data.getSearchByIdentifier

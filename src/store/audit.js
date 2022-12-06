@@ -1,4 +1,4 @@
-import { provide, inject, ref } from '@vue/composition-api'
+import { provide, inject, ref } from 'vue'
 import { serverFetch, objectToGraphgl, generateSorting } from './utils'
 
 const auditEnabled = ref(null)
@@ -7,14 +7,14 @@ const actions = {
   loadItemHistory: async (id, options) => {
     const offset = (options.page - 1) * options.itemsPerPage
     const order = generateSorting(options)
-    const data = await serverFetch('query { getItemHistory(id: ' + id + ', offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) { 
+    const data = await serverFetch('query { getItemHistory(id: ' + id + ', offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) {
       count, rows {id, operation, user, changedAt, data {added, changed, old, deleted} } } }`)
     return data.getItemHistory
   },
   loadItemRelationHistory: async (id, options) => {
     const offset = (options.page - 1) * options.itemsPerPage
     const order = generateSorting(options)
-    const data = await serverFetch('query { getItemRelationHistory(id: ' + id + ', offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) { 
+    const data = await serverFetch('query { getItemRelationHistory(id: ' + id + ', offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) {
       count, rows {id, operation, user, changedAt, data {added, changed, old, deleted} } } }`)
     return data.getItemRelationHistory
   },

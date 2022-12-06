@@ -21,8 +21,8 @@
           <v-text-field v-model="attr.order" type="number" :label="$t('Config.Attributes.Order')" required></v-text-field>
 
           <v-tabs v-model="tabRef">
-            <v-tab v-text="$t('Config.Attributes.ForObjects')"></v-tab>
-            <v-tab v-text="$t('Config.Attributes.ForRelations')"></v-tab>
+            <v-tab>{{$t('Config.Attributes.ForObjects')}}</v-tab>
+            <v-tab>{{$t('Config.Attributes.ForRelations')}}</v-tab>
           </v-tabs>
           <v-tabs-items v-model="tabRef">
             <v-tab-item>
@@ -54,7 +54,7 @@
   </div>
 </template>
 <script>
-import { onMounted, computed, ref } from '@vue/composition-api'
+import { onMounted, computed, ref } from 'vue'
 import i18n from '../i18n'
 import AttributeType from '../constants/attributeTypes'
 import * as attrStore from '../store/attributes'
