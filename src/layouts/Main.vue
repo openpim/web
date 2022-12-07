@@ -274,7 +274,6 @@ export default {
     }
   },
   onMounted () {
-    console.log('onMounted')
     this.setBorderWidth()
     this.setResizeEvents()
   }
