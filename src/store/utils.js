@@ -1,6 +1,6 @@
 import * as err from './error'
 import router from '../router'
-import i18n from '../i18n'
+import i18n from '@/i18n'
 import * as attrStore from './attributes'
 
 export async function serverFetch (query, variables) {
@@ -28,7 +28,7 @@ export async function serverFetch (query, variables) {
   } else {
     const data = await resp.json()
     if (data.errors[0].message === 'Your session expired. Sign in again.') {
-      err.store.showError(i18n.t('Login.Expired'))
+      err.store.showError(i18n.global.t('Login.Expired'))
       router.push('/login')
     } else {
       err.store.showError(data.errors[0].message)

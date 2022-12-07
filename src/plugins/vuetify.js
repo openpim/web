@@ -1,10 +1,11 @@
 import '@mdi/font/css/materialdesignicons.css'
 import { createVuetify } from 'vuetify'
 import ru from 'vuetify/lib/locale/ru'
+import 'vuetify/styles'
 
 import theme from '../_customizations/_theme/theme'
 
-export default createVuetify({
+const vuetify = createVuetify({
   lang: {
     locales: { ru },
     current: 'en'
@@ -13,3 +14,5 @@ export default createVuetify({
     ...theme
   }
 })
+
+export default vuetify

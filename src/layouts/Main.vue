@@ -168,15 +168,19 @@ export default {
     }
 
     function setBorderWidth () {
+      // TODO: fix
+      /*
       const el = drawerRef.value.$el.querySelector(
         '.v-navigation-drawer__border'
       )
-      console.log(el)
       el.style.width = '3px'
       el.style.cursor = 'ew-resize'
+       */
     }
 
     function setResizeEvents () {
+      // TODO: fix
+      /*
       const el = drawerRef.value.$el
       const drawerBorder = el.querySelector('.v-navigation-drawer__border')
       const direction = el.classList.contains('v-navigation-drawer--right')
@@ -214,11 +218,12 @@ export default {
         },
         false
       )
+       */
     }
 
     onMounted(() => {
-      // setBorderWidth()
-      // setResizeEvents()
+      setBorderWidth()
+      setResizeEvents()
       loadAllRoles().then(() => {
         loadAllDashboards().then(() => {
           hasDashboards.value = getDashboardsForCurrentUser().length > 0
@@ -269,6 +274,7 @@ export default {
     }
   },
   onMounted () {
+    console.log('onMounted')
     this.setBorderWidth()
     this.setResizeEvents()
   }

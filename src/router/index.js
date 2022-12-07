@@ -4,13 +4,16 @@ import * as rolesStore from '../store/roles'
 import i18n from '../i18n'
 // import jwtDecode from 'jwt-decode'
 
+import Empty from '../layouts/Empty.vue'
+import Login from '../views/Login.vue'
+
 const routes = [
   {
     path: '/login',
     props: { pathAfterLogin: '/' },
-    component: () => import('../layouts/Empty.vue'),
+    component: Empty,
     children: [
-      { path: '', component: () => import('../views/Login.vue') }
+      { path: '', component: Login }
     ],
     meta: {
       requiresAuth: false
@@ -332,12 +335,12 @@ router.beforeEach(async (to, from, next) => {
     i18n.locale = tst
   }
   if (Object.keys(router.preventRoute).length > 0) {
-    let text = i18n.t('Router.Changed.NotSaved') + '\n'
+    let text = i18n.global.t('Router.Changed.NotSaved') + '\n'
     let idx = 1
     for (var prop in router.preventRoute) {
       text += (idx++) + '. ' + router.preventRoute[prop] + '\n'
     }
-    text += i18n.t('Router.Changed.Continue')
+    text += i18n.global.t('Router.Changed.Continue')
 
     if (!window.confirm(text)) {
       next(false)
