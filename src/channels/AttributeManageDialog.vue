@@ -29,7 +29,7 @@
   </v-row>
 </template>
 <script>
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted } from 'vue'
 import AttributeViewComponent from '../components/AttributeViewComponent.vue'
 import * as attrStore from '../store/attributes'
 import * as langStore from '../store/languages'

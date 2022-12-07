@@ -1,7 +1,7 @@
 <template>
   <div>
     <ErrorBox />
-    <v-navigation-drawer :width="drawerWidth" v-model="drawer" ref="drawerRef" :clipped="$vuetify.breakpoint.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
+    <v-navigation-drawer :width="drawerWidth" v-model="drawer" ref="drawerRef" :clipped="display.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
       <router-view name="menu"></router-view>
 
       <v-bottom-navigation grow height="50" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">
@@ -75,7 +75,9 @@
 </template>
 
 <script>
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted } from 'vue'
+import { useDisplay } from 'vuetify'
+
 import ErrorBox from '../components/ErrorBox'
 import AppHeader from '../components/AppHeader.vue'
 import * as userStore from '../store/users'
@@ -166,11 +168,12 @@ export default {
     }
 
     function setBorderWidth () {
-      const i = drawerRef.value.$el.querySelector(
+      const el = drawerRef.value.$el.querySelector(
         '.v-navigation-drawer__border'
       )
-      i.style.width = '3px'
-      i.style.cursor = 'ew-resize'
+      console.log(el)
+      el.style.width = '3px'
+      el.style.cursor = 'ew-resize'
     }
 
     function setResizeEvents () {
@@ -214,8 +217,8 @@ export default {
     }
 
     onMounted(() => {
-      setBorderWidth()
-      setResizeEvents()
+      // setBorderWidth()
+      // setResizeEvents()
       loadAllRoles().then(() => {
         loadAllDashboards().then(() => {
           hasDashboards.value = getDashboardsForCurrentUser().length > 0
@@ -239,6 +242,8 @@ export default {
       })
     })
 
+    const display = ref(useDisplay())
+
     return {
       logout,
       reload,
@@ -259,8 +264,13 @@ export default {
       hasDashboards,
       nameRules: [
         v => !!v || i18n.t('Config.Users.Error.NameRequired')
-      ]
+      ],
+      display
     }
+  },
+  onMounted () {
+    this.setBorderWidth()
+    this.setResizeEvents()
   }
 }
 </script>

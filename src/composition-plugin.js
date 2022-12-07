@@ -1,3 +1,3 @@
-import FnApi from '@vue/composition-api'
+import FnApi from 'vue'
 import Vue from 'vue'
 Vue.use(FnApi)

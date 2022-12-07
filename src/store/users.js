@@ -1,4 +1,4 @@
-import { reactive, ref, provide, inject } from '@vue/composition-api'
+import { reactive, ref, provide, inject } from 'vue'
 import router from '../router'
 import * as err from './error'
 import { serverFetch, objectToGraphgl } from './utils'

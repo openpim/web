@@ -27,15 +27,15 @@
               </v-row>
           </v-card-title>
           <v-card-actions>
-            <v-btn v-if="channelReadAccess" text @click="channelSelected(channelRef)" v-text="$t('DataTable.Refresh')"></v-btn>
-            <v-btn v-if="channelWriteAccess" text @click="triggerNow" v-text="$t('ChannelView.TriggerNow')"></v-btn>
+            <v-btn v-if="channelReadAccess" text @click="channelSelected(channelRef)">{{$t('DataTable.Refresh')}}</v-btn>
+            <v-btn v-if="channelWriteAccess" text @click="triggerNow">{{$t('ChannelView.TriggerNow')}}</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
       <v-col cols="12">
         <v-tabs v-model="tabRef">
-          <v-tab v-text="$t('ChannelView.Dashboard')"></v-tab>
-          <v-tab v-text="$t('ChannelView.Executions')" v-if="channelHasExecutions"></v-tab>
+          <v-tab>{{$t('ChannelView.Dashboard')}}</v-tab>
+          <v-tab v-if="channelHasExecutions">{{$t('ChannelView.Executions')}}</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tabRef">
           <v-tab-item> <!-- Dashboard -->
@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from '@vue/composition-api'
+import { ref, onMounted, watch, computed } from 'vue'
 import * as channelsStore from '../store/channels'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'

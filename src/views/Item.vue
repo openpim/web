@@ -90,17 +90,17 @@
                     </v-card-title>
                   </v-card>
                   </div>
-                  <v-btn x-small text @click="refreshChannels" v-text="$t('DataTable.Refresh')" class="ma-0 pa-0"></v-btn>
+                  <v-btn x-small text @click="refreshChannels" class="ma-0 pa-0">{{$t('DataTable.Refresh')}}</v-btn>
                 </v-col>
               </v-row>
             </v-container>
           </v-card-title>
           <v-card-actions>
-            <v-btn v-if="canEditSelected" :color="itemChangedRef ? 'primary' : ''" depressed :text="!itemChangedRef" @click="save" v-text="$t('Save')"></v-btn>
-            <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
-            <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
-            <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
-            <v-btn v-if="hasChannels" text @click="submit" v-text="$t('Submit')"></v-btn>
+            <v-btn v-if="canEditSelected" :color="itemChangedRef ? 'primary' : ''" depressed :text="!itemChangedRef" @click="save">{{$t('Save')}}</v-btn>
+            <v-btn v-if="canEditSelected" text @click="move">{{$t('Move')}}</v-btn>
+            <v-btn v-if="canEditSelected" text @click="duplicate">{{$t('Duplicate')}}</v-btn>
+            <v-btn v-if="canEditSelected" text @click="remove">{{$t('Remove')}}</v-btn>
+            <v-btn v-if="hasChannels" text @click="submit">{{$t('Submit')}}</v-btn>
             <template v-if="buttonActions && buttonActions.length <= 3">
               <v-btn text @click="executeAction(trigger)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
@@ -117,8 +117,8 @@
             <AfterButtonsComponent :item="itemRef"></AfterButtonsComponent>
             <v-spacer></v-spacer>
             <template v-if="sourceRelationSearch.length + targetRelationSearch.length === 1">
-              <v-btn v-if="sourceRelationSearch.length === 1" text @click="performRelationSearch(sourceRelationSearch[0].identifier, 'target')" v-text="getRelationSearchName(sourceRelationSearch[0]) || sourceRelationSearch[0].name[currentLanguage.identifier] || '[' + sourceRelationSearch[0].name[defaultLanguageIdentifier] + ']'"></v-btn>
-              <v-btn v-else text @click="performRelationSearch(targetRelationSearch[0].identifier, 'target')" v-text="getRelationSearchName(targetRelationSearch[0]) || targetRelationSearch[0].name[currentLanguage.identifier] || '[' + targetRelationSearch[0].name[defaultLanguageIdentifier] + ']'"></v-btn>
+              <v-btn v-if="sourceRelationSearch.length === 1" text @click="performRelationSearch(sourceRelationSearch[0].identifier, 'target')">{{getRelationSearchName(sourceRelationSearch[0]) || sourceRelationSearch[0].name[currentLanguage.identifier] || '[' + sourceRelationSearch[0].name[defaultLanguageIdentifier] + ']'}}</v-btn>
+              <v-btn v-else text @click="performRelationSearch(targetRelationSearch[0].identifier, 'target')">{{getRelationSearchName(targetRelationSearch[0]) || targetRelationSearch[0].name[currentLanguage.identifier] || '[' + targetRelationSearch[0].name[defaultLanguageIdentifier] + ']'}}</v-btn>
             </template>
             <template v-if="sourceRelationSearch.length + targetRelationSearch.length > 1">
               <v-menu>
@@ -133,7 +133,7 @@
                 </v-list>
               </v-menu>
             </template>
-            <v-btn v-if="!itemRef.typeFile && hasFileUpload" text @click="fileUploadDialogRef.showDialog()" v-text="$t('ItemView.UploadFile')"></v-btn>
+            <v-btn v-if="!itemRef.typeFile && hasFileUpload" text @click="fileUploadDialogRef.showDialog()">{{$t('ItemView.UploadFile')}}</v-btn>
             <AfterSpacerComponent :item="itemRef"></AfterSpacerComponent>
           </v-card-actions>
         </v-card>
@@ -142,14 +142,14 @@
         <v-container ref="tabsContainerRef" class="ma-0 pa-0">
           <v-tabs v-model="tabRef">
           <FirstTabsComponent></FirstTabsComponent>
-          <v-tab v-text="$t('ItemView.Tab.Attributes')"></v-tab>
-          <v-tab v-if="itemRef.typeFile" v-text="$t('ItemView.Tab.File')"></v-tab>
-          <v-tab v-if="!itemRef.typeFile && filesRef.length > 0" v-text="$t('ItemView.Tab.MediaFiles')"></v-tab>
-          <v-tab v-if="hasSources" v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
-          <v-tab v-if="hasTargets" v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
+          <v-tab>{{$t('ItemView.Tab.Attributes')}}</v-tab>
+          <v-tab v-if="itemRef.typeFile">{{$t('ItemView.Tab.File')}}</v-tab>
+          <v-tab v-if="!itemRef.typeFile && filesRef.length > 0">{{$t('ItemView.Tab.MediaFiles')}}</v-tab>
+          <v-tab v-if="hasSources" >{{$t('ItemView.Tab.LinksFrom')}}</v-tab>
+          <v-tab v-if="hasTargets">{{$t('ItemView.Tab.LinksTo')}}</v-tab>
           <v-tab v-if="totalChildrenRef === -1 || totalChildrenRef > 0">{{$t('ItemView.Tab.Children') + (totalChildrenRef > 0 ? ' (' + totalChildrenRef + ')' : '')}}</v-tab>
-          <v-tab v-if="hasChannels" v-text="$t('ItemView.Tab.Channels')"></v-tab>
-          <v-tab v-if="hasAccess('audit') && auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
+          <v-tab v-if="hasChannels" >{{$t('ItemView.Tab.Channels')}}</v-tab>
+          <v-tab v-if="hasAccess('audit') && auditEnabled">{{$t('ItemView.Tab.Audit')}}</v-tab>
           <LastTabsComponent></LastTabsComponent>
         </v-tabs>
         </v-container>
@@ -169,13 +169,13 @@
                     <v-expansion-panel-content>
                        <v-container class="pa-0">
                         <v-row no-gutters>
-                          <template v-for="(attr,i) in group.itemAttributes">
-                            <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
+                          <span v-for="(attr,i) in group.itemAttributes"  :key="i">
+                            <v-col :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
                               <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
                             </v-col>
                             <v-col :key="i+1000" v-if="getOption(attr, 'space', null)" :cols="getOption(attr, 'space', null)">
                             </v-col>
-                            </template>
+                            </span>
                         </v-row>
                        </v-container>
                     </v-expansion-panel-content>
@@ -194,13 +194,13 @@
                     <v-tab-item v-for="(group,i) in attrGroups" :key="i">
                       <v-container class="pa-0">
                         <v-row no-gutters>
-                          <template v-for="(attr,i) in group.itemAttributes">
-                            <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
+                          <span v-for="(attr,i) in group.itemAttributes" :key="i">
+                            <v-col :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
                               <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
                             </v-col>
                             <v-col :key="i+1000" v-if="getOption(attr, 'space', null)" :cols="getOption(attr, 'space', null)">
                             </v-col>
-                          </template>
+                          </span>
                         </v-row>
                       </v-container>
                     </v-tab-item>
@@ -216,7 +216,7 @@
                   <v-file-input v-if="canEditSelected" show-size v-model="fileRef" :label="$t('ItemView.NewFile')"></v-file-input>
                 </v-col>
                 <v-col cols="4">
-                  <v-btn class="d-inline" v-if="canEditSelected" :disabled="!fileRef" text @click="upload" v-text="$t('ItemView.Upload')"></v-btn>
+                  <v-btn class="d-inline" v-if="canEditSelected" :disabled="!fileRef" text @click="upload">{{$t('ItemView.Upload')}}</v-btn>
                 </v-col>
               </v-card-title>
               <v-card-text>
@@ -225,16 +225,16 @@
                     <a target="_blank" :href="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token"><v-img v-if="isImage" :src="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token" contain max-width="500" max-height="500"></v-img></a>
                   </v-card-text>
                   <v-card-actions>
-                    <v-btn v-if="canEditSelected" text @click="removeFile" v-text="$t('Remove')"></v-btn>
+                    <v-btn v-if="canEditSelected" text @click="removeFile">{{$t('Remove')}}</v-btn>
                   </v-card-actions>
                 </v-card>
                 <v-card v-if="isFile">
                   <v-card-title>
-                    <a v-if="itemRef.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + itemRef.id + '?inline&key='+imageKeyRef+'&token=' + token" target="_blank"><pdf :src="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token"> </pdf></a>
+                    <a v-if="itemRef.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + itemRef.id + '?inline&key='+imageKeyRef+'&token=' + token" target="_blank"><vue-pdf-embed :source="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token"> </vue-pdf-embed></a>
                     <a v-else :href="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token">{{itemRef.fileOrigName}}</a>
                   </v-card-title>
                   <v-card-actions>
-                    <v-btn v-if="canEditSelected" text @click="removeFile" v-text="$t('Remove')"></v-btn>
+                    <v-btn v-if="canEditSelected" text @click="removeFile">{{$t('Remove')}}</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-card-text>
@@ -341,7 +341,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed, onBeforeUpdate, onUnmounted } from '@vue/composition-api'
+import { ref, onMounted, watch, computed, onBeforeUpdate, onUnmounted } from 'vue'
 import goTo from 'vuetify/lib/services/goto'
 import { useRouter } from '../router/useRouter'
 import * as itemStore from '../store/item'
@@ -384,7 +384,7 @@ import AfterAttributesComponent from '../_customizations/item/afterAttributes/Af
 import eventBus from '../eventBus'
 import dateFormat from 'dateformat'
 import getChannelFactory from '../channels'
-import pdf from 'vue-pdf'
+import VuePdfEmbed from 'vue-pdf-embed'
 
 export default {
   components: {
@@ -408,7 +408,7 @@ export default {
     ChannelsSelectionDialog,
     ActionStatusDialog,
     ShowAttributesDialog,
-    pdf
+    VuePdfEmbed
   },
   name: 'Home',
   setup (params, context) {

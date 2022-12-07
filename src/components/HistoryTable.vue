@@ -54,7 +54,7 @@ import * as errorStore from '../store/error'
 import * as auditStore from '../store/audit'
 import dateFormat from 'dateformat'
 import i18n from '../i18n'
-import { ref, onMounted, watch } from '@vue/composition-api'
+import { ref, onMounted, watch } from 'vue'
 
 import HistoryTableRows from './HistoryTableRows'
 

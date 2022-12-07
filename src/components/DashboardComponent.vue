@@ -7,7 +7,7 @@
   </div>
 </template>
 <script>
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted } from 'vue'
 import * as dashStore from '../store/dashboards'
 import * as searchStore from '../store/search'
 import BarChart from './BarChart'

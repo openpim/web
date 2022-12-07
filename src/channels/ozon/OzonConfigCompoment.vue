@@ -17,7 +17,7 @@
   </div>
 </template>
 <script>
-import { watch, ref, onMounted } from '@vue/composition-api'
+import { watch, ref, onMounted } from 'vue'
 import * as channelsStore from '../../store/channels'
 import * as attrStore from '../../store/attributes'
 import MappingConfigCompoment from '../MappingConfigCompoment'

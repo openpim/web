@@ -30,7 +30,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref } from '@vue/composition-api'
+import { ref } from 'vue'
 import * as channelsStore from '../store/channels'
 import * as langStore from '../store/languages'
 

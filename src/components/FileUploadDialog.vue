@@ -51,7 +51,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref, computed, watch } from '@vue/composition-api'
+import { ref, computed, watch } from 'vue'
 import * as typesStore from '../store/types'
 import * as relStore from '../store/relations'
 import * as langStore from '../store/languages'

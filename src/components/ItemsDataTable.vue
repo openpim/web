@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { ref, watch } from '@vue/composition-api'
+import { ref, watch } from 'vue'
 import * as attrStore from '../store/attributes'
 import * as channelsStore from '../store/channels'
 import * as errorStore from '../store/error'

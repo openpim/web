@@ -1,13 +1,10 @@
 import '@mdi/font/css/materialdesignicons.css'
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
+import { createVuetify } from 'vuetify'
 import ru from 'vuetify/lib/locale/ru'
 
 import theme from '../_customizations/_theme/theme'
 
-Vue.use(Vuetify)
-
-export default new Vuetify({
+export default createVuetify({
   lang: {
     locales: { ru },
     current: 'en'

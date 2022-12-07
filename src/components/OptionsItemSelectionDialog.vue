@@ -39,7 +39,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref, watch } from '@vue/composition-api'
+import { ref, watch } from 'vue'
 import * as langStore from '../store/languages'
 import * as itemStore from '../store/item'
 import ItemsSelectionDialog from './ItemsSelectionDialog'

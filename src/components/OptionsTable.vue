@@ -40,7 +40,7 @@
 </template>
 <script>
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, ref } from 'vue'
 import i18n from '../i18n'
 import OptionsItemSelectionDialog from './OptionsItemSelectionDialog.vue'
 

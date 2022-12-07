@@ -11,9 +11,9 @@
   </v-row>
 
   <v-expansion-panels popout multiple focusable :model="panels" class="mt-3">
-    <template v-for="(rel, identifier, i) in itemRelations">
+    <span v-for="(rel, identifier, i) in itemRelations" :key="i">
     <h5 style="flex: 1 0 100%; max-width: calc(100% - 32px);" :class="getOption(identifier, 'class', '')" :style="getOption(identifier, 'style', '')" :key="'T'+i" v-if="!groupRelationsRef && getOption(identifier, 'title', null)">{{getOption(identifier, 'title', null)}}</h5>
-    <v-expansion-panel :key="i" :class="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'class', '')" :style="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'style', '')">
+    <v-expansion-panel :class="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'class', '')" :style="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'style', '')">
       <v-expansion-panel-header class="pb-0">{{ getRelationName(identifier) }}</v-expansion-panel-header>
       <v-expansion-panel-content>
         <v-simple-table dense>
@@ -146,7 +146,7 @@
           </v-container>
       </v-expansion-panel-content>
     </v-expansion-panel>
-    </template>
+    </span>
   </v-expansion-panels>
   <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
     <template v-if="auditEnabled">
@@ -176,7 +176,7 @@
 </div>
 </template>
 <script>
-import { ref, reactive, watch, computed } from '@vue/composition-api'
+import { ref, reactive, watch, computed } from 'vue'
 import * as actionsStore from '../store/actions'
 import * as auditStore from '../store/audit'
 import * as errorStore from '../store/error'

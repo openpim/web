@@ -1,11 +1,8 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import * as userStore from '../store/users'
 import * as rolesStore from '../store/roles'
 import i18n from '../i18n'
 // import jwtDecode from 'jwt-decode'
-
-Vue.use(VueRouter)
 
 const routes = [
   {
@@ -316,8 +313,8 @@ const routes = [
   }
 ]
 
-const router = new VueRouter({
-  mode: 'hash',
+const router = createRouter({
+  history: createWebHashHistory(),
   routes
 })
 

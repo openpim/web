@@ -36,7 +36,7 @@
 <script>
 import * as typesStore from '../store/types'
 import * as itemsStore from '../store/item'
-import { ref, computed, watch } from '@vue/composition-api'
+import { ref, computed, watch } from 'vue'
 import * as langStore from '../store/languages'
 import * as errorStore from '../store/error'
 import * as userStore from '../store/users'

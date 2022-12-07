@@ -13,7 +13,7 @@
 </template>
 <script>
 import Attributes from '../views/config/Attributes'
-import { ref } from '@vue/composition-api'
+import { ref } from 'vue'
 // import i18n from '../i18n'
 
 export default {

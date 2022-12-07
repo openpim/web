@@ -1,4 +1,4 @@
-import { reactive, provide, inject } from '@vue/composition-api'
+import { reactive, provide, inject } from 'vue'
 import { serverFetch, objectToGraphgl } from './utils'
 
 const roles = reactive([])

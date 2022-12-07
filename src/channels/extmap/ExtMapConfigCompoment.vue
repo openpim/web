@@ -9,7 +9,7 @@
   </div>
 </template>
 <script>
-import { watch } from '@vue/composition-api'
+import { watch } from 'vue'
 import ExtMapMappingConfigCompoment from './ExtMapMappingConfigCompoment.vue'
 
 export default {

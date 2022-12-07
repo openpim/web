@@ -1,4 +1,4 @@
-import { reactive, provide, inject } from '@vue/composition-api'
+import { reactive, provide, inject } from 'vue'
 import { serverFetch, objectToGraphgl } from './utils'
 import * as relStore from './relations'
 import * as attrStore from './attributes'
@@ -62,11 +62,11 @@ const actions = {
         ', relationId:' + rel.id +
         ', offset:' + offset +
         ', limit:' + limit +
-        `) 
+        `)
         { count,
-          rows 
-          { 
-            id 
+          rows
+          {
+            id
             identifier
             relationId
             createdBy
@@ -120,11 +120,11 @@ const actions = {
         ', relationId:' + rel.id +
         ', offset:' + offset +
         ', limit:' + limit +
-        `) 
+        `)
         { count,
-          rows 
-          { 
-            id 
+          rows
+          {
+            id
             identifier
             relationId
             createdBy
@@ -179,11 +179,11 @@ const actions = {
         ', relationId:' + rel.id +
         ', offset:' + offset +
         ', limit:' + limit +
-        `) 
+        `)
         { count,
-          rows 
-          { 
-            id 
+          rows
+          {
+            id
             identifier
             relationId
             createdBy
@@ -239,8 +239,8 @@ const actions = {
       `query { search(
         requests: [
             {
-                entity: ITEM_RELATION, 
-                offset: ` + offset + `, 
+                entity: ITEM_RELATION,
+                offset: ` + offset + `,
                 limit: ` + options.itemsPerPage + `,
                 where: ` + objectToGraphgl(where) + `,
                 order: ` + objectToGraphgl(order) + `
@@ -294,7 +294,7 @@ const actions = {
         id
         errors { code message }
         warnings { code message }
-      }}}    
+      }}}
     `
     const data = await serverFetch(query)
     return data.import.itemRelations
@@ -306,11 +306,11 @@ const actions = {
         ', relationId:' + rel.id +
         ', offset:' + offset +
         ', limit:' + limit +
-        `) 
+        `)
         { count,
-          rows 
-          { 
-            id 
+          rows
+          {
+            id
             identifier
             relationId
             createdBy
@@ -393,8 +393,8 @@ const actions = {
     return attrs
   },
   identifierExists: async (identifier) => {
-    const data = await serverFetch('query { getItemRelationByIdentifier(identifier: "' + identifier + `") { 
-      id 
+    const data = await serverFetch('query { getItemRelationByIdentifier(identifier: "' + identifier + `") {
+      id
     } }`)
     if (data.getItemRelationByIdentifier) {
       return true

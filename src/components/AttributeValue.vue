@@ -306,7 +306,7 @@
 <script>
 import * as langStore from '../store/languages'
 import * as lovStore from '../store/lovs'
-import { ref, computed, onMounted, onUnmounted, onBeforeUpdate, watch } from '@vue/composition-api'
+import { ref, computed, onMounted, onUnmounted, onBeforeUpdate, watch } from 'vue'
 import LanguageDependentField from './LanguageDependentField'
 import AttributeType from '../constants/attributeTypes'
 import i18n from '../i18n'

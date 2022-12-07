@@ -6,7 +6,7 @@
             <v-list-item v-for="(item, i) in chanFiltered" :key="i">
               <v-list-item-icon><v-icon>mdi-access-point</v-icon></v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+                <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -17,7 +17,7 @@
 import * as langStore from '../store/languages'
 import * as channelsStore from '../store/channels'
 import router from '../router'
-import { ref, watch, onMounted, computed } from '@vue/composition-api'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter } from '../router/useRouter'
 
 export default {

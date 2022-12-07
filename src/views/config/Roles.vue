@@ -34,11 +34,11 @@
           <v-text-field v-model="selectedRef.name" :label="$t('Config.Roles.Name')" :rules="nameRules" required></v-text-field>
 
           <v-tabs v-model="tabRef">
-            <v-tab v-text="$t('Config.Roles.Data')"></v-tab>
-            <v-tab v-text="$t('Config.Roles.Relation')"></v-tab>
-            <v-tab v-text="$t('Config.Roles.Configuration')"></v-tab>
-            <v-tab v-text="$t('Config.Roles.Channels')"></v-tab>
-            <v-tab v-text="$t('Config.Roles.Other')"></v-tab>
+            <v-tab >{{$t('Config.Roles.Data')}}</v-tab>
+            <v-tab >{{$t('Config.Roles.Relation')}}</v-tab>
+            <v-tab >{{$t('Config.Roles.Configuration')}}</v-tab>
+            <v-tab >{{$t('Config.Roles.Channels')}}</v-tab>
+            <v-tab >{{$t('Config.Roles.Other')}}</v-tab>
           </v-tabs>
           <v-tabs-items v-model="tabRef">
             <!-- Items restrictions -->
@@ -242,7 +242,7 @@
 </template>
 
 <script>
-import { ref, watch, onMounted, computed } from '@vue/composition-api'
+import { ref, watch, onMounted, computed } from 'vue'
 import * as errorStore from '../../store/error'
 import * as rolesStore from '../../store/roles'
 import i18n from '../../i18n'
@@ -327,7 +327,7 @@ export default {
         router.push('/config/roles')
         return
       }
-      if (rolesFiltered && selected < rolesFiltered.value.length) {
+      if (rolesFiltered.value && selected < rolesFiltered.value.length) {
         if (previous && rolesFiltered.value[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }

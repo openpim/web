@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from '@vue/composition-api'
+import { ref, onMounted, watch } from 'vue'
 import * as langStore from '../store/languages'
 import * as itemStore from '../store/item'
 import * as attrStore from '../store/attributes'

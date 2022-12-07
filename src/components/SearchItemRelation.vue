@@ -77,7 +77,7 @@
   </v-col>
   <v-col cols="8" class="d-inline-flex justify-end align-center">
     <v-switch class="mt-0" dense hide-details v-if="selectedRef" v-model="selectedRef.extended"></v-switch>
-    <v-btn text @click="search" v-text="$t('Search.Find')" class="mr-2"></v-btn>
+    <v-btn text @click="search" class="mr-2">{{$t('Search.Find')}}</v-btn>
   </v-col>
   <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
   <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
@@ -87,7 +87,7 @@
   </v-row>
 </template>
 <script>
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted } from 'vue'
 import i18n from '../i18n'
 import * as typesStore from '../store/types'
 import * as itemRelationStore from '../store/itemRelations'

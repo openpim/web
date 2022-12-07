@@ -1,4 +1,4 @@
-import { computed, getCurrentInstance } from '@vue/composition-api'
+import { computed, getCurrentInstance } from 'vue'
 
 export function useRouter () {
   const vm = getCurrentInstance()

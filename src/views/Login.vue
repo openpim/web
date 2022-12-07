@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from '@vue/composition-api'
+import { ref, onMounted, onUnmounted } from 'vue'
 import * as userStore from '../store/users'
 import i18n from '../i18n'
 

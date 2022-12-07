@@ -17,7 +17,7 @@
             <v-list-item v-for="(item, i) in languages" :key="i">
               <v-list-item-icon><v-icon>mdi-web</v-icon></v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+                <v-list-item-title >{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { ref, watch, onMounted } from '@vue/composition-api'
+import { ref, watch, onMounted } from 'vue'
 import * as langStore from '../../store/languages'
 import * as errorStore from '../../store/error'
 import i18n from '../../i18n'
@@ -84,8 +84,8 @@ export default {
           showInfo(i18n.t('Config.NotSaved'))
         }
         selectedRef.value = languages[selected]
-        if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
-        }
+        // if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
+        // }
       }
     })
 

@@ -11,8 +11,8 @@
           <v-row>
             <v-col cols="12" class="pa-0 overflow-y-auto" style="max-height: 70vh">
               <v-tabs v-model="tabRef">
-                <v-tab v-text="$t('DatePickerDialog.ExactTime')"></v-tab>
-                <v-tab v-text="$t('DatePickerDialog.RelativeTime')"></v-tab>
+                <v-tab>{{$t('DatePickerDialog.ExactTime')}}</v-tab>
+                <v-tab>{{$t('DatePickerDialog.RelativeTime')}}</v-tab>
               </v-tabs>
               <v-tabs-items v-model="tabRef">
                 <v-tab-item>
@@ -49,7 +49,7 @@
 </template>
 <script>
 import * as langStore from '../store/languages'
-import { ref, watch } from '@vue/composition-api'
+import { ref, watch } from 'vue'
 import i18n from '../i18n'
 
 export default {

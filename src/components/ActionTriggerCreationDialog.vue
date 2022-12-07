@@ -117,7 +117,7 @@
   </v-row>
 </template>
 <script>
-import { ref, computed, watch } from '@vue/composition-api'
+import { ref, computed, watch } from 'vue'
 import * as langStore from '../store/languages'
 import * as typesStore from '../store/types'
 import * as itemStore from '../store/item'

@@ -18,7 +18,7 @@
             <v-list-item v-for="(item, i) in actionsFiltered" :key="i">
               <v-list-item-icon><v-icon>mdi-file-code-outline</v-icon></v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+                <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -36,8 +36,8 @@
         </v-form>
 
         <v-tabs v-model="tabRef">
-          <v-tab v-text="$t('Config.Actions.Tab.Code')"></v-tab>
-          <v-tab v-text="$t('Config.Actions.Tab.Triggers')"></v-tab>
+          <v-tab>{{$t('Config.Actions.Tab.Code')}}</v-tab>
+          <v-tab>{{$t('Config.Actions.Tab.Triggers')}}</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tabRef">
           <v-tab-item> <!-- Code -->
@@ -151,7 +151,7 @@
 </template>
 
 <script>
-import { ref, watch, onMounted, computed } from '@vue/composition-api'
+import { ref, watch, onMounted, computed } from 'vue'
 import * as langStore from '../../store/languages'
 import * as actionsStore from '../../store/actions'
 import * as errorStore from '../../store/error'

@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted } from 'vue'
 import * as userStore from '../store/users'
 
 export default {

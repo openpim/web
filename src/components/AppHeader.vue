@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="primary" dark dense>
+  <v-app-bar :clipped-left="display.lgAndUp" app color="primary" dark dense>
     <v-app-bar-nav-icon @click.stop="triggerDrawer" v-if="currentUserRef.tenantId !== '0'"/>
     <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
       <TitleComponent></TitleComponent>
@@ -25,7 +25,8 @@
 </template>
 
 <script>
-import { onMounted } from '@vue/composition-api'
+import { onMounted, ref } from 'vue'
+import { useDisplay } from 'vuetify'
 
 import * as langStore from '../store/languages'
 import * as userStore from '../store/users'
@@ -51,6 +52,8 @@ export default {
     const {
       currentUserRef
     } = userStore.useStore()
+
+    const display = ref(useDisplay())
 
     const {
       languages,
@@ -83,7 +86,8 @@ export default {
       languageSelected,
       triggerDrawer,
       triggerUserDialog,
-      isExportSearch: props.export
+      isExportSearch: props.export,
+      display
     }
   }
 }
