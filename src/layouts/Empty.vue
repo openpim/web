@@ -1,7 +1,7 @@
 <template>
   <v-container fluid fill-height>
     <ErrorBox />
-    <router-view :pathAfterLogin="pathAfterLogin"></router-view>
+    <v-card text="AAA"></v-card>
   </v-container>
 </template>
 
@@ -20,4 +20,5 @@ export default {
 </script>
 
 <style>
+/* <router-view :pathAfterLogin="pathAfterLogin"></router-view> */
 </style>

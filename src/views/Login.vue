@@ -52,7 +52,7 @@
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
 import * as userStore from '../store/users'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 
 export default {
   props: {
@@ -64,7 +64,7 @@ export default {
     const {
       signIn
     } = userStore.useStore()
-
+    const { t } = useI18n()
     const login = ref('')
     const password = ref('')
 
@@ -92,12 +92,12 @@ export default {
       login,
       password,
       signIn,
-      i18n,
+      t,
       languageSelect: process.env.VUE_APP_I18N_LANGUAGE_SELECT === 'true',
       localeSelection: [
-        { text: i18n.t('Language.English'), value: 'en' },
-        { text: i18n.t('Language.Russian'), value: 'ru' },
-        { text: i18n.t('Language.Chinese'), value: 'ch' }
+        { text: t('Language.English'), value: 'en' },
+        { text: t('Language.Russian'), value: 'ru' },
+        { text: t('Language.Chinese'), value: 'ch' }
       ]
     }
   }

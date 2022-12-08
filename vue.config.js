@@ -1,3 +1,5 @@
+const { VuetifyPlugin } = require('webpack-plugin-vuetify')
+
 module.exports = {
   devServer: {
     allowedHosts: "*"
@@ -26,5 +28,10 @@ module.exports = {
           }
         }
       })
+  },
+  configureWebpack: {
+    plugins: [
+      new VuetifyPlugin({ autoImport: true })
+    ]
   }
 }

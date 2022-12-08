@@ -35,12 +35,13 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.19.1",
     "@kazupon/vue-i18n-loader": "^0.5.0",
+    "@intlify/vue-i18n-loader": "^4.2.0",
     "@mdi/font": "^5.1.45",
-    "@vue/compiler-sfc": "^3.2.45",
     "@vue/cli-plugin-babel": "~5.0.8",
     "@vue/cli-plugin-eslint": "~5.0.8",
     "@vue/cli-plugin-router": "~5.0.8",
     "@vue/cli-service": "~5.0.8",
+    "@vue/compiler-sfc": "^3.2.45",
     "@vue/eslint-config-standard": "^8.0.1",
     "build-number-generator": "^1.0.0",
     "eslint": "^8.29.0",
@@ -49,10 +50,12 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-vue": "^9.8.0",
+    "eslint-plugin-vuetify": "^2.0.0-beta.2",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
     "vue-cli-plugin-i18n": "~2.3.1",
     "vue-cli-plugin-vuetify": "~2.5.8",
-    "vue-loader": "^17.0.1"
+    "vue-loader": "^17.0.1",
+    "webpack-plugin-vuetify": "^2.0.0"
   }
 }

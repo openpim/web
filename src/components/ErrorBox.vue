@@ -1,39 +1,39 @@
 <template>
-<div>
-  <v-snackbar
-      :value="hasError"
-      top
-      :multi-line="true"
-      :timeout="0"
-    >
-    {{ error }}
-    <v-btn
-      color="error"
-      @click="clearError"
-    >
-      {{ $t('Close') }}
-    </v-btn>
-  </v-snackbar>
-  <v-snackbar
-      :value="hasInfo"
-      color="teal"
-      bottom=""
-      :multi-line="true"
-      :timeout="0"
-    >
-    {{ info }}
-    <v-btn
-      color="info"
-      @click="clearInfo"
-    >
-      {{ $t('Close') }}
-    </v-btn>
-  </v-snackbar>
-</div>
-
+  <div>
+    <v-snackbar
+        v-model="hasError"
+        location="top"
+        multi-line
+        :timeout="-1"
+      >
+      {{ error }}
+      <v-btn
+        color="error"
+        @click="clearError"
+      >
+        {{ t('Close') }}
+      </v-btn>
+    </v-snackbar>
+    <v-snackbar
+        v-model="hasInfo"
+        color="teal"
+        location="bottom"
+        multi-line
+        :timeout="-1"
+      >
+      {{ info }}
+      <v-btn
+        color="info"
+        @click="clearInfo"
+      >
+        {{ t('Close') }}
+      </v-btn>
+    </v-snackbar>
+  </div>
 </template>
 <script>
 import * as errorStore from '../store/error'
+import { useI18n } from 'vue-i18n'
 
 export default {
   setup () {
@@ -43,13 +43,16 @@ export default {
       clearInfo
     } = errorStore.useStore()
 
+    const { t } = useI18n()
+
     return {
       error,
       hasError,
       info,
       hasInfo,
       clearError,
-      clearInfo
+      clearInfo,
+      t
     }
   }
 }
