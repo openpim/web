@@ -1,8 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import * as userStore from '../store/users'
 import * as rolesStore from '../store/roles'
-import i18n from '../i18n'
-// import jwtDecode from 'jwt-decode'
+import i18n, { loadLocaleMessages, setI18nLanguage } from '../i18n'
 
 import Empty from '../layouts/Empty.vue'
 import Login from '../views/Login.vue'
@@ -330,9 +329,15 @@ router.clearDataChanged = function (dataId) {
 }
 
 router.beforeEach(async (to, from, next) => {
-  const tst = localStorage.getItem('locale')
-  if (tst && i18n.locale !== tst) {
-    i18n.locale = tst
+  const paramsLocale = localStorage.getItem('locale')
+  if (paramsLocale && i18n.locale !== paramsLocale) {
+    // load locale messages
+    if (!i18n.global.availableLocales.includes(paramsLocale)) {
+      await loadLocaleMessages(i18n, paramsLocale)
+    }
+
+    // set i18n language
+    setI18nLanguage(i18n, paramsLocale)
   }
   if (Object.keys(router.preventRoute).length > 0) {
     let text = i18n.global.t('Router.Changed.NotSaved') + '\n'

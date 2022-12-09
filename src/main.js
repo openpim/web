@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import './composition-plugin'
 import App from './App.vue'
 import router from './router'
@@ -6,10 +6,10 @@ import router from './router'
 import vuetify from './plugins/vuetify'
 import i18n from './i18n'
 
-const vue = Vue.createApp(App)
-  .use(router)
-  .use(vuetify)
-  .use(i18n)
-  .mount('#app')
+const vue = createApp(App)
+vue.use(router)
+vue.use(vuetify)
+vue.use(i18n)
+vue.mount('#app')
 
 export default vue
