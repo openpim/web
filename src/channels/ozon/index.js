@@ -70,6 +70,12 @@ function getStandardAttributes () {
       dictionary: false
     },
     {
+      id: '#images360Urls',
+      name: 'Ссылки на изображения 360 (массив)',
+      required: false,
+      dictionary: false
+    },
+    {
       id: '#oldprice',
       name: 'Цена до скидок (будет зачёркнута на карточке товара) (строка)',
       required: false,
