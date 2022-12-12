@@ -1,58 +1,67 @@
 <template>
-        <v-row
-          align="center"
-          justify="center"
+  <v-row
+    align="center"
+    justify="center"
+    class="fill-height"
+  >
+    <v-col
+      cols="12"
+      sm="8"
+      md="4"
+    >
+      <v-card class="elevation-12">
+        <v-toolbar
+          color="primary"
+          dark
+          flat
         >
-          <v-col
-            cols="12"
-            sm="8"
-            md="4"
-          >
-            <v-card class="elevation-12">
-              <v-toolbar
-                color="primary"
-                dark
-                flat
-              >
-                <v-toolbar-title>{{ $t('Login.Login') }}</v-toolbar-title>
-                <v-spacer />
-              </v-toolbar>
-              <v-card-text>
-                <v-form>
-                  <v-text-field
-                    :label="$t('Login.UserName')"
-                    name="login"
-                    prepend-icon="mdi-account"
-                    type="text"
-                    v-model="login"
-                  />
+          <v-toolbar-title>{{ $t('Login.Login') }}</v-toolbar-title>
+          <v-spacer />
+        </v-toolbar>
 
-                  <v-text-field
-                    id="password"
-                    :label="$t('Login.Password')"
-                    name="password"
-                    prepend-icon="mdi-lock"
-                    type="password"
-                    v-model="password"
-                  />
+        <v-form @submit.prevent>
+          <v-card-text>
+              <v-text-field
+                :label="$t('Login.UserName')"
+                name="login"
+                prepend-icon="mdi-account"
+                type="text"
+                v-model="login"
+              />
 
-                  <v-select prepend-icon="mdi-translate" v-if="languageSelect" v-model="i18n.locale" :items="localeSelection" :label="$t('Login.Language')"></v-select>
+              <v-text-field
+                id="password"
+                :label="$t('Login.Password')"
+                name="password"
+                prepend-icon="mdi-lock"
+                type="password"
+                v-model="password"
+              />
 
-                </v-form>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn color="primary" @click="signIn(login, password, pathAfterLogin)">{{ $t('Login.Login') }}</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
+              <v-select
+                prepend-icon="mdi-translate"
+                v-if="languageSelect"
+                v-model="$i18n.locale"
+                :items="localeSelection"
+                :label="$t('Login.Language')"
+                @update:modelValue="changeLocale"
+              />
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="primary" @click="signIn(login, password, pathAfterLogin)" type="submit">{{ $t('Login.Login') }}</v-btn>
+          </v-card-actions>
+        </v-form>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import * as userStore from '../store/users'
 import { useI18n } from 'vue-i18n'
+import i18n, { loadLocaleMessages } from '../i18n'
 
 export default {
   props: {
@@ -64,15 +73,9 @@ export default {
     const {
       signIn
     } = userStore.useStore()
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
     const login = ref('')
     const password = ref('')
-
-    function signInKeyListener (e) {
-      if (e.key === 'Enter') {
-        signIn(login.value, password.value, props.pathAfterLogin)
-      }
-    }
 
     onMounted(() => {
       const params = {}
@@ -80,24 +83,25 @@ export default {
         (m, key, value) => {
           params[key] = value
         })
-      if (params.user && params.password) signIn(params.user, params.password, props.pathAfterLogin)
-      document.addEventListener('keypress', signInKeyListener)
+      if (params.user && params.password) {
+        signIn(params.user, params.password, props.pathAfterLogin)
+      }
     })
 
-    onUnmounted(() => {
-      document.removeEventListener('keypress', signInKeyListener)
-    })
+    const changeLocale = () => {
+      loadLocaleMessages(i18n, locale.value)
+    }
 
     return {
       login,
       password,
       signIn,
-      t,
+      changeLocale,
       languageSelect: process.env.VUE_APP_I18N_LANGUAGE_SELECT === 'true',
       localeSelection: [
-        { text: t('Language.English'), value: 'en' },
-        { text: t('Language.Russian'), value: 'ru' },
-        { text: t('Language.Chinese'), value: 'ch' }
+        { title: t('Language.English'), value: 'en' },
+        { title: t('Language.Russian'), value: 'ru' },
+        { title: t('Language.Chinese'), value: 'ch' }
       ]
     }
   }

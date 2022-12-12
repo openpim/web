@@ -26,10 +26,10 @@ const i18n = createI18n({
   locale: process.env.VUE_APP_I18N_LOCALE || 'en',
   fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
   globalInjection: true,
-  allowComposition: true
+  allowComposition: true,
+  legacy: false
 })
 
 setI18nLanguage(i18n, process.env.VUE_APP_I18N_LOCALE || 'en')
-loadLocaleMessages(i18n, process.env.VUE_APP_I18N_LOCALE || 'en')
 
 export default i18n

@@ -97,7 +97,7 @@ const actions = {
         body: JSON.stringify({ query: 'mutation {signIn(login: "' + login + '", password: "' + password + '") { token, user {id internalId login name email roles tenantId options external} }}' })
       })
       if (resp.ok) {
-        localStorage.setItem('locale', i18n.global.locale)
+        localStorage.setItem('locale', i18n.global.locale.value)
         const data = (await resp.json()).data
         await userLogin(data.signIn.token, data.signIn.user, pathAfterLogin)
       } else {

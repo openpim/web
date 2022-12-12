@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid fill-height>
+  <v-container fluid class="fill-height">
     <ErrorBox />
     <router-view :pathAfterLogin="pathAfterLogin"></router-view>
   </v-container>
