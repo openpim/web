@@ -12,8 +12,7 @@
       <v-card class="elevation-12">
         <v-toolbar
           color="primary"
-          dark
-          flat
+          variant="flat"
         >
           <v-toolbar-title>{{ $t('Login.Login') }}</v-toolbar-title>
           <v-spacer />
@@ -27,6 +26,7 @@
                 prepend-icon="mdi-account"
                 type="text"
                 v-model="login"
+                variant="underlined"
               />
 
               <v-text-field
@@ -36,6 +36,7 @@
                 prepend-icon="mdi-lock"
                 type="password"
                 v-model="password"
+                variant="underlined"
               />
 
               <v-select
@@ -45,11 +46,12 @@
                 :items="localeSelection"
                 :label="$t('Login.Language')"
                 @update:modelValue="changeLocale"
+                variant="underlined"
               />
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn color="primary" @click="signIn(login, password, pathAfterLogin)" type="submit">{{ $t('Login.Login') }}</v-btn>
+            <v-btn variant="flat" color="primary" @click="signIn(login, password, pathAfterLogin)" type="submit">{{ $t('Login.Login') }}</v-btn>
           </v-card-actions>
         </v-form>
       </v-card>

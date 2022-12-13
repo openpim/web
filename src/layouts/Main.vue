@@ -1,41 +1,44 @@
 <template>
-  <div>
+  <v-app>
+    <v-layout>
     <ErrorBox />
+    <AppHeader :export="isExportSearch" :drawer="drawer" />
+
     <v-navigation-drawer :width="drawerWidth" v-model="drawer" ref="drawerRef" :clipped="display.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
       <router-view name="menu"></router-view>
 
-      <v-bottom-navigation grow height="50" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">
-        <v-btn to="/" v-if="hasDashboards">
-            <span>{{ $t('Main.Dashboards') }}</span>
-            <v-icon>mdi-sitemap</v-icon>
+      <div class="mt-2 mb-1" v-if="!isExportSearch && activeBottom">
+        <v-btn to="/" v-if="hasDashboards" class="btn-nav" variant="text">
+          <v-icon>mdi-sitemap</v-icon>
+          <span>{{ $t('Main.Dashboards') }}</span>
         </v-btn>
-        <v-btn to="/">
-            <span>{{ $t('Main.Work') }}</span>
-            <v-icon>mdi-home</v-icon>
+        <v-btn to="/" class="btn-nav" variant="text">
+          <v-icon>mdi-home</v-icon>
+          <span>{{ $t('Main.Work') }}</span>
         </v-btn>
-        <v-btn to="/search" v-if="hasSearchAccess">
-            <span>{{ $t('Main.Search') }}</span>
-            <v-icon>mdi-magnify</v-icon>
+        <v-btn to="/search" v-if="hasSearchAccess" class="btn-nav" variant="text">
+          <v-icon>mdi-magnify</v-icon>
+          <span>{{ $t('Main.Search') }}</span>
         </v-btn>
-        <v-btn to="/channels" v-if="hasChannelsRef">
-            <span>{{ $t('Main.Channels') }}</span>
-            <v-icon>mdi-access-point</v-icon>
+        <v-btn to="/channels" v-if="hasChannelsRef" class="btn-nav" variant="text">
+          <v-icon>mdi-access-point</v-icon>
+          <span>{{ $t('Main.Channels') }}</span>
         </v-btn>
-        <v-btn to="/config/home" v-if="hasConfigRef">
-            <span>{{ $t('Main.Settings') }}</span>
-            <v-icon>mdi-cog-outline</v-icon>
+        <v-btn to="/config/home" v-if="hasConfigRef" class="btn-nav" variant="text">
+          <v-icon>mdi-cog-outline</v-icon>
+          <span>{{ $t('Main.Settings') }}</span>
         </v-btn>
-      </v-bottom-navigation>
+      </div>
       <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
+<!--      <div class="resizer" :style="{left: drawerWidth+'px'}" @mousedown="startDrag"></div>-->
     </v-navigation-drawer>
 
-    <AppHeader :export="isExportSearch" :drawer="drawer" />
-
-    <v-content>
+    <v-main>
       <v-container class="fill-height" fluid>
         <router-view :export="isExportSearch"></router-view>
       </v-container>
-    </v-content>
+    </v-main>
+    <h1>==={{drawerWidth}}=====</h1>
     <v-dialog v-model="userDialogRef" persistent max-width="600px">
       <v-card v-if="currentUserRef">
         <v-card-title>
@@ -71,7 +74,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+    </v-layout>
+  </v-app>
 </template>
 
 <script>
@@ -126,8 +130,9 @@ export default {
 
     const drawer = ref(null)
     const drawerRef = ref(null)
-    const drawerWidth = ref(localStorage.getItem('drawerWidth') || '25%')
-    const activeBottom = ref(0)
+    const defWidth = localStorage.getItem('drawerWidth') || '250'
+    const drawerWidth = ref(parseInt(defWidth))
+    const activeBottom = ref(1)
     const userDialogRef = ref(null)
     const passwordErrors = ref([])
     const formRef = ref(null)
@@ -221,6 +226,10 @@ export default {
        */
     }
 
+    const startDrag = (e) => {
+      console.log('startDrag')
+    }
+
     onMounted(() => {
       setBorderWidth()
       setResizeEvents()
@@ -270,7 +279,8 @@ export default {
       nameRules: [
         v => !!v || i18n.t('Config.Users.Error.NameRequired')
       ],
-      display
+      display,
+      startDrag
     }
   },
   onMounted () {
@@ -284,5 +294,18 @@ export default {
   color: gray;
   text-align: center;
   font-size:x-small;
+}
+
+.btn-nav .v-btn__content {
+  flex-direction: column;
+}
+
+.resizer {
+  width: 3px;
+  cursor: ew-resize;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: red;
 }
 </style>

@@ -3,7 +3,7 @@ import { createVuetify } from 'vuetify'
 import ru from 'vuetify/lib/locale/ru'
 import 'vuetify/styles'
 
-import theme from '../_customizations/_theme/theme'
+import myCustomLightTheme from '../_customizations/_theme/theme'
 
 const vuetify = createVuetify({
   lang: {
@@ -11,7 +11,10 @@ const vuetify = createVuetify({
     current: 'en'
   },
   theme: {
-    ...theme
+    defaultTheme: 'myCustomLightTheme',
+    themes: {
+      myCustomLightTheme
+    }
   }
 })
 

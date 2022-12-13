@@ -1,13 +1,8 @@
 export default {
-  // see https://vuetifyjs.com/en/features/theme/#customizing
-  /*
+  // see https://next.vuetifyjs.com/en/features/theme/
+
   dark: false,
-  themes: {
-    light: {
-      primary: '#41B883'
-    },
-    dark: {
-      primary: '#34495E'
-    }
-  } */
+  colors: {
+    primary: '#1976d2'
+  }
 }
