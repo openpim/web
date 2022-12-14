@@ -8,6 +8,7 @@
       <router-view name="menu"></router-view>
 
       <div class="mt-2 mb-1" v-if="!isExportSearch && activeBottom">
+<!--      <div grow height="50" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">-->
         <v-btn to="/" v-if="hasDashboards" class="btn-nav" variant="text">
           <v-icon>mdi-sitemap</v-icon>
           <span>{{ $t('Main.Dashboards') }}</span>
@@ -31,6 +32,7 @@
       </div>
       <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
 <!--      <div class="resizer" :style="{left: drawerWidth+'px'}" @mousedown="startDrag"></div>-->
+      <Resizer :left="drawerWidth" @on-resize="handleResize"/>
     </v-navigation-drawer>
 
     <v-main>
@@ -84,6 +86,7 @@ import { useDisplay } from 'vuetify'
 
 import ErrorBox from '../components/ErrorBox'
 import AppHeader from '../components/AppHeader.vue'
+import Resizer from '../components/common/Resizer'
 import * as userStore from '../store/users'
 import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
@@ -94,7 +97,7 @@ import router from '../router'
 import eventBus from '../eventBus'
 
 export default {
-  components: { AppHeader, ErrorBox },
+  components: { AppHeader, ErrorBox, Resizer },
   props: {
     export: {
       type: Boolean,
@@ -226,8 +229,10 @@ export default {
        */
     }
 
-    const startDrag = (e) => {
-      console.log('startDrag')
+    const handleResize = (size) => {
+      console.log('handleResize')
+      drawerWidth.value = size
+      localStorage.setItem('drawerWidth', size)
     }
 
     onMounted(() => {
@@ -280,7 +285,7 @@ export default {
         v => !!v || i18n.t('Config.Users.Error.NameRequired')
       ],
       display,
-      startDrag
+      handleResize
     }
   },
   onMounted () {
