@@ -40,6 +40,7 @@
                   <th class="text-left">{{$t('Config.LOV.Value')}}</th>
                   <th class="text-left" v-for="(channel, i) in awailableChannelsRef" :key="i">{{channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']'}}</th>
                   <th class="text-left">{{$t('Config.LOV.Level')}}</th>
+                  <th class="text-left">{{$t('Config.LOV.URL')}}</th>
                   <th class="text-left">
                     {{$t('Config.LOV.Filter')}}
                     <v-tooltip top v-if="canEditConfigRef" class="ml-4">
@@ -70,6 +71,9 @@
                   </td>
                   <td class="pa-1">
                     <v-chip @click="editLevels(elem)"><v-icon left>mdi-form-select</v-icon>{{elem.level && elem.level.length > 0 ? '...' : ''}}</v-chip>
+                  </td>
+                  <td class="pa-1">
+                    <input v-model="elem.url" size="5" :placeholder="$t('Config.LOV.URL')"/>
                   </td>
                   <td class="pa-1">
                     <input v-model="elem.filter" type="number" :placeholder="$t('Config.LOV.Filter')"/>

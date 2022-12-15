@@ -149,7 +149,10 @@
       </v-menu>
 
       <!-- LOV -->
-      <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
+      <v-autocomplete :chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
+        <template #selection="selection">
+          <v-chip @click.stop="if (selection.item.url) goto(selection.item.url)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
+        </template>
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -160,6 +163,9 @@
         </template>
       </v-autocomplete>
       <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
+        <template #selection="selection">
+          <v-chip @click.stop="showAlert('test')" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value, currentLanguage.identifier)">{{selection.item.text}}</v-chip>
+        </template>
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -355,7 +361,7 @@ export default {
         values = values.filter(elem => !elem.level || elem.level.length === 0 || elem.level.find(path => props.item.path.startsWith(path)))
       }
 
-      const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
+      const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']', url: elem.url } })
       return arr
     })
 
@@ -546,6 +552,16 @@ export default {
       alert(text)
     }
 
+    function removeValue (attr, val, lang) {
+      if (!lang) {
+        const arr = props.values[attr]
+        if (arr && arr.length > 0) props.values[attr] = arr.filter(elem => elem !== val)
+      } else {
+        const arr = props.values[attr][lang]
+        if (arr && arr.length > 0) props.values[attr][lang] = arr.filter(elem => elem !== val)
+      }
+    }
+
     return {
       multivalueRef,
       attrBlur,
@@ -574,7 +590,8 @@ export default {
       dateDialogChanged,
       dateSaveValue,
       dateEnterPressed,
-      showAlert
+      showAlert,
+      removeValue
     }
   }
 }

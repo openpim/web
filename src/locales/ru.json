@@ -187,6 +187,7 @@
   "Config.LOV.Level": "Уровень",
   "Config.LOV.Visible": "Видимо от:",
   "Config.LOV.Export": "Выгрузить",
+  "Config.LOV.URL": "Url",
   "Config.Channels": "Каналы",
   "Config.Channels.Channels": "Каналы:",
   "Config.Channels.Identifier": "Идентификатор",
