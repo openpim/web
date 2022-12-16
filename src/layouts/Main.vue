@@ -7,7 +7,7 @@
     <v-navigation-drawer :width="drawerWidth" v-model="drawer" ref="drawerRef" :clipped="display.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
       <router-view name="menu"></router-view>
 
-      <div class="mt-2 mb-1" v-if="!isExportSearch && activeBottom">
+      <div class="mt-2 mb-1 nav" v-if="!isExportSearch && activeBottom">
 <!--      <div grow height="50" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">-->
         <v-btn to="/" v-if="hasDashboards" class="btn-nav" variant="text">
           <v-icon>mdi-sitemap</v-icon>
@@ -31,7 +31,6 @@
         </v-btn>
       </div>
       <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
-<!--      <div class="resizer" :style="{left: drawerWidth+'px'}" @mousedown="startDrag"></div>-->
       <Resizer :left="drawerWidth" @on-resize="handleResize"/>
     </v-navigation-drawer>
 
@@ -40,7 +39,6 @@
         <router-view :export="isExportSearch"></router-view>
       </v-container>
     </v-main>
-    <h1>==={{drawerWidth}}=====</h1>
     <v-dialog v-model="userDialogRef" persistent max-width="600px">
       <v-card v-if="currentUserRef">
         <v-card-title>
@@ -175,69 +173,12 @@ export default {
       }
     }
 
-    function setBorderWidth () {
-      // TODO: fix
-      /*
-      const el = drawerRef.value.$el.querySelector(
-        '.v-navigation-drawer__border'
-      )
-      el.style.width = '3px'
-      el.style.cursor = 'ew-resize'
-       */
-    }
-
-    function setResizeEvents () {
-      // TODO: fix
-      /*
-      const el = drawerRef.value.$el
-      const drawerBorder = el.querySelector('.v-navigation-drawer__border')
-      const direction = el.classList.contains('v-navigation-drawer--right')
-        ? 'right'
-        : 'left'
-
-      function resize (e) {
-        if (e.screenX < 30) return
-
-        document.body.style.cursor = 'ew-resize'
-        const f = direction === 'right'
-          ? document.body.scrollWidth - e.clientX
-          : e.clientX
-        el.style.width = f + 'px'
-      }
-
-      drawerBorder.addEventListener(
-        'mousedown',
-        function (e) {
-          if (e.offsetX < 30) {
-            el.style.transition = 'initial'; document.addEventListener('mousemove', resize, false)
-          }
-        },
-        false
-      )
-
-      document.addEventListener(
-        'mouseup',
-        function () {
-          el.style.transition = ''
-          drawerWidth.value = el.style.width
-          localStorage.setItem('drawerWidth', el.style.width)
-          document.body.style.cursor = ''
-          document.removeEventListener('mousemove', resize, false)
-        },
-        false
-      )
-       */
-    }
-
     const handleResize = (size) => {
-      console.log('handleResize')
       drawerWidth.value = size
       localStorage.setItem('drawerWidth', size)
     }
 
     onMounted(() => {
-      setBorderWidth()
-      setResizeEvents()
       loadAllRoles().then(() => {
         loadAllDashboards().then(() => {
           hasDashboards.value = getDashboardsForCurrentUser().length > 0
@@ -300,17 +241,22 @@ export default {
   text-align: center;
   font-size:x-small;
 }
+.nav {
+  box-shadow: 0 2px 4px -1px rgb(0 0 0 / 20%), 0 4px 5px 0 rgb(0 0 0 / 14%), 0 1px 10px 0 rgb(0 0 0 / 12%);
+  padding: 4px;
+}
+
+.btn-nav {
+  border-radius: 0;
+}
 
 .btn-nav .v-btn__content {
   flex-direction: column;
 }
 
-.resizer {
-  width: 3px;
-  cursor: ew-resize;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  background: red;
+.btn-nav .v-btn__content span{
+  text-transform: initial;
+  font-size: 0.75rem;
 }
+
 </style>

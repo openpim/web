@@ -1,5 +1,5 @@
 <template>
-   <div class="resizer" :style="{left: left+'px'}" @mousedown="startDrag"></div>
+   <div class="resizer bg-grey-lighten-2" :style="{left: left+'px'}" @mousedown="startDrag"></div>
 </template>
 
 <script>
@@ -13,77 +13,25 @@ export default {
     }
   },
   setup (props, { emit }) {
-    /* function setResizeEvents () {
-      // TODO: fix
-
-      const el = drawerRef.value.$el
-      const drawerBorder = el.querySelector('.v-navigation-drawer__border')
-      const direction = el.classList.contains('v-navigation-drawer--right')
-        ? 'right'
-        : 'left'
-
-      function resize (e) {
-        if (e.screenX < 30) return
-
-        document.body.style.cursor = 'ew-resize'
-        const f = direction === 'right'
-          ? document.body.scrollWidth - e.clientX
-          : e.clientX
-        el.style.width = f + 'px'
-      }
-
-      drawerBorder.addEventListener(
-        'mousedown',
-        function (e) {
-          if (e.offsetX < 30) {
-            el.style.transition = 'initial'; document.addEventListener('mousemove', resize, false)
-          }
-        },
-        false
-      )
-
-      document.addEventListener(
-        'mouseup',
-        function () {
-          el.style.transition = ''
-          drawerWidth.value = el.style.width
-          localStorage.setItem('drawerWidth', el.style.width)
-          document.body.style.cursor = ''
-          document.removeEventListener('mousemove', resize, false)
-        },
-        false
-      )
-
-     }
-*/
     const resize = (e) => {
       if (e.screenX < 30) return
 
-      //
-      // const f = direction === 'right'
-      //   ? document.body.scrollWidth - e.clientX
-      //   : e.clientX
-
-      console.log('resize', e.screenX, emit)
       emit('onResize', e.screenX)
     }
 
-    const startDrag = (e) => {
-      console.log('startDrag')
+    const startDrag = () => {
       document.body.style.cursor = 'ew-resize'
       document.addEventListener('mousemove', resize, false)
       document.addEventListener('mouseup', endDrag, false)
     }
 
-    const endDrag = (e) => {
-      console.log('endDrag')
+    const endDrag = () => {
       document.body.style.cursor = ''
       document.removeEventListener('mousemove', resize)
       document.removeEventListener('mouseup', endDrag)
     }
 
     onBeforeUnmount(() => {
-      console.log('beforeUnmount')
       endDrag()
     })
 
@@ -95,13 +43,14 @@ export default {
 }
 </script>
 <style>
-
+.v-navigation-drawer {
+  transition: unset;
+}
 .resizer {
   width: 3px;
   cursor: ew-resize;
   position: absolute;
   top: 0;
   bottom: 0;
-  background: red;
 }
 </style>
