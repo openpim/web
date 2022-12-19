@@ -8,8 +8,8 @@
     <AppHeaderSearch :export="isExportSearch" />
     <AfterSearchComponent></AfterSearchComponent>
     <v-menu offset-y v-if="languages.length > 1">
-      <template v-slot:activator="{ on }">
-        <v-btn class="mr-2" dark text v-on="on">
+      <template v-slot:activator="{ props }">
+        <v-btn class="mr-2" dark text v-bind="props">
           {{ currentLanguage ? currentLanguage.identifier : '' }}
         </v-btn>
       </template>

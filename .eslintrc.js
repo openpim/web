@@ -18,6 +18,7 @@ module.exports = {
     // TODO: fix it
     'vue/no-mutating-props': 'off',
     'import/no-duplicates': 'off',
-    'vue/valid-v-slot': 'off'
+    'vue/valid-v-slot': 'off',
+    'vue/no-v-model-argument': 'off'
   }
 }

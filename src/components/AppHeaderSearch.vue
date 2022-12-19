@@ -3,26 +3,27 @@
     @keydown.enter.prevent="searchEnterPressed"
     :filter="searchFilter"
     v-if="currentUserRef.tenantId !== '0' && !isExportSearch"
-    @input="searchSelected"
+    @select="searchSelected"
     @focus="searchResultsRef=[]"
     item-value="identifier"
     v-model="searchTextRef"
+    v-model:search="searchRef"
     :loading="searchLoadingRef"
     :items="searchResultsRef"
-    :search-input.sync="searchRef"
     class="mr-2 hidden-sm-and-down"
     flat solo-inverted hide-no-data hide-details
     prepend-inner-icon="mdi-magnify"
     :label="$t('Search')"
+    variant="underlined"
     >
     <template v-slot:item="{ item }">
-      <v-list-item-content>
+      <v-list-item>
         <v-list-item-title><router-link :to="'/item/'+item.identifier">{{item.identifier + ' (' +item.type.identifier+')'}}</router-link></v-list-item-title>
         <v-list-item-subtitle>{{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</v-list-item-subtitle>
         <v-list-item-subtitle v-for="(attr, idx) in searchAttributesRef" :key="idx">
           {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}: {{item.values[attr.identifier]}}
         </v-list-item-subtitle>
-      </v-list-item-content>
+      </v-list-item>
     </template>
   </v-autocomplete>
 </template>
