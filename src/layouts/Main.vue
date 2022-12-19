@@ -1,41 +1,44 @@
 <template>
-  <div>
+  <v-app>
+    <v-layout>
     <ErrorBox />
+    <AppHeader :export="isExportSearch" :drawer="drawer" />
+
     <v-navigation-drawer :width="drawerWidth" v-model="drawer" ref="drawerRef" :clipped="display.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
       <router-view name="menu"></router-view>
 
-      <v-bottom-navigation grow height="50" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">
-        <v-btn to="/" v-if="hasDashboards">
-            <span>{{ $t('Main.Dashboards') }}</span>
-            <v-icon>mdi-sitemap</v-icon>
+      <div class="mt-2 mb-1 nav" v-if="!isExportSearch && activeBottom">
+<!--      <div grow height="50" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">-->
+        <v-btn to="/" v-if="hasDashboards" class="btn-nav" variant="text">
+          <v-icon>mdi-sitemap</v-icon>
+          <span>{{ $t('Main.Dashboards') }}</span>
         </v-btn>
-        <v-btn to="/">
-            <span>{{ $t('Main.Work') }}</span>
-            <v-icon>mdi-home</v-icon>
+        <v-btn to="/" class="btn-nav" variant="text">
+          <v-icon>mdi-home</v-icon>
+          <span>{{ $t('Main.Work') }}</span>
         </v-btn>
-        <v-btn to="/search" v-if="hasSearchAccess">
-            <span>{{ $t('Main.Search') }}</span>
-            <v-icon>mdi-magnify</v-icon>
+        <v-btn to="/search" v-if="hasSearchAccess" class="btn-nav" variant="text">
+          <v-icon>mdi-magnify</v-icon>
+          <span>{{ $t('Main.Search') }}</span>
         </v-btn>
-        <v-btn to="/channels" v-if="hasChannelsRef">
-            <span>{{ $t('Main.Channels') }}</span>
-            <v-icon>mdi-access-point</v-icon>
+        <v-btn to="/channels" v-if="hasChannelsRef" class="btn-nav" variant="text">
+          <v-icon>mdi-access-point</v-icon>
+          <span>{{ $t('Main.Channels') }}</span>
         </v-btn>
-        <v-btn to="/config/home" v-if="hasConfigRef">
-            <span>{{ $t('Main.Settings') }}</span>
-            <v-icon>mdi-cog-outline</v-icon>
+        <v-btn to="/config/home" v-if="hasConfigRef" class="btn-nav" variant="text">
+          <v-icon>mdi-cog-outline</v-icon>
+          <span>{{ $t('Main.Settings') }}</span>
         </v-btn>
-      </v-bottom-navigation>
+      </div>
       <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
+      <Resizer :left="drawerWidth" @on-resize="handleResize"/>
     </v-navigation-drawer>
 
-    <AppHeader :export="isExportSearch" :drawer="drawer" />
-
-    <v-content>
+    <v-main>
       <v-container class="fill-height" fluid>
         <router-view :export="isExportSearch"></router-view>
       </v-container>
-    </v-content>
+    </v-main>
     <v-dialog v-model="userDialogRef" persistent max-width="600px">
       <v-card v-if="currentUserRef">
         <v-card-title>
@@ -71,7 +74,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+    </v-layout>
+  </v-app>
 </template>
 
 <script>
@@ -80,6 +84,7 @@ import { useDisplay } from 'vuetify'
 
 import ErrorBox from '../components/ErrorBox'
 import AppHeader from '../components/AppHeader.vue'
+import Resizer from '../components/common/Resizer'
 import * as userStore from '../store/users'
 import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
@@ -90,7 +95,7 @@ import router from '../router'
 import eventBus from '../eventBus'
 
 export default {
-  components: { AppHeader, ErrorBox },
+  components: { AppHeader, ErrorBox, Resizer },
   props: {
     export: {
       type: Boolean,
@@ -126,8 +131,9 @@ export default {
 
     const drawer = ref(null)
     const drawerRef = ref(null)
-    const drawerWidth = ref(localStorage.getItem('drawerWidth') || '25%')
-    const activeBottom = ref(0)
+    const defWidth = localStorage.getItem('drawerWidth') || '250'
+    const drawerWidth = ref(parseInt(defWidth))
+    const activeBottom = ref(1)
     const userDialogRef = ref(null)
     const passwordErrors = ref([])
     const formRef = ref(null)
@@ -167,63 +173,12 @@ export default {
       }
     }
 
-    function setBorderWidth () {
-      // TODO: fix
-      /*
-      const el = drawerRef.value.$el.querySelector(
-        '.v-navigation-drawer__border'
-      )
-      el.style.width = '3px'
-      el.style.cursor = 'ew-resize'
-       */
-    }
-
-    function setResizeEvents () {
-      // TODO: fix
-      /*
-      const el = drawerRef.value.$el
-      const drawerBorder = el.querySelector('.v-navigation-drawer__border')
-      const direction = el.classList.contains('v-navigation-drawer--right')
-        ? 'right'
-        : 'left'
-
-      function resize (e) {
-        if (e.screenX < 30) return
-
-        document.body.style.cursor = 'ew-resize'
-        const f = direction === 'right'
-          ? document.body.scrollWidth - e.clientX
-          : e.clientX
-        el.style.width = f + 'px'
-      }
-
-      drawerBorder.addEventListener(
-        'mousedown',
-        function (e) {
-          if (e.offsetX < 30) {
-            el.style.transition = 'initial'; document.addEventListener('mousemove', resize, false)
-          }
-        },
-        false
-      )
-
-      document.addEventListener(
-        'mouseup',
-        function () {
-          el.style.transition = ''
-          drawerWidth.value = el.style.width
-          localStorage.setItem('drawerWidth', el.style.width)
-          document.body.style.cursor = ''
-          document.removeEventListener('mousemove', resize, false)
-        },
-        false
-      )
-       */
+    const handleResize = (size) => {
+      drawerWidth.value = size
+      localStorage.setItem('drawerWidth', size)
     }
 
     onMounted(() => {
-      setBorderWidth()
-      setResizeEvents()
       loadAllRoles().then(() => {
         loadAllDashboards().then(() => {
           hasDashboards.value = getDashboardsForCurrentUser().length > 0
@@ -270,7 +225,8 @@ export default {
       nameRules: [
         v => !!v || i18n.t('Config.Users.Error.NameRequired')
       ],
-      display
+      display,
+      handleResize
     }
   },
   onMounted () {
@@ -285,4 +241,22 @@ export default {
   text-align: center;
   font-size:x-small;
 }
+.nav {
+  box-shadow: 0 2px 4px -1px rgb(0 0 0 / 20%), 0 4px 5px 0 rgb(0 0 0 / 14%), 0 1px 10px 0 rgb(0 0 0 / 12%);
+  padding: 4px;
+}
+
+.btn-nav {
+  border-radius: 0;
+}
+
+.btn-nav .v-btn__content {
+  flex-direction: column;
+}
+
+.btn-nav .v-btn__content span{
+  text-transform: initial;
+  font-size: 0.75rem;
+}
+
 </style>

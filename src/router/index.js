@@ -3,8 +3,16 @@ import * as userStore from '../store/users'
 import * as rolesStore from '../store/roles'
 import i18n, { loadLocaleMessages, setI18nLanguage } from '../i18n'
 
+// layouts
 import Empty from '../layouts/Empty.vue'
+import Main from '../layouts/Main.vue'
+
+// views
 import Login from '../views/Login.vue'
+import Dashboards from '../views/Dashboards.vue'
+
+// components
+import HomeMenu from '../components/HomeMenu.vue'
 
 const routes = [
   {
@@ -21,9 +29,9 @@ const routes = [
   {
     path: '/export_login',
     props: { pathAfterLogin: '/export_search' },
-    component: () => import('../layouts/Empty.vue'),
+    component: Empty,
     children: [
-      { path: '', component: () => import('../views/Login.vue') }
+      { path: '', component: Login }
     ],
     meta: {
       requiresAuth: false
@@ -31,14 +39,14 @@ const routes = [
   },
   {
     path: '/',
-    component: () => import('../layouts/Main.vue'),
+    component: Main,
     props: { export: false },
     children: [
       {
         path: '',
         components: {
-          menu: () => import('../components/HomeMenu.vue'),
-          default: () => import('../views/Dashboards.vue')
+          menu: HomeMenu,
+          default: Dashboards
         }
       }
     ],
@@ -48,7 +56,7 @@ const routes = [
   },
   {
     path: '/selectUser',
-    component: () => import('../layouts/Main.vue'),
+    component: Main,
     props: { export: false },
     children: [
       {
@@ -64,7 +72,7 @@ const routes = [
   },
   {
     path: '/item/:id',
-    component: () => import('../layouts/Main.vue'),
+    component: Main,
     props: { export: false },
     children: [
       {
@@ -81,7 +89,7 @@ const routes = [
   },
   {
     path: '/search',
-    component: () => import('../layouts/Main.vue'),
+    component: Main,
     props: { export: false },
     children: [
       {
@@ -98,7 +106,7 @@ const routes = [
   },
   {
     path: '/export_search',
-    component: () => import('../layouts/Main.vue'),
+    component: Main,
     props: { export: true },
     children: [
       {
@@ -115,7 +123,7 @@ const routes = [
   },
   {
     path: '/search/:id',
-    component: () => import('../layouts/Main.vue'),
+    component: Main,
     props: { export: false },
     children: [
       {
@@ -132,7 +140,7 @@ const routes = [
   },
   {
     path: '/channels',
-    component: () => import('../layouts/Main.vue'),
+    component: Main,
     props: { export: false },
     children: [
       {
@@ -149,7 +157,7 @@ const routes = [
   },
   {
     path: '/channels/:id',
-    component: () => import('../layouts/Main.vue'),
+    component: Main,
     props: { export: false },
     children: [
       {
@@ -166,7 +174,7 @@ const routes = [
   },
   {
     path: '/config',
-    component: () => import('../layouts/Main.vue'),
+    component: Main,
     props: { export: false },
     children: [
       {

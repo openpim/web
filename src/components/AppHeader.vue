@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar :clipped-left="display.lgAndUp" app color="primary" dark dense>
+  <v-app-bar :clipped-left="display.lgAndUp" color="primary" density="compact">
     <v-app-bar-nav-icon @click.stop="triggerDrawer" v-if="currentUserRef.tenantId !== '0'"/>
     <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
       <TitleComponent></TitleComponent>
