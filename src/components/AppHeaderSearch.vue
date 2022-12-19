@@ -61,7 +61,8 @@ export default {
 
     const {
       currentLanguage,
-      loadAllLanguages
+      loadAllLanguages,
+      defaultLanguageIdentifier
     } = langStore.useStore()
 
     const {
@@ -146,7 +147,8 @@ export default {
       searchSelected,
       searchFilter,
       currentUserRef,
-      isExportSearch: props.export
+      isExportSearch: props.export,
+      defaultLanguageIdentifier
     }
   }
 }
