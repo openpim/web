@@ -109,7 +109,6 @@ export default {
     function performSearch (val) {
       searchLoadingRef.value = true
       const typesExpr = searchTypesFilter.length > 0 ? '{typeId: {OP_notIn: ' + JSON.stringify(searchTypesFilter) + '}}' : null
-      console.log(111, searchTypesFilter)
       searchItem(val, typesExpr).then(data => {
         searchResultsRef.value = data.rows.map(elem => {
           elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
