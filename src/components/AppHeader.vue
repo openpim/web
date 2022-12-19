@@ -35,7 +35,6 @@ import AppHeaderSearch from '../components/AppHeaderSearch.vue'
 import TitleComponent from '../_customizations/toolbar/title/TitleComponent'
 import AfterSearchComponent from '../_customizations/toolbar/afterSearch/AfterSearchComponent'
 import AfterButtonsComponent from '../_customizations/toolbar/afterButtons/AfterButtonsComponent'
-import eventBus from '../eventBus'
 
 export default {
   components: { AppHeaderSearch, TitleComponent, AfterSearchComponent, AfterButtonsComponent },
@@ -48,7 +47,7 @@ export default {
       required: true
     }
   },
-  setup (props) {
+  setup (props, { emit }) {
     const {
       currentUserRef
     } = userStore.useStore()
@@ -67,11 +66,11 @@ export default {
     })
 
     function triggerDrawer () {
-      eventBus.emit('drawer_triggered', !props.drawer)
+      emit('onTriggerDrawer', !props.drawer)
     }
 
     function triggerUserDialog () {
-      eventBus.emit('userDialogRef_triggered', true)
+      emit('onShowUser')
     }
 
     function languageSelected (identifier) {
