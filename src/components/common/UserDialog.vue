@@ -74,7 +74,7 @@ import { ref, onMounted, onUpdated } from 'vue'
 
 import * as userStore from '../../store/users'
 import * as errorStore from '../../store/error'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 
 export default {
   props: {
@@ -84,6 +84,7 @@ export default {
     }
   },
   setup (props, { emit }) {
+    const { t } = useI18n()
     const {
       showInfo
     } = errorStore.useStore()
@@ -119,7 +120,7 @@ export default {
     function save () {
       if (formRef.value.validate()) {
         if ((currentUserRef.value.password1 || currentUserRef.value.password2) && currentUserRef.value.password1 !== currentUserRef.value.password2) {
-          passwordErrors.value = [i18n.t('Config.Users.Error.PasswordsNotEquals')]
+          passwordErrors.value = [t('Config.Users.Error.PasswordsNotEquals')]
           return
         }
         hide()
@@ -128,7 +129,7 @@ export default {
           localStorage.setItem('user', JSON.stringify(currentUserRef.value))
           currentUserRef.value.password1 = ''
           currentUserRef.value.password2 = ''
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
@@ -151,7 +152,7 @@ export default {
       formRef,
       isUserAdmin,
       nameRules: [
-        v => !!v || i18n.t('Config.Users.Error.NameRequired')
+        v => !!v || t('Config.Users.Error.NameRequired')
       ],
       hide
     }
