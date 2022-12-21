@@ -11,17 +11,20 @@
     :loading="searchLoadingRef"
     :items="searchResultsRef"
     class="mr-2 hidden-sm-and-down"
-    flat solo-inverted hide-no-data hide-details
+    flat
+    solo-inverted
+    hide-no-data
+    hide-details
     prepend-inner-icon="mdi-magnify"
     :label="$t('Search')"
     variant="underlined"
     >
     <template v-slot:item="{ item }">
       <v-list-item>
-        <v-list-item-title><router-link :to="'/item/'+item.identifier">{{item.identifier + ' (' +item.type.identifier+')'}}</router-link></v-list-item-title>
-        <v-list-item-subtitle>{{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</v-list-item-subtitle>
+        <v-list-item-title><router-link :to="'/item/'+item.raw.identifier">{{item.raw.identifier + ' (' +item.raw.type.identifier+')'}}</router-link></v-list-item-title>
+        <v-list-item-subtitle>{{ item.raw.name[currentLanguage.identifier] || '[' + item.raw.name[defaultLanguageIdentifier] + ']' }}</v-list-item-subtitle>
         <v-list-item-subtitle v-for="(attr, idx) in searchAttributesRef" :key="idx">
-          {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}: {{item.values[attr.identifier]}}
+          {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}: {{item.raw.values[attr.identifier]}}
         </v-list-item-subtitle>
       </v-list-item>
     </template>
@@ -35,6 +38,7 @@ import * as itemStore from '../store/item'
 import * as attrStore from '../store/attributes'
 import * as userStore from '../store/users'
 import * as rolesStore from '../store/roles'
+import * as errorStore from '../store/error'
 import router from '../router'
 
 export default {
@@ -69,6 +73,10 @@ export default {
       loadAllRoles
     } = rolesStore.useStore()
 
+    const {
+      showError
+    } = errorStore.useStore()
+
     const searchTextRef = ref('')
     const searchResultsRef = ref([])
     const searchRef = ref('')
@@ -101,17 +109,24 @@ export default {
       })
     })
 
-    function performSearch (val) {
+    async function performSearch (val) {
       searchLoadingRef.value = true
-      searchItem(val).then(data => {
-        searchResultsRef.value = data.rows.map(elem => {
+      try {
+        const data = await searchItem(val)
+
+        data.rows.forEach(elem => {
           elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'
-          searchAttributesRef.value.forEach(attr => { elem.text += ' ' + elem.values[attr.identifier] })
-          return elem
+          searchAttributesRef.value.forEach(attr => {
+            elem.text += ' ' + elem.values[attr.identifier]
+          })
         })
+        searchResultsRef.value = data.rows
+      } catch (e) {
+        showError(e)
+      } finally {
+        awaitingSearch = null
         searchLoadingRef.value = false
-      })
-      awaitingSearch = null
+      }
     }
 
     function searchSelected () {
@@ -122,7 +137,9 @@ export default {
       }, 500)
       const identifier = searchTextRef.value
       searchTextRef.value = null
-      router.push('/item/' + identifier)
+      if (identifier) {
+        router.push('/item/' + identifier)
+      }
     }
 
     function searchEnterPressed () {
