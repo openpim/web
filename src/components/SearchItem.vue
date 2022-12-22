@@ -41,11 +41,11 @@
                     <template v-if="filter.attr === '#level#'">
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
-                    <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)"></v-text-field>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)"></v-text-field>
-                    <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
+                    <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMapRef[filter.attr]" dense v-model="filter.value" :items="getLovItems(filter)" :label="$t('Search.Filter.Attribute.Value')"></v-select>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)"></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && getDateType(filter) && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)"></v-text-field>
+                    <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
 
@@ -115,7 +115,8 @@ export default {
       currentWhereRef,
       searchEntityRef,
       searchToOpenRef,
-      selectedRef
+      selectedRef,
+      lovsMapRef
     } = searchStore.useStore()
 
     const {
@@ -151,10 +152,10 @@ export default {
     // const selectedRef = ref(null)
     const fieldsSelection = ref([])
     const extendedSearchRef = ref('{ "identifier": "???", ... }')
-    const lovsMap = {}
 
-    function searchSelected (selected) {
+    async function searchSelected (selected) {
       if (!selected.orAnd) selected.orAnd = 1
+      await updateFiltersLOVs(selected.filters)
       if (selected.user === currentUserRef.value.login) {
         selectedRef.value = selected
         router.push('/search/' + selected.identifier)
@@ -166,6 +167,21 @@ export default {
       if (selected.extended) extendedSearchRef.value = JSON.stringify(selected.whereClause)
       searchEntityRef.value = selected.entity ? selected.entity : 'ITEM'
       searchLoadDialogRef.value.closeDialog()
+    }
+
+    function getLovItems (filter) {
+      if (lovsMapRef.value[filter.attr] && Array.isArray(lovsMapRef.value[filter.attr])) {
+        return lovsMapRef.value[filter.attr]
+      } else if (lovsMapRef.value[filter.attr]) {
+        getLOVData(lovsMapRef.value[filter.attr]).then(values => {
+          lovsMapRef.value[filter.attr] = values.map(elem => {
+            return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' }
+          })
+          return lovsMapRef.value[filter.attr]
+        })
+      } else {
+        return []
+      }
     }
 
     function save () {
@@ -201,7 +217,6 @@ export default {
         const orAndOperation = selectedRef.value.orAnd === 1 ? 'OP_and' : 'OP_or'
         const where = {}
         where[orAndOperation] = []
-
         selectedRef.value.filters.forEach(filter => {
           if (filter.attr) {
             const data = {}
@@ -323,7 +338,7 @@ export default {
     }
 
     function parseSimpleValue (attrObj, attr, value) {
-      if (lovsMap[attr]) return '' + value
+      if (lovsMapRef.value[attr]) return '' + value
 
       if (value === 'null') return null
 
@@ -344,7 +359,7 @@ export default {
       }
     }
 
-    function checkLOV (attr, val) {
+    /* function checkLOV (attr, val) {
       if (attr.lov) {
         getLOVData(attr.lov).then(values => {
           lovsMap[val] = values.map(elem => {
@@ -352,7 +367,7 @@ export default {
           })
         })
       }
-    }
+    } */
 
     function itemSelected (id, filter) {
       itemSelectionDialogRef.value.closeDialog()
@@ -382,6 +397,18 @@ export default {
     function datePicker (id, filter) {
       datePickerDialogRef.value.closeDialog()
       filter.value = id
+    }
+
+    async function updateFiltersLOVs (filters) {
+      for (let i = 0; i < filters.length; i++) {
+        const filter = filters[i]
+        if (lovsMapRef.value[filter.attr] && !Array.isArray(lovsMapRef.value[filter.attr])) {
+          const values = await getLOVData(lovsMapRef.value[filter.attr])
+          lovsMapRef.value[filter.attr] = values.map(elem => {
+            return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' }
+          })
+        }
+      }
     }
 
     onMounted(() => {
@@ -447,7 +474,7 @@ export default {
               const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
               const val = 'attr#' + attr.identifier + '#' + lang.identifier
               arr.push({ value: val, text: attr.identifier + ' - ' + nameText + langText, lov: attr.lov })
-              checkLOV(attr, val)
+              // checkLOV(attr, val)
             }
           } else {
             const val = 'attr#' + attr.identifier
@@ -458,8 +485,7 @@ export default {
               data.type = 'time'
             }
             arr.push(data)
-            if (attr.lov) lovsMap[val] = attr.lov
-            checkLOV(attr, val)
+            if (attr.lov && !lovsMapRef.value[val]) lovsMapRef.value[val] = attr.lov
           }
         }
 
@@ -468,7 +494,9 @@ export default {
         // process current route
         const id = router.currentRoute.params.id
         if (id) {
-          loadByIdentifier(id).then(data => searchSelected(data))
+          loadByIdentifier(id).then(async data => {
+            searchSelected(data)
+          })
         } else {
           const tst = localStorage.getItem('search_to_open')
           if (tst) {
@@ -490,6 +518,7 @@ export default {
     })
 
     return {
+      getLovItems,
       getDateType,
       datePicker,
       typeSelectionDialogRef,
@@ -509,7 +538,7 @@ export default {
       search,
       extendedSearchRef,
       fieldsSelection,
-      lovsMap,
+      lovsMapRef,
       hasAccess,
       orAndSelection: [
         { text: i18n.t('Search.And'), value: 1 },

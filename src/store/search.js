@@ -6,6 +6,7 @@ const searchEntityRef = ref('ITEM')
 const searchToOpenRef = ref(null)
 const savedColumnsRef = ref(null)
 const selectedRef = ref(null)
+const lovsMapRef = ref({})
 
 const actions = {
   loadAllSavedColumns: async (force) => {
@@ -94,6 +95,7 @@ const store = {
   currentWhereRef,
   searchEntityRef,
   selectedRef,
+  lovsMapRef,
   savedColumnsRef: savedColumnsRef,
   searchToOpenRef: searchToOpenRef,
   ...actions
