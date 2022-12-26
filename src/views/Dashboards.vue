@@ -50,26 +50,26 @@ export default {
       }
     })
 
-    onMounted(() => {
-      loadAllLanguages()
-      loadAllDashboards().then(() => {
-        myDashboards.value = getDashboardsForCurrentUser()
-        dashboardsSelection.value = myDashboards.value.map(elem => {
-          return {
-            value: elem.id,
-            text: elem.name[currentLanguage.value.identifier] || '[' + elem.name[defaultLanguageIdentifier.value] + ']'
-          }
-        })
+    onMounted(async () => {
+      await loadAllLanguages()
+      await loadAllDashboards()
 
-        if (myDashboards.value.length > 0) {
-          const tst = localStorage.getItem('last_dashboard')
-          if (tst && myDashboards.value.find(dash => dash.id === tst)) {
-            selectedRef.value = tst
-          } else {
-            selectedRef.value = myDashboards.value[0].id
-          }
+      myDashboards.value = getDashboardsForCurrentUser()
+      dashboardsSelection.value = myDashboards.value.map(elem => {
+        return {
+          value: elem.id,
+          title: elem.name[currentLanguage.value.identifier] || '[' + elem.name[defaultLanguageIdentifier.value] + ']'
         }
       })
+
+      if (myDashboards.value.length > 0) {
+        const tst = localStorage.getItem('last_dashboard')
+        if (tst && myDashboards.value.find(dash => dash.id === tst)) {
+          selectedRef.value = tst
+        } else {
+          selectedRef.value = myDashboards.value[0].id
+        }
+      }
     })
 
     return {

@@ -4,7 +4,7 @@ import i18n from '@/i18n'
 import * as attrStore from './attributes'
 
 export async function serverFetch (query, variables) {
-  const req = { query: query }
+  const req = { query }
   if (variables) req.variables = variables
 
   const serverUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_SERVER_URL : window.OPENPIM_SERVER_URL + '/graphql'
@@ -42,7 +42,7 @@ function findNode (id, children, path) {
 }
 
 function findNodeByComparator (id, children, path, comparator) {
-  for (var i = 0; i < children.length; i++) {
+  for (let i = 0; i < children.length; i++) {
     const item = children[i]
     if (comparator(id, item)) {
       return item

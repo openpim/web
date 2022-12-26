@@ -3,22 +3,38 @@ import i18n from '../i18n'
 import { serverFetch, objectToGraphgl } from './utils'
 import { currentUserRef } from './users'
 import { currentLanguage } from './languages'
+import * as err from './error'
 
 const dashboards = reactive([])
 
 const actionList = {
   loadAllDashboards: async () => {
-    if (dashboards.length > 0) return
-    const data = await serverFetch('query { getDashboards {id identifier name users components createdAt createdBy updatedAt updatedBy} }')
-    if (dashboards.length > 0) return
-    const arr = data.getDashboards
-    if (arr && arr.length > 0) {
-      arr.sort((a, b) => a.name[currentLanguage.value.identifier].localeCompare(b.name[currentLanguage.value.identifier]))
-      arr.forEach(element => {
-        element.internalId = element.id
-        element.usersStr = element.users.join()
-        dashboards.push(element)
-      })
+    if (dashboards.length > 0) {
+      return
+    }
+    try {
+      const data = await serverFetch('query { getDashboards {id identifier name users components createdAt createdBy updatedAt updatedBy} }')
+
+      if (dashboards.length > 0) {
+        return
+      }
+      const arr = data.getDashboards
+      if (arr && arr.length > 0) {
+        arr.sort((a, b) => {
+          if (a.name[currentLanguage.value.identifier]) {
+            return a.name[currentLanguage.value.identifier].localeCompare(b.name[currentLanguage.value.identifier])
+          }
+
+          return 1
+        })
+        arr.forEach(element => {
+          element.internalId = element.id
+          element.usersStr = element.users.join()
+          dashboards.push(element)
+        })
+      }
+    } catch (e) {
+      err.store.showError('' + e)
     }
   },
   getDashboardsForCurrentUser: () => {
@@ -26,8 +42,8 @@ const actionList = {
   },
   addDashboard: () => {
     const name = {}
-    name[currentLanguage.value.identifier] = i18n.t('Config.Dashboards.NewName')
-    const act = { id: Date.now(), internalId: 0, name: name, components: [], users: '' }
+    name[currentLanguage.value.identifier] = i18n.global.t('Config.Dashboards.NewName')
+    const act = { id: Date.now(), internalId: 0, name, components: [], users: '' }
     dashboards.push(act)
     return act
   },
@@ -72,7 +88,7 @@ const actionList = {
 }
 
 const store = {
-  dashboards: dashboards,
+  dashboards,
   ...actionList
 }
 
