@@ -30,7 +30,8 @@ export default {
 
     // we calculate margin from the top of the page. it allows us to set fixed table height.
     onMounted(() => {
-      dataTableMarginTop.value = searchDivRef.value.getBoundingClientRect().top
+      // TODO: Fix it
+      // dataTableMarginTop.value = searchDivRef.value.getBoundingClientRect().top
     })
 
     return {

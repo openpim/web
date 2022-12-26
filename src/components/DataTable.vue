@@ -260,7 +260,9 @@
 </div>
 </template>
 <script>
+import { ref, onMounted, watch, computed } from 'vue'
 import { saveAs } from 'file-saver'
+import { useI18n } from 'vue-i18n'
 import * as langStore from '../store/languages'
 import * as itemStore from '../store/item'
 import * as lovsStore from '../store/lovs'
@@ -270,8 +272,6 @@ import * as searchStore from '../store/search'
 import * as attrStore from '../store/attributes'
 import * as channelsStore from '../store/channels'
 import * as typesStore from '../store/types'
-import i18n from '../i18n'
-import { ref, onMounted, watch, computed } from 'vue'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 import ColumnsSaveDialog from './ColumnsSaveDialog'
 import ChannelsSelectionDialog from './ChannelsSelectionDialog'
@@ -363,6 +363,8 @@ export default {
       findTypeByIdentifier
     } = typesStore.useStore()
 
+    const { t } = useI18n()
+
     const columnsSelectionDialogRef = ref(null)
     const columnsSaveDialogRef = ref(null)
     const attrSelectionDialogRef = ref(null)
@@ -409,9 +411,9 @@ export default {
     const importEmptyValuesRef = ref(false)
     const importPageSizeRef = ref(100)
     const importModes = [
-      { text: i18n.t('DataTable.ExcelImport.CREATE_ONLY'), value: 'CREATE_ONLY' },
-      { text: i18n.t('DataTable.ExcelImport.UPDATE_ONLY'), value: 'UPDATE_ONLY' },
-      { text: i18n.t('DataTable.ExcelImport.CREATE_UPDATE'), value: 'CREATE_UPDATE' }
+      { text: t('DataTable.ExcelImport.CREATE_ONLY'), value: 'CREATE_ONLY' },
+      { text: t('DataTable.ExcelImport.UPDATE_ONLY'), value: 'UPDATE_ONLY' },
+      { text: t('DataTable.ExcelImport.CREATE_UPDATE'), value: 'CREATE_UPDATE' }
     ]
 
     function pageSizeChanged (itemsPerPage) {
@@ -575,7 +577,7 @@ export default {
     }
 
     async function exportExcel () {
-      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleExport')
+      excelDialogTitleRef.value = t('DataTable.ExcelDialog.TitleExport')
       excelDialogRef.value = true
       const itemsPerPage = 1000
       let total = 0
@@ -667,10 +669,10 @@ export default {
         if (getValue(row, header)) {
           if (header.identifier.endsWith('_status')) {
             const status = getValue(row, header)
-            if (status === 1) value = i18n.t('ItemView.Channels.Submitted')
-            else if (status === 2) value = i18n.t('ItemView.Channels.Synced')
-            else if (status === 3) value = i18n.t('ItemView.Channels.Error')
-            else if (status === 4) value = i18n.t('ItemView.Channels.Waiting')
+            if (status === 1) value = t('ItemView.Channels.Submitted')
+            else if (status === 2) value = t('ItemView.Channels.Synced')
+            else if (status === 3) value = t('ItemView.Channels.Error')
+            else if (status === 4) value = t('ItemView.Channels.Waiting')
           } else if (header.identifier.endsWith('_submittedAt') || header.identifier.endsWith('_syncedAt')) {
             value = formatDate ? dateFormat(new Date(getValue(row, header)), process.env.VUE_APP_DATE_FORMAT) : new Date(getValue(row, header))
           } else {
@@ -693,7 +695,7 @@ export default {
 
     function importExcel (event) {
       importConfigDialogRef.value = false
-      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleImport')
+      excelDialogTitleRef.value = t('DataTable.ExcelDialog.TitleImport')
       const pageSize = parseInt(importPageSizeRef.value)
 
       const file = fileUploadRef.value
@@ -718,7 +720,7 @@ export default {
             const cell = ws[XLSX.utils.encode_cell({ r: 0, c: colNum })]
             if (!cell) continue
             if ((!cell.c || cell.c.length === 0) && !cell.v === '#delete#') {
-              showError(i18n.t('DataTable.ExcelImport.WrongFormat'))
+              showError(t('DataTable.ExcelImport.WrongFormat'))
               excelDialogRef.value = false
               return
             } else {
@@ -786,7 +788,7 @@ export default {
                         const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === tmp)
                         if (tst2) accumulator.push(tst2.id)
                         else {
-                          errors += i18n.t('DataTable.ExcelImport.NoLOVValue', { val: tmp, attr: attr })
+                          errors += t('DataTable.ExcelImport.NoLOVValue', { val: tmp, attr: attr })
                         }
                         return accumulator
                       }, [])
@@ -801,7 +803,7 @@ export default {
                       const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === val)
                       if (tst2) cellVal = tst2.id
                       else {
-                        const err = i18n.t('DataTable.ExcelImport.NoLOVValue', { val: val, attr: attr })
+                        const err = t('DataTable.ExcelImport.NoLOVValue', { val: val, attr: attr })
                         log.push([item.identifier, 'ERROR', err])
                         if (importStopOnErrorRef.value) {
                           showError(err)
@@ -905,7 +907,7 @@ export default {
 
     function exportData () {
       const maxRows = 10000
-      if (totalItemsRef.value > maxRows && confirm(i18n.t('DataTable.Export.Limit', { number: totalItemsRef.value, max: maxRows }))) {
+      if (totalItemsRef.value > maxRows && confirm(t('DataTable.Export.Limit', { number: totalItemsRef.value, max: maxRows }))) {
         performExport(maxRows)
       } else {
         performExport(maxRows)
@@ -1043,7 +1045,7 @@ export default {
     async function channelsSelected (arr) {
       chanSelectionDialogRef.value.closeDialog()
       if (arr.length === 0) return
-      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleSubmit')
+      excelDialogTitleRef.value = t('DataTable.ExcelDialog.TitleSubmit')
       excelDialogRef.value = true
       const itemsPerPage = 1000
       let total = -1
@@ -1069,7 +1071,7 @@ export default {
       } while (page * itemsPerPage < total)
 
       excelDialogRef.value = false
-      showInfo(i18n.t('Submitted'))
+      showInfo(t('Submitted'))
     }
 
     function openSearch () {
@@ -1350,8 +1352,8 @@ export default {
       downloadImportFinishedLog,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
-      required: value => !!value || i18n.t('ItemRelationsList.Required'),
-      pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive')
+      required: value => !!value || t('ItemRelationsList.Required'),
+      pageSizePositive: value => parseInt(value) > 1 || t('ItemRelationsList.MustBePositive')
     }
   },
   methods: {

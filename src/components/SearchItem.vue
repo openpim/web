@@ -1,8 +1,9 @@
 <template>
+  <div>
     <v-row no-gutters v-if="hasAccess('search')">
-    <v-col cols="12">
-      <v-toolbar dense flat>
-        <v-toolbar-title class="subtitle-2">{{ selectedRef && selectedRef.extended ? $t('Home.Search.TitleExtended') : null }}</v-toolbar-title>
+      <v-col cols="12">
+        <v-toolbar density="compact" flat color="transparent">
+        <v-toolbar-title class="text-subtitle-2">{{ selectedRef && selectedRef.extended ? $t('Home.Search.TitleExtended') : null }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="add(1)"><v-icon>mdi-plus</v-icon></v-btn>
         <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="remove" :disabled="selectedFilterRef == null"><v-icon>mdi-minus</v-icon></v-btn>
@@ -19,7 +20,7 @@
           <span>{{ $t('SearchSaveDialog.LoadTooltip') }}</span>
         </v-tooltip>
       </v-toolbar>
-      <v-list nav dense class="ma-0" v-if="selectedRef && !selectedRef.extended">
+        <v-list nav dense class="ma-0" v-if="selectedRef && !selectedRef.extended">
         <v-list-item-group v-model="selectedFilterRef" color="primary">
           <v-list-item v-for="(filter, i) in selectedRef.filters" :key="i" :three-line="filter.type === 'attr'">
             <v-list-item-icon><v-icon>{{filter.type === 'attr' ? 'mdi-alpha-a-box-outline' : ''}}</v-icon></v-list-item-icon>
@@ -60,25 +61,28 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
-      <v-textarea v-if="selectedRef && selectedRef.extended" class="ml-3 mr-3" v-model="extendedSearchRef" :label="$t('Search.Extended.Label')"></v-textarea>
-  </v-col>
-  <v-col cols="4" class="d-inline-flex justify-end align-center">
-    <v-select v-if="selectedRef && !selectedRef.extended && selectedRef.filters && selectedRef.filters.length > 1" class="ml-5" dense v-model="selectedRef.orAnd" :items="orAndSelection"></v-select>
-  </v-col>
-  <v-col cols="8" class="d-inline-flex justify-end align-center">
-    <v-switch class="mt-0" dense hide-details v-if="selectedRef" v-model="selectedRef.extended"></v-switch>
-    <v-btn text @click="search" class="mr-2">{{$t('Search.Find')}}</v-btn>
-  </v-col>
-  <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
-  <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
-  <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
-  <DatePickerDialog ref="datePickerDialogRef" @selected="datePicker"/>
-  <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="false" @selected="typesSelected"/>
-  </v-row>
+        <v-textarea v-if="selectedRef && selectedRef.extended" class="ml-3 mr-3" v-model="extendedSearchRef" :label="$t('Search.Extended.Label')"></v-textarea>
+      </v-col>
+    </v-row>
+    <v-row no-gutters v-if="hasAccess('search')">
+      <v-col cols="4" class="d-inline-flex justify-end align-center">
+        <v-select v-if="selectedRef && !selectedRef.extended && selectedRef.filters && selectedRef.filters.length > 1" class="ml-5" dense v-model="selectedRef.orAnd" :items="orAndSelection"></v-select>
+      </v-col>
+      <v-col cols="8" class="d-inline-flex justify-end align-center">
+        <v-switch class="mt-0" dense hide-details v-if="selectedRef" v-model="selectedRef.extended"></v-switch>
+        <v-btn text @click="search" class="mr-2">{{$t('Search.Find')}}</v-btn>
+      </v-col>
+    </v-row>
+    <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
+    <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
+    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
+    <DatePickerDialog ref="datePickerDialogRef" @selected="datePicker"/>
+    <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="false" @selected="typesSelected"/>
+  </div>
 </template>
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import * as typesStore from '../store/types'
 import * as itemStore from '../store/item'
 import * as attrStore from '../store/attributes'
@@ -140,6 +144,8 @@ export default {
       getLOVData
     } = lovsStore.useStore()
 
+    const { t } = useI18n()
+
     const { loadAllChannels, getAvailableChannels } = channelsStore.useStore()
 
     const itemSelectionDialogRef = ref(null)
@@ -160,7 +166,7 @@ export default {
         router.push('/search/' + selected.identifier)
       } else {
         const name = {}
-        name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
+        name[currentLanguage.value.identifier] = t('SearchSaveDialog.NameNew')
         selectedRef.value = { identifier: '', name: name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
       }
       if (selected.extended) extendedSearchRef.value = JSON.stringify(selected.whereClause)
@@ -195,7 +201,7 @@ export default {
           currentWhereRef.value = selectedRef.value.whereClause
         } catch (err) {
           console.error(err)
-          showError(i18n.t('Search.Extended.Error') + err.message)
+          showError(t('Search.Extended.Error') + err.message)
         }
       } else {
         const orAndOperation = selectedRef.value.orAnd === 1 ? 'OP_and' : 'OP_or'
@@ -388,54 +394,54 @@ export default {
       document.addEventListener('keypress', enterKeyListener)
       Promise.all([loadAllTypes(), loadAllLanguages(), loadAllAttributes(), loadAllChannels()]).then(() => {
         const name = {}
-        name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
+        name[currentLanguage.value.identifier] = t('SearchSaveDialog.NameNew')
         if (!selectedRef.value) {
           selectedRef.value = { identifier: '', entity: 'ITEM', name: name, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
         }
 
         const arr = [
-          { value: 'id', text: i18n.t('Item.id') },
-          { value: 'identifier', text: i18n.t('Item.identifier') },
-          { value: 'parentIdentifier', text: i18n.t('Item.parentIdentifier') },
-          { value: 'typeIdentifier', text: i18n.t('Item.typeIdentifier') },
-          { value: '#level#', text: i18n.t('Item.level') },
-          { value: 'createdBy', text: i18n.t('CreatedBy') },
-          { value: 'createdAt', text: i18n.t('CreatedAt'), type: 'datetime' },
-          { value: 'updatedBy', text: i18n.t('UpdatedBy') },
-          { value: 'updatedAt', text: i18n.t('UpdatedAt'), type: 'datetime' },
-          { value: 'fileOrigName', text: i18n.t('Item.fileOrigName') },
-          { value: 'mimeType', text: i18n.t('Item.mimeType') }
+          { value: 'id', title: t('Item.id') },
+          { value: 'identifier', title: t('Item.identifier') },
+          { value: 'parentIdentifier', title: t('Item.parentIdentifier') },
+          { value: 'typeIdentifier', title: t('Item.typeIdentifier') },
+          { value: '#level#', title: t('Item.level') },
+          { value: 'createdBy', title: t('CreatedBy') },
+          { value: 'createdAt', title: t('CreatedAt'), type: 'datetime' },
+          { value: 'updatedBy', title: t('UpdatedBy') },
+          { value: 'updatedAt', title: t('UpdatedAt'), type: 'datetime' },
+          { value: 'fileOrigName', title: t('Item.fileOrigName') },
+          { value: 'mimeType', title: t('Item.mimeType') }
         ]
         const channels = getAvailableChannels()
         for (let i = 0; i < channels.length; i++) {
           const channel = channels[i]
           arr.push({
             value: 'channel#' + channel.identifier + '#status',
-            text: i18n.t('ColumnsSelection.ChannelStatus') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+            title: t('ColumnsSelection.ChannelStatus') + ' (' + t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
           })
           arr.push({
             value: 'channel#' + channel.identifier + '#submittedAt',
-            text: i18n.t('ColumnsSelection.SubmittedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+            title: t('ColumnsSelection.SubmittedAt') + ' (' + t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
             type: 'datetime'
           })
           arr.push({
             value: 'channel#' + channel.identifier + '#submittedBy',
-            text: i18n.t('ColumnsSelection.SubmittedBy') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+            title: t('ColumnsSelection.SubmittedBy') + ' (' + t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
           })
           arr.push({
             value: 'channel#' + channel.identifier + '#syncedAt',
-            text: i18n.t('ColumnsSelection.SyncedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+            title: t('ColumnsSelection.SyncedAt') + ' (' + t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
             type: 'datetime'
           })
           arr.push({
             value: 'channel#' + channel.identifier + '#message',
-            text: i18n.t('ColumnsSelection.ChannelMessage') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+            title: t('ColumnsSelection.ChannelMessage') + ' (' + t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
           })
         }
         for (let i = 0; i < languages.length; i++) {
           const lang = languages[i]
           const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-          arr.push({ value: 'name#' + lang.identifier, text: i18n.t('Item.name') + langText })
+          arr.push({ value: 'name#' + lang.identifier, title: t('Item.name') + langText })
         }
         const attrs = getAllItemsAttributes()
         for (let i = 0; i < attrs.length; i++) {
@@ -466,7 +472,7 @@ export default {
         fieldsSelection.value = arr
 
         // process current route
-        const id = router.currentRoute.params.id
+        const id = router.currentRoute.params?.id
         if (id) {
           loadByIdentifier(id).then(data => searchSelected(data))
         } else {
@@ -512,33 +518,33 @@ export default {
       lovsMap,
       hasAccess,
       orAndSelection: [
-        { text: i18n.t('Search.And'), value: 1 },
-        { text: i18n.t('Search.Or'), value: 2 }
+        { title: t('Search.And'), value: 1 },
+        { title: t('Search.Or'), value: 2 }
       ],
       statusSelection: [
-        { text: i18n.t('ItemView.Channels.Submitted'), value: 1 },
-        { text: i18n.t('ItemView.Channels.Synced'), value: 2 },
-        { text: i18n.t('ItemView.Channels.Error'), value: 3 },
-        { text: i18n.t('ItemView.Channels.Waiting'), value: 4 }
+        { title: t('ItemView.Channels.Submitted'), value: 1 },
+        { title: t('ItemView.Channels.Synced'), value: 2 },
+        { title: t('ItemView.Channels.Error'), value: 3 },
+        { title: t('ItemView.Channels.Waiting'), value: 4 }
       ],
       operationSelection: [
-        { text: i18n.t('Search.Filter.Operation.Eq'), value: 1 },
-        { text: i18n.t('Search.Filter.Operation.Ne'), value: 2 },
-        { text: i18n.t('Search.Filter.Operation.Gt'), value: 3 },
-        { text: i18n.t('Search.Filter.Operation.Gte'), value: 4 },
-        { text: i18n.t('Search.Filter.Operation.Lt'), value: 5 },
-        { text: i18n.t('Search.Filter.Operation.Lte'), value: 6 },
-        { text: i18n.t('Search.Filter.Operation.StartWith'), value: 7 },
-        { text: i18n.t('Search.Filter.Operation.EndWith'), value: 8 },
-        { text: i18n.t('Search.Filter.Operation.Substring'), value: 9 },
-        { text: i18n.t('Search.Filter.Operation.NotSubstring'), value: 13 },
-        { text: i18n.t('Search.Filter.Operation.List'), value: 10 },
-        { text: i18n.t('Search.Filter.Operation.EqICase'), value: 11 },
-        { text: i18n.t('Search.Filter.Operation.NotEqICase'), value: 14 },
-        { text: i18n.t('Search.Filter.Operation.SubstringICase'), value: 12 },
-        { text: i18n.t('Search.Filter.Operation.NotSubstringICase'), value: 15 },
-        { text: i18n.t('Search.Filter.Operation.Empty'), value: 16 },
-        { text: i18n.t('Search.Filter.Operation.NotEmpty'), value: 17 }
+        { title: t('Search.Filter.Operation.Eq'), value: 1 },
+        { title: t('Search.Filter.Operation.Ne'), value: 2 },
+        { title: t('Search.Filter.Operation.Gt'), value: 3 },
+        { title: t('Search.Filter.Operation.Gte'), value: 4 },
+        { title: t('Search.Filter.Operation.Lt'), value: 5 },
+        { title: t('Search.Filter.Operation.Lte'), value: 6 },
+        { title: t('Search.Filter.Operation.StartWith'), value: 7 },
+        { title: t('Search.Filter.Operation.EndWith'), value: 8 },
+        { title: t('Search.Filter.Operation.Substring'), value: 9 },
+        { title: t('Search.Filter.Operation.NotSubstring'), value: 13 },
+        { title: t('Search.Filter.Operation.List'), value: 10 },
+        { title: t('Search.Filter.Operation.EqICase'), value: 11 },
+        { title: t('Search.Filter.Operation.NotEqICase'), value: 14 },
+        { title: t('Search.Filter.Operation.SubstringICase'), value: 12 },
+        { title: t('Search.Filter.Operation.NotSubstringICase'), value: 15 },
+        { title: t('Search.Filter.Operation.Empty'), value: 16 },
+        { title: t('Search.Filter.Operation.NotEmpty'), value: 17 }
       ]
 
     }

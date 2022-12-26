@@ -41,6 +41,7 @@
 
 <script>
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import * as attrStore from '../store/attributes'
 import * as channelsStore from '../store/channels'
 import * as errorStore from '../store/error'
@@ -48,7 +49,6 @@ import * as itemStore from '../store/item'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'
 import * as userStore from '../store/users'
-import i18n from '../i18n'
 import DataTable from '../components/DataTable'
 import AttributeType from '../constants/attributeTypes'
 
@@ -80,6 +80,7 @@ export default {
     const { getAvailableChannels } = channelsStore.useStore()
     const { getAllItemsAttributes } = attrStore.useStore()
     const { languages, currentLanguage, defaultLanguageIdentifier } = langStore.useStore()
+    const { t } = useI18n()
 
     watch(currentWhereRef, () => {
       if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
@@ -106,31 +107,31 @@ export default {
     }
 
     const defaultHeadersArray = [
-      { identifier: '#thumbnail#', text: i18n.t('Item.thumbnail'), align: 'start', sortable: false, filterable: false, value: '#thumbnail#' },
-      { identifier: 'identifier', text: i18n.t('Item.identifier'), align: 'start', sortable: true, filterable: false, value: 'identifier' },
+      { identifier: '#thumbnail#', text: t('Item.thumbnail'), align: 'start', sortable: false, filterable: false, value: '#thumbnail#' },
+      { identifier: 'identifier', text: t('Item.identifier'), align: 'start', sortable: true, filterable: false, value: 'identifier' },
       { identifier: 'name_en', text: 'Name (English)', align: 'start', sortable: true, filterable: false, value: { path: ['name', 'en'] } }
     ]
 
     function getAvailableColumns (onlyAttributes) {
       const arr = [
-        { identifier: 'identifier', text: i18n.t('Item.identifier'), align: 'start', sortable: true, filterable: false, value: 'identifier' },
-        { identifier: 'parentIdentifier', text: i18n.t('Item.parentIdentifier'), align: 'start', sortable: true, filterable: false, value: 'parentIdentifier' },
-        { identifier: 'typeIdentifier', text: i18n.t('Item.typeIdentifier'), align: 'start', sortable: true, filterable: false, value: 'typeIdentifier' },
-        { identifier: '#parentName#', text: i18n.t('Item.parentName'), align: 'start', sortable: false, filterable: false, value: '#parentName#' },
-        { identifier: '#thumbnail#', text: i18n.t('Item.thumbnail'), align: 'start', sortable: false, filterable: false, value: '#thumbnail#' },
-        { identifier: 'createdBy', text: i18n.t('CreatedBy'), align: 'start', sortable: true, filterable: false, value: 'createdBy' },
-        { identifier: 'createdAt', text: i18n.t('CreatedAt'), align: 'start', sortable: true, filterable: false, value: 'createdAt' },
-        { identifier: 'updatedBy', text: i18n.t('UpdatedBy'), align: 'start', sortable: true, filterable: false, value: 'updatedBy' },
-        { identifier: 'updatedAt', text: i18n.t('UpdatedAt'), align: 'start', sortable: true, filterable: false, value: 'updatedAt' },
-        { identifier: 'fileOrigName', text: i18n.t('Item.fileOrigName'), align: 'start', sortable: true, filterable: false, value: 'fileOrigName' },
-        { identifier: 'mimeType', text: i18n.t('Item.mimeType'), align: 'start', sortable: true, filterable: false, value: 'mimeType' }
+        { identifier: 'identifier', text: t('Item.identifier'), align: 'start', sortable: true, filterable: false, value: 'identifier' },
+        { identifier: 'parentIdentifier', text: t('Item.parentIdentifier'), align: 'start', sortable: true, filterable: false, value: 'parentIdentifier' },
+        { identifier: 'typeIdentifier', text: t('Item.typeIdentifier'), align: 'start', sortable: true, filterable: false, value: 'typeIdentifier' },
+        { identifier: '#parentName#', text: t('Item.parentName'), align: 'start', sortable: false, filterable: false, value: '#parentName#' },
+        { identifier: '#thumbnail#', text: t('Item.thumbnail'), align: 'start', sortable: false, filterable: false, value: '#thumbnail#' },
+        { identifier: 'createdBy', text: t('CreatedBy'), align: 'start', sortable: true, filterable: false, value: 'createdBy' },
+        { identifier: 'createdAt', text: t('CreatedAt'), align: 'start', sortable: true, filterable: false, value: 'createdAt' },
+        { identifier: 'updatedBy', text: t('UpdatedBy'), align: 'start', sortable: true, filterable: false, value: 'updatedBy' },
+        { identifier: 'updatedAt', text: t('UpdatedAt'), align: 'start', sortable: true, filterable: false, value: 'updatedAt' },
+        { identifier: 'fileOrigName', text: t('Item.fileOrigName'), align: 'start', sortable: true, filterable: false, value: 'fileOrigName' },
+        { identifier: 'mimeType', text: t('Item.mimeType'), align: 'start', sortable: true, filterable: false, value: 'mimeType' }
       ]
       const channels = getAvailableChannels()
       for (let i = 0; i < channels.length; i++) {
         const channel = channels[i]
         arr.push({
           identifier: '#channel_' + channel.identifier + '_status',
-          text: i18n.t('ColumnsSelection.ChannelStatus') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          text: t('ColumnsSelection.ChannelStatus') + ' (' + t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
           align: 'start',
           sortable: true,
           filterable: false,
@@ -138,7 +139,7 @@ export default {
         })
         arr.push({
           identifier: '#channel_' + channel.identifier + '_submittedAt',
-          text: i18n.t('ColumnsSelection.SubmittedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          text: t('ColumnsSelection.SubmittedAt') + ' (' + t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
           align: 'start',
           sortable: true,
           filterable: false,
@@ -146,7 +147,7 @@ export default {
         })
         arr.push({
           identifier: '#channel_' + channel.identifier + '_submittedBy',
-          text: i18n.t('ColumnsSelection.SubmittedBy') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          text: t('ColumnsSelection.SubmittedBy') + ' (' + t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
           align: 'start',
           sortable: true,
           filterable: false,
@@ -154,7 +155,7 @@ export default {
         })
         arr.push({
           identifier: '#channel_' + channel.identifier + '_syncedAt',
-          text: i18n.t('ColumnsSelection.SyncedAt') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          text: t('ColumnsSelection.SyncedAt') + ' (' + t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
           align: 'start',
           sortable: true,
           filterable: false,
@@ -162,7 +163,7 @@ export default {
         })
         arr.push({
           identifier: '#channel_' + channel.identifier + '_message',
-          text: i18n.t('ColumnsSelection.ChannelMessage') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          text: t('ColumnsSelection.ChannelMessage') + ' (' + t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
           align: 'start',
           sortable: true,
           filterable: false,
@@ -172,7 +173,7 @@ export default {
       for (let i = 0; i < languages.length; i++) {
         const lang = languages[i]
         const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-        arr.push({ identifier: 'name_' + lang.identifier, text: i18n.t('Item.name') + langText, align: 'start', sortable: true, filterable: false, value: { path: ['name', lang.identifier] } })
+        arr.push({ identifier: 'name_' + lang.identifier, text: t('Item.name') + langText, align: 'start', sortable: true, filterable: false, value: { path: ['name', lang.identifier] } })
       }
       const attrs = getAllItemsAttributes()
       for (let i = 0; i < attrs.length; i++) {

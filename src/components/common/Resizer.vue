@@ -1,5 +1,5 @@
 <template>
-   <div class="resizer bg-grey-lighten-2" :style="{left: left+'px'}" @mousedown="startDrag"></div>
+   <div class="nav-resizer bg-grey-lighten-2" :style="{left: left+'px'}" @mousedown="startDrag"></div>
 </template>
 
 <script>
@@ -46,7 +46,7 @@ export default {
 .v-navigation-drawer {
   transition: unset;
 }
-.resizer {
+.nav-resizer {
   width: 3px;
   cursor: ew-resize;
   position: absolute;
