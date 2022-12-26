@@ -402,7 +402,7 @@ export default {
 
       if (props.attr.type === AttributeType.Integer) {
         const tst = '' + (props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier])
-        const regx = XRegExp('^[0-9]+$', 'g')
+        const regx = XRegExp('^-?[0-9]+$', 'g')
         if (tst !== 'undefined' && tst.length > 0 && !regx.test(tst)) {
           const msg = i18n.t('Attribute.Error.WrongValue')
           if (props.dense) {
