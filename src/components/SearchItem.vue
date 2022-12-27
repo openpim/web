@@ -413,7 +413,7 @@ export default {
 
     onMounted(() => {
       document.addEventListener('keypress', enterKeyListener)
-      Promise.all([loadAllTypes(), loadAllLanguages(), loadAllAttributes(), loadAllChannels()]).then(() => {
+      Promise.all([loadAllTypes(), loadAllLanguages(), loadAllAttributes(), loadAllChannels()]).then(async () => {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
         if (!selectedRef.value) {
@@ -505,7 +505,7 @@ export default {
           }
           if (searchToOpenRef.value) {
             searchToOpenRef.value.user = ''
-            searchSelected(searchToOpenRef.value)
+            await searchSelected(searchToOpenRef.value)
             searchToOpenRef.value = null
             search()
           }
