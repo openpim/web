@@ -369,20 +369,27 @@ const actions = {
         }
       }
 
-      for (var j = 0; j < group.attributes.length; j++) {
-        const attr = group.attributes[j]
-        if (attr.relations && attr.relations.find(relId => relId === relationId)) {
-          const idx = attrs.findIndex(elem => elem.identifier === attr.identifier)
-          if (idx === -1) {
-            if (access > 0) {
-              attr.readonly = (access === 1)
-              attrs.push(attr)
-            }
-          } else {
-            if (access === 0) {
-              attrs.splice(idx, 1)
+      if (group.attributes.length < 100) {
+        // we will check attributes for relations only for groups with less them 100 attributes
+        // (bad approach but I am nor sure how to resolve it better for now, at least this is working for real projects)
+        // we had problems with 35000 attributes in group when memory in web browser is close to 1Gb
+        // then it start to process JS very slow and this loop for 35 K attributes working VERY slow
+        // so ATTRIBUTES FOR RELATIONS MUST BE IN GROUP WITH LESS THEN 100 ATTRIBUTES in data model
+        for (var j = 0; j < group.attributes.length; j++) {
+          const attr = group.attributes[j]
+          if (attr.relations && attr.relations.find(relId => relId === relationId)) {
+            const idx = attrs.findIndex(elem => elem.identifier === attr.identifier)
+            if (idx === -1) {
+              if (access > 0) {
+                attr.readonly = (access === 1)
+                attrs.push(attr)
+              }
             } else {
-              if (!attrs[idx].readonly) attrs[idx].readonly = (access === 1)
+              if (access === 0) {
+                attrs.splice(idx, 1)
+              } else {
+                if (!attrs[idx].readonly) attrs[idx].readonly = (access === 1)
+              }
             }
           }
         }
