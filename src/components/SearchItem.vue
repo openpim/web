@@ -3,74 +3,91 @@
     <v-row no-gutters v-if="hasAccess('search')">
       <v-col cols="12">
         <v-toolbar density="compact" flat color="transparent">
-        <v-toolbar-title class="text-subtitle-2">{{ selectedRef && selectedRef.extended ? $t('Home.Search.TitleExtended') : null }}</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="add(1)"><v-icon>mdi-plus</v-icon></v-btn>
-        <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="remove" :disabled="selectedFilterRef == null"><v-icon>mdi-minus</v-icon></v-btn>
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" icon @click="save"><v-icon>mdi-content-save</v-icon></v-btn>
-          </template>
-          <span>{{ $t('SearchSaveDialog.SaveTooltip') }}</span>
-        </v-tooltip>
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" icon @click="load"><v-icon>mdi-download</v-icon></v-btn>
-          </template>
-          <span>{{ $t('SearchSaveDialog.LoadTooltip') }}</span>
-        </v-tooltip>
-      </v-toolbar>
-        <v-list nav dense class="ma-0" v-if="selectedRef && !selectedRef.extended">
-        <v-list-item-group v-model="selectedFilterRef" color="primary">
-          <v-list-item v-for="(filter, i) in selectedRef.filters" :key="i" :three-line="filter.type === 'attr'">
-            <v-list-item-icon><v-icon>{{filter.type === 'attr' ? 'mdi-alpha-a-box-outline' : ''}}</v-icon></v-list-item-icon>
-            <v-list-item-content>
-              <v-container class="pa-0">
-                <v-row no-gutters>
-                  <v-col cols="12">
-                    <v-autocomplete dense v-model="filter.attr" :items="fieldsSelection" :label="$t('Search.Filter.Attribute.Attr')"></v-autocomplete>
-                  </v-col>
-                </v-row>
+          <v-toolbar-title class="text-subtitle-2">{{ selectedRef && selectedRef.extended ? $t('Home.Search.TitleExtended') : null }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="add(1)"><v-icon>mdi-plus</v-icon></v-btn>
+          <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="remove" :disabled="selectedFilterRef == null"><v-icon>mdi-minus</v-icon></v-btn>
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" icon @click="save"><v-icon>mdi-content-save</v-icon></v-btn>
+            </template>
+            <span>{{ $t('SearchSaveDialog.SaveTooltip') }}</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" icon @click="load"><v-icon>mdi-download</v-icon></v-btn>
+            </template>
+            <span>{{ $t('SearchSaveDialog.LoadTooltip') }}</span>
+          </v-tooltip>
+        </v-toolbar>
+        <v-list nav density="compact" class="ma-0" v-if="selectedRef && !selectedRef.extended">
+          <v-list-item-group v-model="selectedFilterRef" color="primary">
+            <v-list-item v-for="(filter, i) in selectedRef.filters" :key="i" :three-line="filter.type === 'attr'"  class="align-start">
+              <template v-slot:prepend>
+                <v-icon :icon="filter.type === 'attr' ? 'mdi-alpha-a-box-outline' : ''"></v-icon>
+              </template>
+<!--              <v-list-item-icon><v-icon class="align-self-start">{{filter.type === 'attr' ? 'mdi-alpha-a-box-outline' : ''}}</v-icon></v-list-item-icon>-->
+              <v-list-item-content>
+                <v-container class="pa-0">
+                  <v-row no-gutters>
+                    <v-col cols="12">
+                      <v-autocomplete
+                        variant="underlined"
+                        density="compact"
+                        v-model="filter.attr"
+                        :items="fieldsSelection"
+                        :label="$t('Search.Filter.Attribute.Attr')"
+                      ></v-autocomplete>
+                    </v-col>
+                  </v-row>
 
-                <v-row no-gutters v-if="filter.attr !== '#level#'">
-                  <v-col cols="12">
-                    <v-select dense v-model="filter.operation" :items="operationSelection" :label="$t('Search.Filter.Attribute.Operation')"></v-select>
-                  </v-col>
-                </v-row>
-                <v-row no-gutters v-if="filter.attr && !filter.attr.endsWith('#status')">
-                  <v-col cols="12">
-                    <template v-if="filter.attr === '#level#'">
-                      <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
-                    </template>
-                    <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)"></v-text-field>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)"></v-text-field>
-                    <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
-                  </v-col>
-                </v-row>
+                  <v-row no-gutters v-if="filter.attr !== '#level#'">
+                    <v-col cols="12">
+                      <v-select variant="underlined" density="compact" v-model="filter.operation" :items="operationSelection" :label="$t('Search.Filter.Attribute.Operation')"></v-select>
+                    </v-col>
+                  </v-row>
+                  <v-row no-gutters v-if="filter.attr && !filter.attr.endsWith('#status')">
+                    <v-col cols="12">
+                      <template v-if="filter.attr === '#level#'">
+                        <v-text-field variant="underlined" density="compact" readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
+                      </template>
+                      <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" variant="underlined" v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')" density="compact"></v-select>
+                      <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMap[filter.attr]" variant="underlined" density="compact" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                      <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMap[filter.attr]" variant="underlined" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)" density="compact"></v-text-field>
+                      <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && getDateType(filter) && !lovsMap[filter.attr]" variant="underlined" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)" density="compact"></v-text-field>
+                      <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" variant="underlined" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
+                    </v-col>
+                  </v-row>
 
-                <v-row no-gutters v-if="filter.attr && filter.attr.endsWith('#status')">
-                  <v-col cols="12">
-                    <v-select dense v-model="filter.value" :items="statusSelection" :label="$t('ColumnsSelection.ChannelStatus')"></v-select>
-                  </v-col>
-                </v-row>
+                  <v-row no-gutters v-if="filter.attr && filter.attr.endsWith('#status')">
+                    <v-col cols="12">
+                      <v-select dense v-model="filter.value" :items="statusSelection" :label="$t('ColumnsSelection.ChannelStatus')"></v-select>
+                    </v-col>
+                  </v-row>
 
-              </v-container>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-item-group>
+                </v-container>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-item-group>
       </v-list>
-        <v-textarea v-if="selectedRef && selectedRef.extended" class="ml-3 mr-3" v-model="extendedSearchRef" :label="$t('Search.Extended.Label')"></v-textarea>
+       <v-textarea
+         v-if="selectedRef && selectedRef.extended"
+         class="ml-3 mr-3"
+         v-model="extendedSearchRef"
+         :label="$t('Search.Extended.Label')"
+         variant="underlined"
+       ></v-textarea>
       </v-col>
     </v-row>
     <v-row no-gutters v-if="hasAccess('search')">
-      <v-col cols="4" class="d-inline-flex justify-end align-center">
+      <v-col cols="8" class="d-flex justify-end align-center">
         <v-select v-if="selectedRef && !selectedRef.extended && selectedRef.filters && selectedRef.filters.length > 1" class="ml-5" dense v-model="selectedRef.orAnd" :items="orAndSelection"></v-select>
       </v-col>
-      <v-col cols="8" class="d-inline-flex justify-end align-center">
-        <v-switch class="mt-0" dense hide-details v-if="selectedRef" v-model="selectedRef.extended"></v-switch>
-        <v-btn text @click="search" class="mr-2">{{$t('Search.Find')}}</v-btn>
+      <v-col cols="2" class="d-flex justify-end align-center">
+        <v-switch class="mt-0" dense hide-details v-if="selectedRef" v-model="selectedRef.extended" color="primary"></v-switch>
+      </v-col>
+      <v-col cols="2" class="d-flex justify-end align-center">
+        <v-btn variant="text" @click="search" class="mr-2">{{$t('Search.Find')}}</v-btn>
       </v-col>
     </v-row>
     <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
@@ -451,21 +468,23 @@ export default {
             for (let i = 0; i < languages.length; i++) {
               const lang = languages[i]
               const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-              const val = 'attr#' + attr.identifier + '#' + lang.identifier
-              arr.push({ value: val, text: attr.identifier + ' - ' + nameText + langText, lov: attr.lov })
-              checkLOV(attr, val)
+              const value = 'attr#' + attr.identifier + '#' + lang.identifier
+              const title = attr.identifier + ' - ' + nameText + langText
+              arr.push({ value, title, lov: attr.lov })
+              checkLOV(attr, value)
             }
           } else {
-            const val = 'attr#' + attr.identifier
-            const data = { value: val, text: attr.identifier + ' - ' + nameText, lov: attr.lov }
+            const value = 'attr#' + attr.identifier
+            const title = attr.identifier + ' - ' + nameText
+            const data = { value, title, lov: attr.lov }
             if (attr.type === AttributeType.Date) {
               data.type = 'date'
             } else if (attr.type === AttributeType.Time) {
               data.type = 'time'
             }
             arr.push(data)
-            if (attr.lov) lovsMap[val] = attr.lov
-            checkLOV(attr, val)
+            if (attr.lov) lovsMap[value] = attr.lov
+            checkLOV(attr, value)
           }
         }
 
