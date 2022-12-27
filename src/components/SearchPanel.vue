@@ -33,7 +33,7 @@ export default {
       const name = {}
       name[currentLanguage.value.identifier] = t('SearchSaveDialog.NameNew')
       currentWhereRef.value = null
-      selectedRef.value = { identifier: '', entity: val, name: name, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
+      selectedRef.value = { identifier: '', entity: val, name, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
     }
 
     return {

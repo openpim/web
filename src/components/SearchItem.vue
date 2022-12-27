@@ -20,15 +20,18 @@
             <span>{{ $t('SearchSaveDialog.LoadTooltip') }}</span>
           </v-tooltip>
         </v-toolbar>
-        <v-list nav density="compact" class="ma-0" v-if="selectedRef && !selectedRef.extended">
-          <v-list-item-group v-model="selectedFilterRef" color="primary">
+      </v-col>
+    </v-row>
+    <v-row no-gutters v-if="hasAccess('search')">
+      <v-col cols="12">
+        <v-list nav density="compact" class="ma-0" v-if="selectedRef && !selectedRef.extended"  v-model="selectedFilterRef"  color="primary">
             <v-list-item v-for="(filter, i) in selectedRef.filters" :key="i" :three-line="filter.type === 'attr'"  class="align-start">
               <template v-slot:prepend>
                 <v-icon :icon="filter.type === 'attr' ? 'mdi-alpha-a-box-outline' : ''"></v-icon>
               </template>
 <!--              <v-list-item-icon><v-icon class="align-self-start">{{filter.type === 'attr' ? 'mdi-alpha-a-box-outline' : ''}}</v-icon></v-list-item-icon>-->
-              <v-list-item-content>
-                <v-container class="pa-0">
+
+                <v-container>
                   <v-row no-gutters>
                     <v-col cols="12">
                       <v-autocomplete
@@ -61,14 +64,12 @@
 
                   <v-row no-gutters v-if="filter.attr && filter.attr.endsWith('#status')">
                     <v-col cols="12">
-                      <v-select dense v-model="filter.value" :items="statusSelection" :label="$t('ColumnsSelection.ChannelStatus')"></v-select>
+                      <v-select  variant="underlined" density="compact" v-model="filter.value" :items="statusSelection" :label="$t('ColumnsSelection.ChannelStatus')"></v-select>
                     </v-col>
                   </v-row>
 
                 </v-container>
-              </v-list-item-content>
             </v-list-item>
-          </v-list-item-group>
       </v-list>
        <v-textarea
          v-if="selectedRef && selectedRef.extended"
