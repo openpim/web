@@ -7,15 +7,15 @@
           <v-spacer></v-spacer>
           <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="add(1)"><v-icon>mdi-plus</v-icon></v-btn>
           <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="remove" :disabled="selectedFilterRef == null"><v-icon>mdi-minus</v-icon></v-btn>
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-btn v-on="on" icon @click="save"><v-icon>mdi-content-save</v-icon></v-btn>
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" icon @click="save"><v-icon>mdi-content-save</v-icon></v-btn>
             </template>
             <span>{{ $t('SearchSaveDialog.SaveTooltip') }}</span>
           </v-tooltip>
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-btn v-on="on" icon @click="load"><v-icon>mdi-download</v-icon></v-btn>
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" icon @click="load"><v-icon>mdi-download</v-icon></v-btn>
             </template>
             <span>{{ $t('SearchSaveDialog.LoadTooltip') }}</span>
           </v-tooltip>
