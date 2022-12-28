@@ -24,8 +24,17 @@
                   </v-treeview>
                 </v-tab-item>
                 <v-tab-item>  <!-- search -->
-                  <v-text-field @keydown.enter.prevent="searchEnterPressed" v-model="searchTextRef" @input="searchChanged" :label="$t('Search')" append-icon="mdi-magnify" class="ml-5 mr-5"></v-text-field>
-                  <v-list dense v-if="searchResultsRef && searchResultsRef.length > 0">
+                  <v-text-field
+                    @keydown.enter.prevent="searchEnterPressed"
+                    v-model="searchTextRef"
+                    @input="searchChanged"
+                    :label="$t('Search')"
+                    append-icon="mdi-magnify"
+                    class="ml-5 mr-5"
+                    density="compact"
+                    variant="underlined"
+                  ></v-text-field>
+                  <v-list density="compact" v-if="searchResultsRef && searchResultsRef.length > 0">
                     <v-list-item-group v-model="searchSelectedRef" color="primary">
                       <v-list-item v-for="(elem, i) in searchResultsRef" :key="i" dense>
                         <v-list-item-content>

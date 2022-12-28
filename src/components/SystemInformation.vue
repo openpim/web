@@ -3,7 +3,7 @@
     <template #activator="{ on: onMenu }">
       <v-tooltip bottom>
         <template #activator="{ on: onTooltip }">
-          <v-btn v-on="{ ...onMenu, ...onTooltip }" icon><v-icon>mdi-information-outline</v-icon></v-btn>
+          <v-btn v-on="{ ...onMenu, ...onTooltip }" variant="plain"><v-icon>mdi-information-outline</v-icon></v-btn>
         </template>
         <span>{{ $t('SystemInformation.Tooltip') }}</span>
       </v-tooltip>

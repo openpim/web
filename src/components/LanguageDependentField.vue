@@ -1,24 +1,37 @@
 <template>
 <div>
-  <v-text-field @blur="valueBlur" :readonly="readonly" :value="value" @input="handleInput" :rules="rules" :label="label" required  :error-messages="errors" :set="desc = getTextOption('description', '')">
-        <template #append>
-          <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
-            <template v-slot:activator="{ on }">
-              <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
-            </template>
-            <p v-html="desc.replaceAll('\n', '<br>')"/>
-          </v-tooltip>
-          <v-btn @click="showAllValues" v-if="languages.length > 1" icon><v-icon>mdi-web-box</v-icon></v-btn>
+  <v-text-field
+    @blur="valueBlur"
+    :readonly="readonly"
+    :value="value"
+    @input="handleInput"
+    :rules="rules"
+    :label="label"
+    required
+    :error-messages="errors"
+    :set="desc = getTextOption('description', '')"
+    density="compact"
+    variant="underlined"
+  >
+    <template v-slot:append-inner>
+      <v-menu v-model="showMenuRef">
+        <template v-slot:activator="{ props }">
+          <v-btn @click="showAllValues" v-if="languages.length > 1" v-bind="props" variant="plain"><v-icon>mdi-web-box</v-icon></v-btn>
         </template>
-      </v-text-field>
-
-   <v-menu v-model="showMenuRef" offset-y :position-x="xRef" :position-y="yRef" absolute>
-      <v-list>
-        <v-list-item v-for="(item, index) in availableValues" :key="index">
-          <v-list-item-title>{{ item }}</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+        <v-list>
+          <v-list-item v-for="(item, index) in availableValues" :key="index">
+            <v-list-item-title>{{ item }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
+        <template v-slot:activator="{ on }">
+          <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
+        </template>
+        <p v-html="desc.replaceAll('\n', '<br>')"/>
+      </v-tooltip>
+    </template>
+  </v-text-field>
 </div>
 </template>
 <script>
@@ -51,6 +64,8 @@ export default {
     }
   },
   setup (props, { emit, root }) {
+    // TODO: fix desc???
+
     const {
       languages
     } = langStore.useStore()
@@ -64,13 +79,9 @@ export default {
     }
 
     const showMenuRef = ref(false)
-    const xRef = ref(0)
-    const yRef = ref(0)
 
     function showAllValues (e) {
       e.preventDefault()
-      xRef.value = e.clientX
-      yRef.value = e.clientY
       showMenuRef.value = true
       /* root.$nextTick(() => {
         showMenuRef.value = true
@@ -101,8 +112,6 @@ export default {
       valueBlur,
       showMenuRef,
       availableValues,
-      xRef,
-      yRef,
       showAlert
     }
   }

@@ -52,7 +52,18 @@
                   <v-row no-gutters v-if="filter.attr && !filter.attr.endsWith('#status')">
                     <v-col cols="12">
                       <template v-if="filter.attr === '#level#'">
-                        <v-text-field variant="underlined" density="compact" readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
+                        <v-text-field
+                          variant="underlined"
+                          density="compact"
+                          readonly
+                          v-model="filter.value"
+                          :label="$t('Search.Filter.Attribute.Value')"
+                          required
+                        >
+                          <template v-slot:append>
+                            <v-btn @click="itemSelectionDialogRef.showDialog(filter)" variant="plain"><v-icon>mdi-form-select</v-icon></v-btn>
+                          </template>
+                        </v-text-field>
                       </template>
                       <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" variant="underlined" v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')" density="compact"></v-select>
                       <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMap[filter.attr]" variant="underlined" density="compact" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
