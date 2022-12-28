@@ -241,6 +241,7 @@ export default {
           if (filter.attr) {
             const data = {}
 
+            // TODO: Convert to enum
             let operation = ''
             switch (filter.operation) {
               case 1:
