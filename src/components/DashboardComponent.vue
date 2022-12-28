@@ -1,9 +1,41 @@
 <template>
   <div>
-    <BarChart v-if="component.chart === 1 && loadedRef" :data="dataRef" :options="{onClick: function(event, item){chartClick(event, item)},legend: {display: false}, title: {display: true, text: component.title}}"></BarChart>
-    <HorizontalBarChart v-if="component.chart === 2 && loadedRef" :data="dataRef" :options="{onClick: function(event, item){chartClick(event, item)},legend: {display: false}, title: {display: true, text: component.title}}"></HorizontalBarChart>
-    <CircleChart v-if="component.chart === 3 && loadedRef" :data="dataRef" :options="{onClick: function(event, item){chartClick(event, item)},title: {display: true, text: component.title}}"></CircleChart>
-    <PieChart v-if="component.chart === 4 && loadedRef" :data="dataRef" :options="{onClick: function(event, item){chartClick(event, item)},title: {display: true, text: component.title}}"></PieChart>
+    <BarChart
+      v-if="component.chart === 1 && loadedRef"
+      :data="dataRef"
+      :options="{
+        onClick: function(event, item){chartClick(event, item)},
+        legend: {display: false},
+        title: {display: true, text: component.title},
+        aspectRatio: 1
+      }"
+    ></BarChart>
+    <HorizontalBarChart
+      v-if="component.chart === 2 && loadedRef"
+      :data="dataRef"
+      :options="{
+        onClick: function(event, item){chartClick(event, item)},
+        legend: {display: false},
+        title: {display: true, text: component.title},
+        aspectRatio: 1
+      }"
+    ></HorizontalBarChart>
+    <CircleChart
+      v-if="component.chart === 3 && loadedRef"
+      :data="dataRef"
+      :options="{
+        onClick: function(event, item){chartClick(event, item)},
+        title: {display: true, text: component.title}
+      }"
+    ></CircleChart>
+    <PieChart
+      v-if="component.chart === 4 && loadedRef"
+      :data="dataRef"
+      :options="{
+        onClick: function(event, item){chartClick(event, item)},
+        title: {display: true, text: component.title}
+      }"
+    ></PieChart>
   </div>
 </template>
 <script>

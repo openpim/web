@@ -238,9 +238,9 @@ const actions = {
 }
 
 const store = {
-  currentUserRef: currentUserRef,
-  users: users,
-  currentRoles: currentRoles,
+  currentUserRef,
+  users,
+  currentRoles,
   ...actions
 }
 

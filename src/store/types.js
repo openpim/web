@@ -68,7 +68,7 @@ const actions = {
   addType: (parentId) => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Types.ObjectType.NewName')
-    const newType = { id: Date.now(), internalId: 0, name: name, link: 0, file: false, mainImage: 0, images: [], children: [], options: [] }
+    const newType = { id: Date.now(), internalId: 0, name, link: 0, file: false, mainImage: 0, images: [], children: [], options: [] }
     if (parentId !== -1) {
       const parent = findNode(parentId, typesTree)
       parent.children.push(newType)

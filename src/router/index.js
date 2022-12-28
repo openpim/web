@@ -347,12 +347,13 @@ router.beforeEach(async (to, from, next) => {
     // set i18n language
     setI18nLanguage(i18n, paramsLocale)
   }
-  if (Object.keys(router.preventRoute).length > 0) {
+  const preventedRoutes = Object.keys(router.preventRoute)
+  if (preventedRoutes.length > 0) {
     let text = i18n.global.t('Router.Changed.NotSaved') + '\n'
     let idx = 1
-    for (var prop in router.preventRoute) {
+    preventedRoutes.forEach(prop => {
       text += (idx++) + '. ' + router.preventRoute[prop] + '\n'
-    }
+    })
     text += i18n.global.t('Router.Changed.Continue')
 
     if (!window.confirm(text)) {
@@ -372,7 +373,6 @@ router.beforeEach(async (to, from, next) => {
           await rolesStore.store.loadAllRoles()
           user.roles.forEach(roleId => userStore.store.currentRoles.push(rolesStore.store.roles.find(role => role.id === roleId)))
         }
-        // console.log(userStore.store.currentRoles)
       }
       next()
     } else {

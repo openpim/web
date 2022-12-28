@@ -48,9 +48,9 @@
   </v-dialog>
 </template>
 <script>
+import { useI18n } from 'vue-i18n'
 import * as langStore from '../store/languages'
 import { ref, watch } from 'vue'
-import i18n from '../i18n'
 
 export default {
   name: 'DatePickerDialog',
@@ -60,12 +60,14 @@ export default {
       defaultLanguageIdentifier
     } = langStore.useStore()
 
+    const { t } = useI18n()
+
     const tabRef = ref(null)
     const datePickerDialogRef = ref(false)
     const datetime = ref(null)
     const date = ref(null)
     const time = ref(null)
-    const items = [i18n.t('DatePickerDialog.DAY'), i18n.t('DatePickerDialog.HOUR'), i18n.t('DatePickerDialog.MIN')]
+    const items = [t('DatePickerDialog.DAY'), t('DatePickerDialog.HOUR'), t('DatePickerDialog.MIN')]
     const perem = ref(items[0])
     const numberofdays = ref(null)
     const dateortime = ref(null)
@@ -78,13 +80,13 @@ export default {
       } else {
         const memory = perem.value
         switch (perem.value) {
-          case i18n.t('DatePickerDialog.DAY'):
+          case t('DatePickerDialog.DAY'):
             perem.value = 'DAY'
             break
-          case i18n.t('DatePickerDialog.HOUR'):
+          case t('DatePickerDialog.HOUR'):
             perem.value = 'HOUR'
             break
-          case i18n.t('DatePickerDialog.MIN'):
+          case t('DatePickerDialog.MIN'):
             perem.value = 'MIN'
             break
         }

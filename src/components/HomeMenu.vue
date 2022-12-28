@@ -1,17 +1,17 @@
 <template>
     <v-row no-gutters>
       <v-col cols="12">
-        <v-toolbar dense flat>
-          <v-toolbar-title class="subtitle-2">{{ $t('Home.Menu.Title') }}</v-toolbar-title>
-          <!-- v-spacer></v-spacer>
-          <v-tooltip bottom>
+        <v-toolbar density="compact" flat>
+          <v-toolbar-title class="text-subtitle-2">{{ $t('Home.Menu.Title') }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <!-- v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip -->
+          <v-btn icon @click="add"><v-icon>mdi-plus</v-icon></v-btn>
         </v-toolbar>
-        <v-btn small icon fab absolute top right @click="add" class="mt-7 mr-1"><v-icon>mdi-plus</v-icon></v-btn>
         <v-treeview dense activatable hoverable transition :items="itemsTree" :load-children="loadChildren" @update:active="activeChanged" :active.sync="activeRef" :open.sync="openRef">
           <template v-slot:prepend="{ item }">
             <v-icon v-if="item.typeIcon" :color="item.typeIconColor">mdi-{{ item.typeIcon }}</v-icon>
