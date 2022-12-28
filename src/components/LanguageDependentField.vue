@@ -24,9 +24,9 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
-        <template v-slot:activator="{ on }">
-          <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
+      <v-tooltip location="bottom" v-if="desc" color="blue-grey darken-4">
+        <template v-slot:activator="{ prop }">
+          <v-icon v-bind="prop" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
         </template>
         <p v-html="desc.replaceAll('\n', '<br>')"/>
       </v-tooltip>
