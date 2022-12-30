@@ -8,25 +8,33 @@
         <v-container v-if="selectedRef">
           <v-row>
             <v-col cols="6">
-            <v-list nav dense style="max-height: 300px" class="overflow-y-auto">
-              <v-list-item-group v-model="indexlInListRef" color="primary">
-                <v-list-item v-for="(item, i) in searchesRef" :key="i">
-                  <v-list-item-icon><v-icon>mdi-magnify</v-icon></v-list-item-icon>
-                  <v-list-item-content>
+              <v-list nav density="compact" max-height="300">
+                  <v-list-item v-for="(item, i) in searchesRef" :key="i" :value="item">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-magnify</v-icon>
+                    </template>
                     <v-list-item-title>{{item.name[currentLanguage.identifier]}}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
+                  </v-list-item>
+              </v-list>
             </v-col>
             <v-col cols="6">
               <v-form ref="formRef" lazy-validation class="ml-7">
-                <div class="d-inline-flex align-center">
-                  <v-text-field style="min-width: 100%" v-model="selectedRef.identifier" :disabled="!creationRef" :error-messages="identifierErrors" :rules="identifierRules" :label="$t('SearchSaveDialog.Identifier')" required></v-text-field>
-                  <SystemInformation :data="selectedRef" v-if="selectedRef.id !== 0"></SystemInformation>
-                </div>
+                  <v-text-field
+                    v-model="selectedRef.identifier"
+                    :disabled="!creationRef"
+                    :error-messages="identifierErrors"
+                    :rules="identifierRules"
+                    :label="$t('SearchSaveDialog.Identifier')"
+                    required
+                    density="compact"
+                    variant="underlined"
+                  >
+                    <template v-slot:append>
+                      <SystemInformation :data="selectedRef" v-if="selectedRef.id !== 0"></SystemInformation>
+                    </template>
+                  </v-text-field>
 
-                <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('SearchSaveDialog.Name')"></LanguageDependentField>
+                <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('SearchSaveDialog.Name')" density="compact"></LanguageDependentField>
                 <v-checkbox v-model="selectedRef.public" :label="$t('SearchSaveDialog.Public')" required></v-checkbox>
               </v-form>
             </v-col>
@@ -43,7 +51,7 @@
 </template>
 <script>
 import { ref, watch } from 'vue'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'
 import SystemInformation from './SystemInformation'
@@ -66,18 +74,22 @@ export default {
       searchEntityRef
     } = searchStore.useStore()
 
+    const { t } = useI18n()
+
     const creationRef = ref(false)
     let initialIndex
     const formRef = ref(null)
-    const indexlInListRef = ref(0)
+    const indexlInListRef = ref([0])
     const selectedRef = ref(null)
     const dialogRef = ref(false)
     const searchesRef = ref([])
     const identifierErrors = ref([])
 
+    // TODO: Fix it
     watch(indexlInListRef, (selected, previous) => {
+      console.log('indexlInListRef', selected, previous)
       if (previous && selected !== initialIndex) {
-        if (confirm(i18n.t('SearchSaveDialog.OverrideConfirmation'))) {
+        if (confirm(t('SearchSaveDialog.OverrideConfirmation'))) {
           const data = searchesRef.value[selected]
           selectedRef.value.identifier = data.identifier
           selectedRef.value.entity = data.entity
@@ -95,7 +107,7 @@ export default {
         if (creationRef.value) {
           identifierExists(selectedRef.value.identifier).then((val) => {
             if (val) {
-              identifierErrors.value = [i18n.t('SearchSaveDialog.IdentifierNotUnique')]
+              identifierErrors.value = [t('SearchSaveDialog.IdentifierNotUnique')]
               return
             }
             save(selectedRef.value).then(() => {
@@ -142,10 +154,10 @@ export default {
 
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (!v) {
-        return i18n.t('SearchSaveDialog.IdentifierRequired')
+        return t('SearchSaveDialog.IdentifierRequired')
       }
       return true
     }
@@ -167,7 +179,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('SearchSaveDialog.NameRequired')
+        v => !!v || t('SearchSaveDialog.NameRequired')
       ]
     }
   }

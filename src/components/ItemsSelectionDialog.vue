@@ -12,8 +12,8 @@
                 <v-tab>{{$t('Items.SelectionDialog.Selection')}}</v-tab>
                 <v-tab>{{$t('Items.SelectionDialog.Search')}}</v-tab>
               </v-tabs>
-              <v-tabs-items v-model="tabRef">
-                <v-tab-item> <!-- tree -->
+              <v-window v-model="tabRef">
+                <v-window-item> <!-- tree -->
                   <v-treeview v-if="selectionDialogRef" dense selectable selection-type="independent" hoverable :items="treeRef" :load-children="loadChildren" v-model="selectedItemsRef" @input="onSelect">
                     <template v-slot:prepend="{ item }">
                       <v-icon v-if="item.typeIcon" :color="item.typeIconColor">mdi-{{ item.typeIcon }}</v-icon>
@@ -22,21 +22,28 @@
                       {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}
                     </template>
                   </v-treeview>
-                </v-tab-item>
-                <v-tab-item>  <!-- search -->
-                  <v-text-field @keydown.enter.prevent="searchEnterPressed" v-model="searchTextRef" @input="searchChanged" :label="$t('Search')" append-icon="mdi-magnify" class="ml-5 mr-5"></v-text-field>
-                  <v-list dense v-if="searchResultsRef && searchResultsRef.length > 0">
+                </v-window-item>
+                <v-window-item>  <!-- search -->
+                   <v-text-field
+                    @keydown.enter.prevent="searchEnterPressed"
+                    v-model="searchTextRef"
+                    @input="searchChanged"
+                    :label="$t('Search')"
+                    append-icon="mdi-magnify"
+                    class="ml-5 mr-5 mt-5"
+                    density="compact"
+                    variant="underlined"
+                  ></v-text-field>
+                  <v-list density="compact" v-if="searchResultsRef && searchResultsRef.length > 0">
                     <v-list-item-group v-model="searchSelectedRef" color="primary">
-                      <v-list-item v-for="(elem, i) in searchResultsRef" :key="i" dense>
-                        <v-list-item-content>
+                      <v-list-item v-for="(elem, i) in searchResultsRef" :key="i" density="compact">
                           <v-list-item-title><a @click="selectItem(i)">{{elem.identifier + ' (' +elem.type.identifier+')'}}</a></v-list-item-title>
                           <v-list-item-subtitle>{{ elem.name[currentLanguage.identifier] || '[' + elem.name[defaultLanguageIdentifier] + ']' }}</v-list-item-subtitle>
-                        </v-list-item-content>
                       </v-list-item>
                     </v-list-item-group>
                   </v-list>
-                </v-tab-item>
-              </v-tabs-items>
+                </v-window-item>
+              </v-window>
             </v-col>
           </v-row>
         </v-container>

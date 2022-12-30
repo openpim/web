@@ -22,4 +22,5 @@ yarn-error.log*
 .env copy
 web_run.bat
 .npmrc
+.gitconfig
 /.idea

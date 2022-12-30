@@ -7,15 +7,15 @@
           <v-spacer></v-spacer>
           <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="add(1)"><v-icon>mdi-plus</v-icon></v-btn>
           <v-btn icon v-if="selectedRef && !selectedRef.extended" @click="remove" :disabled="selectedFilterRef == null"><v-icon>mdi-minus</v-icon></v-btn>
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-btn v-on="on" icon @click="save"><v-icon>mdi-content-save</v-icon></v-btn>
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" icon @click="save"><v-icon>mdi-content-save</v-icon></v-btn>
             </template>
             <span>{{ $t('SearchSaveDialog.SaveTooltip') }}</span>
           </v-tooltip>
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-btn v-on="on" icon @click="load"><v-icon>mdi-download</v-icon></v-btn>
+          <v-tooltip location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" icon @click="load"><v-icon>mdi-download</v-icon></v-btn>
             </template>
             <span>{{ $t('SearchSaveDialog.LoadTooltip') }}</span>
           </v-tooltip>
@@ -52,7 +52,18 @@
                   <v-row no-gutters v-if="filter.attr && !filter.attr.endsWith('#status')">
                     <v-col cols="12">
                       <template v-if="filter.attr === '#level#'">
-                        <v-text-field variant="underlined" density="compact" readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
+                        <v-text-field
+                          variant="underlined"
+                          density="compact"
+                          readonly
+                          v-model="filter.value"
+                          :label="$t('Search.Filter.Attribute.Value')"
+                          required
+                        >
+                          <template v-slot:append>
+                            <v-btn @click="itemSelectionDialogRef.showDialog(filter)" variant="plain"><v-icon>mdi-form-select</v-icon></v-btn>
+                          </template>
+                        </v-text-field>
                       </template>
                       <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" variant="underlined" v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')" density="compact"></v-select>
                       <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMap[filter.attr]" variant="underlined" density="compact" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
@@ -230,6 +241,7 @@ export default {
           if (filter.attr) {
             const data = {}
 
+            // TODO: Convert to enum
             let operation = ''
             switch (filter.operation) {
               case 1:
