@@ -369,6 +369,13 @@ export default {
       return props.item.id
     })
 
+    watch(() => props.item, (newValue, prevValue) => {
+      if (props.attr.lov) {
+        // TODO change to nextTick after moving to real Vue 3. Now nextTick is not available
+        setTimeout(() => { lovChanged(true) }, 500)
+      }
+    })
+
     const dateMenu = ref(false)
     const timeMenu = ref(false)
     const timeMenuRef = ref(null)
@@ -515,7 +522,7 @@ export default {
 
       if (props.attr.lov) {
         // TODO change to nextTick after moving to real Vue 3. Now nextTick is not available
-        setTimeout(() => { lovChanged(true) }, 1000)
+        setTimeout(() => { lovChanged(true) }, 500)
       }
     })
 
