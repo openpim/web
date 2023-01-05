@@ -417,6 +417,7 @@
   "Search.Filter.Operation.NotSubstringICase": "not has (case insensitive)",
   "Search.Filter.Operation.Empty": "empty",
   "Search.Filter.Operation.NotEmpty": "not empty",
+  "Search.Filter.Operation.Contains": "contains",
   "Search.Extended.Label": "Where clause",
   "Search.Extended.Error": "Wrong where clause: ",
   "Search.Or": "OR",

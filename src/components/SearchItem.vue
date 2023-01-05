@@ -272,6 +272,9 @@ export default {
               case 17:
                 operation = 'OP_and'
                 break
+              case 18:
+                operation = 'OP_contains'
+                break
             }
 
             if (filter.attr.startsWith('channel#')) {
@@ -567,7 +570,8 @@ export default {
         { text: i18n.t('Search.Filter.Operation.SubstringICase'), value: 12 },
         { text: i18n.t('Search.Filter.Operation.NotSubstringICase'), value: 15 },
         { text: i18n.t('Search.Filter.Operation.Empty'), value: 16 },
-        { text: i18n.t('Search.Filter.Operation.NotEmpty'), value: 17 }
+        { text: i18n.t('Search.Filter.Operation.NotEmpty'), value: 17 },
+        { text: i18n.t('Search.Filter.Operation.Contains'), value: 18 }
       ]
 
     }
