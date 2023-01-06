@@ -28,7 +28,7 @@
       </v-bottom-navigation>
       <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
     </v-navigation-drawer>
-    <v-navigation-drawer v-model="drawerRight" absolute right clipped width="40%">
+    <v-navigation-drawer v-model="drawerRight" absolute right clipped width="45%">
 
       <v-data-table @update:options="activeOptionsUpdate"
       caption="Active Processes"
@@ -38,7 +38,7 @@
       :headers="activeHeaders"
       :items="activeProcesses.rows"
       dense
-      class="mt-14 ma-5">
+      class="mt-14 ml-5 mr-5 mb-0">
       <template v-slot:item="{ item, headers }">
         <tr class="zebra">
           <td v-for="(header, i) in headers" :key="i" class="truncate p-1">
@@ -47,6 +47,7 @@
         </tr>
       </template>
       </v-data-table>
+      <v-row class="justify-end"><v-btn text @click="submit" class="mr-5" v-text="$t('Refresh')"></v-btn></v-row>
 
     </v-navigation-drawer>
 
