@@ -28,8 +28,10 @@
       </v-bottom-navigation>
       <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
     </v-navigation-drawer>
+    <v-navigation-drawer v-model="drawerRight" absolute right clipped width="25%">
+    </v-navigation-drawer>
 
-    <AppHeader :export="isExportSearch" :drawer="drawer"/>
+    <AppHeader :export="isExportSearch" :drawer="drawer" :drawerRight="drawerRight"/>
 
     <v-content>
       <v-container class="fill-height" fluid>
@@ -123,6 +125,7 @@ export default {
     } = dashStore.useStore()
 
     const drawer = ref(null)
+    const drawerRight = ref(false)
     const drawerRef = ref(null)
     const drawerWidth = ref(localStorage.getItem('drawerWidth') || '25%')
     const activeBottom = ref(0)
@@ -236,6 +239,10 @@ export default {
         drawer.value = val
       })
 
+      eventBus.on('drawer_triggered_right', val => {
+        drawerRight.value = val
+      })
+
       eventBus.on('userDialogRef_triggered', val => {
         userDialogRef.value = val
       })
@@ -245,6 +252,7 @@ export default {
       logout,
       reload,
       drawer,
+      drawerRight,
       drawerRef,
       drawerWidth,
       activeBottom,

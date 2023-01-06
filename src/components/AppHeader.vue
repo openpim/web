@@ -19,6 +19,7 @@
         </v-list-item>
       </v-list>
     </v-menu>
+    <v-btn icon @click="triggerDrawerRight"><v-icon>mdi-alpha-p-circle-outline</v-icon></v-btn>
     <v-btn icon @click="triggerUserDialog"><v-icon>mdi-account</v-icon></v-btn>
     <AfterButtonsComponent></AfterButtonsComponent>
   </v-app-bar>
@@ -45,6 +46,9 @@ export default {
     },
     drawer: {
       required: true
+    },
+    drawerRight: {
+      required: true
     }
   },
   setup (props) {
@@ -68,6 +72,10 @@ export default {
       eventBus.emit('drawer_triggered', !props.drawer)
     }
 
+    function triggerDrawerRight () {
+      eventBus.emit('drawer_triggered_right', !props.drawerRight)
+    }
+
     function triggerUserDialog () {
       eventBus.emit('userDialogRef_triggered', true)
     }
@@ -83,6 +91,7 @@ export default {
       defaultLanguageIdentifier,
       languageSelected,
       triggerDrawer,
+      triggerDrawerRight,
       triggerUserDialog,
       isExportSearch: props.export
     }
