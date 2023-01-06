@@ -600,5 +600,6 @@
   "DatePickerDialog.MIN": "Минута",
   "DatePickerDialog.Title.Dateonly": "Выбор даты",
   "DatePickerDialog.Title.Timeonly": "Выбор времени",
-  "ShowAttributes": "Показать атрибуты"
+  "ShowAttributes": "Показать атрибуты",
+  "Process.title": "Процессы"
 }

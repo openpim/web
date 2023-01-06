@@ -28,7 +28,26 @@
       </v-bottom-navigation>
       <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
     </v-navigation-drawer>
-    <v-navigation-drawer v-model="drawerRight" absolute right clipped width="25%">
+    <v-navigation-drawer v-model="drawerRight" absolute right clipped width="40%">
+
+      <v-data-table @update:options="activeOptionsUpdate"
+      caption="Active Processes"
+      :options="activeOptionsRef"
+      :server-items-length="activeProcesses.count"
+      :loading="activeLoadingRef"
+      :headers="activeHeaders"
+      :items="activeProcesses.rows"
+      dense
+      class="mt-14 ma-5">
+      <template v-slot:item="{ item, headers }">
+        <tr class="zebra">
+          <td v-for="(header, i) in headers" :key="i" class="truncate p-1">
+            {{item[header.value]}}
+          </td>
+        </tr>
+      </template>
+      </v-data-table>
+
     </v-navigation-drawer>
 
     <AppHeader :export="isExportSearch" :drawer="drawer" :drawerRight="drawerRight"/>
@@ -85,6 +104,7 @@ import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
 import * as rolesStore from '../store/roles'
 import * as dashStore from '../store/dashboards'
+import * as procStore from '../store/processes'
 import i18n from '../i18n'
 import router from '../router'
 import eventBus from '../eventBus'
@@ -124,6 +144,10 @@ export default {
       getDashboardsForCurrentUser
     } = dashStore.useStore()
 
+    const {
+      loadActiveProcesses
+    } = procStore.useStore()
+
     const drawer = ref(null)
     const drawerRight = ref(false)
     const drawerRef = ref(null)
@@ -139,6 +163,10 @@ export default {
     const isUserAdmin = ref(false)
 
     const hasDashboards = ref(false)
+
+    const activeProcesses = ref({ count: 0, rows: [] })
+    const activeOptionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: [], sortDesc: [] })
+    const activeLoadingRef = ref(false)
 
     function reload () {
       reloadModel().then(() => logout())
@@ -218,6 +246,13 @@ export default {
       )
     }
 
+    async function activeOptionsUpdate (options) {
+      activeLoadingRef.value = true
+      const data = await loadActiveProcesses(0)
+      activeProcesses.value = data
+      activeLoadingRef.value = false
+    }
+
     onMounted(() => {
       setBorderWidth()
       setResizeEvents()
@@ -267,6 +302,16 @@ export default {
       hasSearchAccess,
       isUserAdmin,
       hasDashboards,
+      activeProcesses,
+      activeOptionsRef,
+      activeLoadingRef,
+      activeOptionsUpdate,
+      activeHeaders: [
+        { text: 'Title', value: 'title', width: '50%' },
+        { text: 'Status', value: 'status', width: '20%' },
+        { text: 'Log', value: 'log', sortable: false, width: '15%' },
+        { text: 'File', value: 'storagePath', width: '15%' }
+      ],
       nameRules: [
         v => !!v || i18n.t('Config.Users.Error.NameRequired')
       ]
@@ -280,4 +325,25 @@ export default {
   text-align: center;
   font-size:x-small;
 }
+
+  .truncate {
+    max-width: 1px;
+    overflow: hidden;
+    border: thin solid rgba(0, 0, 0, 0.12);
+  }
+
+  .truncate > span {
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: -webkit-box;
+    /* number of visible lines */
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
+  }
+
+  .zebra:nth-of-type(even) {
+    background-color: #FCFCFC;
+  }
+
 </style>
