@@ -353,6 +353,7 @@ import * as actionsStore from '../store/actions'
 import * as relStore from '../store/relations'
 import * as auditStore from '../store/audit'
 import * as channelsStore from '../store/channels'
+import * as searchStore from '../store/search'
 import * as lovsStore from '../store/lovs'
 import i18n from '../i18n'
 import * as langStore from '../store/languages'
@@ -425,6 +426,8 @@ export default {
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
     const { loadAllChannels, getAvailableChannels, submitItem, triggerChannel, updateItemChannels } = channelsStore.useStore()
+
+    const { searchEntityRef } = searchStore.useStore()
 
     const {
       findType,
@@ -624,7 +627,7 @@ export default {
     function performRelationSearch (relIdent, type) {
       const oppositeType = type === 'source' ? 'target' : 'source'
       const lquery = itemRef.value.path + '.*'
-      const where = { include: [{ as: type + 'Relation', required: true, where: { relationIdentifier: relIdent }, include: [{ as: oppositeType + 'Item', required: true, where: { path: { OP_regexp: lquery } } }] }] }
+      const where = { include: [{ as: oppositeType + 'Relation', required: true, where: { relationIdentifier: relIdent }, include: [{ as: type + 'Item', required: true, where: { path: { OP_regexp: lquery } } }] }] }
 
       const search = { user: '', filters: [], whereClause: where, extended: true }
       localStorage.setItem('search_to_open', JSON.stringify(search))
@@ -1144,6 +1147,7 @@ export default {
       loadAllChannels().then(() => {
         awailableChannelsRef.value = getAvailableChannels(false)
       })
+      searchEntityRef.value = 'ITEM'
       Promise.all([
         checkAuditEnabled(),
         loadAllActions(),

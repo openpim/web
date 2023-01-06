@@ -159,21 +159,31 @@ export default {
 
     const treeRef = ref([]) // have to provide tree as separate variable because tree view is not working with computed property
     const itemsTreeFiltered = computed(() => {
+      function hasTypes (node, typesArr) {
+        if (typesArr.includes(node.internalId)) return true
+        if (node.children && node.children.length > 0) {
+          for (let i = 0; i < node.children.length; i++) {
+            const child = node.children[i]
+            if (hasTypes(child, typesArr)) return true
+          }
+        }
+        return false
+      }
+
+      function cloneWithFilter (elem) {
+        const clone = { ...elem }
+        clone.children = elem.children.filter(item => {
+          const type = findType(item.typeId)
+          return hasTypes(type.node, typesFilter.value)
+        }).map(child => { return cloneWithFilter(child) })
+        return clone
+      }
+
       if (typesFilter.value && typesFilter.value.length > 0) {
         return itemsTree.filter(item => {
           const type = findType(item.typeId)
-          function hasTypes (node, typesArr) {
-            if (typesArr.includes(node.internalId)) return true
-            if (node.children && node.children.length > 0) {
-              for (let i = 0; i < node.children.length; i++) {
-                const child = node.children[i]
-                if (hasTypes(child, typesArr)) return true
-              }
-            }
-            return false
-          }
           return hasTypes(type.node, typesFilter.value)
-        })
+        }).map(elem => { return cloneWithFilter(elem) })
       } else {
         return itemsTree
       }
