@@ -373,7 +373,7 @@ export default {
       setBorderWidth()
       setResizeEvents()
       loadAllRoles().then(() => {
-        timer = setInterval(checkFinishedProcesses, 5000)
+        timer = setInterval(checkFinishedProcesses, 60000)
         loadAllDashboards().then(() => {
           hasDashboards.value = getDashboardsForCurrentUser().length > 0
         })
