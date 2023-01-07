@@ -4,10 +4,11 @@
       :value="hasError"
       top
       :multi-line="true"
-      :timeout="0"
+      :timeout="-1"
     >
-    {{ error }}
+    <span v-html="error"></span>
     <v-btn
+      class="ml-5"
       color="error"
       @click="clearError"
     >
@@ -19,10 +20,11 @@
       color="teal"
       bottom=""
       :multi-line="true"
-      :timeout="0"
+      :timeout="-1"
     >
-    {{ info }}
+    <span v-html="info"></span>
     <v-btn
+      class="ml-5"
       color="info"
       @click="clearInfo"
     >

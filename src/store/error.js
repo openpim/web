@@ -16,7 +16,7 @@ const actions = {
   clearInfo: () => { state.info = '' },
   showInfo: (msg) => {
     state.info = msg
-    setTimeout(() => { state.info = '' }, 5000)
+    setTimeout(() => { state.info = '' }, 60000)
   }
 }
 

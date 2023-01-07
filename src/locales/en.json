@@ -618,5 +618,7 @@
   "Process.Table.no-results-text": "No results",
   "Process.Table.items-per-page-text": "Rows count",
   "Process.Table.items-per-page-all-text": "All",
-  "Process.Table.page-text": "{0}-{1} of {2}"
+  "Process.Table.page-text": "{0}-{1} of {2}",
+  "Process.Finished1": "Process '{name}' has been finished",
+  "Process.Finished2": "Process '{name}' has been finished.<br>You can download the file <a href='{href}'>{file}</a>"
 }

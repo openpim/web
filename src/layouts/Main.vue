@@ -64,7 +64,7 @@
         </tr>
       </template>
       </v-data-table>
-      <v-row class="justify-end"><v-btn text @click="activeOptionsUpdate(activeOptionsRef)" class="mr-5" v-text="$t('DataTable.Refresh')"></v-btn></v-row>
+      <v-row class="justify-end"><v-btn text @click="activeOptionsUpdate(activeOptionsRef);finishedOptionsUpdate(finishedOptionsRef)" class="mr-5" v-text="$t('DataTable.Refresh')"></v-btn></v-row>
 
       <v-data-table @update:options="finishedOptionsUpdate"
       :caption="$t('Process.Table.FinishedCaption')"
@@ -78,7 +78,7 @@
       :no-data-text="$t('Process.Table.no-data-text')"
       :no-results-text="$t('Process.Table.no-results-text')"
       dense
-      class="mt-14 ml-5 mr-5 mb-0">
+      class="mt-2 ml-5 mr-5 mb-0">
       <template v-slot:item="{ item, headers }">
         <tr class="zebra">
           <td v-for="(header, i) in headers" :key="i" class="truncate p-1">
@@ -101,7 +101,6 @@
         </tr>
       </template>
       </v-data-table>
-      <v-row class="justify-end"><v-btn text @click="finishedOptionsUpdate(finishedOptionsRef)" class="mr-5" v-text="$t('DataTable.Refresh')"></v-btn></v-row>
 
     </v-navigation-drawer>
 
@@ -168,7 +167,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted, onUnmounted } from '@vue/composition-api'
 import ErrorBox from '../components/ErrorBox'
 import AppHeader from '../components/AppHeader.vue'
 import * as userStore from '../store/users'
@@ -343,10 +342,38 @@ export default {
       logRef.value = log
       logDialogRef.value = true
     }
+
+    const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
+    const token = localStorage.getItem('token')
+    let lastProcess
+    async function checkFinishedProcesses () {
+      const data = await loadFinishedProcesses({ page: 1, itemsPerPage: 1, sortBy: ['id'], sortDesc: [false] })
+      if (data.count > 0) {
+        if (lastProcess === undefined) {
+          lastProcess = data.rows[0]
+        } else if (lastProcess === null || lastProcess.id !== data.rows[0].id) {
+          // new finished process found
+          lastProcess = data.rows[0]
+          const msg = lastProcess.storagePath
+            ? i18n.t('Process.Finished2', { name: lastProcess.title, href: damUrl + 'asset-process/' + lastProcess.id + '?token=' + token, file: lastProcess.fileName || 'file.bin' })
+            : i18n.t('Process.Finished1', { name: lastProcess.title })
+          showInfo(msg)
+          activeOptionsUpdate(activeOptionsRef.value)
+          finishedOptionsUpdate(finishedOptionsRef.value)
+        }
+      } else if (lastProcess === undefined) {
+        lastProcess = null
+      }
+    }
+
+    //          <a v-if="item.storagePath" :href="damUrl + 'asset-process/' + item.id + '?token=' + token">{{ item.fileName ? item.fileName : 'file.bin' }}</a>
+
+    let timer
     onMounted(() => {
       setBorderWidth()
       setResizeEvents()
       loadAllRoles().then(() => {
+        timer = setInterval(checkFinishedProcesses, 5000)
         loadAllDashboards().then(() => {
           hasDashboards.value = getDashboardsForCurrentUser().length > 0
         })
@@ -371,6 +398,10 @@ export default {
       eventBus.on('userDialogRef_triggered', val => {
         userDialogRef.value = val
       })
+    })
+
+    onUnmounted(() => {
+      clearInterval(timer)
     })
 
     return {
@@ -423,8 +454,8 @@ export default {
       logDialogRef,
       logRef,
       showLog,
-      damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
-      token: localStorage.getItem('token')
+      damUrl: damUrl,
+      token: token
     }
   }
 }

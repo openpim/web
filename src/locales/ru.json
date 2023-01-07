@@ -615,5 +615,7 @@
   "Process.Table.no-results-text": "Нет данных",
   "Process.Table.items-per-page-text": "Записей",
   "Process.Table.items-per-page-all-text": "Все",
-  "Process.Table.page-text": "{0}-{1} из {2}"
+  "Process.Table.page-text": "{0}-{1} из {2}",
+  "Process.Finished1": "Процесс '{name}' завершен",
+  "Process.Finished2": "Процесс '{name}' завершен.<br>Вы можете загрузить файл <a href='{href}'>{file}</a>"
 }
