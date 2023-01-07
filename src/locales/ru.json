@@ -611,7 +611,7 @@
   "Process.Header.StartedAt": "Начат",
   "Process.Header.FinishedAt": "Закончен",
   "Process.Table.loading-text": "Идет загрузка",
-  "Process.Table.no-data-text": "Нет данных",
+  "Process.Table.no-data-text": "Записей нет",
   "Process.Table.no-results-text": "Нет данных",
   "Process.Table.items-per-page-text": "Записей",
   "Process.Table.items-per-page-all-text": "Все",

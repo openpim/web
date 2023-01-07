@@ -57,7 +57,7 @@
                 <span>{{ $t('ExecutionsTable.ViewDetails') }}</span>
               </v-tooltip></v-col></v-row>
             </template>
-            <template v-if="header.value === 'file'">
+            <template v-if="header.value === 'storagePath'">
               <a v-if="item.storagePath" :href="damUrl + 'asset-process/' + item.id + '?token=' + token">{{ item.fileName ? item.fileName : 'file.bin' }}</a>
             </template>
           </td>
@@ -94,7 +94,7 @@
                 <span>{{ $t('ExecutionsTable.ViewDetails') }}</span>
               </v-tooltip></v-col></v-row>
             </template>
-            <template v-if="header.value === 'file'">
+            <template v-if="header.value === 'storagePath'">
               <a v-if="item.storagePath" :href="damUrl + 'asset-process/' + item.id + '?token=' + token">{{ item.fileName ? item.fileName : 'file.bin' }}</a>
             </template>
           </td>
@@ -429,7 +429,7 @@ export default {
         { text: i18n.t('Process.Header.Title'), value: 'title', width: '40%' },
         { text: i18n.t('Process.Header.Status'), value: 'status', width: '15%' },
         { text: i18n.t('Process.Header.Log'), value: 'log', sortable: false, width: '15%' },
-        { text: i18n.t('Process.Header.File'), value: 'file', width: '15%' },
+        { text: i18n.t('Process.Header.File'), value: 'storagePath', width: '15%' },
         { text: i18n.t('Process.Header.StartedAt'), value: 'createdAt', width: '15%' }
       ],
       finishedProcesses,
@@ -440,7 +440,7 @@ export default {
         { text: i18n.t('Process.Header.Title'), value: 'title', width: '25%' },
         { text: i18n.t('Process.Header.Status'), value: 'status', width: '15%' },
         { text: i18n.t('Process.Header.Log'), value: 'log', sortable: false, width: '15%' },
-        { text: i18n.t('Process.Header.File'), value: 'file', width: '15%' },
+        { text: i18n.t('Process.Header.File'), value: 'storagePath', width: '15%' },
         { text: i18n.t('Process.Header.StartedAt'), value: 'createdAt', width: '15%' },
         { text: i18n.t('Process.Header.FinishedAt'), value: 'finishTime', width: '15%' }
       ],
