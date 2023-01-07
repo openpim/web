@@ -366,8 +366,6 @@ export default {
       }
     }
 
-    //          <a v-if="item.storagePath" :href="damUrl + 'asset-process/' + item.id + '?token=' + token">{{ item.fileName ? item.fileName : 'file.bin' }}</a>
-
     let timer
     onMounted(() => {
       setBorderWidth()
