@@ -1,13 +1,33 @@
 import { provide, inject } from '@vue/composition-api'
-import { serverFetch } from './utils'
+import { serverFetch, objectToGraphgl } from './utils'
+
+function generateSorting (options) {
+  const order = []
+  if (options.sortBy) {
+    for (let i = 0; i < options.sortBy.length; i++) {
+      const elem = options.sortBy[i]
+      if (typeof elem === 'object') {
+        const path = elem.path.reduce((accumulator, currentValue, index, arr) => accumulator + (index !== arr.length ? '.' : '') + currentValue)
+        order.push([path, options.sortDesc[i] ? 'DESC' : 'ASC'])
+      } else {
+        order.push([elem, options.sortDesc[i] ? 'DESC' : 'ASC'])
+      }
+    }
+  }
+  return order
+}
 
 const actions = {
-  loadActiveProcesses: async (offset) => {
-    const data = await serverFetch('query { getProcesses(where: {active:true}, order: [["id","ASC"]], offset: ' + offset + ', limit:10) { count rows { id identifier title active status finishTime storagePath mimeType fileName log createdAt updatedAt } } }')
+  loadActiveProcesses: async (options) => {
+    const offset = (options.page - 1) * options.itemsPerPage
+    const order = generateSorting(options)
+    const data = await serverFetch('query { getProcesses(where: {active:true}, order: ' + objectToGraphgl(order) + ', offset: ' + offset + ', limit:' + options.itemsPerPage + ') { count rows { id identifier title active status finishTime storagePath mimeType fileName log createdAt updatedAt } } }')
     return data.getProcesses
   },
-  loadFinishedProcesses: async (offset) => {
-    const data = await serverFetch('query { getProcesses(where: {active:false}, order: [["id","ASC"]], offset: ' + offset + ', limit:10) { count rows { id identifier title active status finishTime storagePath mimeType fileName log createdAt updatedAt } } }')
+  loadFinishedProcesses: async (options) => {
+    const offset = (options.page - 1) * options.itemsPerPage
+    const order = generateSorting(options)
+    const data = await serverFetch('query { getProcesses(where: {active:false}, order: ' + objectToGraphgl(order) + ', offset: ' + offset + ', limit:' + options.itemsPerPage + ') { count rows { id identifier title active status finishTime storagePath mimeType fileName log createdAt updatedAt } } }')
     return data.getProcesses
   }
 }

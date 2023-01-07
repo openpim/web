@@ -604,5 +604,19 @@
   "DatePickerDialog.Title.Dateonly": "Date selection",
   "DatePickerDialog.Title.Timeonly": "Time selection",
   "ShowAttributes": "Show attributes",
-  "Process.title": "Processes"
+  "Process.title": "Processes",
+  "Process.Table.ActiveCaption": "Active Processes",
+  "Process.Table.FinishedCaption": "Finished Processes",
+  "Process.Header.Title": "Title",
+  "Process.Header.Status": "Status",
+  "Process.Header.Log": "Log",
+  "Process.Header.File": "File",
+  "Process.Header.StartedAt": "Started At",
+  "Process.Header.FinishedAt": "Finished At",
+  "Process.Table.loading-text": "Loading",
+  "Process.Table.no-data-text": "No data",
+  "Process.Table.no-results-text": "No results",
+  "Process.Table.items-per-page-text": "Rows count",
+  "Process.Table.items-per-page-all-text": "All",
+  "Process.Table.page-text": "{0}-{1} of {2}"
 }

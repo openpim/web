@@ -601,5 +601,19 @@
   "DatePickerDialog.Title.Dateonly": "Выбор даты",
   "DatePickerDialog.Title.Timeonly": "Выбор времени",
   "ShowAttributes": "Показать атрибуты",
-  "Process.title": "Процессы"
+  "Process.title": "Процессы",
+  "Process.Table.ActiveCaption": "Активные процессы",
+  "Process.Table.FinishedCaption": "Законченные процессы",
+  "Process.Header.Title": "Название",
+  "Process.Header.Status": "Статус",
+  "Process.Header.Log": "Лог",
+  "Process.Header.File": "Файл",
+  "Process.Header.StartedAt": "Начат",
+  "Process.Header.FinishedAt": "Закончен",
+  "Process.Table.loading-text": "Идет загрузка",
+  "Process.Table.no-data-text": "Нет данных",
+  "Process.Table.no-results-text": "Нет данных",
+  "Process.Table.items-per-page-text": "Записей",
+  "Process.Table.items-per-page-all-text": "Все",
+  "Process.Table.page-text": "{0}-{1} из {2}"
 }
