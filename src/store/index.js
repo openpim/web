@@ -13,6 +13,7 @@ import * as actionsStore from './actions'
 import * as dashStore from './dashboards'
 import * as auditStore from './audit'
 import * as channelsStore from './channels'
+import * as procStore from './processes'
 
 export default () => {
   errorStore.provideStore()
@@ -30,4 +31,5 @@ export default () => {
   dashStore.provideStore()
   auditStore.provideStore()
   channelsStore.provideStore()
+  procStore.provideStore()
 }

@@ -5,7 +5,7 @@
       <TitleComponent></TitleComponent>
     </v-toolbar-title>
     <v-spacer />
-    <AppHeaderSearch :export="isExportSearch" />
+    <AppHeaderSearch :export="isExportSearch" v-if="drawer" />
     <AfterSearchComponent></AfterSearchComponent>
     <v-menu offset-y v-if="languages.length > 1">
       <template v-slot:activator="{ props }">
@@ -19,6 +19,7 @@
         </v-list-item>
       </v-list>
     </v-menu>
+    <v-btn icon @click="triggerDrawerRight"><v-icon>mdi-alpha-p-circle-outline</v-icon></v-btn>
     <v-btn icon @click="triggerUserDialog"><v-icon>mdi-account</v-icon></v-btn>
     <AfterButtonsComponent></AfterButtonsComponent>
   </v-app-bar>
@@ -45,6 +46,9 @@ export default {
     },
     drawer: {
       required: true
+    },
+    drawerRight: {
+      required: true
     }
   },
   setup (props, { emit }) {
@@ -62,11 +66,16 @@ export default {
     } = langStore.useStore()
 
     onMounted(() => {
+      if (!props.drawer) return
       loadAllLanguages()
     })
 
     function triggerDrawer () {
       emit('onTriggerDrawer', !props.drawer)
+    }
+
+    function triggerDrawerRight () {
+      eventBus.emit('drawer_triggered_right', !props.drawerRight)
     }
 
     function triggerUserDialog () {
@@ -84,6 +93,7 @@ export default {
       defaultLanguageIdentifier,
       languageSelected,
       triggerDrawer,
+      triggerDrawerRight,
       triggerUserDialog,
       isExportSearch: props.export,
       display

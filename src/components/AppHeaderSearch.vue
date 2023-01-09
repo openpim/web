@@ -39,6 +39,7 @@ import * as attrStore from '../store/attributes'
 import * as userStore from '../store/users'
 import * as rolesStore from '../store/roles'
 import * as errorStore from '../store/error'
+import * as typesStore from '../store/types'
 import router from '../router'
 
 export default {
@@ -77,6 +78,11 @@ export default {
       showError
     } = errorStore.useStore()
 
+    const {
+      typesTree,
+      loadAllTypes
+    } = typesStore.useStore()
+
     const searchTextRef = ref('')
     const searchResultsRef = ref([])
     const searchRef = ref('')
@@ -98,7 +104,23 @@ export default {
       }
     })
 
+    const searchTypesFilter = []
+    function processTypeFilter (type) {
+      if (type.options && type.options.some(option => option.name === 'search' && option.value === 'false')) {
+        searchTypesFilter.push(type.id)
+      }
+      if (type.children) {
+        type.children.forEach(child => {
+          processTypeFilter(child)
+        })
+      }
+    }
     onMounted(() => {
+      loadAllTypes().then(() => {
+        typesTree.forEach(type => {
+          processTypeFilter(type)
+        })
+      })
       loadAllRoles().then(() => {
         if (currentUserRef.value.tenantId !== '0') {
           loadAllAttributes().then(() => {
@@ -111,8 +133,9 @@ export default {
 
     async function performSearch (val) {
       searchLoadingRef.value = true
+      const typesExpr = searchTypesFilter.length > 0 ? '{typeId: {OP_notIn: ' + JSON.stringify(searchTypesFilter) + '}}' : null
       try {
-        const data = await searchItem(val)
+        const data = await searchItem(val, typesExpr)
 
         data.rows.forEach(elem => {
           elem.text = elem.identifier + ' (' + elem.name[currentLanguage.value.identifier].replaceAll('\\', '\\\\') + ')'

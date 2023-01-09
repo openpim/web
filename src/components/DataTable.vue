@@ -1185,21 +1185,21 @@ export default {
 
     function loadParentsIfNecessary () {
       let parents = []
-      if (props.headersStorageName !== 'item_headers') return parents // if not item search
+      // if (props.headersStorageName !== 'item_headers') return parents // if not item search
 
       if (itemsRef.value.length > 0) {
-        if (headersRef.value.some(elem => elem.identifier === '#parentName#')) {
+        if (headersRef.value.some(elem => elem.identifier === '#parentName#') && searchEntityRef.value === 'ITEM') {
           parents = itemsRef.value.map(item => {
             const arr = item.path.split('.')
             return arr[arr.length - 2]
           })
         }
-        if (headersRef.value.some(elem => elem.identifier === '#sourceParentName#')) {
+        if (headersRef.value.some(elem => elem.identifier === '#sourceParentName#') && searchEntityRef.value === 'ITEM_RELATION') {
           parents = parents.concat(itemsRef.value.map(item => {
             return item.itemId
           }))
         }
-        if (headersRef.value.some(elem => elem.identifier === '#targetParentName#')) {
+        if (headersRef.value.some(elem => elem.identifier === '#targetParentName#') && searchEntityRef.value === 'ITEM_RELATION') {
           parents = parents.concat(itemsRef.value.map(item => {
             return item.targetId
           }))
@@ -1210,8 +1210,8 @@ export default {
         // remove possible duplicates
         const uniqueParentItems = parents.filter((value, index, self) => self.indexOf(value) === index)
         loadItemsByIds(uniqueParentItems).then(data => {
-          const refresh = parentsRef.value.length === 0
           parentsRef.value = data
+          const refresh = parentsRef.value.length === 0
           if (refresh) DataChanged()
         })
       }

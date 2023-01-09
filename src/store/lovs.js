@@ -4,7 +4,7 @@ import { serverFetch, objectToGraphgl } from './utils'
 import { currentLanguage } from './languages'
 
 const lovs = reactive([])
-
+let lovsPromise
 const actions = {
   getLOVData: async (id) => {
     const data = await serverFetch('query { getLOV(id: "' + id + '") { values } }')
@@ -24,8 +24,9 @@ const actions = {
     }
   },
   loadAllLOVs: async () => {
+    if (!lovsPromise) lovsPromise = serverFetch('query { getLOVs {id identifier name values createdBy createdAt updatedBy updatedAt } }')
+    const data = await lovsPromise
     if (lovs.length > 0) return
-    const data = await serverFetch('query { getLOVs {id identifier name values createdBy createdAt updatedBy updatedAt } }')
     if (data.getLOVs) {
       data.getLOVs.forEach(element => {
         element.internalId = element.id

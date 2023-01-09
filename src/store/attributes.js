@@ -22,11 +22,11 @@ function findByComparator (id, comparator) {
   }
   return item ? { item: item, groups: arr } : null
 }
-
+let attrsPromise
 const actions = {
   loadAllAttributes: async () => {
-    if (groups.length > 0) return
-    const data = await serverFetch('query { getAttributesInfo }')
+    if (!attrsPromise) attrsPromise = serverFetch('query { getAttributesInfo }')
+    const data = await attrsPromise
     if (groups.length > 0) return
     if (data.getAttributesInfo) {
       data.getAttributesInfo.forEach(element => {
