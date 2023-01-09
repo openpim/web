@@ -75,7 +75,7 @@ export default {
     }
 
     function triggerDrawerRight () {
-      eventBus.emit('drawer_triggered_right', !props.drawerRight)
+      emit('onTriggerDrawerRight', !props.drawerRight)
     }
 
     function triggerUserDialog () {

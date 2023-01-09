@@ -151,7 +151,7 @@
       <!-- LOV -->
       <v-autocomplete :chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
         <template #selection="selection">
-          <v-chip @click.stop="if (selection.item.url) goto(selection.item.url)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
+          <v-chip @click.stop="gotoSelection(selection)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
         </template>
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
@@ -569,6 +569,12 @@ export default {
       }
     }
 
+    function gotoSelection (selection) {
+      if (selection.item.url) {
+        goto(selection.item.url)
+      }
+    }
+
     return {
       multivalueRef,
       attrBlur,
@@ -578,7 +584,7 @@ export default {
       timeMenu,
       timeMenuRef,
       time,
-      goto,
+      gotoSelection,
       isValid,
       currentLanguage,
       defaultLanguageIdentifier,

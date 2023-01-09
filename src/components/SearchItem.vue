@@ -526,7 +526,7 @@ export default {
               data.type = 'time'
             }
             arr.push(data)
-            if (attr.lov !lovsMapRef.value[value]) lovsMap[value] = attr.lov
+            if (attr.lov && !lovsMapRef.value[value]) lovsMapRef.value[value] = attr.lov
           }
         }
 

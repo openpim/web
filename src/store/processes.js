@@ -1,4 +1,4 @@
-import { provide, inject } from '@vue/composition-api'
+import { provide, inject } from 'vue'
 import { serverFetch, objectToGraphgl } from './utils'
 
 function generateSorting (options) {
