@@ -70,12 +70,12 @@ async function checkFinishedProcesses () {
       // new finished process found
       lastProcessId = lastProcess.id
       const msg = lastProcess.storagePath
-        ? i18n.t('Process.Finished2', {
+        ? i18n.global.t('Process.Finished2', {
           name: lastProcess.title,
           href: actions.getProcessUrl(lastProcess.id),
           file: lastProcess.fileName || 'file.bin'
         })
-        : i18n.t('Process.Finished1', { name: lastProcess.title })
+        : i18n.global.t('Process.Finished1', { name: lastProcess.title })
       err.store.showInfo(msg)
     }
   } catch (e) {

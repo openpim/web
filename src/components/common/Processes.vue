@@ -63,11 +63,11 @@
     >
       <template v-slot:item="{ item, headers }">
         <tr class="zebra">
-          <td v-for="(header, i) in headers" :key="i" class="truncate p-1">
-            <template v-if="header.value === 'createdAt'">{{dateFormat(item[header.value], DATE_FORMAT)}}</template>
-            <template v-if="header.value === 'finishTime'">{{item.finishTime ? dateFormat(item.finishTime, DATE_FORMAT) : ''}}</template>
-            <template v-if="header.value === 'title' || header.value === 'status'">{{item[header.value]}}</template>
-            <template v-if="header.value === 'log'">
+          <td v-for="header in headers" :key="header.key" class="truncate p-1">
+            <template v-if="header.key === 'createdAt'">{{dateFormat(item[header.key], DATE_FORMAT)}}</template>
+            <template v-if="header.key === 'finishTime'">{{item.finishTime ? dateFormat(item.finishTime, DATE_FORMAT) : ''}}</template>
+            <template v-if="header.key === 'title' || header.key === 'status'">{{item[header.key]}}</template>
+            <template v-if="header.key === 'log'">
               <v-row>
                 <v-col cols="7">{{item.log.length >  7 ? item.log.substring(0, 7) + '...' : item.log}}</v-col>
                 <v-col cols="5">
@@ -80,7 +80,7 @@
                 </v-col>
               </v-row>
             </template>
-            <template v-if="header.value === 'storagePath'">
+            <template v-if="header.key === 'storagePath'">
               <a v-if="item.storagePath" :href="getProcessUrl(item.id)">
                 {{ item.fileName ? item.fileName : 'file.bin' }}
               </a>
