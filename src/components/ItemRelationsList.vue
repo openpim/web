@@ -104,8 +104,8 @@
                   <td class="text-left" v-for="(attr, idx) in getAttributesForRelation(identifier)" :key="'attr'+idx">
                     <AttributeValue @input="attrChange(itemRel, attr)" :item="item" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
                   </td>
-                  <td class="pa-1" v-if="canEditItemRelation">
-                    <v-tooltip top>
+                  <td class="pa-1">
+                    <v-tooltip top v-if="canEditItemRelation">
                       <template v-slot:activator="{ on }">
                         <template v-if="changedRelations.includes(itemRel.id)">
                           <v-btn v-on="on" color="primary" class="pa-0 inline" icon @click="save(identifier, itemRel.id)"><v-icon large dark>mdi-content-save</v-icon></v-btn>
@@ -116,7 +116,7 @@
                       </template>
                       <span>{{ $t('Save') }}</span>
                     </v-tooltip>
-                    <v-tooltip top>
+                    <v-tooltip top v-if="canEditItemRelation">
                       <template v-slot:activator="{ on }">
                       <v-btn v-on="on" class="pa-0 inline" icon @click="remove(identifier, itemRel.id)"><v-icon dark>mdi-minus</v-icon></v-btn>
                       </template>
