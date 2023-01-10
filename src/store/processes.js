@@ -1,5 +1,7 @@
 import { provide, inject } from 'vue'
 import { serverFetch, objectToGraphgl } from './utils'
+import i18n from '../i18n'
+import * as err from './error'
 
 function generateSorting (options) {
   const order = []
@@ -31,6 +33,53 @@ const actions = {
     const order = generateSorting(options)
     const data = await serverFetch('query { getProcesses(where: {active:false}, order: ' + objectToGraphgl(order) + ', offset: ' + offset + ', limit:' + options.itemsPerPage + ') { count rows { id identifier title active status finishTime storagePath mimeType fileName log createdAt updatedAt } } }')
     return data.getProcesses
+  },
+  init: () => {
+    timer = setInterval(checkFinishedProcesses, 60000)
+  },
+  dispose: () => {
+    clearInterval(timer)
+  },
+  getProcessUrl: id => {
+    const baseUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
+    const token = localStorage.getItem('token')
+
+    return `${baseUrl}asset-process/${id}?token=${token}`
+  }
+}
+
+let timer
+let lastProcessId
+async function checkFinishedProcesses () {
+  try {
+    const options = { page: 1, itemsPerPage: 1, sortBy: ['id'], sortDesc: [false] }
+    const data = await actions.loadFinishedProcesses(options)
+
+    if (!data.count) {
+      lastProcessId = 'empty'
+      return
+    }
+    const lastProcess = data.rows[0]
+    if (lastProcessId !== lastProcess.id) {
+      if (!lastProcessId) {
+        // first run
+        lastProcessId = lastProcess.id
+        return
+      }
+
+      // new finished process found
+      lastProcessId = lastProcess.id
+      const msg = lastProcess.storagePath
+        ? i18n.t('Process.Finished2', {
+          name: lastProcess.title,
+          href: actions.getProcessUrl(lastProcess.id),
+          file: lastProcess.fileName || 'file.bin'
+        })
+        : i18n.t('Process.Finished1', { name: lastProcess.title })
+      err.store.showInfo(msg)
+    }
+  } catch (e) {
+    err.store.showError(e)
   }
 }
 
@@ -45,6 +94,7 @@ const StoreSymbol = Symbol('ProcessesStore')
 
 export function provideStore () {
   provide(StoreSymbol, store)
+  actions.init()
 }
 
 export function useStore () {

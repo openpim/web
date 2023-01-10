@@ -41,7 +41,7 @@
       </template>
     </v-data-table>
     <v-row class="justify-end">
-      <v-btn text @click="activeOptionsUpdate(activeOptionsRef);finishedOptionsUpdate(finishedOptionsRef)" class="mr-5">
+      <v-btn text @click="reload(activeOptionsRef)" class="mr-5">
         {{$t('DataTable.Refresh')}}
       </v-btn>
     </v-row>
@@ -66,7 +66,7 @@
           <td v-for="(header, i) in headers" :key="i" class="truncate p-1">
             <template v-if="header.value === 'createdAt'">{{dateFormat(item[header.value], DATE_FORMAT)}}</template>
             <template v-if="header.value === 'finishTime'">{{item.finishTime ? dateFormat(item.finishTime, DATE_FORMAT) : ''}}</template>
-            <template v-if="header.value == 'title' || header.value == 'status'">{{item[header.value]}}</template>
+            <template v-if="header.value === 'title' || header.value === 'status'">{{item[header.value]}}</template>
             <template v-if="header.value === 'log'">
               <v-row>
                 <v-col cols="7">{{item.log.length >  7 ? item.log.substring(0, 7) + '...' : item.log}}</v-col>
@@ -81,7 +81,7 @@
               </v-row>
             </template>
             <template v-if="header.value === 'storagePath'">
-              <a v-if="item.storagePath" :href="damUrl + 'asset-process/' + item.id + '?token=' + token">
+              <a v-if="item.storagePath" :href="getProcessUrl(item.id)">
                 {{ item.fileName ? item.fileName : 'file.bin' }}
               </a>
             </template>
@@ -110,7 +110,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import dateFormat from 'dateformat'
 
@@ -125,12 +125,13 @@ export default {
     const { t } = useI18n()
 
     const {
-      showInfo
+      showError
     } = errorStore.useStore()
 
     const {
       loadActiveProcesses,
-      loadFinishedProcesses
+      loadFinishedProcesses,
+      getProcessUrl
     } = procStore.useStore()
 
     const activeProcesses = ref({ count: 0, rows: [] })
@@ -142,18 +143,30 @@ export default {
     const finishedOptionsRef = ref({ page: 1, itemsPerPage: 5, sortBy: ['createdAt'], sortDesc: [true] })
     const finishedLoadingRef = ref(false)
 
-    async function activeOptionsUpdate (options) {
+    async function activeOptionsUpdate () {
       activeLoadingRef.value = true
-      const data = await loadActiveProcesses(options)
-      activeProcesses.value = data
-      activeLoadingRef.value = false
+      try {
+        const data = await loadActiveProcesses(activeOptionsRef.value)
+
+        activeProcesses.value = data
+      } catch (e) {
+        showError(e)
+      } finally {
+        activeLoadingRef.value = false
+      }
     }
 
-    async function finishedOptionsUpdate (options) {
+    async function finishedOptionsUpdate () {
       finishedLoadingRef.value = true
-      const data = await loadFinishedProcesses(options)
-      finishedProcesses.value = data
-      finishedLoadingRef.value = false
+      try {
+        const data = await loadFinishedProcesses(finishedOptionsRef.value)
+
+        finishedProcesses.value = data
+      } catch (e) {
+        showError(e)
+      } finally {
+        finishedLoadingRef.value = false
+      }
     }
 
     function showLog (log) {
@@ -161,38 +174,10 @@ export default {
       logDialogRef.value = true
     }
 
-    const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
-    const token = localStorage.getItem('token')
-
-    let lastProcess
-    async function checkFinishedProcesses () {
-      const data = await loadFinishedProcesses({ page: 1, itemsPerPage: 1, sortBy: ['id'], sortDesc: [false] })
-      if (data.count > 0) {
-        if (lastProcess === undefined) {
-          lastProcess = data.rows[0]
-        } else if (lastProcess === null || lastProcess.id !== data.rows[0].id) {
-          // new finished process found
-          lastProcess = data.rows[0]
-          const msg = lastProcess.storagePath
-            ? t('Process.Finished2', { name: lastProcess.title, href: damUrl + 'asset-process/' + lastProcess.id + '?token=' + token, file: lastProcess.fileName || 'file.bin' })
-            : t('Process.Finished1', { name: lastProcess.title })
-          showInfo(msg)
-          activeOptionsUpdate(activeOptionsRef.value)
-          finishedOptionsUpdate(finishedOptionsRef.value)
-        }
-      } else if (lastProcess === undefined) {
-        lastProcess = null
-      }
+    function reload () {
+      activeOptionsUpdate()
+      finishedOptionsUpdate()
     }
-
-    let timer
-    onMounted(() => {
-      timer = setInterval(checkFinishedProcesses, 60000)
-    })
-
-    onUnmounted(() => {
-      clearInterval(timer)
-    })
 
     return {
       activeProcesses,
@@ -223,9 +208,8 @@ export default {
       logDialogRef,
       logRef,
       showLog,
-      damUrl,
-      token,
-      showInfo
+      getProcessUrl,
+      reload
     }
   }
 }

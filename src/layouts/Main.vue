@@ -41,7 +41,7 @@
       <Resizer :left="drawerWidth" @on-resize="handleResize"/>
     </v-navigation-drawer>
     <v-navigation-drawer v-model="drawerRight" absolute location="right" clipped width="650">
-      <Processes />
+      <Processes v-if="drawerRight" />
     </v-navigation-drawer>
     <v-main>
       <v-container class="fill-height" fluid>
@@ -178,26 +178,6 @@ export default {
   text-align: center;
   font-size:x-small;
 }
-
-  .truncate {
-    max-width: 1px;
-    overflow: hidden;
-    border: thin solid rgba(0, 0, 0, 0.12);
-  }
-
-  .truncate > span {
-    white-space: pre-wrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    display: -webkit-box;
-    /* number of visible lines */
-    -webkit-line-clamp: 10;
-    -webkit-box-orient: vertical;
-  }
-
-  .zebra:nth-of-type(even) {
-    background-color: #FCFCFC;
-  }
 
 .nav {
   box-shadow: 0 2px 4px -1px rgb(0 0 0 / 20%), 0 4px 5px 0 rgb(0 0 0 / 14%), 0 1px 10px 0 rgb(0 0 0 / 12%);
