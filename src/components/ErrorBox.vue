@@ -10,6 +10,7 @@
       <v-btn
         color="error"
         @click="clearError"
+        class="ml-5"
       >
         {{ t('Close') }}
       </v-btn>
@@ -25,6 +26,7 @@
       <v-btn
         color="info"
         @click="clearInfo"
+        class="ml-5"
       >
         {{ t('Close') }}
       </v-btn>

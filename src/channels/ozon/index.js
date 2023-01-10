@@ -68,6 +68,24 @@ function getStandardAttributes () {
       name: 'Названия видео (массив)',
       required: false,
       dictionary: false
+    },
+    {
+      id: '#images360Urls',
+      name: 'Ссылки на изображения 360 (массив)',
+      required: false,
+      dictionary: false
+    },
+    {
+      id: '#oldprice',
+      name: 'Цена до скидок (будет зачёркнута на карточке товара) (строка)',
+      required: false,
+      dictionary: false
+    },
+    {
+      id: '#premprice',
+      name: 'Цена для клиентов с подпиской Ozon Premium (строка)',
+      required: false,
+      dictionary: false
     }
   ]
 }

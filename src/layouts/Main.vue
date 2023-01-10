@@ -2,7 +2,14 @@
   <v-app>
     <v-layout>
     <ErrorBox />
-    <AppHeader :export="isExportSearch" :drawer="drawer" @on-show-user="handleUserDialogShow" @on-trigger-drawer="handleDrawerTrigger"/>
+    <AppHeader
+      :export="isExportSearch"
+      :drawer="drawer"
+      :drawerRight="drawerRight"
+      @on-show-user="handleUserDialogShow"
+      @on-trigger-drawer="handleDrawerTrigger"
+      @on-trigger-drawer-right="handleDrawerRightTrigger"
+    />
 
     <v-navigation-drawer :width="drawerWidth" v-model="drawer" ref="drawerRef" :clipped="display.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
       <router-view name="menu"></router-view>
@@ -33,7 +40,9 @@
       <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
       <Resizer :left="drawerWidth" @on-resize="handleResize"/>
     </v-navigation-drawer>
-
+    <v-navigation-drawer v-model="drawerRight" absolute location="right" clipped width="650">
+      <Processes />
+    </v-navigation-drawer>
     <v-main>
       <v-container class="fill-height" fluid>
         <router-view :export="isExportSearch"></router-view>
@@ -52,14 +61,14 @@ import ErrorBox from '../components/ErrorBox'
 import AppHeader from '../components/AppHeader.vue'
 import Resizer from '../components/common/Resizer'
 import UserDialog from '../components/common/UserDialog'
+import Processes from '../components/common/Processes'
 import * as userStore from '../store/users'
 import * as channelsStore from '../store/channels'
 import * as rolesStore from '../store/roles'
 import * as dashStore from '../store/dashboards'
-import i18n from '../i18n'
 
 export default {
-  components: { AppHeader, ErrorBox, Resizer, UserDialog },
+  components: { AppHeader, ErrorBox, Resizer, UserDialog, Processes },
   props: {
     export: {
       type: Boolean,
@@ -87,6 +96,7 @@ export default {
     } = dashStore.useStore()
 
     const drawer = ref(null)
+    const drawerRight = ref(false)
     const drawerRef = ref(null)
     const defWidth = localStorage.getItem('drawerWidth') || '250'
     const drawerWidth = ref(parseInt(defWidth))
@@ -118,6 +128,10 @@ export default {
       drawer.value = val
     }
 
+    const handleDrawerRightTrigger = (val) => {
+      drawerRight.value = val
+    }
+
     onMounted(() => {
       loadAllRoles().then(() => {
         loadAllDashboards().then(() => {
@@ -137,6 +151,7 @@ export default {
 
     return {
       drawer,
+      drawerRight,
       drawerRef,
       drawerWidth,
       activeBottom,
@@ -147,14 +162,12 @@ export default {
       isExportSearch: props.export,
       hasSearchAccess,
       hasDashboards,
-      nameRules: [
-        v => !!v || i18n.t('Config.Users.Error.NameRequired')
-      ],
       display,
       handleResize,
       handleUserDialogHide,
       handleUserDialogShow,
-      handleDrawerTrigger
+      handleDrawerTrigger,
+      handleDrawerRightTrigger
     }
   }
 }
@@ -165,6 +178,27 @@ export default {
   text-align: center;
   font-size:x-small;
 }
+
+  .truncate {
+    max-width: 1px;
+    overflow: hidden;
+    border: thin solid rgba(0, 0, 0, 0.12);
+  }
+
+  .truncate > span {
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: -webkit-box;
+    /* number of visible lines */
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
+  }
+
+  .zebra:nth-of-type(even) {
+    background-color: #FCFCFC;
+  }
+
 .nav {
   box-shadow: 0 2px 4px -1px rgb(0 0 0 / 20%), 0 4px 5px 0 rgb(0 0 0 / 14%), 0 1px 10px 0 rgb(0 0 0 / 12%);
   padding: 4px;

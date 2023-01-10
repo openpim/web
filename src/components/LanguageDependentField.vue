@@ -14,6 +14,7 @@
     variant="underlined"
   >
     <template v-slot:append-inner>
+      &nbsp;
       <v-menu v-model="showMenuRef">
         <template v-slot:activator="{ props }">
           <v-btn @click="showAllValues" v-if="languages.length > 1" v-bind="props" variant="plain"><v-icon>mdi-web-box</v-icon></v-btn>
