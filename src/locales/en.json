@@ -361,6 +361,7 @@
   "ItemRelationsList.MustBePositive": "Must be positive",
   "ItemRelationsList.TargetDate": "Target change time",
   "ItemRelationsList.SourceDate": "Source change time",
+  "ItemRelationsList.ResetPageSize": "Reset page size",
   "User.Details": "User details",
   "AttrGroups.SelectionDialog.Title": "Attribute groups selection",
   "Attribute.Error.WrongValue": "Wrong value",

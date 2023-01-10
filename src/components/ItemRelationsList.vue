@@ -33,12 +33,18 @@
                   <th class="text-left" v-for="(attr, j) in getAttributesForRelation(identifier)" :key="'A'+j">
                     {{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}
                   </th>
-                  <th class="text-left" v-if="canEditItemRelationByIdentifier(identifier)">
-                    <v-tooltip top>
+                  <th class="text-left">
+                    <v-tooltip top v-if="canEditItemRelationByIdentifier(identifier)">
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" class="pa-0" icon color="primary" @click="add(identifier)"><v-icon dark>mdi-plus</v-icon></v-btn>
                       </template>
                       <span>{{ $t('Add') }}</span>
+                    </v-tooltip>
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" class="pa-0" icon color="primary" @click="pageSize = 5;pageSizeChanged(identifier)"><v-icon dark>mdi-alpha-r</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('ItemRelationsList.ResetPageSize') }}</span>
                     </v-tooltip>
                   </th>
                 </tr>

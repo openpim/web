@@ -358,6 +358,7 @@
   "ItemRelationsList.MustBePositive": "Должно быть больше 0",
   "ItemRelationsList.TargetDate": "Время изменения",
   "ItemRelationsList.SourceDate": "Время изменения",
+  "ItemRelationsList.ResetPageSize": "Сбросить размер страницы",
   "User.Details": "Данные пользователя",
   "AttrGroups.SelectionDialog.Title": "Выбор групп атрибутов",
   "Attribute.Error.WrongValue": "Неверное значение",
