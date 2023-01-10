@@ -41,7 +41,7 @@
       </template>
     </v-data-table>
     <v-row class="justify-end">
-      <v-btn text @click="reload(activeOptionsRef)" class="mr-5">
+      <v-btn text @click="reload()" class="mr-5">
         {{$t('DataTable.Refresh')}}
       </v-btn>
     </v-row>
