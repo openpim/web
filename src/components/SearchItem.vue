@@ -155,7 +155,8 @@ export default {
 
     async function searchSelected (selected) {
       if (!selected.orAnd) selected.orAnd = 1
-      await updateFiltersLOVs(selected.filters)
+      console.log(selected)
+      if (selected.filters) await updateFiltersLOVs(selected.filters)
       if (selected.user === currentUserRef.value.login) {
         selectedRef.value = selected
         router.push('/search/' + selected.identifier)
