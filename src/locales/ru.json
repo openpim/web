@@ -546,6 +546,8 @@
   "ChannelView.InMinutes": "в течении {num} мин.",
   "ChannelView.Seconds": "сек.",
   "ChannelView.NoCategory": "Без категории",
+  "ChannelView.ResetQueue": "Очистить очередь",
+  "ChannelView.ConfirmReset": "Подтвердите очистку очереди",
   "ExecutionsTable.StartTime": "Время запуска",
   "ExecutionsTable.EndTime": "Время окончания",
   "ExecutionsTable.Status": "Статус",

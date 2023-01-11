@@ -549,6 +549,8 @@
   "ChannelView.InMinutes": "in {num} min.",
   "ChannelView.Seconds": "sec.",
   "ChannelView.NoCategory": "Without category",
+  "ChannelView.ResetQueue": "Reset submitted",
+  "ChannelView.ConfirmReset": "Please confirm reset submitted",
   "ExecutionsTable.StartTime": "Start Time",
   "ExecutionsTable.EndTime": "End Time",
   "ExecutionsTable.Status": "Status",
