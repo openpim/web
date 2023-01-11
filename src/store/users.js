@@ -3,6 +3,7 @@ import router from '../router'
 import * as err from './error'
 import { serverFetch, objectToGraphgl } from './utils'
 import * as rolesStore from './roles'
+import * as processes from './processes'
 import i18n from '../i18n'
 
 const users = reactive([])
@@ -18,6 +19,7 @@ async function userLogin (token, user, pathAfterLogin) {
     // super user
     router.push({ path: '/selectUser', query: null })
   } else {
+    processes.store.init()
     await rolesStore.store.loadAllRoles()
     user.roles.forEach(roleId => currentRoles.push(rolesStore.store.roles.find(role => role.id === roleId)))
     router.push({ path: pathAfterLogin, query: null })
@@ -233,8 +235,11 @@ const actions = {
       }
     }
     return access === -1 || access > 1
+  },
+  signOut: () => {
+    processes.store.dispose()
+    localStorage.setItem('token', '')
   }
-
 }
 
 const store = {

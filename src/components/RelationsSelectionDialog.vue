@@ -8,15 +8,15 @@
         <v-container>
           <v-row>
             <v-col cols="12">
-            <v-list nav dense>
-              <v-list-item-group v-model="selectedRelationsRef" color="primary" :multiple="multiselect">
+            <v-list nav density="compact">
+              <v-list-group v-model="selectedRelationsRef" color="primary" :multiple="multiselect">
                 <v-list-item v-for="(item, i) in relations" :key="i">
-                  <v-list-item-icon><v-icon>mdi-vector-line</v-icon></v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
-                  </v-list-item-content>
+                  <template v-slot:prepend>
+                    <v-icon>mdi-vector-line</v-icon>
+                  </template>
+                  <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
                 </v-list-item>
-              </v-list-item-group>
+              </v-list-group>
             </v-list>
             </v-col>
           </v-row>

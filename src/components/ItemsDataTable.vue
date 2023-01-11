@@ -173,7 +173,14 @@ export default {
       for (let i = 0; i < languages.length; i++) {
         const lang = languages[i]
         const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-        arr.push({ identifier: 'name_' + lang.identifier, text: t('Item.name') + langText, align: 'start', sortable: true, filterable: false, value: { path: ['name', lang.identifier] } })
+        arr.push({
+          identifier: 'name_' + lang.identifier,
+          text: t('Item.name') + langText,
+          align: 'start',
+          sortable: true,
+          filterable: false,
+          value: { path: ['name', lang.identifier] }
+        })
       }
       const attrs = getAllItemsAttributes()
       for (let i = 0; i < attrs.length; i++) {
@@ -193,12 +200,30 @@ export default {
           for (let i = 0; i < languages.length; i++) {
             const lang = languages[i]
             const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-            const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameText + langText, textLong: nameText + langText, textShort: nameShort + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
+            const data = {
+              identifier: 'attr_' + attr.identifier + '_' + lang.identifier,
+              text: nameText + langText,
+              textLong: nameText + langText,
+              textShort: nameShort + langText,
+              align: 'start',
+              sortable: true,
+              filterable: false,
+              value: { path: ['values', attr.identifier, lang.identifier] }
+            }
             if (attr.type === AttributeType.LOV && attr.lov) data.lov = attr.lov
             arr.push(data)
           }
         } else {
-          const data = { identifier: 'attr_' + attr.identifier, text: nameText, textLong: nameText, textShort: nameShort, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
+          const data = {
+            identifier: 'attr_' + attr.identifier,
+            text: nameText,
+            textLong: nameText,
+            textShort: nameShort,
+            align: 'start',
+            sortable: true,
+            filterable: false,
+            value: { path: ['values', attr.identifier] }
+          }
           if (attr.type === AttributeType.LOV && attr.lov) data.lov = attr.lov
           arr.push(data)
         }

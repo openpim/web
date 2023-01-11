@@ -1,74 +1,75 @@
 <template>
 <div class="mb-10">
   <h3>{{ $t(searchHeader) }}</h3>
-  <v-toolbar dense elevation="1" class="mt-2">
-      <v-select dense v-if="savedOptionsVisible()" v-model="savedColumnsSelectionRef" :items="savedColumnsOptionsRef"></v-select>
+  <v-toolbar density="compact" :elevation="1" class="mt-2">
+      <v-select class="mt-2 ml-2" variant="underlined" density="compact" v-if="savedOptionsVisible()" v-model="savedColumnsSelectionRef" :items="savedColumnsOptionsRef"></v-select>
       <v-spacer></v-spacer>
-      <v-tooltip top v-if="item">
-        <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on" @click="openSearch"><v-icon>mdi-text-search</v-icon></v-btn>
+      <v-tooltip location="top" v-if="item">
+        <template v-slot:activator="{ props }">
+          <v-btn icon v-bind="props" @click="openSearch"><v-icon>mdi-text-search</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.OpenSearch') }}</span>
       </v-tooltip>
-      <v-tooltip top v-if="!talendExportSelection && exportXLSEnabled">
-        <template v-slot:activator="{ on }">
-          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportExcel"><v-icon>mdi-application-export</v-icon></v-btn>
+      <v-tooltip location="top" v-if="!talendExportSelection && exportXLSEnabled">
+        <template v-slot:activator="{ props }">
+          <v-btn icon :disabled="!totalItemsRef" v-bind="props" @click="exportExcel"><v-icon>mdi-application-export</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ExportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip top v-if="!talendExportSelection && importXLSEnabled">
-        <template v-slot:activator="{ on }">
-          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="importConfigDialogRef = true"><v-icon>mdi-application-import</v-icon></v-btn>
+      <v-tooltip location="top" v-if="!talendExportSelection && importXLSEnabled">
+        <template v-slot:activator="{ props }">
+          <v-btn icon :disabled="!totalItemsRef" v-bind="props" @click="importConfigDialogRef = true"><v-icon>mdi-application-import</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ImportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip top  v-if="talendExportSelection || (searchEntityRef === 'ITEM' && hasAccess('exportCSV'))">
-        <template v-slot:activator="{ on }">
-          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
+      <v-tooltip location="top"  v-if="talendExportSelection || (searchEntityRef === 'ITEM' && hasAccess('exportCSV'))">
+        <template v-slot:activator="{ props }">
+          <v-btn icon :disabled="!totalItemsRef" v-bind="props" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
         </template>
         <span>{{  talendExportSelection ? $t('DataTable.TalendExportSelection') : $t('DataTable.ExportCSV') }}</span>
       </v-tooltip>
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on" @click="editHeaders"><v-icon>mdi-table-settings</v-icon></v-btn>
+      <v-tooltip location="top">
+        <template v-slot:activator="{ props }">
+          <v-btn icon v-bind="props" @click="editHeaders"><v-icon>mdi-table-settings</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.SelectColumns') }}</span>
       </v-tooltip>
-      <v-tooltip top v-if="attrGroupsBtnVisible">
-        <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on" @click="selectAttrGroups"><v-icon>mdi-table-plus</v-icon></v-btn>
+      <v-tooltip location="top" v-if="attrGroupsBtnVisible">
+        <template v-slot:activator="{ props }">
+          <v-btn icon v-bind="props" @click="selectAttrGroups"><v-icon>mdi-table-plus</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.SelectGroups') }}</span>
       </v-tooltip>
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on" @click="DataChanged()"><v-icon>mdi-refresh</v-icon></v-btn>
+      <v-tooltip location="top">
+        <template v-slot:activator="{ props }">
+          <v-btn icon v-bind="props" @click="DataChanged()"><v-icon>mdi-refresh</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.Refresh') }}</span>
       </v-tooltip>
-      <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-btn v-on="on" icon @click="columnsSaveDialogRef.showDialog(headersRef)"><v-icon>mdi-content-save</v-icon></v-btn>
+      <v-tooltip location="top">
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props" icon @click="columnsSaveDialogRef.showDialog(headersRef)"><v-icon>mdi-content-save</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.SaveColumns') }}</span>
       </v-tooltip>
-      <v-tooltip top v-if="hasChannelsRef && sendToChannelBtnVisible">
-        <template v-slot:activator="{ on }">
-          <v-btn v-on="on" icon @click="chanSelectionDialogRef.showDialog()"><v-icon>mdi-access-point-plus</v-icon></v-btn>
+      <v-tooltip location="top" v-if="hasChannelsRef && sendToChannelBtnVisible">
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props" icon @click="chanSelectionDialogRef.showDialog()"><v-icon>mdi-access-point-plus</v-icon></v-btn>
         </template>
         <span>{{ $t('Submit') }}</span>
       </v-tooltip>
     </v-toolbar>
-  <v-data-table @update:options="optionsUpdate"
-      :options="optionsRef"
-      :server-items-length="totalItemsRef"
-      :loading="loadingRef"
-      :headers="headersRef"
-      :items="itemsRef"
-      :height="'calc(100vh - '+ (parseInt(marginTop) + 220) +'px)'"
-      hide-default-footer
-      hide-default-header
-      class="elevation-1">
+  <v-data-table
+    @update:options="optionsUpdate"
+    :options="optionsRef"
+    :server-items-length="totalItemsRef"
+    :loading="loadingRef"
+    :headers="headersRef"
+    :items="itemsRef"
+    :height="'calc(100vh - '+ (parseInt(marginTop) + 220) +'px)'"
+    hide-default-footer
+    hide-default-header
+    class="elevation-1">
     <template v-slot:header="{ props }">
       <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
         <th v-for="header in props.headers" :key="header.identifier" class="dataTableHeader">
@@ -632,7 +633,7 @@ export default {
 
       do {
         page++
-        const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: sortBy, sortDesc: sortDesc })
+        const data = await props.loadData({ page, itemsPerPage, sortBy, sortDesc })
         total = data.count
         if (!excelDialogRef.value) return // exit if process was canceled
         data.rows.forEach(row => {
@@ -653,9 +654,9 @@ export default {
 
       if (!excelDialogRef.value) return // exit if process was canceled
 
-      var wb = XLSX.utils.book_new()
+      const wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, 'Data')
-      var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
       saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'results.xlsx')
 
       excelDialogRef.value = false
@@ -687,9 +688,9 @@ export default {
 
     /* generate a download */
     function s2ab (s) {
-      var buf = new ArrayBuffer(s.length)
-      var view = new Uint8Array(buf)
-      for (var i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF
+      const buf = new ArrayBuffer(s.length)
+      const view = new Uint8Array(buf)
+      for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF
       return buf
     }
 
@@ -705,7 +706,7 @@ export default {
 
       excelDialogProgressRef.value = 0
       excelDialogRef.value = true
-      var reader = new FileReader()
+      const reader = new FileReader()
       reader.onload = async function (evt) {
         const data = evt.target.result
 
@@ -788,7 +789,7 @@ export default {
                         const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === tmp)
                         if (tst2) accumulator.push(tst2.id)
                         else {
-                          errors += t('DataTable.ExcelImport.NoLOVValue', { val: tmp, attr: attr })
+                          errors += t('DataTable.ExcelImport.NoLOVValue', { val: tmp, attr })
                         }
                         return accumulator
                       }, [])
@@ -803,7 +804,7 @@ export default {
                       const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === val)
                       if (tst2) cellVal = tst2.id
                       else {
-                        const err = t('DataTable.ExcelImport.NoLOVValue', { val: val, attr: attr })
+                        const err = t('DataTable.ExcelImport.NoLOVValue', { val, attr })
                         log.push([item.identifier, 'ERROR', err])
                         if (importStopOnErrorRef.value) {
                           showError(err)
@@ -880,7 +881,7 @@ export default {
 
     function downloadImportFinishedLog () {
       const ws = XLSX.utils.aoa_to_sheet(importFinishedLogRef.value)
-      var wb = XLSX.utils.book_new()
+      const wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, 'Data')
       const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
       saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'log.xlsx')
@@ -918,7 +919,7 @@ export default {
       loadingRef.value = true
       const sortBy = optionsRef.value.sortBy && optionsRef.value.sortBy.length > 0 ? optionsRef.value.sortBy : ['id']
       const sortDesc = optionsRef.value.sortDesc && optionsRef.value.sortDesc.length > 0 ? optionsRef.value.sortDesc : [false]
-      props.loadData({ page: 1, itemsPerPage: maxRows, sortBy: sortBy, sortDesc: sortDesc }).then(data => {
+      props.loadData({ page: 1, itemsPerPage: maxRows, sortBy, sortDesc }).then(data => {
         if (props.export) {
           console.log('#@SELECTED_ITEMS@#')
           const identHeader = { value: 'identifier' }
@@ -1024,7 +1025,13 @@ export default {
       let arr = []
       if (savedColumnsRef.value[currentUserRef.value.login]) {
         arr.push({ header: currentUserRef.value.login + ':' })
-        const tmp = savedColumnsRef.value[currentUserRef.value.login].map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id, identifier: col.identifier } })
+        const tmp = savedColumnsRef.value[currentUserRef.value.login].map(col => (
+          {
+            title: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']',
+            value: col.id,
+            identifier: col.identifier
+          }
+        ))
         arr = arr.concat(tmp)
         arr.push({ divider: true })
       }
@@ -1033,7 +1040,13 @@ export default {
         if (property !== currentUserRef.value.login) {
           const columns = savedColumnsRef.value[property]
           arr.push({ header: property + ':' })
-          const tmp = columns.map(col => { return { text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']', value: col.id, identifier: col.identifier } })
+          const tmp = columns.map(col => (
+            {
+              text: col.name[currentLanguage.value.identifier] || '[' + col.name[defaultLanguageIdentifier.value] + ']',
+              value: col.id,
+              identifier: col.identifier
+            }
+          ))
           arr = arr.concat(tmp)
           arr.push({ divider: true })
         }
@@ -1054,13 +1067,13 @@ export default {
 
       do {
         page++
-        let data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+        let data = await props.loadData({ page, itemsPerPage, sortBy: ['id'], sortDesc: [false] })
         if (total === -1) total = data.count
         if (page !== 1 && data.rows.length === 0) {
           // if we are iterating through channel status itself (for example the query is select all items that has status OK)
           // them when we set status we are changing the result of query, so we can not iterate through pages, we need to always ask for 1 page until data will not be finished
           // so try to load first page in this case
-          data = await props.loadData({ page: 1, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+          data = await props.loadData({ page: 1, itemsPerPage, sortBy: ['id'], sortDesc: [false] })
         }
         if (!excelDialogRef.value) return // exit if process was canceled
         data.rows.forEach(row => {
@@ -1243,7 +1256,7 @@ export default {
       table = curCol.parentElement.parentElement
       pageX = e.pageX
 
-      var padding = paddingDiff(curCol)
+      const padding = paddingDiff(curCol)
 
       curColWidth = curCol.offsetWidth - padding
 
@@ -1257,7 +1270,7 @@ export default {
     }
     function divMouseMove (e) {
       if (curCol) {
-        var diffX = e.pageX - pageX
+        const diffX = e.pageX - pageX
 
         curCol.style.width = (curColWidth + diffX) + 'px'
         table.style.width = (curTableWidth + diffX) + 'px'
@@ -1268,8 +1281,8 @@ export default {
         return 0
       }
 
-      var padLeft = getStyleVal(col, 'padding-left')
-      var padRight = getStyleVal(col, 'padding-right')
+      const padLeft = getStyleVal(col, 'padding-left')
+      const padRight = getStyleVal(col, 'padding-right')
       return (parseInt(padLeft) + parseInt(padRight))
     }
     function getStyleVal (elm, css) {

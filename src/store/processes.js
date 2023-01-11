@@ -51,35 +51,31 @@ const actions = {
 let timer
 let lastProcessId
 async function checkFinishedProcesses () {
-  try {
-    const options = { page: 1, itemsPerPage: 1, sortBy: ['id'], sortDesc: [false] }
-    const data = await actions.loadFinishedProcesses(options)
-
-    if (!data.count) {
-      lastProcessId = 'empty'
+  const options = { page: 1, itemsPerPage: 1, sortBy: ['id'], sortDesc: [false] }
+  const data = await actions.loadFinishedProcesses(options)
+  console.log('checkFinishedProcesses')
+  if (!data.count) {
+    lastProcessId = 'empty'
+    return
+  }
+  const lastProcess = data.rows[0]
+  if (lastProcessId !== lastProcess.id) {
+    if (!lastProcessId) {
+      // first run
+      lastProcessId = lastProcess.id
       return
     }
-    const lastProcess = data.rows[0]
-    if (lastProcessId !== lastProcess.id) {
-      if (!lastProcessId) {
-        // first run
-        lastProcessId = lastProcess.id
-        return
-      }
 
-      // new finished process found
-      lastProcessId = lastProcess.id
-      const msg = lastProcess.storagePath
-        ? i18n.global.t('Process.Finished2', {
-          name: lastProcess.title,
-          href: actions.getProcessUrl(lastProcess.id),
-          file: lastProcess.fileName || 'file.bin'
-        })
-        : i18n.global.t('Process.Finished1', { name: lastProcess.title })
-      err.store.showInfo(msg)
-    }
-  } catch (e) {
-    err.store.showError(e)
+    // new finished process found
+    lastProcessId = lastProcess.id
+    const msg = lastProcess.storagePath
+      ? i18n.global.t('Process.Finished2', {
+        name: lastProcess.title,
+        href: actions.getProcessUrl(lastProcess.id),
+        file: lastProcess.fileName || 'file.bin'
+      })
+      : i18n.global.t('Process.Finished1', { name: lastProcess.title })
+    err.store.showInfo(msg)
   }
 }
 
@@ -94,7 +90,6 @@ const StoreSymbol = Symbol('ProcessesStore')
 
 export function provideStore () {
   provide(StoreSymbol, store)
-  actions.init()
 }
 
 export function useStore () {

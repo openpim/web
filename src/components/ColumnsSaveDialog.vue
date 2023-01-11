@@ -8,14 +8,12 @@
         <v-container>
           <v-row>
             <v-col cols="6">
-            <v-list nav dense style="max-height: 300px" class="overflow-y-auto">
-              <v-list-item-group v-model="indexlInListRef" color="primary">
+            <v-list nav density="compact" style="max-height: 300px" class="overflow-y-auto">
+              <v-list-group v-model="indexlInListRef" color="primary">
                 <v-list-item v-for="(item, i) in columnsRef" :key="i">
-                  <v-list-item-content>
                     <v-list-item-title>{{item.name[currentLanguage.identifier]}}</v-list-item-title>
-                  </v-list-item-content>
                 </v-list-item>
-              </v-list-item-group>
+              </v-list-group>
             </v-list>
             </v-col>
             <v-col cols="6">
@@ -43,7 +41,7 @@
 </template>
 <script>
 import { ref, watch } from 'vue'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'
 import * as itemsStore from '../store/item'
@@ -67,6 +65,8 @@ export default {
       removeColumns
     } = searchStore.useStore()
 
+    const { t } = useI18n()
+
     const formRef = ref(null)
     const indexlInListRef = ref(null)
     const selectedRef = ref(null)
@@ -87,15 +87,15 @@ export default {
     function addColumns () {
       nextId().then(id => {
         const name = {}
-        name[currentLanguage.value.identifier] = i18n.t('ColumnsSaveDialog.NameNew')
-        const newOne = { id: -1, identifier: 'columns' + id, name: name, public: false, columns: columnsConfig }
+        name[currentLanguage.value.identifier] = t('ColumnsSaveDialog.NameNew')
+        const newOne = { id: -1, identifier: 'columns' + id, name, public: false, columns: columnsConfig }
         columnsRef.value.push(newOne)
         indexlInListRef.value = columnsRef.value.length - 1
       })
     }
 
     function removeColumnsHandler () {
-      if (confirm(i18n.t('ColumnsSaveDialog.Confirm.Remove'))) {
+      if (confirm(t('ColumnsSaveDialog.Confirm.Remove'))) {
         removeColumns(selectedRef.value.identifier).then(() => {
           columnsRef.value.splice(indexlInListRef.value, 1)
           indexlInListRef.value = null
@@ -110,7 +110,7 @@ export default {
         if (selectedRef.value.id === -1) {
           columnsIdentifierExists(selectedRef.value.identifier).then((val) => {
             if (val) {
-              identifierErrors.value = [i18n.t('ColumnsSaveDialog.IdentifierNotUnique')]
+              identifierErrors.value = [t('ColumnsSaveDialog.IdentifierNotUnique')]
               return
             }
             saveColumns(selectedRef.value).then(() => {
@@ -143,10 +143,10 @@ export default {
 
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (!v) {
-        return i18n.t('ColumnsSaveDialog.IdentifierRequired')
+        return t('ColumnsSaveDialog.IdentifierRequired')
       }
       return true
     }
@@ -169,7 +169,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('ColumnsSaveDialog.NameRequired')
+        v => !!v || t('ColumnsSaveDialog.NameRequired')
       ]
     }
   }
