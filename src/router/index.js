@@ -10,9 +10,14 @@ import Main from '../layouts/Main.vue'
 // views
 import Login from '../views/Login.vue'
 import Dashboards from '../views/Dashboards.vue'
+import SearchResults from '../views/SearchResults.vue'
+import Item from '../views/Item.vue'
+import SelectUser from '../views/SelectUser.vue'
 
 // components
 import HomeMenu from '../components/HomeMenu.vue'
+import SearchPanel from '../components/SearchPanel.vue'
+import SearchItem from '../components/SearchItem.vue'
 
 const routes = [
   {
@@ -62,7 +67,7 @@ const routes = [
       {
         path: '',
         components: {
-          default: () => import('../views/SelectUser.vue')
+          default: SelectUser
         }
       }
     ],
@@ -78,8 +83,8 @@ const routes = [
       {
         path: '',
         components: {
-          menu: () => import('../components/HomeMenu.vue'),
-          default: () => import('../views/Item.vue')
+          menu: HomeMenu,
+          default: Item
         }
       }
     ],
@@ -95,8 +100,8 @@ const routes = [
       {
         path: '',
         components: {
-          menu: () => import('../components/SearchPanel.vue'),
-          default: () => import('../views/SearchResults.vue')
+          menu: SearchPanel,
+          default: SearchResults
         }
       }
     ],
@@ -112,8 +117,8 @@ const routes = [
       {
         path: '',
         components: {
-          menu: () => import('../components/SearchItem.vue'),
-          default: () => import('../views/SearchResults.vue')
+          menu: SearchItem,
+          default: SearchResults
         }
       }
     ],
@@ -129,8 +134,8 @@ const routes = [
       {
         path: '',
         components: {
-          menu: () => import('../components/SearchPanel.vue'),
-          default: () => import('../views/SearchResults.vue')
+          menu: SearchPanel,
+          default: SearchResults
         }
       }
     ],

@@ -65,9 +65,9 @@
                           </template>
                         </v-text-field>
                       </template>
-                      <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" variant="underlined" v-model="filter.value" :items="getLovItems(filter)" :label="$t('Search.Filter.Attribute.Value')" density="compact"></v-select>
+                      <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMapRef[filter.attr]" variant="underlined" v-model="filter.value" :items="getLovItems(filter)" :label="$t('Search.Filter.Attribute.Value')" density="compact"></v-select>
                       <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMapRef[filter.attr]" variant="underlined" density="compact" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
-                      <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMap[filter.attr]" variant="underlined" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)" density="compact"></v-text-field>
+                      <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMapRef[filter.attr]" variant="underlined" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)" density="compact"></v-text-field>
                       <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && getDateType(filter) && !lovsMapRef[filter.attr]" variant="underlined" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)" density="compact"></v-text-field>
                       <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMapRef[filter.attr]" variant="underlined" v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                     </v-col>
@@ -609,7 +609,7 @@ export default {
         { title: t('Search.Filter.Operation.NotSubstringICase'), value: 15 },
         { title: t('Search.Filter.Operation.Empty'), value: 16 },
         { title: t('Search.Filter.Operation.NotEmpty'), value: 17 },
-        { text: t('Search.Filter.Operation.Contains'), value: 18 }
+        { title: t('Search.Filter.Operation.Contains'), value: 18 }
       ]
 
     }

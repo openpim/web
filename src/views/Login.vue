@@ -73,13 +73,15 @@ export default {
   },
   setup (props, { root }) {
     const {
-      signIn
+      signIn,
+      signOut
     } = userStore.useStore()
     const { t, locale } = useI18n()
     const login = ref('')
     const password = ref('')
 
     onMounted(() => {
+      signOut()
       const params = {}
       window.location.href.replace(/[?&]+([^=&]+)=([^&#]*)/gi,
         (m, key, value) => {
