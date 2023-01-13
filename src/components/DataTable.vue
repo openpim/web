@@ -58,6 +58,7 @@
         </template>
         <span>{{ $t('Submit') }}</span>
       </v-tooltip>
+      <AfterButtonsComponent :headers="headersRef"></AfterButtonsComponent>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
       :options="optionsRef"
@@ -280,8 +281,10 @@ import AttributeType from '../constants/attributeTypes'
 import XLSX from 'xlsx'
 import dateFormat from 'dateformat'
 
+import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterButtonsComponent'
+
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent },
   props: {
     loadData: {
       required: true
