@@ -15,7 +15,7 @@ export default {
     },
     loadData: {
       required: true
-    },
+    }
   },
   setup (props) {
     return {
