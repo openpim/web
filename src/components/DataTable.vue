@@ -58,7 +58,7 @@
         </template>
         <span>{{ $t('Submit') }}</span>
       </v-tooltip>
-      <AfterButtonsComponent :headers="headersRef"></AfterButtonsComponent>
+      <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData"></AfterButtonsComponent>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
       :options="optionsRef"
