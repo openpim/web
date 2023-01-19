@@ -98,6 +98,26 @@
                       <v-radio :label="$t('Config.Actions.Triggers.Event.AfterDelete')" value="6"></v-radio>
                     </v-radio-group>
                   </template>
+                  <template v-if="triggerRef.type === 6"> <!-- table button -->
+                    <v-text-field v-model="triggerRef.itemButton" :label="$t('Config.Actions.Triggers.ButtonText')" required></v-text-field>
+                    <v-checkbox v-model="triggerRef.askBeforeExec" :label="$t('Config.Actions.Triggers.AskBeforeExec')" required></v-checkbox>
+                    <div>
+                    <div class="d-inline-flex align-center">
+                      <div v-if="selectedType">
+                        <router-link :to="'/config/types/' + selectedType.identifier">{{ selectedType.identifier }}</router-link><span class="ml-2">- {{ selectedType.name[currentLanguage.identifier] || '[' + selectedType.name[defaultLanguageIdentifier] + ']' }}</span>
+                      </div>
+                      <v-btn color="blue darken-1" text @click="typeSelectionDialogRef.showDialog()">{{ $t('Config.Actions.Triggers.SelectType.Button') }}</v-btn>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="d-inline-flex align-center">
+                      <div v-if="selectedItemRef">
+                        <router-link :to="'/item/' + selectedItemRef.identifier">{{ selectedItemRef.identifier }}</router-link><span class="ml-2">- {{ selectedItemRef.name[currentLanguage.identifier] || '[' + selectedItemRef.name[defaultLanguageIdentifier] + ']' }}</span>
+                      </div>
+                      <v-btn color="blue darken-1" text @click="itemSelectionDialogRef.showDialog()">{{ $t('Config.Actions.Triggers.SelectItem.Button') }}</v-btn>
+                    </div>
+                  </div>
+                  </template>
                 </v-form>
               </v-col>
             </v-row>
@@ -231,6 +251,8 @@ export default {
         return triggerRef.value.event
       } else if (typeRef.value === 5) {
         return triggerRef.value.event
+      } else if (typeRef.value === 6) {
+        return triggerRef.value.itemButton && ((!triggerRef.value.itemType && !triggerRef.value.itemFrom) || (triggerRef.value.itemType && triggerRef.value.itemFrom))
       } else {
         return false
       }
@@ -300,7 +322,8 @@ export default {
         { text: i18n.t('Config.Actions.Triggers.Type.ItemRel'), value: 2 },
         { text: i18n.t('Config.Actions.Triggers.Type.Button'), value: 3 },
         { text: i18n.t('Config.Actions.Triggers.Type.AttrGroup'), value: 4 },
-        { text: i18n.t('Config.Actions.Triggers.Type.Attribute'), value: 5 }
+        { text: i18n.t('Config.Actions.Triggers.Type.Attribute'), value: 5 },
+        { text: i18n.t('Config.Actions.Triggers.Type.TableButton'), value: 6 }
       ]
     }
   }
