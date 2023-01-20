@@ -41,7 +41,7 @@
 <script>
 
 import { computed, ref } from 'vue'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import OptionsItemSelectionDialog from './OptionsItemSelectionDialog.vue'
 
 export default {
@@ -52,6 +52,8 @@ export default {
     }
   },
   setup (props, { emit, root }) {
+    const { t } = useI18n()
+
     const optionsDialogRef = ref(null)
     const selectedOption = ref(null)
 
@@ -107,9 +109,9 @@ export default {
       selectedOption,
       changeType,
       typeSelection: [
-        { text: i18n.t('OptionsTable.Types.String'), value: 1 },
-        { text: i18n.t('OptionsTable.Types.Id'), value: 2 },
-        { text: i18n.t('OptionsTable.Types.Identifier'), value: 3 }
+        { title: t('OptionsTable.Types.String'), value: 1 },
+        { title: t('OptionsTable.Types.Id'), value: 2 },
+        { title: t('OptionsTable.Types.Identifier'), value: 3 }
       ]
     }
   }

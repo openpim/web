@@ -58,16 +58,18 @@
         </template>
         <span>{{ $t('Submit') }}</span>
       </v-tooltip>
-            <template v-if="buttonActions">
-              <v-menu offset-y>
-                <template v-slot:activator="{ on }"><v-btn icon v-on="on"><v-icon>mdi-gesture-tap-button</v-icon></v-btn></template>
-                <v-list>
-                  <v-list-item v-for="(trigger, i) in buttonActions" :key="i" @click="executeAction(trigger)">
-                    <v-list-item-title>{{trigger.itemButton}}</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </template>
+      <template v-if="buttonActions">
+        <v-menu offset-y>
+          <template v-slot:activator="{ props }">
+            <v-btn icon v-bind="props"><v-icon>mdi-gesture-tap-button</v-icon></v-btn>
+          </template>
+          <v-list>
+            <v-list-item v-for="(trigger, i) in buttonActions" :key="i" @click="executeAction(trigger)">
+              <v-list-item-title>{{trigger.itemButton}}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </template>
     </v-toolbar>
   <v-data-table
     @update:options="optionsUpdate"
@@ -1338,7 +1340,7 @@ export default {
 
     function executeAction (trigger) {
       if (trigger.askBeforeExec) {
-        if (!confirm(i18n.t('Execute') + '?')) return
+        if (!confirm(t('Execute') + '?')) return
       }
       processButtonAction(trigger)
     }
@@ -1361,7 +1363,7 @@ export default {
         } else if (result.message) {
           showInfo(result.message)
         } else {
-          showInfo(i18n.t('Started'))
+          showInfo(t('Started'))
         }
       }).finally(() => {
         buttonActionStatusDialog.value.closeDialog()
@@ -1492,7 +1494,8 @@ export default {
 
   div.resizer {
     position:absolute;
-    top: 0px; right: -1px;
+    top: 0;
+    right: -1px;
     width: 5px;
     cursor: col-resize;
     user-select: none;

@@ -13,11 +13,22 @@ import Dashboards from '../views/Dashboards.vue'
 import SearchResults from '../views/SearchResults.vue'
 import Item from '../views/Item.vue'
 import SelectUser from '../views/SelectUser.vue'
+import Types from '../views/config/Types.vue'
+import Attributes from '../views/config/Attributes.vue'
+import Relations from '../views/config/Relations.vue'
+import Languages from '../views/config/Languages.vue'
+import Users from '../views/config/Users.vue'
+import Roles from '../views/config/Roles.vue'
+import LOVs from '../views/config/LOVs.vue'
+import Channels from '../views/config/Channels.vue'
+import Actions from '../views/config/Actions.vue'
+import DashboardsConfig from '../views/config/Dashboards.vue'
 
 // components
 import HomeMenu from '../components/HomeMenu.vue'
 import SearchPanel from '../components/SearchPanel.vue'
 import SearchItem from '../components/SearchItem.vue'
+import ConfigMenu from '../components/ConfigMenu.vue'
 
 const routes = [
   {
@@ -185,140 +196,140 @@ const routes = [
       {
         path: 'home',
         components: {
-          menu: () => import('../components/ConfigMenu.vue')
+          menu: ConfigMenu
         }
       },
       {
         path: 'types',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Types.vue')
+          menu: ConfigMenu,
+          default: Types
         }
       },
       {
         path: 'types/:id',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Types.vue')
+          menu: ConfigMenu,
+          default: Types
         }
       },
       {
         path: 'attributes',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Attributes.vue')
+          menu: ConfigMenu,
+          default: Attributes
         }
       },
       {
         path: 'attributes/:id',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Attributes.vue')
+          menu: ConfigMenu,
+          default: Attributes
         }
       },
       {
         path: 'relations',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Relations.vue')
+          menu: ConfigMenu,
+          default: Relations
         }
       },
       {
         path: 'relations/:id',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Relations.vue')
+          menu: ConfigMenu,
+          default: Relations
         }
       },
       {
         path: 'languages',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Languages.vue')
+          menu: ConfigMenu,
+          default: Languages
         }
       },
       {
         path: 'users',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Users.vue')
+          menu: ConfigMenu,
+          default: Users
         }
       },
       {
         path: 'users/:id',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Users.vue')
+          menu: ConfigMenu,
+          default: Users
         }
       },
       {
         path: 'roles',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Roles.vue')
+          menu: ConfigMenu,
+          default: Roles
         }
       },
       {
         path: 'roles/:id',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Roles.vue')
+          menu: ConfigMenu,
+          default: Roles
         }
       },
       {
         path: 'lovs',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/LOVs.vue')
+          menu: ConfigMenu,
+          default: LOVs
         }
       },
       {
         path: 'lovs/:id',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/LOVs.vue')
+          menu: ConfigMenu,
+          default: LOVs
         }
       },
       {
         path: 'channels',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Channels.vue')
+          menu: ConfigMenu,
+          default: Channels
         }
       },
       {
         path: 'channels/:id',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Channels.vue')
+          menu: ConfigMenu,
+          default: Channels
         }
       },
       {
         path: 'actions',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Actions.vue')
+          menu: ConfigMenu,
+          default: Actions
         }
       },
       {
         path: 'actions/:id',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Actions.vue')
+          menu: ConfigMenu,
+          default: Actions
         }
       },
       {
         path: 'dashboards',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Dashboards.vue')
+          menu: ConfigMenu,
+          default: DashboardsConfig
         }
       },
       {
         path: 'dashboards/:id',
         components: {
-          menu: () => import('../components/ConfigMenu.vue'),
-          default: () => import('../views/config/Dashboards.vue')
+          menu: ConfigMenu,
+          default: DashboardsConfig
         }
       }
     ],
