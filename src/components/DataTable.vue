@@ -1328,10 +1328,9 @@ export default {
     }
 
     async function processButtonAction (trigger, itemId) {
-      console.log(111, props.loadData().where)
-
       buttonActionStatusDialog.value.showDialog()
-      await executeTableButtonAction(props.item ? props.item.internalId : null, trigger.itemButton).then((result) => {
+      const where = props.loadData().where
+      await executeTableButtonAction(props.item ? props.item.internalId : null, trigger.itemButton, where || {}).then((result) => {
         if (result.data) {
           if (result.data.router) {
             router.push(result.data.router)

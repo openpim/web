@@ -1180,9 +1180,12 @@ export default {
     }
 
     function loadDataFunction (options) {
-      return new Promise((resolve, reject) => {
+      const tmp = new Promise((resolve, reject) => {
+        if (!options) return
         loadChildren(itemRef.value.id, options).then(data => resolve(data))
       })
+      tmp.where = { parentIdentifier: itemRef.value.identifier }
+      return tmp
     }
 
     const headAttributesKeyRef = ref(1)
