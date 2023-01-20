@@ -70,6 +70,11 @@ const actionList = {
     const response = await serverFetch(query)
     return response.executeAction
   },
+  executeTableButtonAction: async (itemId, buttonText, data) => {
+    const query = 'mutation { executeTableButtonAction(' + (itemId ? 'itemId: "' + itemId + '",' : '') + ' buttonText: "' + buttonText + '" ' + (data ? ',data: """' + data + '"""' : '') + ') { error, compileError, message, data }}'
+    const response = await serverFetch(query)
+    return response.executeButtonAction
+  },
   testAction: async (itemId, actionId) => {
     const query = 'mutation { testAction(itemId: "' + itemId + '", actionId: "' + actionId + '") { failed, log, error, compileError, message }}'
     const response = await serverFetch(query)

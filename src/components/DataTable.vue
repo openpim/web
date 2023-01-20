@@ -58,6 +58,16 @@
         </template>
         <span>{{ $t('Submit') }}</span>
       </v-tooltip>
+            <template v-if="buttonActions">
+              <v-menu offset-y>
+                <template v-slot:activator="{ on }"><v-btn icon v-on="on"><v-icon>mdi-gesture-tap-button</v-icon></v-btn></template>
+                <v-list>
+                  <v-list-item v-for="(trigger, i) in buttonActions" :key="i" @click="executeAction(trigger)">
+                    <v-list-item-title>{{trigger.itemButton}}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
     </v-toolbar>
   <v-data-table
     @update:options="optionsUpdate"
@@ -171,6 +181,7 @@
   <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
   <ColumnsSaveDialog ref="columnsSaveDialogRef" @changed="loadColumns(true)"/>
   <AttrGroupsSelectionDialog ref="attrSelectionDialogRef" :multiselect="true" @selected="attrGroupsSelected"/>
+  <ActionStatusDialog ref="buttonActionStatusDialog" />
     <template>
       <v-row justify="center">
         <v-dialog v-model="excelDialogRef" persistent width="80%">
@@ -273,16 +284,19 @@ import * as searchStore from '../store/search'
 import * as attrStore from '../store/attributes'
 import * as channelsStore from '../store/channels'
 import * as typesStore from '../store/types'
+import * as actionsStore from '../store/actions'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 import ColumnsSaveDialog from './ColumnsSaveDialog'
 import ChannelsSelectionDialog from './ChannelsSelectionDialog'
 import AttrGroupsSelectionDialog from './AttrGroupsSelectionDialog'
+import ActionStatusDialog from '../components/ActionStatusDialog'
 import AttributeType from '../constants/attributeTypes'
 import XLSX from 'xlsx'
 import dateFormat from 'dateformat'
+import router from '../router'
 
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, ActionStatusDialog },
   props: {
     loadData: {
       required: true
@@ -343,6 +357,12 @@ export default {
     const { groups, findByIdentifier, getAttributesForItem } = attrStore.useStore()
 
     const { loadAllChannels, getAvailableChannels, submitItem } = channelsStore.useStore()
+
+    const {
+      loadAllActions,
+      actions,
+      executeTableButtonAction
+    } = actionsStore.useStore()
 
     const {
       languages,
@@ -1157,6 +1177,7 @@ export default {
     }
 
     onMounted(async () => {
+      loadAllActions()
       loadAllTypes()
       loadAllChannels().then(() => {
         hasChannelsRef.value = getAvailableChannels(true).length > 0
@@ -1288,6 +1309,66 @@ export default {
     function getStyleVal (elm, css) {
       return (window.getComputedStyle(elm, null).getPropertyValue(css))
     }
+
+    const buttonActionStatusDialog = ref(null)
+    const buttonActions = computed(() => {
+      if (props.item) {
+        const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
+        const arr = []
+
+        actions.forEach(action => {
+          for (let i = 0; i < action.triggers.length; i++) {
+            const trigger = action.triggers[i]
+
+            const result = parseInt(trigger.type) === 6 && // table button
+                  ((!trigger.itemType && !trigger.itemFrom) ||
+                  (parseInt(props.item.typeId) === parseInt(trigger.itemType) &&
+                  pathArr.includes(parseInt(trigger.itemFrom))))
+            if (result) {
+              arr.push({ ...trigger, order: action.order })
+            }
+          }
+        })
+        arr.sort((a, b) => a.order - b.order)
+        return arr
+      } else {
+        return []
+      }
+    })
+
+    function executeAction (trigger) {
+      if (trigger.askBeforeExec) {
+        if (!confirm(i18n.t('Execute') + '?')) return
+      }
+      processButtonAction(trigger)
+    }
+
+    async function processButtonAction (trigger, itemId) {
+      buttonActionStatusDialog.value.showDialog()
+      await executeTableButtonAction(props.item ? props.item.internalId : null, trigger.itemButton).then((result) => {
+        if (result.data) {
+          if (result.data.router) {
+            router.push(result.data.router)
+          }
+          if (result.data.openUrl) {
+            window.open(result.data.openUrl)
+          }
+        }
+        if (result.compileError) {
+          showError('Compile error: ' + result.compileError)
+        } else if (result.error) {
+          showError(result.error)
+        } else if (result.message) {
+          showInfo(result.message)
+        } else {
+          showInfo(i18n.t('Started'))
+        }
+      }).finally(() => {
+        buttonActionStatusDialog.value.closeDialog()
+      })
+      buttonActionStatusDialog.value.closeDialog()
+    }
+
     return {
       columnsSelectionDialogRef,
       columnsSaveDialogRef,
@@ -1364,6 +1445,9 @@ export default {
       importPageSizeRef,
       downloadImportFinishedLog,
       dateFormat,
+      buttonActions,
+      executeAction,
+      buttonActionStatusDialog,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       required: value => !!value || t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || t('ItemRelationsList.MustBePositive')
