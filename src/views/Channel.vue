@@ -29,6 +29,7 @@
           <v-card-actions>
             <v-btn v-if="channelReadAccess" text @click="channelSelected(channelRef)" v-text="$t('DataTable.Refresh')"></v-btn>
             <v-btn v-if="channelWriteAccess" text @click="triggerNow" v-text="$t('ChannelView.TriggerNow')"></v-btn>
+            <v-btn v-if="channelWriteAccess" text @click="resetQueue" v-text="$t('ChannelView.ResetQueue')"></v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -62,6 +63,34 @@
         </v-tabs-items>
       </v-col>
     </v-row>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="progressDialogRef" persistent width="80%">
+          <v-card>
+            <v-card-title>
+              <span class="headline"></span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-progress-linear v-model="progressDialogValueRef" color="primary" height="25">
+                      <template v-slot:default="{ value }">
+                        <strong>{{ Math.ceil(value) }}%</strong>
+                      </template>
+                    </v-progress-linear>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="progressDialogRef=false">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
   </v-container>
 </template>
 
@@ -70,6 +99,7 @@ import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import * as channelsStore from '../store/channels'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'
+import * as itemStore from '../store/item'
 import { useRouter } from '../router/useRouter'
 import SystemInformation from '../components/SystemInformation'
 import PieChart from '../components/PieChart'
@@ -91,7 +121,8 @@ export default {
       getChannelStatus,
       getChannelStatusByCategories,
       hasChannelAccess,
-      triggerChannel
+      triggerChannel,
+      updateItemChannels
     } = channelsStore.useStore()
 
     const {
@@ -102,6 +133,10 @@ export default {
     const {
       searchToOpenRef
     } = searchStore.useStore()
+
+    const {
+      searchItems
+    } = itemStore.useStore()
 
     const channelRef = ref(null)
     const tabRef = ref(null)
@@ -116,6 +151,9 @@ export default {
     const errorRef = ref(0)
 
     const statusByCategoriesRef = ref([])
+
+    const progressDialogRef = ref(null)
+    const progressDialogValueRef = ref(0)
 
     function channelSelected (selected) {
       channelRef.value = selected
@@ -220,12 +258,34 @@ export default {
       triggerChannel(channelRef.value.internalId)
     }
 
+    async function resetQueue () {
+      if (confirm(i18n.t('ChannelView.ConfirmReset'))) {
+        const where = { channels: {} }
+        where.channels[channelRef.value.identifier] = { status: 1 }
+        // let's use only one page with 10000 items for now to make it simple
+        const res = await searchItems(where, { page: 1, itemsPerPage: 10000, sortBy: ['id'], sortDesc: [false] })
+        progressDialogRef.value = true
+        for (let i = 0; i < res.rows.length; i++) {
+          const item = res.rows[i]
+          const channels = {}
+          channels[channelRef.value.identifier] = { is_deleted: true }
+          await updateItemChannels(item, channels)
+          progressDialogValueRef.value = i * 100 / res.rows.length
+        }
+        progressDialogRef.value = false
+        channelSelected(channelRef.value)
+      }
+    }
+
     return {
       channelRef,
       tabRef,
       currentLanguage,
       defaultLanguageIdentifier,
       triggerNow,
+      resetQueue,
+      progressDialogRef,
+      progressDialogValueRef,
       nextStart,
       pieData,
       loadedRef,

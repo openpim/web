@@ -30,15 +30,21 @@
                   <th class="text-left" v-if="componentType === 'source' && getOption(identifier, 'showItemUpdateDate', '') === 'true'" >{{$t('ItemRelationsList.TargetDate')}}</th>
                   <th class="text-left" v-if="componentType === 'target' && getOption(identifier, 'showItemUpdateDate', '') === 'true'">{{$t('ItemRelationsList.SourceDate')}}</th>
 
-                  <th class="text-left" v-for="(attr, j) in getAttributesForRelation(identifier)" :key="'A'+j">
+                  <th class="text-left pa-0" v-for="(attr, j) in getAttributesForRelation(identifier)" :key="'A'+j">
                     {{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}
                   </th>
-                  <th class="text-left" v-if="canEditItemRelationByIdentifier(identifier)">
-                    <v-tooltip top>
+                  <th class="text-left">
+                    <v-tooltip top v-if="canEditItemRelationByIdentifier(identifier)">
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" class="pa-0" icon color="primary" @click="add(identifier)"><v-icon dark>mdi-plus</v-icon></v-btn>
                       </template>
                       <span>{{ $t('Add') }}</span>
+                    </v-tooltip>
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" class="pa-0" icon color="primary" @click="pageSize = 5;pageSizeChanged(identifier)"><v-icon dark>mdi-alpha-r</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('ItemRelationsList.ResetPageSize') }}</span>
                     </v-tooltip>
                   </th>
                 </tr>
@@ -95,11 +101,11 @@
                       {{  itemRel.item.updatedAt ? dateFormat(new Date(itemRel.item.updatedAt), DATE_FORMAT) : '' }}
                     </span>
                   </td>
-                  <td class="text-left" v-for="(attr, idx) in getAttributesForRelation(identifier)" :key="'attr'+idx">
+                  <td class="text-left pa-0" v-for="(attr, idx) in getAttributesForRelation(identifier)" :key="'attr'+idx">
                     <AttributeValue @input="attrChange(itemRel, attr)" :item="item" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
                   </td>
-                  <td class="pa-1" v-if="canEditItemRelation">
-                    <v-tooltip top>
+                  <td class="pa-1">
+                    <v-tooltip top v-if="canEditItemRelation">
                       <template v-slot:activator="{ on }">
                         <template v-if="changedRelations.includes(itemRel.id)">
                           <v-btn v-on="on" color="primary" class="pa-0 inline" icon @click="save(identifier, itemRel.id)"><v-icon large dark>mdi-content-save</v-icon></v-btn>
@@ -110,7 +116,7 @@
                       </template>
                       <span>{{ $t('Save') }}</span>
                     </v-tooltip>
-                    <v-tooltip top>
+                    <v-tooltip top v-if="canEditItemRelation">
                       <template v-slot:activator="{ on }">
                       <v-btn v-on="on" class="pa-0 inline" icon @click="remove(identifier, itemRel.id)"><v-icon dark>mdi-minus</v-icon></v-btn>
                       </template>

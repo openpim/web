@@ -69,6 +69,7 @@
             </v-list>
         </v-menu>
       </template>
+      <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData"></AfterButtonsComponent>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
       :options="optionsRef"
@@ -295,8 +296,10 @@ import XLSX from 'xlsx'
 import dateFormat from 'dateformat'
 import router from '../router'
 
+import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterButtonsComponent'
+
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, ActionStatusDialog },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent, ActionStatusDialog },
   props: {
     loadData: {
       required: true

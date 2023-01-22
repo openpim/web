@@ -23,10 +23,14 @@ function hasChannelAccess (channel, fullAccess) {
   return false
 }
 
+let typePromise
+let chanPromise
+let chanPromiseAll
+
 const actions = {
   loadAllChannelTypes: async () => {
-    if (channelTypes.length > 0) return channels
-    const data = await serverFetch('query { getChannelTypes }')
+    if (!typePromise) typePromise = serverFetch('query { getChannelTypes }')
+    const data = await typePromise
     if (channelTypes.length > 0) return channels
     if (data.getChannelTypes) {
       data.getChannelTypes.forEach(id => {
@@ -37,8 +41,24 @@ const actions = {
     return channels
   },
   loadAllChannels: async () => {
+    if (!chanPromise) chanPromise = serverFetch('query { getChannels {id identifier name active type valid visible config runtime createdAt createdBy updatedAt updatedBy} }')
+    const data = await chanPromise
     if (channels.length > 0) return channels
-    const data = await serverFetch('query { getChannels {id identifier name active type valid visible config mappings runtime createdAt createdBy updatedAt updatedBy} }')
+    if (data.getChannels) {
+      data.getChannels.forEach(element => {
+        element.internalId = element.id
+        channels.push(element)
+      })
+    }
+
+    return channels
+  },
+  loadAllChannelsWithMapping: async () => {
+    if (!chanPromiseAll) {
+      chanPromiseAll = serverFetch('query { getChannels {id identifier name active type valid visible config mappings runtime createdAt createdBy updatedAt updatedBy} }')
+      channels.splice(0)
+    }
+    const data = await chanPromiseAll
     if (channels.length > 0) return channels
     if (data.getChannels) {
       data.getChannels.forEach(element => {
