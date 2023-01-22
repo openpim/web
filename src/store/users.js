@@ -24,10 +24,11 @@ async function userLogin (token, user, pathAfterLogin) {
   }
 }
 
+let promise
 const actions = {
   loadAllUsers: async () => {
-    if (users.length > 0) return
-    const data = await serverFetch('query { getUsers {id internalId login name email roles options external createdAt createdBy updatedAt updatedBy } }')
+    if (!promise) promise = serverFetch('query { getUsers {id internalId login name email roles options external createdAt createdBy updatedAt updatedBy } }')
+    const data = await promise
     if (data.getUsers) {
       data.getUsers.forEach(element => {
         users.push(element)

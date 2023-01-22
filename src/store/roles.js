@@ -3,10 +3,12 @@ import { serverFetch, objectToGraphgl } from './utils'
 
 const roles = reactive([])
 
+let promise
 const actions = {
   loadAllRoles: async () => {
+    if (!promise) promise = serverFetch('query { getRoles {id, internalId, identifier, name, configAccess, relAccess, itemAccess, channelAccess, otherAccess, options, updatedAt, updatedBy, createdAt, createdBy } }')
+    const data = await promise
     if (roles.length > 0) return
-    const data = await serverFetch('query { getRoles {id, internalId, identifier, name, configAccess, relAccess, itemAccess, channelAccess, otherAccess, options, updatedAt, updatedBy, createdAt, createdBy } }')
     if (data.getRoles) {
       if (roles.length > 0) return
       data.getRoles.forEach(element => {

@@ -8,10 +8,11 @@ const savedColumnsRef = ref(null)
 const selectedRef = ref(null)
 const lovsMapRef = ref({})
 
+let promise
 const actions = {
   loadAllSavedColumns: async (force) => {
-    if (savedColumnsRef.value && !force) return
-    const data = await serverFetch('query { getColumns(onlyMy: false) {id identifier name public columns user} }')
+    if (!promise || force) promise = serverFetch('query { getColumns(onlyMy: false) {id identifier name public columns user} }')
+    const data = await promise
     if (savedColumnsRef.value && !force) return
     if (data.getColumns) {
       savedColumnsRef.value = data.getColumns.reduce((acc, col) => {

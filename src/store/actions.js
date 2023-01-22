@@ -5,10 +5,11 @@ import { currentLanguage } from './languages'
 
 const actions = reactive([])
 
+let promise
 const actionList = {
   loadAllActions: async () => {
-    if (actions.length > 0) return
-    const data = await serverFetch('query { getActions {id identifier name code order triggers createdAt createdBy updatedAt updatedBy} }')
+    if (!promise) promise = serverFetch('query { getActions {id identifier name code order triggers createdAt createdBy updatedAt updatedBy} }')
+    const data = await promise
     if (actions.length > 0) return
     if (data.getActions) {
       data.getActions.forEach(element => {

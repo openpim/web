@@ -6,10 +6,11 @@ import { currentLanguage } from './languages'
 
 const dashboards = reactive([])
 
+let promise
 const actionList = {
   loadAllDashboards: async () => {
-    if (dashboards.length > 0) return
-    const data = await serverFetch('query { getDashboards {id identifier name users components createdAt createdBy updatedAt updatedBy} }')
+    if (!promise) promise = serverFetch('query { getDashboards {id identifier name users components createdAt createdBy updatedAt updatedBy} }')
+    const data = await promise
     if (dashboards.length > 0) return
     const arr = data.getDashboards
     if (arr && arr.length > 0) {

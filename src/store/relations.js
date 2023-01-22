@@ -5,10 +5,12 @@ import { currentLanguage } from './languages'
 
 const relations = reactive([])
 
+let promise
 const actions = {
   loadAllRelations: async () => {
+    if (!promise) promise = serverFetch('query { getRelations }')
+    const data = await promise
     if (relations.length > 0) return
-    const data = await serverFetch('query { getRelations }')
     if (data.getRelations) {
       data.getRelations.forEach(element => {
         relations.push(element)
