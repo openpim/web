@@ -1,9 +1,9 @@
 <template>
   <v-menu v-model="showMenuRef" :close-on-content-click="false" :nudge-width="200" offset-y>
-    <template #activator="{ on: onMenu }">
+    <template v-slot:activator="{ props: onMenu }">
       <v-tooltip bottom>
-        <template #activator="{ on: onTooltip }">
-          <v-btn v-on="{ ...onMenu, ...onTooltip }" variant="plain"><v-icon>mdi-information-outline</v-icon></v-btn>
+        <template v-slot:activator="{ props: onTooltip }">
+          <v-btn v-bind="{ ...onMenu, ...onTooltip }" variant="plain"><v-icon>mdi-information-outline</v-icon></v-btn>
         </template>
         <span>{{ $t('SystemInformation.Tooltip') }}</span>
       </v-tooltip>

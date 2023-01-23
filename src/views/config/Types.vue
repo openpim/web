@@ -2,18 +2,18 @@
   <v-container v-if="canViewConfigRef">
     <v-row no-gutters>
       <v-col cols="5">
-        <v-toolbar dense flat>
+        <v-toolbar density="compact" flat>
           <v-toolbar-title>{{ $t('Config.Types.ObjectType') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="add" :disabled="selectedRef.internalId == 0"><v-icon>mdi-plus</v-icon></v-btn>
+            <template v-slot:activator="{ props }">
+              <v-btn icon v-bind="props" @click="add" :disabled="selectedRef.internalId === 0"><v-icon>mdi-plus</v-icon></v-btn>
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
         <v-text-field v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-treeview :search="searchRef" :filter="filter" dense activatable hoverable :items="typesTree" @update:active="activeChanged" :active="activeRef" :open="openRef">
+        <v-treeview :search="searchRef" :filter="filter" density="compact" activatable hoverable :items="typesTree" @update:active="activeChanged" :active="activeRef" :open="openRef">
           <template v-slot:prepend="{ item }">
             <v-icon v-if="item.icon" :color="item.iconColor">mdi-{{ item.icon }}</v-icon>
           </template>
@@ -26,7 +26,7 @@
         <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id != -1">
           <div v-if="selectedRef.link === 0">
             <div class="d-inline-flex align-center">
-              <v-text-field style="min-width: 100%" v-model="selectedRef.identifier" :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Types.ObjectType.Identifier')" required></v-text-field>
+              <v-text-field style="min-width: 300px" v-model="selectedRef.identifier" :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Types.ObjectType.Identifier')" required></v-text-field>
               <SystemInformation :data="selectedRef"></SystemInformation>
             </div>
 
@@ -93,7 +93,7 @@ import TypeSelectionDialog from '../../components/TypeSelectionDialog'
 import { ref, computed, onMounted } from 'vue'
 import * as errorStore from '../../store/error'
 import * as typesStore from '../../store/types'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import router from '../../router'
 import * as langStore from '../../store/languages'
 import LanguageDependentField from '../../components/LanguageDependentField'
@@ -132,6 +132,8 @@ export default {
       relations,
       loadAllRelations
     } = relStore.useStore()
+
+    const { t } = useI18n()
 
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
@@ -191,7 +193,7 @@ export default {
     function activeChanged (active) {
       if (active.length !== 0) {
         if (selectedRef.value.internalId === 0 && active[0] !== selectedRef.value.id) {
-          showInfo(i18n.t('Config.NotSaved'))
+          showInfo(t('Config.NotSaved'))
         }
 
         if (active[0] !== selectedRef.value.id) {
@@ -214,7 +216,7 @@ export default {
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.Types.Confirm.Delete', { name: selectedRef.value.name[currentLanguage.value.identifier] }))) {
+      if (confirm(t('Config.Types.Confirm.Delete', { name: selectedRef.value.name[currentLanguage.value.identifier] }))) {
         removeType(selectedRef.value.id).then(() => {
           activeRef.value.pop()
           selectedRef.value = { id: -1 }
@@ -227,7 +229,7 @@ export default {
       if (formRef.value.validate()) {
         router.push('/config/types/' + selectedRef.value.identifier)
         saveType(selectedRef.value).then(() => {
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
@@ -258,9 +260,10 @@ export default {
         canViewConfigRef.value = canViewConfig('types')
         canEditConfigRef.value = canEditConfig('types')
 
-        const id = router.currentRoute.params.id
+        const id = router.currentRoute.value.params.id
         if (id) {
           const result = findTypeByIdentifier(id)
+          console.log(result)
           if (result.node) {
             selectedRef.value = result.node
             activeRef.value.push(result.node.id)
@@ -274,9 +277,9 @@ export default {
 
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
-      return (selectedRef.value.internalId !== 0 || findTypeByIdentifier(v).node.internalId === 0) || i18n.t('Config.Types.Error.IdentifierNotUnique')
+      return (selectedRef.value.internalId !== 0 || findTypeByIdentifier(v).node.internalId === 0) || t('Config.Types.Error.IdentifierNotUnique')
     }
 
     return {
@@ -308,11 +311,11 @@ export default {
       relSelectedRef,
       setMainImage,
       identifierRules: [
-        v => !!v || i18n.t('Config.Types.Error.IdentifierRequired'),
+        v => !!v || t('Config.Types.Error.IdentifierRequired'),
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.Types.Error.NameRequired')
+        v => !!v || t('Config.Types.Error.NameRequired')
       ]
     }
   }

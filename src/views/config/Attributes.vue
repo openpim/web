@@ -2,18 +2,18 @@
   <v-container v-if="canViewConfigRef">
     <v-row no-gutters>
       <v-col cols="4">
-        <v-toolbar dense flat>
+        <v-toolbar density="compact" flat>
           <v-toolbar-title>{{ $t('Config.Attributes.GroupsAttributes') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
             <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="add" :disabled="selectedRef.id !== -1 && (selectedRef.internalId == 0 || !selectedRef.group)"><v-icon>mdi-plus</v-icon></v-btn>
+              <v-btn icon v-on="on" @click="add" :disabled="selectedRef.id !== -1 && (selectedRef.internalId === 0 || !selectedRef.group)"><v-icon>mdi-plus</v-icon></v-btn>
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
         <v-text-field @input="searchChanged" @clear="searchChanged" v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-treeview dense activatable hoverable :items="groupsFiltered" @update:active="activeChanged" :active="activeRef" :open="openRef">
+        <v-treeview density="compact" activatable hoverable :items="groupsFiltered" @update:active="activeChanged" :active="activeRef" :open="openRef">
           <template v-slot:prepend="{ item }">
             <v-icon>{{ item.group ? 'mdi-format-list-bulleted-type' : 'mdi-alpha-a-box-outline' }}</v-icon>
           </template>
@@ -24,7 +24,7 @@
       </v-col>
       <v-col cols="8">
         <!-- group -->
-        <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id != -1 && selectedRef.group">
+        <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id !== -1 && selectedRef.group">
           <div class="d-inline-flex align-center">
             <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.Attributes.Identifier')" required></v-text-field>
             <SystemInformation :data="selectedRef"></SystemInformation>
@@ -39,7 +39,7 @@
         </v-form>
 
         <!-- attribute -->
-        <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id != -1 && !selectedRef.group">
+        <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef.id !== -1 && !selectedRef.group">
           <AttributeViewComponent :attr="selectedRef" :canEditConfig="canEditConfigRef" />
 
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
@@ -90,7 +90,7 @@
 <script>
 import * as attrStore from '../../store/attributes'
 import { ref, computed, onMounted, watch } from 'vue'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import router from '../../router'
 import * as errorStore from '../../store/error'
 import * as langStore from '../../store/languages'
@@ -133,6 +133,8 @@ export default {
       removeGroup,
       removeAttribute
     } = attrStore.useStore()
+
+    const { t } = useI18n()
 
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
@@ -203,7 +205,7 @@ export default {
     function activeChanged (active) {
       if (active.length !== 0) {
         if (selectedRef.value.internalId === 0 && active[0] !== selectedRef.value.id) {
-          showInfo(i18n.t('Config.NotSaved'))
+          showInfo(t('Config.NotSaved'))
         }
 
         if (active[0] !== selectedRef.value.id) {
@@ -230,10 +232,10 @@ export default {
     function add () {
       if (selectedRef.value && selectedRef.value.group) {
         const name = {}
-        name[currentLanguage.value.identifier] = i18n.t('Config.Attributes.Attr.NewName')
+        name[currentLanguage.value.identifier] = t('Config.Attributes.Attr.NewName')
         const errorMessage = {}
         errorMessage[currentLanguage.value.identifier] = ''
-        const newAttr = { id: Date.now(), internalId: 0, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name: name, errorMessage: errorMessage, options: [] }
+        const newAttr = { id: Date.now(), internalId: 0, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name, errorMessage, options: [] }
         selectedRef.value.attributes.push(newAttr)
         const groupFiltered = groupsFiltered.value.find((el) => el.id === selectedRef.value.id)
         groupFiltered.children.push(newAttr)
@@ -242,8 +244,8 @@ export default {
         selectedGroupsRef.value = []
       } else {
         const name = {}
-        name[currentLanguage.value.identifier] = i18n.t('Config.Attributes.Group.NewName')
-        const newGroup = { id: Date.now(), internalId: 0, group: true, attributes: [], order: 0, visible: false, name: name, options: [] }
+        name[currentLanguage.value.identifier] = t('Config.Attributes.Group.NewName')
+        const newGroup = { id: Date.now(), internalId: 0, group: true, attributes: [], order: 0, visible: false, name, options: [] }
         groups.push(newGroup)
         const newGroupInTree = { ...newGroup }
         newGroupInTree.children = []
@@ -257,14 +259,14 @@ export default {
 
     function remove () {
       if (selectedRef.value.group) {
-        if (confirm(i18n.t('Config.Attributes.Confirm.Delete', { name: selectedRef.value.name }))) {
+        if (confirm(t('Config.Attributes.Confirm.Delete', { name: selectedRef.value.name }))) {
           activeRef.value.pop()
           const indxToRemove = groupsFiltered.value.findIndex((el) => el.id === selectedRef.value.id)
           if (indxToRemove > -1) {
             groupsFiltered.value.splice(indxToRemove, 1)
           }
           removeGroup(selectedRef.value.id).then(() => {
-            showInfo(i18n.t('Saved'))
+            showInfo(t('Saved'))
           })
           selectedRef.value = empty
           if (!props.item) {
@@ -299,7 +301,7 @@ export default {
         }
       }
       removeAttribute(selectedRef.value.id, attrDeletionRef.value !== 'link').then(() => {
-        showInfo(i18n.t('Saved'))
+        showInfo(t('Saved'))
       })
       selectedRef.value = empty
       if (!props.item) {
@@ -313,7 +315,7 @@ export default {
           router.push('/config/attributes/' + selectedRef.value.identifier)
         }
         saveData(selectedRef.value).then(() => {
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
@@ -322,12 +324,12 @@ export default {
       const attr = findByIdentifier(selectedRef.value.identifier)
       const grp = findById(grpId)
       if (attr.item.internalId === 0 || grp.item.internalId === 0) {
-        showError(i18n.t('Config.NotSaved'))
+        showError(t('Config.NotSaved'))
         return
       }
       assignData(attr.item, grp.item).then(() => {
         openRef.value.push(grp.item.id)
-        showInfo(i18n.t('Saved'))
+        showInfo(t('Saved'))
       })
       const groupFiltered = groupsFiltered.value.find((el) => el.id === grpId)
       groupFiltered.children.push(attr.item)
@@ -339,7 +341,7 @@ export default {
         canViewConfigRef.value = canViewConfig('attributes')
         canEditConfigRef.value = canEditConfig('attributes')
         if (!props.item) {
-          const id = router.currentRoute.params.id
+          const id = router.currentRoute.value.params.id
           if (id) {
             const result = findByIdentifier(id)
             if (result.item) {
@@ -375,15 +377,15 @@ export default {
 
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (!v) {
-        return i18n.t('Config.Attributes.Error.IdentifierRequired')
+        return t('Config.Attributes.Error.IdentifierRequired')
       }
       if (v && selectedRef.value.internalId === 0) {
         const found = checkIdentifier(v)
         if (found) {
-          return i18n.t('Config.Attributes.Error.IdentifierNotUnique')
+          return t('Config.Attributes.Error.IdentifierNotUnique')
         }
       }
       return true
@@ -417,7 +419,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.Attributes.Error.NameRequired')
+        v => !!v || t('Config.Attributes.Error.NameRequired')
       ]
     }
   }

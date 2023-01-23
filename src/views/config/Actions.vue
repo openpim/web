@@ -97,6 +97,17 @@
                         {{ $t('Config.Actions.Triggers.Type.Attribute') }}
                         ({{ displayEvent(trigger.event) }})
                       </div>
+                      <div v-if="trigger.type === 6">
+                        {{ type && item ? $t('Config.Actions.Triggers.ButtonsWithText', {text: trigger.itemButton}) : $t('Config.Actions.Triggers.ButtonsWithText2', {text: trigger.itemButton}) }}
+                        <template v-if="type && item">
+                          <router-link :to="'/config/types/' + type.identifier">{{ type.identifier }}</router-link>
+                          {{ $t('Config.Actions.Triggers.Item2') }}
+                          <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
+                        </template>
+                        <br />
+                        {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
+                        {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
+                      </div>
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -221,7 +232,7 @@ export default {
     function triggerCreated (trigger) {
       triggerDialogRef.value.closeDialog()
       selectedRef.value.triggers.push(trigger)
-      if (trigger.type === 1 || trigger.type === 3) {
+      if (trigger.type === 1 || trigger.type === 3 || trigger.type === 6) {
         loadItemsByIds([trigger.itemFrom]).then(arr => { itemsRef.value.push(arr[0]) })
       }
     }
@@ -291,7 +302,7 @@ export default {
       selectedRef.value = action
       const ids = []
       selectedRef.value.triggers.forEach(trigger => {
-        if (trigger.type === 1 || trigger.type === 3) ids.push(trigger.itemFrom)
+        if (trigger.type === 1 || trigger.type === 3 || trigger.type === 6) ids.push(trigger.itemFrom)
       })
       loadItemsByIds(ids).then(arr => { itemsRef.value = arr })
       if (action.identifier) router.push('/config/actions/' + action.identifier)
