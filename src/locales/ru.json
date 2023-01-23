@@ -30,6 +30,7 @@
   "Main.Settings": "Настройки",
   "Main.Channels": "Каналы",
   "Main.Dashboards": "Дашборд",
+  "Main.Collections": "Коллекции",
   "Wrong.Identifier": "Идентификатор не должен собержать пробелы и должен быть только на Английком языке",
   "Wrong.Attribute.Identifier": "Идентификатор не должен собержать пробелы, начинаться с цифр и должен быть только на Английком языке",
   "Config.Types": "Типы",
@@ -622,5 +623,7 @@
   "Process.Table.items-per-page-all-text": "Все",
   "Process.Table.page-text": "{0}-{1} из {2}",
   "Process.Finished1": "Процесс '{name}' завершен",
-  "Process.Finished2": "Процесс '{name}' завершен.<br>Вы можете загрузить файл <a href='{href}'>{file}</a>"
+  "Process.Finished2": "Процесс '{name}' завершен.<br>Вы можете загрузить файл <a href='{href}'>{file}</a>",
+  "Collections.MainCollections": "Мои коллекции",
+  "Collections.AnotherCollections": "Остальные коллекции"
 }

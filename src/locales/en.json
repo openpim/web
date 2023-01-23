@@ -33,6 +33,7 @@
   "Main.Settings": "Settings",
   "Main.Channels": "Channels",
   "Main.Dashboards": "Dashboards",
+  "Main.Collections": "Collections",
   "Wrong.Identifier": "Identifier must not has spaces and must be in English only",
   "Wrong.Attribute.Identifier": "Identifier must not has spaces, leading digits and must be in English only",
   "Config.Types": "Types",
@@ -625,5 +626,7 @@
   "Process.Table.items-per-page-all-text": "All",
   "Process.Table.page-text": "{0}-{1} of {2}",
   "Process.Finished1": "Process '{name}' has been finished",
-  "Process.Finished2": "Process '{name}' has been finished.<br>You can download the file <a href='{href}'>{file}</a>"
+  "Process.Finished2": "Process '{name}' has been finished.<br>You can download the file <a href='{href}'>{file}</a>",
+  "Collections.MainCollections": "My Collections",
+  "Collections.AnotherCollections": "Another Collections"
 }

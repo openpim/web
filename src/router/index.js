@@ -166,6 +166,40 @@ const routes = [
     }
   },
   {
+    path: '/collections',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/CollectionsMenu.vue'),
+          default: () => import('../views/Collections.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/collections/:id',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/CollectionsMenu.vue'),
+          default: () => import('../views/Collections.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/config',
     component: () => import('../layouts/Main.vue'),
     props: { export: false },
