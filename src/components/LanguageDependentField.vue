@@ -1,6 +1,6 @@
 <template>
 <div>
-  <v-text-field @blur="valueBlur" :readonly="readonly" :value="value" @input="handleInput" :rules="rules" :label="label" required  :error-messages="errors" :set="desc = getTextOption('description', '')">
+  <v-text-field :counter="getCounterOption()" @blur="valueBlur" :readonly="readonly" :value="value" @input="handleInput" :rules="rules" :label="label" required  :error-messages="errors" :set="desc = getTextOption('description', '')">
         <template #append>
           &nbsp;
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
@@ -82,6 +82,16 @@ export default {
       return languages.map(lang => lang.identifier + ': ' + (props.values[lang.identifier] || ''))
     })
 
+    function getCounterOption () {
+      if (props.attr.options) {
+        const tst = props.attr.options.find(elem => elem.name === 'counter')
+        if (tst) {
+          return tst.value === 'true' ? true : parseInt(tst.value)
+        }
+      }
+      return undefined
+    }
+
     function getTextOption (name, defaultValue) {
       if (props.attr && props.attr.options) {
         const tst = props.attr.options.find(elem => elem.name === name)
@@ -97,6 +107,7 @@ export default {
     return {
       languages,
       getTextOption,
+      getCounterOption,
       showAllValues,
       handleInput,
       valueBlur,
