@@ -540,7 +540,7 @@ export default {
     })
 
     function getCounterOption () {
-      if (props.attr.options) {
+      if (props.attr && props.attr.options) {
         const tst = props.attr.options.find(elem => elem.name === 'counter')
         if (tst) {
           return tst.value === 'true' ? true : parseInt(tst.value)
