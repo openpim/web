@@ -368,7 +368,7 @@ export default {
       groups.forEach(group => {
         const groupAttr = []
         group.attributes.forEach(attr => {
-          if (pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
+          if (attr.valid.includes(parseInt(props.item.typeId)) && pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
             groupAttr.push(attr)
           }
         })
