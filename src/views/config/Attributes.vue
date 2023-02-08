@@ -234,6 +234,10 @@ export default {
         const errorMessage = {}
         errorMessage[currentLanguage.value.identifier] = ''
         const newAttr = { id: Date.now(), internalId: 0, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name: name, errorMessage: errorMessage, options: [] }
+        if (props.item) {
+          newAttr.valid.push(props.item.typeId)
+          newAttr.visible.push(props.item.id)
+        }
         selectedRef.value.attributes.push(newAttr)
         const groupFiltered = groupsFiltered.value.find((el) => el.id === selectedRef.value.id)
         groupFiltered.children.push(newAttr)
