@@ -236,6 +236,8 @@
         <div v-if="attr.readonly" class="mb-5"><a :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier + '_text'][currentLanguage.identifier] || values[attr.identifier][currentLanguage.identifier]}}</a></div>
       </template>
 
+      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
+
     </div>
     <div v-else>
       <!-- Text -->
@@ -305,7 +307,7 @@
         </div>
         <a v-if="attr.readonly" :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier][currentLanguage.identifier]}}</a>
       </template>
-
+      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
     </div>
 </div>
 </template>
@@ -320,12 +322,14 @@ import XRegExp from 'xregexp'
 import eventBus from '../eventBus'
 import dateFormat from 'dateformat'
 
+import CustomAttributeValueComponent from '../_customizations/attributes/CustomAttributeValueComponent.vue'
+
 // Jodit
 import 'jodit/build/jodit.min.css'
 import { JoditEditor } from 'jodit-vue'
 
 export default {
-  components: { LanguageDependentField, JoditEditor },
+  components: { LanguageDependentField, JoditEditor, CustomAttributeValueComponent },
   props: {
     item: {
       required: true
