@@ -606,5 +606,6 @@
   "DatePickerDialog.MIN": "Minute",
   "DatePickerDialog.Title.Dateonly": "Date selection",
   "DatePickerDialog.Title.Timeonly": "Time selection",
-  "ShowAttributes": "Show attributes"
+  "ShowAttributes": "Show attributes for this object",
+  "ShowAttributes2": "Show attributes on this level"
 }

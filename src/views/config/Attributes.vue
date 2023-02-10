@@ -106,6 +106,9 @@ export default {
     item: {
       type: Object,
       required: false
+    },
+    type: {
+      required: false
     }
   },
   setup (props) {
@@ -363,19 +366,34 @@ export default {
     })
 
     watch(() => props.item, () => {
+      refreshItemAttributes()
+    })
+
+    watch(() => props.type, () => {
+      refreshItemAttributes()
+    })
+
+    function refreshItemAttributes () {
       if (!props.item) return
       const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
+      console.log(555, props.type)
       groups.forEach(group => {
         const groupAttr = []
         group.attributes.forEach(attr => {
-          if (attr.valid.includes(parseInt(props.item.typeId)) && pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
-            groupAttr.push(attr)
+          if (props.type === 1) { // show attributes only for this object (check type)
+            if (attr.valid.includes(parseInt(props.item.typeId)) && pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
+              groupAttr.push(attr)
+            }
+          } else { // show attributes for any type of object going through this level
+            if (pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
+              groupAttr.push(attr)
+            }
           }
         })
         group.itemAttributes = groupAttr
       })
       groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.itemAttributes.slice(0, maxChiidrenNumber) }))
-    })
+    }
 
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_]*$/.test(v)) {
