@@ -6,10 +6,11 @@ const languages = reactive([])
 const currentLanguage = ref({ identifier: '' })
 const defaultLanguageIdentifier = ref('')
 
+let promise
 const actions = {
   loadAllLanguages: async () => {
-    if (languages.length > 0) return
-    const data = await serverFetch('query { getLanguages {id identifier name createdAt createdBy updatedAt updatedBy} }')
+    if (!promise) promise = serverFetch('query { getLanguages {id identifier name createdAt createdBy updatedAt updatedBy} }')
+    const data = await promise
     if (languages.length > 0) return
     if (data.getLanguages) {
       currentLanguage.value = data.getLanguages[0]

@@ -149,7 +149,7 @@ export default {
       addChannel,
       saveChannel,
       removeChannel,
-      loadAllChannels,
+      loadAllChannelsWithMapping,
       loadAllChannelTypes
     } = channelsStore.useStore()
 
@@ -239,7 +239,7 @@ export default {
     onMounted(() => {
       canViewConfigRef.value = canViewConfig('channels')
       canEditConfigRef.value = canEditConfig('channels')
-      Promise.all([loadAllLanguages(), loadAllChannelTypes(), loadAllChannels()]).then(() => {
+      Promise.all([loadAllLanguages(), loadAllChannelTypes(), loadAllChannelsWithMapping()]).then(() => {
         clearSelection()
         types.value = types.value.filter(elem => channelTypes.includes(elem.value))
 

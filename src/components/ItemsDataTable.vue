@@ -95,7 +95,8 @@ export default {
     }
 
     function loadDataFunction (options) {
-      return new Promise((resolve, reject) => {
+      const tmp = new Promise((resolve, reject) => {
+        if (!options) return
         if (!currentWhereRef.value) {
           resolve({ count: 0, rows: [] })
         } else {
@@ -104,6 +105,8 @@ export default {
             .catch((error) => showError(error))
         }
       })
+      tmp.where = currentWhereRef.value || {}
+      return tmp
     }
 
     const defaultHeadersArray = [

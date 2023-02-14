@@ -3,38 +3,23 @@ import i18n from '../i18n'
 import { serverFetch, objectToGraphgl } from './utils'
 import { currentUserRef } from './users'
 import { currentLanguage } from './languages'
-import * as err from './error'
 
 const dashboards = reactive([])
 
+let promise
 const actionList = {
   loadAllDashboards: async () => {
-    if (dashboards.length > 0) {
-      return
-    }
-    try {
-      const data = await serverFetch('query { getDashboards {id identifier name users components createdAt createdBy updatedAt updatedBy} }')
-
-      if (dashboards.length > 0) {
-        return
-      }
-      const arr = data.getDashboards
-      if (arr && arr.length > 0) {
-        arr.sort((a, b) => {
-          if (a.name[currentLanguage.value.identifier]) {
-            return a.name[currentLanguage.value.identifier].localeCompare(b.name[currentLanguage.value.identifier])
-          }
-
-          return 1
-        })
-        arr.forEach(element => {
-          element.internalId = element.id
-          element.usersStr = element.users.join()
-          dashboards.push(element)
-        })
-      }
-    } catch (e) {
-      err.store.showError('' + e)
+    if (!promise) promise = serverFetch('query { getDashboards {id identifier name users components createdAt createdBy updatedAt updatedBy} }')
+    const data = await promise
+    if (dashboards.length > 0) return
+    const arr = data.getDashboards
+    if (arr && arr.length > 0) {
+      arr.sort((a, b) => a.name[currentLanguage.value.identifier].localeCompare(b.name[currentLanguage.value.identifier]))
+      arr.forEach(element => {
+        element.internalId = element.id
+        element.usersStr = element.users.join()
+        dashboards.push(element)
+      })
     }
   },
   getDashboardsForCurrentUser: () => {
