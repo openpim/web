@@ -76,7 +76,7 @@ import { computed, ref, watch, onMounted } from 'vue'
 import * as errorStore from '../../store/error'
 import * as usersStore from '../../store/users'
 import * as rolesStore from '../../store/roles'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import router from '../../router'
 import RolesSelectionDialog from '../../components/RolesSelectionDialog'
 import SystemInformation from '../../components/SystemInformation'
@@ -105,6 +105,8 @@ export default {
       canEditConfig
     } = usersStore.useStore()
 
+    const { t } = useI18n()
+
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
@@ -124,7 +126,7 @@ export default {
       }
       if (selected < userFiltered.value.length) {
         if (previous && userFiltered.value[previous].internalId === 0) {
-          showInfo(i18n.t('Config.NotSaved'))
+          showInfo(t('Config.NotSaved'))
         }
         selectedRef.value = userFiltered.value[selected]
         if (selectedRef.value.internalId !== 0 && selectedRef.value.login) {
@@ -144,42 +146,42 @@ export default {
       if (formRef.value.validate()) {
         if (selectedRef.value.internalId === 0) {
           if (!selectedRef.value.password1 || !selectedRef.value.password2) {
-            passwordErrors.value = [i18n.t('Config.Users.Error.PasswordRequired')]
+            passwordErrors.value = [t('Config.Users.Error.PasswordRequired')]
             return
           }
           if (selectedRef.value.password1 !== selectedRef.value.password2) {
-            passwordErrors.value = [i18n.t('Config.Users.Error.PasswordsNotEquals')]
+            passwordErrors.value = [t('Config.Users.Error.PasswordsNotEquals')]
             return
           }
           hasLogin(selectedRef.value.login).then(result => {
             if (result) {
-              loginErrors.value = [i18n.t('Config.Users.Error.LoginNotUnique')]
+              loginErrors.value = [t('Config.Users.Error.LoginNotUnique')]
             } else {
               passwordErrors.value = []
               loginErrors.value = []
               saveUser(selectedRef.value).then(() => {
                 router.push('/config/users/' + selectedRef.value.login)
-                showInfo(i18n.t('Saved'))
+                showInfo(t('Saved'))
               })
             }
           })
         } else {
           if ((selectedRef.value.password1 || selectedRef.value.password2) && selectedRef.value.password1 !== selectedRef.value.password2) {
-            passwordErrors.value = [i18n.t('Config.Users.Error.PasswordsNotEquals')]
+            passwordErrors.value = [t('Config.Users.Error.PasswordsNotEquals')]
             return
           }
           passwordErrors.value = []
           loginErrors.value = []
           saveUser(selectedRef.value).then(() => {
             router.push('/config/users/' + selectedRef.value.login)
-            showInfo(i18n.t('Saved'))
+            showInfo(t('Saved'))
           })
         }
       }
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.Users.Confirm.Delete', { name: selectedRef.value.name }))) {
+      if (confirm(t('Config.Users.Confirm.Delete', { name: selectedRef.value.name }))) {
         removeUser(selectedRef.value.id)
         selectedRef.value = empty
         router.push('/config/users')
@@ -252,10 +254,10 @@ export default {
 
     function loginValidation (v) {
       if (!/^[@.A-Za-z0-9_]*$/.test(v)) {
-        return i18n.t('Config.Users.Error.WrongLogin')
+        return t('Config.Users.Error.WrongLogin')
       }
       if (!v) {
-        return i18n.t('Config.Users.Error.LoginRequired')
+        return t('Config.Users.Error.LoginRequired')
       }
       return true
     }
@@ -284,7 +286,7 @@ export default {
         v => loginValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.Users.Error.NameRequired')
+        v => !!v || t('Config.Users.Error.NameRequired')
       ]
     }
   }

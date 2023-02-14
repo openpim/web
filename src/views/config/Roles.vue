@@ -245,7 +245,7 @@
 import { ref, watch, onMounted, computed } from 'vue'
 import * as errorStore from '../../store/error'
 import * as rolesStore from '../../store/roles'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import router from '../../router'
 import * as userStore from '../../store/users'
 import * as relStore from '../../store/relations'
@@ -307,6 +307,8 @@ export default {
       loadItemsByIds
     } = itemStore.useStore()
 
+    const { t } = useI18n()
+
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
@@ -329,7 +331,7 @@ export default {
       }
       if (rolesFiltered.value && selected < rolesFiltered.value.length) {
         if (previous && rolesFiltered.value[previous].internalId === 0) {
-          showInfo(i18n.t('Config.NotSaved'))
+          showInfo(t('Config.NotSaved'))
         }
 
         selectedRef.value = rolesFiltered.value[selected]
@@ -356,13 +358,13 @@ export default {
       if (formRef.value.validate()) {
         router.push('/config/roles/' + selectedRef.value.identifier)
         saveRole(selectedRef.value).then(() => {
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.Roles.Confirm.Delete', { name: selectedRef.value.name }))) {
+      if (confirm(t('Config.Roles.Confirm.Delete', { name: selectedRef.value.name }))) {
         removeRole(selectedRef.value.id)
         selectedRef.value = empty
         router.push('/config/roles')
@@ -553,7 +555,7 @@ export default {
           canViewConfigRef.value = canViewConfig('roles')
           canEditConfigRef.value = canEditConfig('roles')
 
-          const id = router.currentRoute.params.id
+          const id = router.currentRoute.params?.id
           if (id) {
             const idx = roles.findIndex((elem) => elem.identifier === id)
             if (idx !== -1) {
@@ -573,15 +575,15 @@ export default {
 
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (!v) {
-        return i18n.t('Config.Roles.Error.IdentifierRequired')
+        return t('Config.Roles.Error.IdentifierRequired')
       }
       if (v && selectedRef.value.internalId === 0) {
         const found = roles.find((rel) => rel.identifier === v)
         if (found && found.internalId !== 0) {
-          return i18n.t('Config.Roles.Error.IdentifierNotUnique')
+          return t('Config.Roles.Error.IdentifierNotUnique')
         }
       }
       return true
@@ -631,20 +633,20 @@ export default {
       rolesFiltered,
       clearSelection,
       configSelection: [
-        { text: i18n.t('Config.Roles.Select.Config1'), value: 0 },
-        { text: i18n.t('Config.Roles.Select.Config2'), value: 1 },
-        { text: i18n.t('Config.Roles.Select.Config3'), value: 2 }
+        { text: t('Config.Roles.Select.Config1'), value: 0 },
+        { text: t('Config.Roles.Select.Config2'), value: 1 },
+        { text: t('Config.Roles.Select.Config3'), value: 2 }
       ],
       accessSelection: [
-        { text: i18n.t('Config.Roles.Select.Config1'), value: 0 },
-        { text: i18n.t('Config.Roles.Select.Config2'), value: 1 },
-        { text: i18n.t('Config.Roles.Select.Config3'), value: 2 }
+        { text: t('Config.Roles.Select.Config1'), value: 0 },
+        { text: t('Config.Roles.Select.Config2'), value: 1 },
+        { text: t('Config.Roles.Select.Config3'), value: 2 }
       ],
       identifierRules: [
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.Roles.Error.NameRequired')
+        v => !!v || t('Config.Roles.Error.NameRequired')
       ]
     }
   }

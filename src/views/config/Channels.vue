@@ -114,7 +114,7 @@ import { ref, watch, onMounted, computed } from 'vue'
 import * as langStore from '../../store/languages'
 import * as channelsStore from '../../store/channels'
 import * as errorStore from '../../store/error'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
@@ -129,7 +129,16 @@ import YMConfigCompoment from '../../channels/ym/YMConfigCompoment'
 import ExtMapConfigCompoment from '../../channels/extmap/ExtMapConfigCompoment'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment, YMConfigCompoment, ExtMapConfigCompoment },
+  components: {
+    LanguageDependentField,
+    SystemInformation,
+    ExtConfigCompoment,
+    WBConfigCompoment,
+    ValidVisibleComponent,
+    OzonConfigCompoment,
+    YMConfigCompoment,
+    ExtMapConfigCompoment
+  },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
@@ -152,6 +161,8 @@ export default {
       loadAllChannelsWithMapping,
       loadAllChannelTypes
     } = channelsStore.useStore()
+
+    const { t } = useI18n()
 
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
@@ -193,7 +204,7 @@ export default {
       }
       if (selected < chanFiltered.value.length) {
         if (previous && chanFiltered.value[previous].internalId === 0) {
-          showInfo(i18n.t('Config.NotSaved'))
+          showInfo(t('Config.NotSaved'))
         }
         selectedRef.value = chanFiltered.value[selected]
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
@@ -216,24 +227,24 @@ export default {
     function save () {
       if (formRef.value.validate()) {
         saveChannel(selectedRef.value).then(() => {
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.Channels.Confirm.Delete', { name: selectedRef.value.name }))) {
+      if (confirm(t('Config.Channels.Confirm.Delete', { name: selectedRef.value.name }))) {
         removeChannel(selectedRef.value.id)
         selectedRef.value = empty
       }
     }
 
     const types = ref([
-      { value: 1, text: i18n.t('Channels.Type.External') },
-      { value: 2, text: i18n.t('Channels.Type.WB') },
-      { value: 3, text: i18n.t('Channels.Type.Ozon') },
-      { value: 4, text: i18n.t('Channels.Type.YM') },
-      { value: 5, text: i18n.t('Channels.Type.ExternalWithMapping') }
+      { value: 1, title: t('Channels.Type.External') },
+      { value: 2, title: t('Channels.Type.WB') },
+      { value: 3, title: t('Channels.Type.Ozon') },
+      { value: 4, title: t('Channels.Type.YM') },
+      { value: 5, title: t('Channels.Type.ExternalWithMapping') }
     ])
 
     onMounted(() => {
@@ -243,7 +254,7 @@ export default {
         clearSelection()
         types.value = types.value.filter(elem => channelTypes.includes(elem.value))
 
-        const id = router.currentRoute.params.id
+        const id = router.currentRoute.params?.id
         if (id) {
           const idx = channels.findIndex((elem) => elem.identifier === id)
           if (idx !== -1) {
@@ -258,15 +269,15 @@ export default {
 
     function identifierValidation (v) {
       if (!v) {
-        return i18n.t('Config.Channels.Error.IdentifierRequired')
+        return t('Config.Channels.Error.IdentifierRequired')
       }
       if (!/^[A-Za-z0-9_]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (v && selectedRef.value.internalId === 0) {
         const found = channels.find((lang) => lang.identifier === v)
         if (found && found.internalId !== 0) {
-          return i18n.t('Config.Channels.Error.IdentifierNotUnique')
+          return t('Config.Channels.Error.IdentifierNotUnique')
         }
       }
       return true
@@ -298,7 +309,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.Channels.Error.NameRequired')
+        v => !!v || t('Config.Channels.Error.NameRequired')
       ]
     }
   }

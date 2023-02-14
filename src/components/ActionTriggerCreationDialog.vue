@@ -143,7 +143,7 @@ import * as typesStore from '../store/types'
 import * as itemStore from '../store/item'
 import * as relStore from '../store/relations'
 import * as rolesStore from '../store/roles'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import RolesSelectionDialog from './RolesSelectionDialog'
 import TypeSelectionDialog from './TypeSelectionDialog'
 import ItemsSelectionDialog from './ItemsSelectionDialog'
@@ -169,6 +169,8 @@ export default {
     const {
       relations
     } = relStore.useStore()
+
+    const { t } = useI18n()
 
     const dialogRef = ref(false)
     const formRef = ref(null)
@@ -318,12 +320,12 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       typeSelection: [
-        { text: i18n.t('Config.Actions.Triggers.Type.Item'), value: 1 },
-        { text: i18n.t('Config.Actions.Triggers.Type.ItemRel'), value: 2 },
-        { text: i18n.t('Config.Actions.Triggers.Type.Button'), value: 3 },
-        { text: i18n.t('Config.Actions.Triggers.Type.AttrGroup'), value: 4 },
-        { text: i18n.t('Config.Actions.Triggers.Type.Attribute'), value: 5 },
-        { text: i18n.t('Config.Actions.Triggers.Type.TableButton'), value: 6 }
+        { title: t('Config.Actions.Triggers.Type.Item'), value: 1 },
+        { title: t('Config.Actions.Triggers.Type.ItemRel'), value: 2 },
+        { title: t('Config.Actions.Triggers.Type.Button'), value: 3 },
+        { title: t('Config.Actions.Triggers.Type.AttrGroup'), value: 4 },
+        { title: t('Config.Actions.Triggers.Type.Attribute'), value: 5 },
+        { title: t('Config.Actions.Triggers.Type.TableButton'), value: 6 }
       ]
     }
   }

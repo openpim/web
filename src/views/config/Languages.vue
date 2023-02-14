@@ -43,7 +43,7 @@
 import { ref, watch, onMounted } from 'vue'
 import * as langStore from '../../store/languages'
 import * as errorStore from '../../store/error'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
@@ -66,6 +66,8 @@ export default {
       removeLanguage
     } = langStore.useStore()
 
+    const { t } = useI18n()
+
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
@@ -81,7 +83,7 @@ export default {
       }
       if (selected < languages.length) {
         if (previous && languages[previous].internalId === 0) {
-          showInfo(i18n.t('Config.NotSaved'))
+          showInfo(t('Config.NotSaved'))
         }
         selectedRef.value = languages[selected]
         // if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
@@ -97,13 +99,13 @@ export default {
     function save () {
       if (formRef.value.validate()) {
         saveLanguage(selectedRef.value).then(() => {
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.Languages.Confirm.Delete', { name: selectedRef.value.name }))) {
+      if (confirm(t('Config.Languages.Confirm.Delete', { name: selectedRef.value.name }))) {
         removeLanguage(selectedRef.value.id)
         selectedRef.value = empty
       }
@@ -117,15 +119,15 @@ export default {
 
     function identifierValidation (v) {
       if (!v) {
-        return i18n.t('Config.Languages.Error.IdentifierRequired')
+        return t('Config.Languages.Error.IdentifierRequired')
       }
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (v && selectedRef.value.internalId === 0) {
         const found = languages.find((lang) => lang.identifier === v)
         if (found && found.internalId !== 0) {
-          return i18n.t('Config.Languages.Error.IdentifierNotUnique')
+          return t('Config.Languages.Error.IdentifierNotUnique')
         }
       }
       return true
@@ -147,7 +149,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.Languages.Error.NameRequired')
+        v => !!v || t('Config.Languages.Error.NameRequired')
       ]
     }
   }
