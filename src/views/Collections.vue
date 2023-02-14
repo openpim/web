@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from '@vue/composition-api'
+import { ref, onMounted, watch } from 'vue'
 import * as collectionsStore from '../store/collections'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'
@@ -64,14 +64,14 @@ export default {
     function chartClick (event, item) {
       const status = item[0]._index + 1
       const where = { collections: {} }
-      where.collections[collectionRef.value.identifier] = { status: status }
+      where.collections[collectionRef.value.identifier] = { status }
       searchToOpenRef.value = { whereClause: where, extended: true }
       router.push('/search/')
     }
 
     function categoryClick (status, category) {
       const where = { collections: {} }
-      where.collections[collectionRef.value.identifier] = { status: status, category: category }
+      where.collections[collectionRef.value.identifier] = { status, category }
       searchToOpenRef.value = { whereClause: where, extended: true }
       router.push('/search/')
     }

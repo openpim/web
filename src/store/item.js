@@ -89,7 +89,7 @@ const actions = {
       updatedAt
     } }`)
     if (!item.getItemByIdentifier) {
-      err.store.showError(i18n.t('Item.byIdentifier.NotFound', { identifier: identifier }))
+      err.store.showError(i18n.t('Item.byIdentifier.NotFound', { identifier }))
     }
     return enrichItem(item.getItemByIdentifier)
   },

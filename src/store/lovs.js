@@ -37,7 +37,7 @@ const actions = {
   addLOV: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.LOV.NewName')
-    const newLOV = { id: Date.now(), internalId: 0, name: name, values: [] }
+    const newLOV = { id: Date.now(), internalId: 0, name, values: [] }
     lovs.push(newLOV)
     return newLOV
   },
@@ -75,7 +75,7 @@ const actions = {
 
 // eslint-disable-next-line no-unused-vars
 const store = {
-  lovs: lovs,
+  lovs,
   ...actions
 }
 

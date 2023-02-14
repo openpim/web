@@ -27,9 +27,9 @@
               </v-row>
           </v-card-title>
           <v-card-actions>
-            <v-btn v-if="channelReadAccess" text @click="channelSelected(channelRef)" v-text="$t('DataTable.Refresh')"></v-btn>
-            <v-btn v-if="channelWriteAccess" text @click="triggerNow" v-text="$t('ChannelView.TriggerNow')"></v-btn>
-            <v-btn v-if="channelWriteAccess" text @click="resetQueue" v-text="$t('ChannelView.ResetQueue')"></v-btn>
+            <v-btn v-if="channelReadAccess" text @click="channelSelected(channelRef)">{{$t('DataTable.Refresh')}}</v-btn>
+            <v-btn v-if="channelWriteAccess" text @click="triggerNow">{{$t('ChannelView.TriggerNow')}}</v-btn>
+            <v-btn v-if="channelWriteAccess" text @click="resetQueue">{{$t('ChannelView.ResetQueue')}}</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -105,7 +105,7 @@ import SystemInformation from '../components/SystemInformation'
 import PieChart from '../components/PieChart'
 import ChannelCategoryStatuses from '../components/ChannelCategoryStatuses'
 import ExecutionsTable from '../components/ExecutionsTable'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import router from '../router'
 import dateFormat from 'dateformat'
 import getChannelFactory from '../channels'
@@ -138,10 +138,12 @@ export default {
       searchItems
     } = itemStore.useStore()
 
+    const { t } = useI18n()
+
     const channelRef = ref(null)
     const tabRef = ref(null)
     const pieData = ref({
-      labels: [i18n.t('ItemView.Channels.Submitted'), i18n.t('ItemView.Channels.Synced'), i18n.t('ItemView.Channels.Error'), i18n.t('ItemView.Channels.Waiting')],
+      labels: [t('ItemView.Channels.Submitted'), t('ItemView.Channels.Synced'), t('ItemView.Channels.Error'), t('ItemView.Channels.Waiting')],
       datasets: [{ data: [5, 5, 5, 5], backgroundColor: ['#78909C', '#66BB6A', '#EF5350', '#3F51B5'] }]
     })
     const loadedRef = ref(false)
@@ -198,14 +200,14 @@ export default {
     function chartClick (event, item) {
       const status = item[0]._index + 1
       const where = { channels: {} }
-      where.channels[channelRef.value.identifier] = { status: status }
+      where.channels[channelRef.value.identifier] = { status }
       searchToOpenRef.value = { whereClause: where, extended: true }
       router.push('/search/')
     }
 
     function categoryClick (status, category) {
       const where = { channels: {} }
-      where.channels[channelRef.value.identifier] = { status: status, category: category }
+      where.channels[channelRef.value.identifier] = { status, category }
       searchToOpenRef.value = { whereClause: where, extended: true }
       router.push('/search/')
     }
@@ -239,13 +241,13 @@ export default {
     })
 
     const nextStart = computed(() => {
-      if (!channelRef.value.active) return i18n.t('ChannelView.Stopped')
-      if (channelRef.value.config.start === 1) return i18n.t('ChannelView.Manual')
+      if (!channelRef.value.active) return t('ChannelView.Stopped')
+      if (channelRef.value.config.start === 1) return t('ChannelView.Manual')
       if (channelRef.value.config.start === 2) {
         if (channelRef.value.runtime.lastStart) {
           return 'TODO'
         } else {
-          return i18n.t('ChannelView.InMinutes', { num: channelRef.value.config.interval })
+          return t('ChannelView.InMinutes', { num: channelRef.value.config.interval })
         }
       }
       if (channelRef.value.config.start === 3) {

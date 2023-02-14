@@ -423,6 +423,7 @@ export default {
     const timeMenu = ref(false)
     const timeMenuRef = ref(null)
     const time = ref(null)
+    const actionLoadedRef = ref(false)
 
     const pageSize = ref(localStorage.getItem('searchItemsPerPage') ? parseInt(localStorage.getItem('searchItemsPerPage')) : 10)
     const tableFooterRef = ref(1)
@@ -1327,13 +1328,14 @@ export default {
           const trigger = action.triggers[i]
 
           const result = parseInt(trigger.type) === 6 && // table button
-                  ((!trigger.itemType && !trigger.itemFrom) ||
-                  (props.item && parseInt(props.item.typeId) === parseInt(trigger.itemType) && pathArr.includes(parseInt(trigger.itemFrom))))
+                    ((!trigger.itemType && !trigger.itemFrom) ||
+                    (props.item && parseInt(props.item.typeId) === parseInt(trigger.itemType) && pathArr.includes(parseInt(trigger.itemFrom))))
           if (result) {
             arr.push({ ...trigger, order: action.order })
           }
         }
       })
+
       arr.sort((a, b) => a.order - b.order)
       return arr
     })

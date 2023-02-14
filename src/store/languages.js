@@ -24,7 +24,7 @@ const actions = {
   addLanguage: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Languages.NewName')
-    const newLang = { id: Date.now(), internalId: 0, name: name, sources: [], targets: [] }
+    const newLang = { id: Date.now(), internalId: 0, name, sources: [], targets: [] }
     languages.push(newLang)
     return newLang
   },
@@ -60,9 +60,9 @@ const actions = {
 
 // eslint-disable-next-line no-unused-vars
 const store = {
-  languages: languages,
-  currentLanguage: currentLanguage,
-  defaultLanguageIdentifier: defaultLanguageIdentifier,
+  languages,
+  currentLanguage,
+  defaultLanguageIdentifier,
   ...actions
 }
 

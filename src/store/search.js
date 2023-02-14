@@ -97,8 +97,8 @@ const store = {
   searchEntityRef,
   selectedRef,
   lovsMapRef,
-  savedColumnsRef: savedColumnsRef,
-  searchToOpenRef: searchToOpenRef,
+  savedColumnsRef,
+  searchToOpenRef,
   ...actions
 }
 
