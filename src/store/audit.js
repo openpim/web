@@ -28,7 +28,7 @@ const actions = {
 
 // eslint-disable-next-line no-unused-vars
 const store = {
-  auditEnabled: auditEnabled,
+  auditEnabled,
   ...actions
 }
 

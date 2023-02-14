@@ -21,7 +21,7 @@ const actionList = {
   addAction: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Actions.NewName')
-    const act = { id: Date.now(), internalId: 0, order: 0, name: name, code: '', triggers: [] }
+    const act = { id: Date.now(), internalId: 0, order: 0, name, code: '', triggers: [] }
     actions.push(act)
     return act
   },
@@ -85,7 +85,7 @@ const actionList = {
 
 // eslint-disable-next-line no-unused-vars
 const store = {
-  actions: actions,
+  actions,
   ...actionList
 }
 

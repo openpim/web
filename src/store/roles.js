@@ -72,7 +72,7 @@ const actions = {
 }
 
 const store = {
-  roles: roles,
+  roles,
   ...actions
 }
 

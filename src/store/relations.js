@@ -20,7 +20,7 @@ const actions = {
   addRelation: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Relations.NewName')
-    const newRel = { id: Date.now(), internalId: 0, name: name, sources: [], targets: [], child: false, multi: false, options: [] }
+    const newRel = { id: Date.now(), internalId: 0, name, sources: [], targets: [], child: false, multi: false, options: [] }
     relations.push(newRel)
     return newRel
   },
@@ -66,7 +66,7 @@ const actions = {
 
 // eslint-disable-next-line no-unused-vars
 const store = {
-  relations: relations,
+  relations,
   ...actions
 }
 

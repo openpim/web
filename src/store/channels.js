@@ -72,7 +72,19 @@ const actions = {
   addChannel: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Channels.NewName')
-    const newChan = { id: Date.now(), language: currentLanguage.value.identifier, internalId: 0, name: name, active: false, type: 0, valid: [], visible: [], config: { start: 1 }, mappings: {}, runtime: {} }
+    const newChan = {
+      id: Date.now(),
+      language: currentLanguage.value.identifier,
+      internalId: 0,
+      name,
+      active: false,
+      type: 0,
+      valid: [],
+      visible: [],
+      config: { start: 1 },
+      mappings: {},
+      runtime: {}
+    }
     channels.push(newChan)
     return newChan
   },
@@ -124,10 +136,10 @@ const actions = {
     const data = await serverFetch('query { getChannelStatusByCategories(id: "' + channelId + '") { id name statuses {status count} } }')
     return data.getChannelStatusByCategories
   },
-  hasChannelAccess: hasChannelAccess,
+  hasChannelAccess,
   getAvailableChannels: (fullAccessOnly) => {
     const res = []
-    for (var i = 0; i < channels.length; i++) {
+    for (let i = 0; i < channels.length; i++) {
       const channel = channels[i]
       if (hasChannelAccess(channel, fullAccessOnly)) res.push(channel)
     }
@@ -202,8 +214,8 @@ const actions = {
 
 // eslint-disable-next-line no-unused-vars
 const store = {
-  channels: channels,
-  channelTypes: channelTypes,
+  channels,
+  channelTypes,
   ...actions
 }
 

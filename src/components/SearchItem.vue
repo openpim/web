@@ -197,7 +197,7 @@ export default {
       } else {
         const name = {}
         name[currentLanguage.value.identifier] = t('SearchSaveDialog.NameNew')
-        selectedRef.value = { identifier: '', name: name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
+        selectedRef.value = { identifier: '', name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
       }
       if (selected.extended) extendedSearchRef.value = JSON.stringify(selected.whereClause)
       searchEntityRef.value = selected.entity ? selected.entity : 'ITEM'
@@ -456,7 +456,7 @@ export default {
         const name = {}
         name[currentLanguage.value.identifier] = t('SearchSaveDialog.NameNew')
         if (!selectedRef.value) {
-          selectedRef.value = { identifier: '', entity: 'ITEM', name: name, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
+          selectedRef.value = { identifier: '', entity: 'ITEM', name, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
         }
 
         const arr = [

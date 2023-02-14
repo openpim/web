@@ -153,8 +153,8 @@ export default {
       const arr = await Promise.all(
         fileRef.value.map(async (file) => {
           return {
-            file: file,
-            fileItemTypeId: fileItemTypeId,
+            file,
+            fileItemTypeId,
             parentId: selectedParentRef.value.id,
             relationId: relationRef.value,
             fileName: fileRef.value.length === 1 ? nameRef.value : file.name,

@@ -68,7 +68,7 @@ export default {
     }
 
     function filterData (arr) {
-      var r = []
+      const r = []
       arr.forEach((item) => {
         if (item.link !== 0) {
           return

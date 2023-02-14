@@ -7,12 +7,12 @@ const groups = reactive([])
 function findByComparator (id, comparator) {
   const arr = []
   let item = null
-  for (var i = 0; i < groups.length; i++) {
+  for (let i = 0; i < groups.length; i++) {
     const group = groups[i]
     if (comparator(id, group)) {
       return { item: group, itemIdx: i }
     }
-    for (var j = 0; j < group.attributes.length; j++) {
+    for (let j = 0; j < group.attributes.length; j++) {
       const attr = group.attributes[j]
       if (comparator(id, attr)) {
         item = attr
@@ -20,7 +20,7 @@ function findByComparator (id, comparator) {
       }
     }
   }
-  return item ? { item: item, groups: arr } : null
+  return item ? { item, groups: arr } : null
 }
 let attrsPromise
 const actions = {

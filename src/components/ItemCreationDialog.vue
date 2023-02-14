@@ -108,7 +108,7 @@ export default {
         newId = id
         const name = {}
         name[currentLanguage.value.identifier] = ''
-        newItemRef.value = { id: Date.now(), internalId: 0, children: [], name: name, identifier: '' }
+        newItemRef.value = { id: Date.now(), internalId: 0, children: [], name, identifier: '' }
         selectedItemRef.value = itemSelected
         typeSelectedRef.value = null
 

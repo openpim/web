@@ -356,7 +356,7 @@ const actions = {
 
     const attrs = []
     const groups = attrStore.store.groups
-    for (var i = 0; i < groups.length; i++) {
+    for (let i = 0; i < groups.length; i++) {
       const group = groups[i]
 
       const roles = userStore.store.currentRoles
@@ -375,7 +375,7 @@ const actions = {
         // we had problems with 35000 attributes in group when memory in web browser is close to 1Gb
         // then it start to process JS very slow and this loop for 35 K attributes working VERY slow
         // so ATTRIBUTES FOR RELATIONS MUST BE IN GROUP WITH LESS THEN 100 ATTRIBUTES in data model
-        for (var j = 0; j < group.attributes.length; j++) {
+        for (let j = 0; j < group.attributes.length; j++) {
           const attr = group.attributes[j]
           if (attr.relations && attr.relations.find(relId => relId === relationId)) {
             const idx = attrs.findIndex(elem => elem.identifier === attr.identifier)
@@ -457,10 +457,10 @@ const actions = {
 
 // eslint-disable-next-line no-unused-vars
 const store = {
-  sourceRelations: sourceRelations,
-  targetRelations: targetRelations,
-  sourceRelationsTotal: sourceRelationsTotal,
-  targetRelationsTotal: targetRelationsTotal,
+  sourceRelations,
+  targetRelations,
+  sourceRelationsTotal,
+  targetRelationsTotal,
   ...actions
 }
 
