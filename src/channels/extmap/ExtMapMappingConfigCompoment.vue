@@ -237,7 +237,16 @@ export default {
       dialogRef.value = false
       channelAttributesRef.value = []
       const id = 'cat' + Date.now()
-      categoryRef.value = { id: id, name: newCategoryNameRef.value, valid: props.channel.valid || [], visible: [], type: 'simple', attributes: [], params: [], categoryAttributes: [] }
+      categoryRef.value = {
+        id,
+        name: newCategoryNameRef.value,
+        valid: props.channel.valid || [],
+        visible: [],
+        type: 'simple',
+        attributes: [],
+        params: [],
+        categoryAttributes: []
+      }
       root.$set(props.channel.mappings, id, categoryRef.value)
       categoryIdRef.value = id
     }
@@ -325,9 +334,9 @@ export default {
       loadAllRelations().then(() => { relationsLoadedRef.value = true })
       loadAllAttributes().then(() => {
         const lovArr = []
-        for (var i = 0; i < groups.length; i++) {
+        for (let i = 0; i < groups.length; i++) {
           const group = groups[i]
-          for (var j = 0; j < group.attributes.length; j++) {
+          for (let j = 0; j < group.attributes.length; j++) {
             const attr = group.attributes[j]
             if (attr.lov) {
               lovArr.push(attr)

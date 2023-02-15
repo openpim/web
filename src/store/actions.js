@@ -5,10 +5,11 @@ import { currentLanguage } from './languages'
 
 const actions = reactive([])
 
+let promise
 const actionList = {
   loadAllActions: async () => {
-    if (actions.length > 0) return
-    const data = await serverFetch('query { getActions {id identifier name code order triggers createdAt createdBy updatedAt updatedBy} }')
+    if (!promise) promise = serverFetch('query { getActions {id identifier name code order triggers createdAt createdBy updatedAt updatedBy} }')
+    const data = await promise
     if (actions.length > 0) return
     if (data.getActions) {
       data.getActions.forEach(element => {
@@ -20,7 +21,7 @@ const actionList = {
   addAction: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Actions.NewName')
-    const act = { id: Date.now(), internalId: 0, order: 0, name: name, code: '', triggers: [] }
+    const act = { id: Date.now(), internalId: 0, order: 0, name, code: '', triggers: [] }
     actions.push(act)
     return act
   },
@@ -70,10 +71,10 @@ const actionList = {
     const response = await serverFetch(query)
     return response.executeAction
   },
-  executeTableButtonAction: async (itemId, buttonText, data) => {
-    const query = 'mutation { executeTableButtonAction(' + (itemId ? 'itemId: "' + itemId + '",' : '') + ' buttonText: "' + buttonText + '" ' + (data ? ',data: """' + data + '"""' : '') + ') { error, compileError, message, data }}'
+  executeTableButtonAction: async (itemId, buttonText, where) => {
+    const query = 'mutation { executeTableButtonAction(' + (itemId ? 'itemId: "' + itemId + '",' : '') + ' buttonText: "' + buttonText + '" where: ' + objectToGraphgl(where) + ') { error, compileError, message, data }}'
     const response = await serverFetch(query)
-    return response.executeButtonAction
+    return response.executeTableButtonAction
   },
   testAction: async (itemId, actionId) => {
     const query = 'mutation { testAction(itemId: "' + itemId + '", actionId: "' + actionId + '") { failed, log, error, compileError, message }}'
@@ -84,7 +85,7 @@ const actionList = {
 
 // eslint-disable-next-line no-unused-vars
 const store = {
-  actions: actions,
+  actions,
   ...actionList
 }
 

@@ -251,7 +251,7 @@ export default {
       categoryIdRef.value = newCat.id
     }
     function findNodeByComparator (id, children, path, comparator) {
-      for (var i = 0; i < children.length; i++) {
+      for (let i = 0; i < children.length; i++) {
         const item = children[i]
         if (comparator(id, item)) {
           return item
@@ -359,9 +359,9 @@ export default {
       loadAllRelations().then(() => { relationsLoadedRef.value = true })
       loadAllAttributes().then(() => {
         const lovArr = []
-        for (var i = 0; i < groups.length; i++) {
+        for (let i = 0; i < groups.length; i++) {
           const group = groups[i]
-          for (var j = 0; j < group.attributes.length; j++) {
+          for (let j = 0; j < group.attributes.length; j++) {
             const attr = group.attributes[j]
             if (attr.lov) {
               lovArr.push(attr)

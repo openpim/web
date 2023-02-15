@@ -170,7 +170,7 @@ import * as relStore from '../../store/relations'
 import * as typesStore from '../../store/types'
 import * as itemStore from '../../store/item'
 import * as rolesStore from '../../store/roles'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
@@ -179,7 +179,12 @@ import ItemsSelectionDialog from '../../components/ItemsSelectionDialog'
 import router from '../../router'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, ActionTriggerCreationDialog, ItemsSelectionDialog },
+  components: {
+    LanguageDependentField,
+    SystemInformation,
+    ActionTriggerCreationDialog,
+    ItemsSelectionDialog
+  },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
@@ -214,6 +219,8 @@ export default {
       loadItemsByIds
     } = itemStore.useStore()
 
+    const { t } = useI18n()
+
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
@@ -240,21 +247,21 @@ export default {
     function displayEvent (event) {
       event = parseInt(event)
       if (event === 1) {
-        return i18n.t('Config.Actions.Triggers.Event.BeforeCreate')
+        return t('Config.Actions.Triggers.Event.BeforeCreate')
       } else if (event === 2) {
-        return i18n.t('Config.Actions.Triggers.Event.AfterCreate')
+        return t('Config.Actions.Triggers.Event.AfterCreate')
       } else if (event === 3) {
-        return i18n.t('Config.Actions.Triggers.Event.BeforeUpdate')
+        return t('Config.Actions.Triggers.Event.BeforeUpdate')
       } else if (event === 4) {
-        return i18n.t('Config.Actions.Triggers.Event.AfterUpdate')
+        return t('Config.Actions.Triggers.Event.AfterUpdate')
       } else if (event === 5) {
-        return i18n.t('Config.Actions.Triggers.Event.BeforeDelete')
+        return t('Config.Actions.Triggers.Event.BeforeDelete')
       } else if (event === 6) {
-        return i18n.t('Config.Actions.Triggers.Event.AfterDelete')
+        return t('Config.Actions.Triggers.Event.AfterDelete')
       } else if (event === 7) {
-        return i18n.t('Config.Actions.Triggers.Event.BeforeShow')
+        return t('Config.Actions.Triggers.Event.BeforeShow')
       } else if (event === 8) {
-        return i18n.t('Config.Actions.Triggers.Event.ChangedOnClient')
+        return t('Config.Actions.Triggers.Event.ChangedOnClient')
       } else {
         return '???'
       }
@@ -282,7 +289,7 @@ export default {
       }
       if (selected < actionsFiltered.value.length) {
         if (previous && actionsFiltered.value[previous].internalId === 0) {
-          showInfo(i18n.t('Config.NotSaved'))
+          showInfo(t('Config.NotSaved'))
         }
         setSelected(actionsFiltered.value[selected])
       }
@@ -313,7 +320,7 @@ export default {
     }
 
     function removeTrigger () {
-      if (confirm(i18n.t('Config.Actions.Triggers.ConfirmDelete'))) {
+      if (confirm(t('Config.Actions.Triggers.ConfirmDelete'))) {
         selectedRef.value.triggers.splice(triggerRef.value, 1)
       }
     }
@@ -326,13 +333,13 @@ export default {
     function save () {
       if (formRef.value.validate()) {
         saveAction(selectedRef.value).then(() => {
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.Actions.Confirm.Delete'))) {
+      if (confirm(t('Config.Actions.Confirm.Delete'))) {
         removeAction(selectedRef.value.id)
         selectedRef.value = empty
       }
@@ -377,7 +384,7 @@ export default {
         loadAllRelations(),
         loadAllActions()]).then(() => {
         clearSelection()
-        const id = router.currentRoute.params.id
+        const id = router.currentRoute.params?.id
         if (id) {
           const idx = actions.findIndex(elem => elem.identifier === id)
           if (idx !== -1) {
@@ -394,15 +401,15 @@ export default {
 
     function identifierValidation (v) {
       if (!v) {
-        return i18n.t('Config.Actions.Error.IdentifierRequired')
+        return t('Config.Actions.Error.IdentifierRequired')
       }
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (v && selectedRef.value.internalId === 0) {
         const found = actions.find((lang) => lang.identifier === v)
         if (found && found.internalId !== 0) {
-          return i18n.t('Config.Actions.Error.IdentifierNotUnique')
+          return t('Config.Actions.Error.IdentifierNotUnique')
         }
       }
       return true
@@ -442,7 +449,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.Actions.Error.NameRequired')
+        v => !!v || t('Config.Actions.Error.NameRequired')
       ]
     }
   }

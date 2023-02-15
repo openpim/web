@@ -2,72 +2,31 @@ import { reactive, provide, inject } from 'vue'
 import i18n from '../i18n'
 import { serverFetch, objectToGraphgl, generateSorting } from './utils'
 import { currentLanguage } from './languages'
-import * as userStore from './users'
 
+const collections = reactive([])
 const channels = reactive([])
-const channelTypes = reactive([])
-
-function hasChannelAccess (channel, fullAccess) {
-  const roles = userStore.store.currentRoles
-  let access = -1
-  for (let i = 0; i < roles.length; i++) {
-    const role = roles[i]
-    const tst = role.channelAccess.find(data => data.channelId === channel.internalId)
-    if (tst && tst.access > access) access = tst.access
-  }
-  if (fullAccess) {
-    if (access === -1 || access === 2) return true
-  } else {
-    if (access === -1 || access >= 1) return true
-  }
-  return false
-}
-
-let typePromise
-let chanPromise
-let chanPromiseAll
 
 const actions = {
-  loadAllChannelTypes: async () => {
-    if (!typePromise) typePromise = serverFetch('query { getChannelTypes }')
-    const data = await typePromise
-    if (channelTypes.length > 0) return channels
-    if (data.getChannelTypes) {
-      data.getChannelTypes.forEach(id => {
-        channelTypes.push(id)
-      })
-    }
-
-    return channels
-  },
-  loadAllChannels: async () => {
-    if (!chanPromise) chanPromise = serverFetch('query { getChannels {id identifier name active type valid visible config runtime createdAt createdBy updatedAt updatedBy} }')
-    const data = await chanPromise
-    if (channels.length > 0) return channels
-    if (data.getChannels) {
-      data.getChannels.forEach(element => {
+  loadAllCollections: async () => {
+    if (collections.length > 0) return collections
+    const data = await serverFetch('query { getCollections {id identifier name public user createdAt createdBy updatedAt updatedBy} }')
+    if (collections.length > 0) return collections
+    if (data.getCollections) {
+      data.getCollections.forEach(element => {
         element.internalId = element.id
-        channels.push(element)
+        collections.push(element)
       })
     }
 
-    return channels
+    return collections
   },
-  loadAllChannelsWithMapping: async () => {
-    if (!chanPromiseAll) {
-      chanPromiseAll = serverFetch('query { getChannels {id identifier name active type valid visible config mappings runtime createdAt createdBy updatedAt updatedBy} }')
-      channels.splice(0)
+  getCollections: () => {
+    const res = []
+    for (let i = 0; i < collections.length; i++) {
+      const collection = collections[i]
+      res.push(collection)
     }
-    const data = await chanPromiseAll
-    if (channels.length > 0) return channels
-    if (data.getChannels) {
-      data.getChannels.forEach(element => {
-        element.internalId = element.id
-        channels.push(element)
-      })
-    }
-
-    return channels
+    return res
   },
   addChannel: () => {
     const name = {}
@@ -136,15 +95,6 @@ const actions = {
     const data = await serverFetch('query { getChannelStatusByCategories(id: "' + channelId + '") { id name statuses {status count} } }')
     return data.getChannelStatusByCategories
   },
-  hasChannelAccess,
-  getAvailableChannels: (fullAccessOnly) => {
-    const res = []
-    for (let i = 0; i < channels.length; i++) {
-      const channel = channels[i]
-      if (hasChannelAccess(channel, fullAccessOnly)) res.push(channel)
-    }
-    return res
-  },
   updateItemChannels: async (item, channels) => {
     const query = `
         mutation { updateItem(id: "` + item.id +
@@ -185,12 +135,6 @@ const actions = {
       }
     }
   },
-  triggerChannel: async (id, data) => {
-    const query = `
-        mutation { triggerChannel(id: "` + id + '", language:"' + currentLanguage.value.identifier + '" ' + (data ? ', data: ' + objectToGraphgl(data) : '') + `)
-      }`
-    await serverFetch(query)
-  },
   loadExecutions: async (channelId, options) => {
     const offset = (options.page - 1) * options.itemsPerPage
     const order = generateSorting(options)
@@ -212,14 +156,12 @@ const actions = {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 const store = {
-  channels,
-  channelTypes,
+  collections,
   ...actions
 }
 
-const StoreSymbol = Symbol('ChannelsStore')
+const StoreSymbol = Symbol('CollectionsStore')
 
 export function provideStore () {
   provide(StoreSymbol, store)
@@ -228,7 +170,7 @@ export function provideStore () {
 export function useStore () {
   const tst = inject(StoreSymbol)
   if (!tst) {
-    console.error('Failed to inject ChannelsStore')
+    console.error('Failed to inject CollectionsStore')
   }
   return tst
 }

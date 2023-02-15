@@ -256,7 +256,15 @@ export default {
     function addCategory () {
       dialogRef.value = false
       const id = 'cat' + Date.now()
-      categoryRef.value = { id: id, name: newCategoryNameRef.value, valid: props.channel.valid || [], visible: [], type: 'simple', attributes: [], params: [] }
+      categoryRef.value = {
+        id,
+        name: newCategoryNameRef.value,
+        valid: props.channel.valid || [],
+        visible: [],
+        type: 'simple',
+        attributes: [],
+        params: []
+      }
       refreshAttributes()
       root.$set(props.channel.mappings, id, categoryRef.value)
       categoryIdRef.value = id

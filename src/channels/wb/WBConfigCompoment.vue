@@ -59,9 +59,9 @@ export default {
     onMounted(() => {
       loadAllAttributes().then(() => {
         const arr = []
-        for (var i = 0; i < groups.length; i++) {
+        for (let i = 0; i < groups.length; i++) {
           const group = groups[i]
-          for (var j = 0; j < group.attributes.length; j++) {
+          for (let j = 0; j < group.attributes.length; j++) {
             const attr = group.attributes[j]
             attr.text = attr.identifier + ' (' + attr.name.ru + ')'
             arr.push(attr)

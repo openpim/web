@@ -58,18 +58,19 @@
         </template>
         <span>{{ $t('Submit') }}</span>
       </v-tooltip>
-      <template v-if="buttonActions">
+
+      <template v-if="headersStorageName === 'item_headers' && buttonActions && buttonActions.length > 0">
         <v-menu offset-y>
           <template v-slot:activator="{ props }">
-            <v-btn icon v-bind="props"><v-icon>mdi-gesture-tap-button</v-icon></v-btn>
-          </template>
-          <v-list>
-            <v-list-item v-for="(trigger, i) in buttonActions" :key="i" @click="executeAction(trigger)">
-              <v-list-item-title>{{trigger.itemButton}}</v-list-item-title>
-            </v-list-item>
-          </v-list>
+            <v-btn icon v-bind="props"><v-icon>mdi-gesture-tap-button</v-icon></v-btn></template>
+            <v-list>
+              <v-list-item v-for="(trigger, i) in buttonActions" :key="i" @click="executeAction(trigger)">
+                <v-list-item-title>{{trigger.itemButton}}</v-list-item-title>
+                </v-list-item>
+            </v-list>
         </v-menu>
       </template>
+      <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData"></AfterButtonsComponent>
     </v-toolbar>
   <v-data-table
     @update:options="optionsUpdate"
@@ -297,8 +298,10 @@ import XLSX from 'xlsx'
 import dateFormat from 'dateformat'
 import router from '../router'
 
+import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterButtonsComponent'
+
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, ActionStatusDialog },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent, ActionStatusDialog },
   props: {
     loadData: {
       required: true
@@ -420,6 +423,7 @@ export default {
     const timeMenu = ref(false)
     const timeMenuRef = ref(null)
     const time = ref(null)
+    const actionLoadedRef = ref(false)
 
     const pageSize = ref(localStorage.getItem('searchItemsPerPage') ? parseInt(localStorage.getItem('searchItemsPerPage')) : 10)
     const tableFooterRef = ref(1)
@@ -1179,7 +1183,7 @@ export default {
     }
 
     onMounted(async () => {
-      loadAllActions()
+      loadAllActions().then(() => { actionLoadedRef.value = true })
       loadAllTypes()
       loadAllChannels().then(() => {
         hasChannelsRef.value = getAvailableChannels(true).length > 0
@@ -1314,28 +1318,26 @@ export default {
 
     const buttonActionStatusDialog = ref(null)
     const buttonActions = computed(() => {
-      if (props.item) {
-        const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
-        const arr = []
+      // eslint-disable-next-line no-unused-expressions
+      actionLoadedRef.value
+      const pathArr = props.item ? props.item.path.split('.').map(elem => parseInt(elem)) : null
+      const arr = []
 
-        actions.forEach(action => {
-          for (let i = 0; i < action.triggers.length; i++) {
-            const trigger = action.triggers[i]
+      actions.forEach(action => {
+        for (let i = 0; i < action.triggers.length; i++) {
+          const trigger = action.triggers[i]
 
-            const result = parseInt(trigger.type) === 6 && // table button
-                  ((!trigger.itemType && !trigger.itemFrom) ||
-                  (parseInt(props.item.typeId) === parseInt(trigger.itemType) &&
-                  pathArr.includes(parseInt(trigger.itemFrom))))
-            if (result) {
-              arr.push({ ...trigger, order: action.order })
-            }
+          const result = parseInt(trigger.type) === 6 && // table button
+                    ((!trigger.itemType && !trigger.itemFrom) ||
+                    (props.item && parseInt(props.item.typeId) === parseInt(trigger.itemType) && pathArr.includes(parseInt(trigger.itemFrom))))
+          if (result) {
+            arr.push({ ...trigger, order: action.order })
           }
-        })
-        arr.sort((a, b) => a.order - b.order)
-        return arr
-      } else {
-        return []
-      }
+        }
+      })
+
+      arr.sort((a, b) => a.order - b.order)
+      return arr
     })
 
     function executeAction (trigger) {
@@ -1347,7 +1349,8 @@ export default {
 
     async function processButtonAction (trigger, itemId) {
       buttonActionStatusDialog.value.showDialog()
-      await executeTableButtonAction(props.item ? props.item.internalId : null, trigger.itemButton).then((result) => {
+      const where = props.loadData().where
+      await executeTableButtonAction(props.item ? props.item.internalId : null, trigger.itemButton, where || {}).then((result) => {
         if (result.data) {
           if (result.data.router) {
             router.push(result.data.router)

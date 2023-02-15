@@ -151,7 +151,7 @@ import * as errorStore from '../../store/error'
 import * as itemStore from '../../store/item'
 import * as typesStore from '../../store/types'
 import * as channelsStore from '../../store/channels'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import router from '../../router'
@@ -186,6 +186,8 @@ export default {
     const { loadItemsByIds } = itemStore.useStore()
 
     const { loadAllTypes } = typesStore.useStore()
+
+    const { t } = useI18n()
 
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
@@ -250,7 +252,7 @@ export default {
       const arr = lovsFiltered.value
       if (selected < arr.length) {
         if (previous && arr[previous].internalId === 0) {
-          showInfo(i18n.t('Config.NotSaved'))
+          showInfo(t('Config.NotSaved'))
         }
         selectedRef.value = arr[selected]
         checkOldValues()
@@ -304,13 +306,13 @@ export default {
     function save () {
       if (formRef.value.validate()) {
         saveLOV(selectedRef.value).then(() => {
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.LOV.Confirm.Delete', { name: selectedRef.value.name }))) {
+      if (confirm(t('Config.LOV.Confirm.Delete', { name: selectedRef.value.name }))) {
         removeLOV(selectedRef.value.id)
         selectedRef.value = empty
       }
@@ -322,9 +324,9 @@ export default {
 
     /* generate a download */
     function s2ab (s) {
-      var buf = new ArrayBuffer(s.length)
-      var view = new Uint8Array(buf)
-      for (var i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF
+      const buf = new ArrayBuffer(s.length)
+      const view = new Uint8Array(buf)
+      for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF
       return buf
     }
     function exportData () {
@@ -338,7 +340,7 @@ export default {
         data.push(row)
       })
       const ws = XLSX.utils.aoa_to_sheet(data)
-      var wb = XLSX.utils.book_new()
+      const wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, 'Data')
       const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
       saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'data.xlsx')
@@ -352,7 +354,7 @@ export default {
         canViewConfigRef.value = canViewConfig('lovs')
         canEditConfigRef.value = canEditConfig('lovs')
 
-        const id = router.currentRoute.params.id
+        const id = router.currentRoute.params?.id
         if (id) {
           const idx = lovs.findIndex((elem) => elem.identifier === id)
           if (idx !== -1) {
@@ -368,15 +370,15 @@ export default {
 
     function identifierValidation (v) {
       if (!v) {
-        return i18n.t('Config.LOV.Error.IdentifierRequired')
+        return t('Config.LOV.Error.IdentifierRequired')
       }
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (v && selectedRef.value.internalId === 0) {
         const found = lovs.find((lang) => lang.identifier === v)
         if (found && found.internalId !== 0) {
-          return i18n.t('Config.LOV.Error.IdentifierNotUnique')
+          return t('Config.LOV.Error.IdentifierNotUnique')
         }
       }
       return true
@@ -413,7 +415,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.LOV.Error.NameRequired')
+        v => !!v || t('Config.LOV.Error.NameRequired')
       ]
     }
   }

@@ -6,10 +6,11 @@ const languages = reactive([])
 const currentLanguage = ref({ identifier: '' })
 const defaultLanguageIdentifier = ref('')
 
+let promise
 const actions = {
   loadAllLanguages: async () => {
-    if (languages.length > 0) return
-    const data = await serverFetch('query { getLanguages {id identifier name createdAt createdBy updatedAt updatedBy} }')
+    if (!promise) promise = serverFetch('query { getLanguages {id identifier name createdAt createdBy updatedAt updatedBy} }')
+    const data = await promise
     if (languages.length > 0) return
     if (data.getLanguages) {
       currentLanguage.value = data.getLanguages[0]
@@ -23,7 +24,7 @@ const actions = {
   addLanguage: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Languages.NewName')
-    const newLang = { id: Date.now(), internalId: 0, name: name, sources: [], targets: [] }
+    const newLang = { id: Date.now(), internalId: 0, name, sources: [], targets: [] }
     languages.push(newLang)
     return newLang
   },
@@ -59,9 +60,9 @@ const actions = {
 
 // eslint-disable-next-line no-unused-vars
 const store = {
-  languages: languages,
-  currentLanguage: currentLanguage,
-  defaultLanguageIdentifier: defaultLanguageIdentifier,
+  languages,
+  currentLanguage,
+  defaultLanguageIdentifier,
   ...actions
 }
 

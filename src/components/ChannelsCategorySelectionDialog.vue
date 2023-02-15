@@ -85,11 +85,16 @@ export default {
     function buildItems (channels) {
       const data = []
       channels.forEach(channel => {
-        const obj = { id: 'CHAN_' + channel.id, name: (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']'), channel: channel, children: [] }
+        const obj = {
+          id: 'CHAN_' + channel.id,
+          name: (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']'),
+          channel,
+          children: []
+        }
         if (channel.mappings) {
           for (const prop in channel.mappings) {
             const mapping = channel.mappings[prop]
-            obj.children.push({ id: channel.id + '_' + mapping.id, name: mapping.name, mapping: mapping })
+            obj.children.push({ id: channel.id + '_' + mapping.id, name: mapping.name, mapping })
           }
         }
         data.push(obj)

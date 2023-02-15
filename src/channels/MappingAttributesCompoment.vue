@@ -213,7 +213,7 @@ export default {
     }
 
     function arrayMove (arr, fromIndex, toIndex) {
-      var element = arr[fromIndex]
+      const element = arr[fromIndex]
       arr.splice(fromIndex, 1)
       arr.splice(toIndex, 0, element)
     }
@@ -275,7 +275,21 @@ export default {
           name[currentLanguage.value.identifier] = chanAttr.name
           const errorMessage = {}
           errorMessage[currentLanguage.value.identifier] = ''
-          const pimAttr = { identifier: chanAttr.id, id: Date.now(), internalId: 0, type: AttributeType.Text, group: false, languageDependent: false, order: 0, visible: props.channel.visible, valid: props.channel.valid, relations: [], name: name, errorMessage: errorMessage, options: [] }
+          const pimAttr = {
+            identifier: chanAttr.id,
+            id: Date.now(),
+            internalId: 0,
+            type: AttributeType.Text,
+            group: false,
+            languageDependent: false,
+            order: 0,
+            visible: props.channel.visible,
+            valid: props.channel.valid,
+            relations: [],
+            name,
+            errorMessage,
+            options: []
+          }
 
           if (chanAttr.description) {
             pimAttr.options.push({ name: 'description', value: chanAttr.description })
@@ -297,7 +311,7 @@ export default {
                   pimAttr.type = AttributeType.LOV
                   pimAttr.lov = parseInt(tst.internalId || tst.id)
                 } else if (confirm(i18n.t('AttributeManageDialog.ConfirmDictionary'))) {
-                  const lov = { identifier: chanAttr.id, id: Date.now(), internalId: 0, name: name, values: [] }
+                  const lov = { identifier: chanAttr.id, id: Date.now(), internalId: 0, name, values: [] }
                   json.result.forEach(elem => {
                     const val = {}
                     val[currentLanguage.value.identifier] = elem.value

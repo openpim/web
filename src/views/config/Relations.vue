@@ -89,7 +89,7 @@ import { ref, watch, onMounted, computed } from 'vue'
 import * as relStore from '../../store/relations'
 import * as errorStore from '../../store/error'
 import * as typesStore from '../../store/types'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import router from '../../router'
 import TypeSelectionDialog from '../../components/TypeSelectionDialog'
 import * as langStore from '../../store/languages'
@@ -125,6 +125,8 @@ export default {
       loadAllTypes
     } = typesStore.useStore()
 
+    const { t } = useI18n()
+
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
@@ -156,7 +158,7 @@ export default {
       }
       if (selected < relationsFiltered.value.length) {
         if (previous && relationsFiltered.value[previous].internalId === 0) {
-          showInfo(i18n.t('Config.NotSaved'))
+          showInfo(t('Config.NotSaved'))
         }
         selectedRef.value = relationsFiltered.value[selected]
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
@@ -176,13 +178,13 @@ export default {
       if (formRef.value.validate()) {
         router.push('/config/relations/' + selectedRef.value.identifier)
         saveRelation(selectedRef.value).then(() => {
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.Relations.Confirm.Delete'))) {
+      if (confirm(t('Config.Relations.Confirm.Delete'))) {
         removeRelation(selectedRef.value.id)
         selectedRef.value = empty
         router.push('/config/relations')
@@ -236,7 +238,7 @@ export default {
         canViewConfigRef.value = canViewConfig('types')
         canEditConfigRef.value = canEditConfig('types')
 
-        const id = router.currentRoute.params.id
+        const id = router.currentRoute.params?.id
         if (id) {
           relations.sort((a, b) => {
             if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
@@ -262,15 +264,15 @@ export default {
 
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (!v) {
-        return i18n.t('Config.Relations.Error.IdentifierRequired')
+        return t('Config.Relations.Error.IdentifierRequired')
       }
       if (v && selectedRef.value.internalId === 0) {
         const found = relations.find((rel) => rel.identifier === v)
         if (found && found.internalId !== 0) {
-          return i18n.t('Config.Relations.Error.IdentifierNotUnique')
+          return t('Config.Relations.Error.IdentifierNotUnique')
         }
       }
       return true
@@ -302,7 +304,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.Relations.Error.NameRequired')
+        v => !!v || t('Config.Relations.Error.NameRequired')
       ]
     }
   }

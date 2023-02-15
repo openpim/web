@@ -5,10 +5,11 @@ import { currentLanguage } from './languages'
 
 const typesTree = reactive([])
 
+let promise
 const actions = {
   loadAllTypes: async () => {
-    if (typesTree.length > 0) return
-    const data = await serverFetch('query { getTypes }')
+    if (!promise) promise = serverFetch('query { getTypes }')
+    const data = await promise
     if (typesTree.length > 0) return
     if (data.getTypes) {
       data.getTypes.forEach(element => {

@@ -29,6 +29,7 @@
           <v-card-actions>
             <v-btn v-if="channelReadAccess" text @click="channelSelected(channelRef)">{{$t('DataTable.Refresh')}}</v-btn>
             <v-btn v-if="channelWriteAccess" text @click="triggerNow">{{$t('ChannelView.TriggerNow')}}</v-btn>
+            <v-btn v-if="channelWriteAccess" text @click="resetQueue">{{$t('ChannelView.ResetQueue')}}</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -62,6 +63,34 @@
         </v-tabs-items>
       </v-col>
     </v-row>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="progressDialogRef" persistent width="80%">
+          <v-card>
+            <v-card-title>
+              <span class="headline"></span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-progress-linear v-model="progressDialogValueRef" color="primary" height="25">
+                      <template v-slot:default="{ value }">
+                        <strong>{{ Math.ceil(value) }}%</strong>
+                      </template>
+                    </v-progress-linear>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="progressDialogRef=false">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
   </v-container>
 </template>
 
@@ -70,12 +99,13 @@ import { ref, onMounted, watch, computed } from 'vue'
 import * as channelsStore from '../store/channels'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'
+import * as itemStore from '../store/item'
 import { useRouter } from '../router/useRouter'
 import SystemInformation from '../components/SystemInformation'
 import PieChart from '../components/PieChart'
 import ChannelCategoryStatuses from '../components/ChannelCategoryStatuses'
 import ExecutionsTable from '../components/ExecutionsTable'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import router from '../router'
 import dateFormat from 'dateformat'
 import getChannelFactory from '../channels'
@@ -91,7 +121,8 @@ export default {
       getChannelStatus,
       getChannelStatusByCategories,
       hasChannelAccess,
-      triggerChannel
+      triggerChannel,
+      updateItemChannels
     } = channelsStore.useStore()
 
     const {
@@ -103,10 +134,16 @@ export default {
       searchToOpenRef
     } = searchStore.useStore()
 
+    const {
+      searchItems
+    } = itemStore.useStore()
+
+    const { t } = useI18n()
+
     const channelRef = ref(null)
     const tabRef = ref(null)
     const pieData = ref({
-      labels: [i18n.t('ItemView.Channels.Submitted'), i18n.t('ItemView.Channels.Synced'), i18n.t('ItemView.Channels.Error'), i18n.t('ItemView.Channels.Waiting')],
+      labels: [t('ItemView.Channels.Submitted'), t('ItemView.Channels.Synced'), t('ItemView.Channels.Error'), t('ItemView.Channels.Waiting')],
       datasets: [{ data: [5, 5, 5, 5], backgroundColor: ['#78909C', '#66BB6A', '#EF5350', '#3F51B5'] }]
     })
     const loadedRef = ref(false)
@@ -116,6 +153,9 @@ export default {
     const errorRef = ref(0)
 
     const statusByCategoriesRef = ref([])
+
+    const progressDialogRef = ref(null)
+    const progressDialogValueRef = ref(0)
 
     function channelSelected (selected) {
       channelRef.value = selected
@@ -160,14 +200,14 @@ export default {
     function chartClick (event, item) {
       const status = item[0]._index + 1
       const where = { channels: {} }
-      where.channels[channelRef.value.identifier] = { status: status }
+      where.channels[channelRef.value.identifier] = { status }
       searchToOpenRef.value = { whereClause: where, extended: true }
       router.push('/search/')
     }
 
     function categoryClick (status, category) {
       const where = { channels: {} }
-      where.channels[channelRef.value.identifier] = { status: status, category: category }
+      where.channels[channelRef.value.identifier] = { status, category }
       searchToOpenRef.value = { whereClause: where, extended: true }
       router.push('/search/')
     }
@@ -201,13 +241,13 @@ export default {
     })
 
     const nextStart = computed(() => {
-      if (!channelRef.value.active) return i18n.t('ChannelView.Stopped')
-      if (channelRef.value.config.start === 1) return i18n.t('ChannelView.Manual')
+      if (!channelRef.value.active) return t('ChannelView.Stopped')
+      if (channelRef.value.config.start === 1) return t('ChannelView.Manual')
       if (channelRef.value.config.start === 2) {
         if (channelRef.value.runtime.lastStart) {
           return 'TODO'
         } else {
-          return i18n.t('ChannelView.InMinutes', { num: channelRef.value.config.interval })
+          return t('ChannelView.InMinutes', { num: channelRef.value.config.interval })
         }
       }
       if (channelRef.value.config.start === 3) {
@@ -220,12 +260,34 @@ export default {
       triggerChannel(channelRef.value.internalId)
     }
 
+    async function resetQueue () {
+      if (confirm(t('ChannelView.ConfirmReset'))) {
+        const where = { channels: {} }
+        where.channels[channelRef.value.identifier] = { status: 1 }
+        // let's use only one page with 10000 items for now to make it simple
+        const res = await searchItems(where, { page: 1, itemsPerPage: 10000, sortBy: ['id'], sortDesc: [false] })
+        progressDialogRef.value = true
+        for (let i = 0; i < res.rows.length; i++) {
+          const item = res.rows[i]
+          const channels = {}
+          channels[channelRef.value.identifier] = { is_deleted: true }
+          await updateItemChannels(item, channels)
+          progressDialogValueRef.value = i * 100 / res.rows.length
+        }
+        progressDialogRef.value = false
+        channelSelected(channelRef.value)
+      }
+    }
+
     return {
       channelRef,
       tabRef,
       currentLanguage,
       defaultLanguageIdentifier,
       triggerNow,
+      resetQueue,
+      progressDialogRef,
+      progressDialogValueRef,
       nextStart,
       pieData,
       loadedRef,

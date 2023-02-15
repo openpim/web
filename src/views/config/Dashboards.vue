@@ -93,13 +93,13 @@
                       </v-tooltip>
                     </v-toolbar>
                     <v-list nav dense>
-                      <v-list-item-group v-model="queryRef" color="primary">
+                      <v-list-item v-model="queryRef" color="primary">
                         <v-list-item v-for="(query, i) in selectedRef.components[componentRef].queries" :key="i">
                           <v-list-item-content>
                             <v-list-item-title>{{(i+1) + ': ' + query.label}}</v-list-item-title>
                           </v-list-item-content>
                         </v-list-item>
-                      </v-list-item-group>
+                      </v-list-item>
                     </v-list>
                     <template v-if="queryRef != null">
                       <v-text-field v-model="selectedRef.components[componentRef].queries[queryRef].label" :label="$t('Config.Dashboards.Components.Label')" required></v-text-field>
@@ -129,14 +129,17 @@ import * as langStore from '../../store/languages'
 import * as dashStore from '../../store/dashboards'
 import * as errorStore from '../../store/error'
 import * as attrStore from '../../store/attributes'
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
 import router from '../../router'
 
 export default {
-  components: { LanguageDependentField, SystemInformation },
+  components: {
+    LanguageDependentField,
+    SystemInformation
+  },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
@@ -162,6 +165,8 @@ export default {
       removeDashboard
     } = dashStore.useStore()
 
+    const { t } = useI18n()
+
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
@@ -180,7 +185,7 @@ export default {
       }
       if (selected < dashboards.length) {
         if (previous && dashboards[previous].internalId === 0) {
-          showInfo(i18n.t('Config.NotSaved'))
+          showInfo(t('Config.NotSaved'))
         }
         setSelected(dashboards[selected])
       }
@@ -194,13 +199,13 @@ export default {
     function save () {
       if (formRef.value.validate()) {
         saveDashboard(selectedRef.value).then(() => {
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.Dashboards.Confirm.Delete', { name: selectedRef.value.name }))) {
+      if (confirm(t('Config.Dashboards.Confirm.Delete', { name: selectedRef.value.name }))) {
         removeDashboard(selectedRef.value.id)
         selectedRef.value = empty
       }
@@ -212,12 +217,21 @@ export default {
     }
 
     function addComponent () {
-      selectedRef.value.components.push({ id: Date.now(), type: 0, title: i18n.t('Config.Dashboards.Components.TitleNew'), width: 0, chart: 0, groupBy: '', groupWhere: '', queries: [] })
+      selectedRef.value.components.push({
+        id: Date.now(),
+        type: 0,
+        title: t('Config.Dashboards.Components.TitleNew'),
+        width: 0,
+        chart: 0,
+        groupBy: '',
+        groupWhere: '',
+        queries: []
+      })
       componentRef.value = selectedRef.value.components.length - 1
     }
 
     function removeComponent () {
-      if (confirm(i18n.t('Config.Dashboards.Components.ConfirmRemove'))) {
+      if (confirm(t('Config.Dashboards.Components.ConfirmRemove'))) {
         selectedRef.value.components.splice(componentRef.value, 1)
         componentRef.value = null
       }
@@ -230,7 +244,7 @@ export default {
     }
 
     function removeQuery () {
-      if (confirm(i18n.t('Config.Dashboards.Components.QueryConfirmRemove'))) {
+      if (confirm(t('Config.Dashboards.Components.QueryConfirmRemove'))) {
         selectedRef.value.components[componentRef.value].queries.splice(queryRef.value, 1)
         queryRef.value = null
       }
@@ -242,7 +256,7 @@ export default {
       loadAllDashboards().then(() => {
         loadAllAttributes().then(() => { loadAvailableAttributes() })
 
-        const id = router.currentRoute.params.id
+        const id = router.currentRoute.params?.id
         if (id) {
           const idx = dashboards.findIndex(elem => elem.identifier === id)
           if (idx !== -1) {
@@ -257,20 +271,20 @@ export default {
 
     function loadAvailableAttributes () {
       const arr = [
-        { value: 'id', text: i18n.t('Item.id') },
-        { value: 'identifier', text: i18n.t('Item.identifier') },
-        { value: 'typeIdentifier', text: i18n.t('Item.typeIdentifier') },
-        { value: 'createdBy', text: i18n.t('CreatedBy') },
-        { value: 'createdAt', text: i18n.t('CreatedAt') },
-        { value: 'updatedBy', text: i18n.t('UpdatedBy') },
-        { value: 'updatedAt', text: i18n.t('UpdatedAt') },
-        { value: 'fileOrigName', text: i18n.t('Item.fileOrigName') },
-        { value: 'mimeType', text: i18n.t('Item.mimeType') }
+        { value: 'id', text: t('Item.id') },
+        { value: 'identifier', text: t('Item.identifier') },
+        { value: 'typeIdentifier', text: t('Item.typeIdentifier') },
+        { value: 'createdBy', text: t('CreatedBy') },
+        { value: 'createdAt', text: t('CreatedAt') },
+        { value: 'updatedBy', text: t('UpdatedBy') },
+        { value: 'updatedAt', text: t('UpdatedAt') },
+        { value: 'fileOrigName', text: t('Item.fileOrigName') },
+        { value: 'mimeType', text: t('Item.mimeType') }
       ]
       for (let i = 0; i < languages.length; i++) {
         const lang = languages[i]
         const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-        arr.push({ value: 'name#' + lang.identifier, text: i18n.t('Item.name') + langText })
+        arr.push({ value: 'name#' + lang.identifier, text: t('Item.name') + langText })
       }
       const attrs = getAllItemsAttributes2(false)
       for (let i = 0; i < attrs.length; i++) {
@@ -292,15 +306,15 @@ export default {
 
     function identifierValidation (v) {
       if (!v) {
-        return i18n.t('Config.Dashboards.Error.IdentifierRequired')
+        return t('Config.Dashboards.Error.IdentifierRequired')
       }
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (v && selectedRef.value.internalId === 0) {
         const found = dashboards.find((lang) => lang.identifier === v)
         if (found && found.internalId !== 0) {
-          return i18n.t('Config.Dashboards.Error.IdentifierNotUnique')
+          return t('Config.Dashboards.Error.IdentifierNotUnique')
         }
       }
       return true
@@ -329,18 +343,18 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.Dashboards.Error.NameRequired')
+        v => !!v || t('Config.Dashboards.Error.NameRequired')
       ],
       typeSelection: [
-        { text: i18n.t('Config.Dashboards.Components.Type.Group'), value: 1 },
-        { text: i18n.t('Config.Dashboards.Components.Type.List'), value: 2 },
-        { text: i18n.t('Config.Dashboards.Components.Type.IFrame'), value: 3 }
+        { text: t('Config.Dashboards.Components.Type.Group'), value: 1 },
+        { text: t('Config.Dashboards.Components.Type.List'), value: 2 },
+        { text: t('Config.Dashboards.Components.Type.IFrame'), value: 3 }
       ],
       chartSelection: [
-        { text: i18n.t('Config.Dashboards.Components.Chart.Bar'), value: 1 },
-        { text: i18n.t('Config.Dashboards.Components.Chart.HorizontalBar'), value: 2 },
-        { text: i18n.t('Config.Dashboards.Components.Chart.Doughnut'), value: 3 },
-        { text: i18n.t('Config.Dashboards.Components.Chart.Pie'), value: 4 }
+        { text: t('Config.Dashboards.Components.Chart.Bar'), value: 1 },
+        { text: t('Config.Dashboards.Components.Chart.HorizontalBar'), value: 2 },
+        { text: t('Config.Dashboards.Components.Chart.Doughnut'), value: 3 },
+        { text: t('Config.Dashboards.Components.Chart.Pie'), value: 4 }
       ]
     }
   }

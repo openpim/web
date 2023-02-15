@@ -33,6 +33,7 @@
   "Main.Settings": "Settings",
   "Main.Channels": "Channels",
   "Main.Dashboards": "Dashboards",
+  "Main.Collections": "Collections",
   "Wrong.Identifier": "Identifier must not has spaces and must be in English only",
   "Wrong.Attribute.Identifier": "Identifier must not has spaces, leading digits and must be in English only",
   "Config.Types": "Types",
@@ -363,6 +364,7 @@
   "ItemRelationsList.MustBePositive": "Must be positive",
   "ItemRelationsList.TargetDate": "Target change time",
   "ItemRelationsList.SourceDate": "Source change time",
+  "ItemRelationsList.ResetPageSize": "Reset page size",
   "User.Details": "User details",
   "AttrGroups.SelectionDialog.Title": "Attribute groups selection",
   "Attribute.Error.WrongValue": "Wrong value",
@@ -550,6 +552,8 @@
   "ChannelView.InMinutes": "in {num} min.",
   "ChannelView.Seconds": "sec.",
   "ChannelView.NoCategory": "Without category",
+  "ChannelView.ResetQueue": "Reset submitted",
+  "ChannelView.ConfirmReset": "Please confirm reset submitted",
   "ExecutionsTable.StartTime": "Start Time",
   "ExecutionsTable.EndTime": "End Time",
   "ExecutionsTable.Status": "Status",
@@ -622,5 +626,7 @@
   "Process.Table.items-per-page-all-text": "All",
   "Process.Table.page-text": "{0}-{1} of {2}",
   "Process.Finished1": "Process '{name}' has been finished",
-  "Process.Finished2": "Process '{name}' has been finished.<br>You can download the file <a href='{href}'>{file}</a>"
+  "Process.Finished2": "Process '{name}' has been finished.<br>You can download the file <a href='{href}'>{file}</a>",
+  "Collections.MainCollections": "My Collections",
+  "Collections.AnotherCollections": "Another Collections"
 }
