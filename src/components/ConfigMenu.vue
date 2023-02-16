@@ -1,5 +1,5 @@
 <template>
-      <v-list density="compact">
+      <v-list density="compact" nav>
         <v-list-item link to="/config/types" v-if="canViewConfig('types')">
           <template v-slot:prepend>
             <v-icon>mdi-animation-outline</v-icon>
@@ -37,8 +37,10 @@
           <v-list-item-title>{{ $t('Config.Actions') }}</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/config/imports" v-if="canViewConfig('importConfigs')">
-          <v-list-item-icon><v-icon>mdi-file-cog-outline</v-icon></v-list-item-icon>
-          <v-list-item-content><v-list-item-title>{{ $t('Config.ImportConfigs') }}</v-list-item-title></v-list-item-content>
+          <template v-slot:prepend>
+            <v-icon>mdi-file-cog-outline</v-icon>
+          </template>
+          <v-list-item-title>{{ $t('Config.ImportConfigs') }}</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/config/users" v-if="canViewConfig('users')">
           <template v-slot:prepend>

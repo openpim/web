@@ -6,7 +6,7 @@
             <v-list-item v-for="(item, i) in importConfigsFiltered" :key="i">
               <v-list-item-icon><v-icon>mdi-access-point</v-icon></v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+                <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -14,7 +14,7 @@
       </div>
 </template>
 <script>
-import { ref, watch, onMounted, computed } from '@vue/composition-api'
+import { ref, watch, onMounted, computed } from 'vue'
 
 import * as langStore from '@/store/languages'
 import router from '@/router'

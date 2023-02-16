@@ -1,4 +1,4 @@
-import { reactive, provide, inject } from '@vue/composition-api'
+import { reactive, provide, inject } from 'vue'
 import i18n from '../i18n'
 import { serverFetch, objectToGraphgl } from './utils'
 import { currentLanguage } from './languages'
@@ -20,7 +20,7 @@ const actions = {
   addImportConfig: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.ImportConfigs.NewName')
-    const newImportConfig = { id: Date.now(), language: currentLanguage.value.identifier, internalId: 0, name: name, type: 2, mappings: [] }
+    const newImportConfig = { id: Date.now(), language: currentLanguage.value.identifier, internalId: 0, name, type: 2, mappings: [] }
     importConfigs.push(newImportConfig)
     return newImportConfig
   },

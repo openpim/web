@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from '@vue/composition-api'
+import { ref, onMounted, watch, computed } from 'vue'
 import * as langStore from '@/store/languages'
 import * as importConfigsStore from '@/store/importConfigs'
 import { useRouter } from '@/router/useRouter'

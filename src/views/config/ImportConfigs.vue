@@ -18,7 +18,7 @@
             <v-list-item v-for="(item, i) in importConfigsFiltered" :key="i">
               <v-list-item-icon><v-icon>mdi-file-code-outline</v-icon></v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+                <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, computed, watch } from '@vue/composition-api'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import * as errorStore from '../../store/error'
 import * as importConfigsStore from '../../store/importConfigs'
 import * as attrStore from '../../store/attributes'

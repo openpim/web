@@ -27,7 +27,7 @@
 </template>
 <script>
 
-import { ref, watch } from '@vue/composition-api'
+import { ref, watch } from 'vue'
 import i18n from '@/i18n'
 import XLSX from 'xlsx'
 import ExcelTabSelectionDialog from '@/components/ImportConfigs/ExcelTabSelectionDialog.vue'
@@ -68,7 +68,7 @@ export default {
       const file = fileUploadRef.value
       if (!file) return
 
-      var reader = new FileReader()
+      const reader = new FileReader()
 
       reader.onload = async function (evt) {
         const data = evt.target.result

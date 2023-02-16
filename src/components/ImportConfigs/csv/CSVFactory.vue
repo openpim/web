@@ -24,7 +24,7 @@
 </template>
 <script>
 
-import { computed, onMounted, ref, watch } from '@vue/composition-api'
+import { computed, onMounted, ref, watch } from 'vue'
 // import * as attrStore from '@/store/attributes'
 import eventBus from '@/eventBus'
 
@@ -81,7 +81,7 @@ export default {
     function importCSV (event) {
       const file = fileUploadRef.value
       if (!file) return
-      var reader = new FileReader()
+      const reader = new FileReader()
       reader.onloadend = async function (evt) {
         const data = evt.target.result
         try {
@@ -92,7 +92,7 @@ export default {
           // Used to store each character that makes up CSV header
           let headerString = ''
           // Iterate through each character in our Array
-          for (var i = 0; i < byteLength; i++) {
+          for (let i = 0; i < byteLength; i++) {
             // Get the character for the current iteration
             const char = String.fromCharCode(ui8a[i])
             // Check if the char is a new line
