@@ -24,6 +24,10 @@
           <v-list-item-icon><v-icon>mdi-file-code-outline</v-icon></v-list-item-icon>
           <v-list-item-content><v-list-item-title>{{ $t('Config.Actions') }}</v-list-item-title></v-list-item-content>
         </v-list-item>
+        <v-list-item link to="/config/imports" v-if="canViewConfig('importConfigs')">
+          <v-list-item-icon><v-icon>mdi-file-cog-outline</v-icon></v-list-item-icon>
+          <v-list-item-content><v-list-item-title>{{ $t('Config.ImportConfigs') }}</v-list-item-title></v-list-item-content>
+        </v-list-item>
         <v-list-item link to="/config/users" v-if="canViewConfig('users')">
           <v-list-item-icon><v-icon>mdi-account</v-icon></v-list-item-icon>
           <v-list-item-content><v-list-item-title>{{ $t('Config.Users') }}</v-list-item-title></v-list-item-content>

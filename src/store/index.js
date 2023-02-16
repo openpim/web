@@ -15,6 +15,7 @@ import * as auditStore from './audit'
 import * as channelsStore from './channels'
 import * as procStore from './processes'
 import * as collectionsStore from './collections'
+import * as importConfigsStore from './importConfigs'
 
 export default () => {
   errorStore.provideStore()
@@ -34,4 +35,5 @@ export default () => {
   channelsStore.provideStore()
   procStore.provideStore()
   collectionsStore.provideStore()
+  importConfigsStore.provideStore()
 }
