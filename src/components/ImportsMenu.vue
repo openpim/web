@@ -4,10 +4,10 @@
         <v-list nav dense>
           <v-list-item-group v-model="itemRef" color="primary">
             <v-list-item v-for="(item, i) in importConfigsFiltered" :key="i">
-              <v-list-item-icon><v-icon>mdi-access-point</v-icon></v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
-              </v-list-item-content>
+              <template v-slot:prepend>
+                <v-icon>mdi-access-point</v-icon>
+              </template>
+              <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
             </v-list-item>
           </v-list-item-group>
         </v-list>
