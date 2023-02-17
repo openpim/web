@@ -13,7 +13,7 @@
           </v-tooltip>
         </v-toolbar>
         <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-list nav density="compact" @click:select="onSelectRelation">
+        <v-list nav density="compact" @click:select="onSelectRelation" color="primary">
             <v-list-item v-for="(item, i) in relationsFiltered" :key="i" :value="item.identifier">
               <template v-slot:prepend>
                 <v-icon>mdi-vector-line</v-icon>
