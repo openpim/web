@@ -2,7 +2,7 @@
   <v-container v-if="canViewConfigRef">
     <v-row no-gutters>
       <v-col cols="3">
-        <v-toolbar dense flat>
+        <v-toolbar density="compact" flat>
           <v-toolbar-title>{{ $t('Config.Actions.Title') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
@@ -13,15 +13,13 @@
           </v-tooltip>
         </v-toolbar>
         <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-list nav dense>
-          <v-list-item-group v-model="itemRef" color="primary">
+        <v-list nav density="compact" color="primary" v-model="itemRef">
             <v-list-item v-for="(item, i) in actionsFiltered" :key="i">
-              <v-list-item-icon><v-icon>mdi-file-code-outline</v-icon></v-list-item-icon>
-              <v-list-item-content>
+              <template v-slot:prepend>
+                <v-icon>mdi-file-code-outline</v-icon>
+              </template>
                 <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
-              </v-list-item-content>
             </v-list-item>
-          </v-list-item-group>
         </v-list>
       </v-col>
       <v-col cols="9">
@@ -44,7 +42,7 @@
             <v-textarea class="ml-3 mr-3" v-model="selectedRef.code" :label="$t('Config.Actions.Code')"></v-textarea>
           </v-tab-item>
           <v-tab-item> <!-- Triggers -->
-            <v-toolbar dense flat>
+            <v-toolbar density="compact" flat>
               <v-toolbar-title class="subtitle-2">{{ $t('Config.Actions.Triggers.Title') }}</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-tooltip bottom v-if="canEditConfigRef">
@@ -60,11 +58,11 @@
                 <span>{{ $t('Remove') }}</span>
               </v-tooltip>
             </v-toolbar>
-            <v-list nav dense class="mb-4">
-              <v-list-item-group v-model="triggerRef" color="primary">
+            <v-list nav density="compact" class="mb-4" color="primary" v-model="triggerRef">
                 <v-list-item v-for="(trigger, i) in selectedRef.triggers" :key="i" :v1="relation = getRelation(trigger.relation)" :v2="type = getType(trigger.itemType)" :v3="item = getItem(trigger.itemFrom)" :v4="roles = getRoles(trigger.roles)">
-                  <v-list-item-icon><v-icon>mdi-flash-outline</v-icon></v-list-item-icon>
-                  <v-list-item-content>
+                  <template v-slot:prepend>
+                    <v-icon>mdi-flash-outline</v-icon>
+                  </template>
                     <v-list-item-title>
                       <div v-if="trigger.type === 1">
                         {{ $t('Config.Actions.Triggers.Item1') }}
@@ -109,9 +107,7 @@
                         {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
                       </div>
                     </v-list-item-title>
-                  </v-list-item-content>
                 </v-list-item>
-              </v-list-item-group>
             </v-list>
           </v-tab-item>
         </v-tabs-items>
@@ -248,23 +244,30 @@ export default {
       event = parseInt(event)
       if (event === 1) {
         return t('Config.Actions.Triggers.Event.BeforeCreate')
-      } else if (event === 2) {
-        return t('Config.Actions.Triggers.Event.AfterCreate')
-      } else if (event === 3) {
-        return t('Config.Actions.Triggers.Event.BeforeUpdate')
-      } else if (event === 4) {
-        return t('Config.Actions.Triggers.Event.AfterUpdate')
-      } else if (event === 5) {
-        return t('Config.Actions.Triggers.Event.BeforeDelete')
-      } else if (event === 6) {
-        return t('Config.Actions.Triggers.Event.AfterDelete')
-      } else if (event === 7) {
-        return t('Config.Actions.Triggers.Event.BeforeShow')
-      } else if (event === 8) {
-        return t('Config.Actions.Triggers.Event.ChangedOnClient')
-      } else {
-        return '???'
       }
+      if (event === 2) {
+        return t('Config.Actions.Triggers.Event.AfterCreate')
+      }
+      if (event === 3) {
+        return t('Config.Actions.Triggers.Event.BeforeUpdate')
+      }
+      if (event === 4) {
+        return t('Config.Actions.Triggers.Event.AfterUpdate')
+      }
+      if (event === 5) {
+        return t('Config.Actions.Triggers.Event.BeforeDelete')
+      }
+      if (event === 6) {
+        return t('Config.Actions.Triggers.Event.AfterDelete')
+      }
+      if (event === 7) {
+        return t('Config.Actions.Triggers.Event.BeforeShow')
+      }
+      if (event === 8) {
+        return t('Config.Actions.Triggers.Event.ChangedOnClient')
+      }
+
+      return '???'
     }
 
     function getRelation (id) {
