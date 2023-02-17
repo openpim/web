@@ -2,26 +2,24 @@
   <v-container v-if="canViewConfigRef">
     <v-row no-gutters>
       <v-col cols="4">
-        <v-toolbar dense flat>
+        <v-toolbar density="compact" flat>
           <v-toolbar-title>{{ $t('Config.Relations.Relations') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+            <template v-slot:activator="{ props }">
+              <v-btn icon v-bind="props" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
         <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-list nav dense>
-          <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, i) in relationsFiltered" :key="i">
-              <v-list-item-icon><v-icon>mdi-vector-line</v-icon></v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
-              </v-list-item-content>
+        <v-list nav density="compact" @click:select="onSelectRelation">
+            <v-list-item v-for="(item, i) in relationsFiltered" :key="i" :value="item.identifier">
+              <template v-slot:prepend>
+                <v-icon>mdi-vector-line</v-icon>
+              </template>
+              <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
             </v-list-item>
-          </v-list-item-group>
         </v-list>
       </v-col>
       <v-col cols="8">
@@ -39,17 +37,17 @@
               <v-card-title class="subtitle-2 font-weight-bold" >
                 <div style="width:90%">{{ $t('Config.Relations.Sources') }}</div>
                 <v-tooltip bottom v-if="canEditConfigRef">
-                  <template v-slot:activator="{ on }">
-                    <v-btn icon v-on="on" @click="editSources"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                  <template v-slot:activator="{ props }">
+                    <v-btn icon v-bind="props" @click="editSources"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
                   </template>
                   <span>{{ $t('Edit') }}</span>
                 </v-tooltip>
               </v-card-title>
               <v-divider></v-divider>
-              <v-list dense class="pt-0 pb-0">
-                <v-list-item v-for="(item, i) in sources" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+              <v-list density="compact" class="pt-0 pb-0">
+                <v-list-item v-for="(item, i) in sources" :key="i" density="compact" class="pt-0 pb-0">
                   <router-link :to="'/config/types/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
-                </v-list-item-content></v-list-item>
+                </v-list-item>
               </v-list>
             </v-card>
 
@@ -57,17 +55,17 @@
               <v-card-title class="subtitle-2 font-weight-bold" >
                 <div style="width:90%">{{ $t('Config.Relations.Targets') }}</div>
                 <v-tooltip bottom v-if="canEditConfigRef">
-                  <template v-slot:activator="{ on }">
-                    <v-btn icon v-on="on" @click="editTargets"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                  <template v-slot:activator="{ props }">
+                    <v-btn icon v-bind="props" @click="editTargets"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
                   </template>
                   <span>{{ $t('Edit') }}</span>
                 </v-tooltip>
               </v-card-title>
               <v-divider></v-divider>
-              <v-list dense class="pt-0 pb-0">
-                <v-list-item  v-for="(item, i) in targets" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+              <v-list density="compact" class="pt-0 pb-0">
+                <v-list-item  v-for="(item, i) in targets" :key="i" density="compact" class="pt-0 pb-0">
                   <router-link :to="'/config/types/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
-                </v-list-item-content></v-list-item>
+                </v-list-item>
               </v-list>
             </v-card>
 
@@ -168,6 +166,10 @@ export default {
         }
       }
     })
+    const onSelectRelation = (option) => {
+      const relationIndex = relationsFiltered.value.findIndex(r => r.identifier === option.id)
+      itemRef.value = relationIndex
+    }
 
     function add () {
       selectedRef.value = addRelation()
@@ -300,6 +302,7 @@ export default {
       optionsChanged,
       relationsFiltered,
       clearSelection,
+      onSelectRelation,
       identifierRules: [
         v => identifierValidation(v)
       ],

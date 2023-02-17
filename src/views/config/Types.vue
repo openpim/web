@@ -52,12 +52,12 @@
                   </v-tooltip>
                 </v-card-title>
                 <v-divider></v-divider>
-                <v-list dense class="pt-0 pb-0">
-                  <v-list-item-group v-model="relSelectedRef" color="primary">
-                    <v-list-item v-for="(item, i) in imageRelations" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                <v-list density="compact" class="pt-0 pb-0">
+                  <v-list-group v-model="relSelectedRef" color="primary">
+                    <v-list-item v-for="(item, i) in imageRelations" :key="i" density="compact" class="pt-0 pb-0">
                       <router-link :to="'/config/relations/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }} {{ item.id === parseInt(selectedRef.mainImage) ? '('+$t('Config.Types.MainImage')+')' : ''}}</span>
-                    </v-list-item-content></v-list-item>
-                  </v-list-item-group>
+                    </v-list-item>
+                  </v-list-group>
                 </v-list>
               </v-card>
 

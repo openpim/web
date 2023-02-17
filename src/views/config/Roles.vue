@@ -175,6 +175,7 @@
               <v-select prepend-icon="mdi-view-headline" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.lovs" :items="configSelection" :label="$t('Config.Roles.Config.LOVs')"></v-select>
               <v-select prepend-icon="mdi-access-point" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.channels" :items="configSelection" :label="$t('Config.Roles.Config.Channels')"></v-select>
               <v-select prepend-icon="mdi-file-code-outline" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.actions" :items="configSelection" :label="$t('Config.Roles.Config.Actions')"></v-select>
+              <v-select prepend-icon="mdi-file-cog-outline" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.importConfigs" :items="configSelection" :label="$t('Config.Roles.Config.ImportConfigs')"></v-select>
               <v-select prepend-icon="mdi-account" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.users" :items="configSelection" :label="$t('Config.Roles.Config.Users')"></v-select>
               <v-select prepend-icon="mdi-account-check" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.roles" :items="configSelection" :label="$t('Config.Roles.Config.Roles')"></v-select>
               <v-select prepend-icon="mdi-view-dashboard-outline" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.dashboards" :items="configSelection" :label="$t('Config.Roles.Config.Dashboards')"></v-select>

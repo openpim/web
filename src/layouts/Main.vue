@@ -32,6 +32,10 @@
             <span>{{ $t('Main.Collections') }}</span>
             <v-icon>mdi-bookmark-outline</v-icon>
         </v-btn>
+        <v-btn to="/imports">
+            <span>{{ $t('Main.Imports') }}</span>
+            <v-icon>mdi-file-outline</v-icon>
+        </v-btn>
         <v-btn to="/channels" v-if="hasChannelsRef">
             <span>{{ $t('Main.Channels') }}</span>
             <v-icon>mdi-access-point</v-icon>

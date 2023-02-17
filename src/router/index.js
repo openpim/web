@@ -223,6 +223,40 @@ const routes = [
     }
   },
   {
+    path: '/imports',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/ImportsMenu.vue'),
+          default: () => import('../views/Import.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/imports/:id',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/ImportsMenu.vue'),
+          default: () => import('../views/Import.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/config',
     component: Main,
     props: { export: false },
@@ -308,6 +342,20 @@ const routes = [
         components: {
           menu: ConfigMenu,
           default: Roles
+        }
+      },
+      {
+        path: 'imports',
+        components: {
+          menu: () => import('../components/ConfigMenu.vue'),
+          default: () => import('../views/config/ImportConfigs.vue')
+        }
+      },
+      {
+        path: 'imports/:id',
+        components: {
+          menu: () => import('../components/ConfigMenu.vue'),
+          default: () => import('../views/config/ImportConfigs.vue')
         }
       },
       {
