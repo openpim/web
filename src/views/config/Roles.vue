@@ -212,6 +212,7 @@
               <div class="ml-4">
                 <v-checkbox v-model="selectedRef.otherAccess.audit" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.Audit')" required></v-checkbox>
                 <v-checkbox v-model="selectedRef.otherAccess.search" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.Search')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.imports" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.Imports')" required></v-checkbox>
                 <v-checkbox v-model="selectedRef.otherAccess.exportCSV" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.ExportSCV')" required></v-checkbox>
                 <v-checkbox v-model="selectedRef.otherAccess.exportXLS" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.ExportXLS')" required></v-checkbox>
                 <v-checkbox v-model="selectedRef.otherAccess.importXLS" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.ImportXLS')" required></v-checkbox>

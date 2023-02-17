@@ -6,17 +6,17 @@
       <template v-slot:default>
         <thead>
           <tr>
-            <th class="text-left">{{$t('OptionsTable.Name')}}</th>
-            <th class="text-left">{{$t('OptionsTable.TargetName')}}</th>
+            <th class="text-left">{{$t('ImportConfig.OptionsTable.Column')}}</th>
+            <th class="text-left">{{$t('ImportConfig.OptionsTable.Attribute')}}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(elem, j) in selectedMappingRef" :key="j">
             <td class="pa-1 pr-10" style="width:220px;">
-              <input v-model="elem.name" :placeholder="$t('OptionsTable.Name')" />
+              <input v-model="elem.name" :placeholder="$t('ImportConfig.OptionsTable.Column')" />
             </td>
             <td class="pa-1 pr-10" style="width:220px;">
-              <input v-model="elem.targetName" :placeholder="$t('OptionsTable.Name')" />
+              <input v-model="elem.targetName" :placeholder="$t('ImportConfig.OptionsTable.Attribute')" />
             </td>
           </tr>
         </tbody>

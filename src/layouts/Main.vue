@@ -32,7 +32,7 @@
             <span>{{ $t('Main.Collections') }}</span>
             <v-icon>mdi-bookmark-outline</v-icon>
         </v-btn>
-        <v-btn to="/imports">
+        <v-btn to="/imports" v-if="hasImportsAccess">
             <span>{{ $t('Main.Imports') }}</span>
             <v-icon>mdi-file-outline</v-icon>
         </v-btn>
@@ -122,6 +122,8 @@ export default {
     const hasCollectionsRef = ref(false)
 
     const hasSearchAccess = ref(false)
+    const hasImportsAccess = ref(false)
+    const isUserAdmin = ref(false)
 
     const hasDashboards = ref(false)
 
@@ -152,6 +154,7 @@ export default {
           hasDashboards.value = getDashboardsForCurrentUser().length > 0
         })
         hasSearchAccess.value = hasAccess('search') || hasAccess('searchRelations')
+        hasImportsAccess.value = hasAccess('imports')
         if (currentUserRef.value.tenantId !== '0') {
           loadAllChannels().then(channels => {
             if (channels && channels.length > 0) hasChannelsRef.value = true
@@ -159,7 +162,7 @@ export default {
           loadAllCollections().then(collections => {
             if (collections && collections.length > 0) hasCollectionsRef.value = true
           })
-          hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards') || canViewConfig('channels')
+          hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards') || canViewConfig('channels') || canViewConfig('importConfigs')
         }
       })
     })
@@ -179,6 +182,8 @@ export default {
       hasCollectionsRef,
       isExportSearch: props.export,
       hasSearchAccess,
+      hasImportsAccess,
+      isUserAdmin,
       hasDashboards,
       display,
       handleResize,
