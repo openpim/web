@@ -10,7 +10,7 @@
                   <SystemInformation :data="importConfigRef"></SystemInformation>
                 </v-col>
                 <v-col cols="6">
-                  <span class="ml-3">{{$t('ImportConfigs.FileType')}}:</span> {{ fileType }}
+                  <span class="ml-3">{{$t('ImportConfig.FileType')}}:</span> {{ fileType }}
                 </v-col>
               </v-row>
             </v-card-title>
@@ -23,8 +23,8 @@
                       <template v-slot:default>
                         <thead>
                           <tr>
-                            <th class="text-left">{{$t('OptionsTable.Name')}}</th>
-                            <th class="text-left">{{$t('OptionsTable.TargetName')}}</th>
+                            <th class="text-left">{{$t('ImportConfig.OptionsTable.Column')}}</th>
+                            <th class="text-left">{{$t('ImportConfig.OptionsTable.Attribute')}}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -40,8 +40,8 @@
               </v-expansion-panels>
             </v-card-text>
             <v-card-actions>
-              <v-file-input show-size v-model="fileRef" :label="$t('Import.NewFile')"></v-file-input>
-              <v-btn class="d-inline" color="primary" :disabled="!fileRef" text @click="upload">{{ $t('Import.Upload') }}</v-btn>
+              <v-file-input show-size v-model="fileRef" :label="$t('ImportConfig.SelectFile')"></v-file-input>
+              <v-btn class="d-inline" color="primary" :disabled="!fileRef" text @click="upload">{{ $t('ImportConfig.UploadFile') }}</v-btn>
             </v-card-actions>
         </v-card>
       </v-col>

@@ -31,42 +31,6 @@
             <SystemInformation :data="selectedRef"></SystemInformation>
           </div>
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.ImportConfigs.Name')"></LanguageDependentField>
-          <v-card class="mb-5 mt-2">
-            <v-card-title class="subtitle-2 font-weight-bold" >
-              <div style="width:90%">Target type</div>
-              <v-tooltip bottom v-if="canEditConfigRef">
-                <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" @click="editValid"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
-                </template>
-                <span>{{ $t('Edit') }}</span>
-              </v-tooltip>
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-list dense class="pt-0 pb-0">
-              <v-list-item v-for="(item, i) in valid" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
-                <router-link :to="'/config/types/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
-              </v-list-item-content></v-list-item>
-            </v-list>
-          </v-card>
-          <v-card class="mb-5">
-            <v-card-title class="subtitle-2 font-weight-bold" >
-              <div style="width:90%">Target path</div>
-              <v-tooltip bottom v-if="canEditConfigRef">
-                <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" @click="addVisible"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
-                </template>
-                <span>{{ $t('Add') }}</span>
-              </v-tooltip>
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-list dense class="pt-0 pb-0">
-              <v-list-item dense class="pt-0 pb-0"  v-for="(item, i) in visible" :key="i">
-                <v-list-item-content class="pt-0 pb-0" style="display: inline">
-                <router-link :to="'/item/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-          </v-card>
           <v-select v-model="selectedRef.type" :items="types" :readonly="!canEditConfigRef" :label="$t('Config.ImportConfigs.Type')"></v-select>
           <component v-if="importConfigFactory.getConfigCompoment()" :is="importConfigFactory.getConfigCompoment()" :availableFields="availableFields" :mappings="selectedRef.mappings" :readonly="!canEditConfigRef" ></component>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
@@ -74,8 +38,6 @@
         </v-form>
       </v-col>
     </v-row>
-    <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="false" @selected="typesSelected"/>
-    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
   </v-container>
 </template>
 
@@ -84,7 +46,6 @@ import { ref, onMounted, onUnmounted, computed, watch } from '@vue/composition-a
 import * as errorStore from '../../store/error'
 import * as importConfigsStore from '../../store/importConfigs'
 import * as attrStore from '../../store/attributes'
-import * as itemStore from '../../store/item'
 import * as typesStore from '../../store/types'
 import * as langStore from '../../store/languages'
 import * as userStore from '../../store/users'
@@ -97,13 +58,11 @@ import getImportConfigFactory from '../../components/ImportConfigs'
 import CSVFactory from '@/components/ImportConfigs/csv/CSVFactory.vue'
 import XLSFactory from '@/components/ImportConfigs/xls/XLSFactory.vue'
 import YandexFactory from '@/components/ImportConfigs/yandex/YandexFactory.vue'
-import TypeSelectionDialog from '@/components/TypeSelectionDialog'
-import ItemsSelectionDialog from '@/components/ItemsSelectionDialog'
 
 import eventBus from '@/eventBus'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, CSVFactory, XLSFactory, YandexFactory, TypeSelectionDialog, ItemsSelectionDialog },
+  components: { LanguageDependentField, SystemInformation, CSVFactory, XLSFactory, YandexFactory },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const { defaultLanguageIdentifier, currentLanguage } = langStore.useStore()
@@ -118,9 +77,6 @@ export default {
     const searchRef = ref('')
     const selectedRef = ref(empty)
     const selectedTypeRef = ref([])
-    const selectedItemPathRef = ref([])
-    const typeSelectionDialogRef = ref(null)
-    const itemSelectionDialogRef = ref(null)
     const typesLoadedRef = ref(false)
     const visible = ref([])
 
@@ -130,10 +86,6 @@ export default {
       findType,
       loadAllTypes
     } = typesStore.useStore()
-
-    const {
-      loadItemsByIds
-    } = itemStore.useStore()
 
     const {
       getAttributesForItem
@@ -154,10 +106,6 @@ export default {
       itemRef.value = importConfigs.length - 1
     }
 
-    function addVisible () {
-      itemSelectionDialogRef.value.showDialog('visible')
-    }
-
     function clearSelection () {
       selectedRef.value = null
       itemRef.value = null
@@ -175,25 +123,6 @@ export default {
         availableFields.value = getAttributesForItem(selectedTypeRef.value, visible.value[0].path)
       }
     })
-
-    function editValid () {
-      typeSelectionDialogRef.value.showDialog('valid', null)
-    }
-
-    function typesSelected (el) {
-      typeSelectionDialogRef.value.closeDialog()
-      selectedTypeRef.value = el
-    }
-
-    function itemsSelected (id) {
-      itemSelectionDialogRef.value.closeDialog()
-      loadItemsByIds([id], false).then(items => {
-        visible.value = [items[0]]
-        if (valid.value.length) {
-          availableFields.value = getAttributesForItem(selectedTypeRef.value, visible.value[0].path)
-        }
-      })
-    }
 
     onMounted(() => {
       eventBus.on('tab_updated', data => {
@@ -292,27 +221,21 @@ export default {
 
     return {
       add,
-      addVisible,
       availableFields,
       canEditConfigRef,
       canViewConfigRef,
       clearSelection,
       currentLanguage,
+      defaultLanguageIdentifier,
       formRef,
       importConfigsFiltered,
       importConfigFactory,
-      itemSelectionDialogRef,
-      selectedItemPathRef,
-      itemsSelected,
       itemRef,
-      editValid,
-      typesSelected,
       remove,
       save,
       searchRef,
       selectedRef,
       selectedTypeRef,
-      typeSelectionDialogRef,
       types,
       identifierRules: [
         v => identifierValidation(v)
