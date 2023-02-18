@@ -166,6 +166,74 @@ const routes = [
     }
   },
   {
+    path: '/collections',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/CollectionsMenu.vue'),
+          default: () => import('../views/Collections.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/collections/:id',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/CollectionsMenu.vue'),
+          default: () => import('../views/Collections.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/imports',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/ImportsMenu.vue'),
+          default: () => import('../views/Import.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/imports/:id',
+    component: () => import('../layouts/Main.vue'),
+    props: { export: false },
+    children: [
+      {
+        path: '',
+        components: {
+          menu: () => import('../components/ImportsMenu.vue'),
+          default: () => import('../views/Import.vue')
+        }
+      }
+    ],
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/config',
     component: () => import('../layouts/Main.vue'),
     props: { export: false },
@@ -251,6 +319,20 @@ const routes = [
         components: {
           menu: () => import('../components/ConfigMenu.vue'),
           default: () => import('../views/config/Roles.vue')
+        }
+      },
+      {
+        path: 'imports',
+        components: {
+          menu: () => import('../components/ConfigMenu.vue'),
+          default: () => import('../views/config/ImportConfigs.vue')
+        }
+      },
+      {
+        path: 'imports/:id',
+        components: {
+          menu: () => import('../components/ConfigMenu.vue'),
+          default: () => import('../views/config/ImportConfigs.vue')
         }
       },
       {

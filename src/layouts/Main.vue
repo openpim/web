@@ -17,6 +17,14 @@
             <span>{{ $t('Main.Search') }}</span>
             <v-icon>mdi-magnify</v-icon>
         </v-btn>
+        <v-btn to="/collections" v-if="hasCollectionsRef">
+            <span>{{ $t('Main.Collections') }}</span>
+            <v-icon>mdi-bookmark-outline</v-icon>
+        </v-btn>
+        <v-btn to="/imports" v-if="hasImportsAccess">
+            <span>{{ $t('Main.Imports') }}</span>
+            <v-icon>mdi-file-outline</v-icon>
+        </v-btn>
         <v-btn to="/channels" v-if="hasChannelsRef">
             <span>{{ $t('Main.Channels') }}</span>
             <v-icon>mdi-access-point</v-icon>
@@ -173,6 +181,7 @@ import AppHeader from '../components/AppHeader.vue'
 import * as userStore from '../store/users'
 import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
+import * as collectionsStore from '../store/collections'
 import * as rolesStore from '../store/roles'
 import * as dashStore from '../store/dashboards'
 import * as procStore from '../store/processes'
@@ -212,6 +221,10 @@ export default {
     } = channelsStore.useStore()
 
     const {
+      loadAllCollections
+    } = collectionsStore.useStore()
+
+    const {
       loadAllDashboards,
       getDashboardsForCurrentUser
     } = dashStore.useStore()
@@ -231,8 +244,10 @@ export default {
     const formRef = ref(null)
     const hasConfigRef = ref(false)
     const hasChannelsRef = ref(false)
+    const hasCollectionsRef = ref(false)
 
     const hasSearchAccess = ref(false)
+    const hasImportsAccess = ref(false)
     const isUserAdmin = ref(false)
 
     const hasDashboards = ref(false)
@@ -377,11 +392,15 @@ export default {
         })
         isUserAdmin.value = isAdmin()
         hasSearchAccess.value = hasAccess('search') || hasAccess('searchRelations')
+        hasImportsAccess.value = hasAccess('imports')
         if (currentUserRef.value.tenantId !== '0') {
           loadAllChannels().then(channels => {
             if (channels && channels.length > 0) hasChannelsRef.value = true
           })
-          hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards') || canViewConfig('channels')
+          loadAllCollections().then(collections => {
+            if (collections && collections.length > 0) hasCollectionsRef.value = true
+          })
+          hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards') || canViewConfig('channels') || canViewConfig('importConfigs')
         }
       })
 
@@ -417,8 +436,10 @@ export default {
       formRef,
       hasConfigRef,
       hasChannelsRef,
+      hasCollectionsRef,
       isExportSearch: props.export,
       hasSearchAccess,
+      hasImportsAccess,
       isUserAdmin,
       hasDashboards,
       activeProcesses,
