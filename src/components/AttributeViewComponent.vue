@@ -12,12 +12,10 @@
 
           <v-checkbox v-if="attr.type === AttributeType.Text" v-model="attr.multiLine" :label="$t('Config.Attribute.MultiLine')"></v-checkbox>
           <v-checkbox v-if="attr.type === AttributeType.Text" v-model="attr.richText" :label="$t('Config.Attribute.RichText')"></v-checkbox>
-
           <v-text-field v-if="attr.type === AttributeType.Text || attr.type === AttributeType.Integer || attr.type === AttributeType.Float || attr.type === AttributeType.Date || attr.type === AttributeType.DateTime" v-model="attr.pattern" :label="$t('Config.Attribute.Pattern')" required></v-text-field>
           <LanguageDependentField v-if="attr.type === AttributeType.Text || attr.type === AttributeType.Integer || attr.type === AttributeType.Float || attr.type === AttributeType.Date || attr.type === AttributeType.DateTime" :values="attr.errorMessage" v-model="attr.errorMessage[currentLanguage.identifier]" :label="$t('Config.Attribute.ErrorMessage')"></LanguageDependentField>
 
           <v-select v-if="attr.type === AttributeType.LOV" v-model="attr.lov" :items="lovSelection" :label="$t('Config.Attribute.LOV')"></v-select>
-
           <v-text-field v-model="attr.order" type="number" :label="$t('Config.Attributes.Order')" required></v-text-field>
 
           <v-tabs v-model="tabRef">
@@ -68,6 +66,8 @@ import SystemInformation from '../components/SystemInformation'
 import LanguageDependentField from '../components/LanguageDependentField'
 import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
 
+import additionalAttrTypesList from '../_customizations/attributes/additionalTypes.js'
+
 export default {
   components: { OptionsTable, ValidVisibleComponent, SystemInformation, LanguageDependentField, RelationsSelectionDialog },
   props: {
@@ -93,6 +93,22 @@ export default {
       relations,
       loadAllRelations
     } = relStore.useStore()
+
+    let typeSelection = [
+      { text: i18n.t('Config.Attribute.Type.Text'), value: AttributeType.Text },
+      { text: i18n.t('Config.Attribute.Type.Boolean'), value: AttributeType.Boolean },
+      { text: i18n.t('Config.Attribute.Type.Integer'), value: AttributeType.Integer },
+      { text: i18n.t('Config.Attribute.Type.Float'), value: AttributeType.Float },
+      { text: i18n.t('Config.Attribute.Type.Date'), value: AttributeType.Date },
+      { text: i18n.t('Config.Attribute.Type.Time'), value: AttributeType.Time },
+      { text: i18n.t('Config.Attribute.Type.LOV'), value: AttributeType.LOV },
+      { text: i18n.t('Config.Attribute.Type.URL'), value: AttributeType.URL }
+    ]
+
+    if (additionalAttrTypesList) {
+      const mappedAddAttrTypeList = additionalAttrTypesList.map(el => ({ text: el.text, value: el.value }))
+      typeSelection = [...typeSelection, ...mappedAddAttrTypeList]
+    }
 
     const { getLOVsForSelect } = lovStore.useStore()
 
@@ -169,16 +185,7 @@ export default {
         v => !!v || i18n.t('Config.Attributes.Error.TypeRequired')
       ],
       optionsChanged,
-      typeSelection: [
-        { text: i18n.t('Config.Attribute.Type.Text'), value: AttributeType.Text },
-        { text: i18n.t('Config.Attribute.Type.Boolean'), value: AttributeType.Boolean },
-        { text: i18n.t('Config.Attribute.Type.Integer'), value: AttributeType.Integer },
-        { text: i18n.t('Config.Attribute.Type.Float'), value: AttributeType.Float },
-        { text: i18n.t('Config.Attribute.Type.Date'), value: AttributeType.Date },
-        { text: i18n.t('Config.Attribute.Type.Time'), value: AttributeType.Time },
-        { text: i18n.t('Config.Attribute.Type.LOV'), value: AttributeType.LOV },
-        { text: i18n.t('Config.Attribute.Type.URL'), value: AttributeType.URL }
-      ]
+      typeSelection
     }
   }
 }

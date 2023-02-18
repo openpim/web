@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="canViewConfigRef">
+  <v-container v-if="canViewConfigRef" style="background-color:white">
     <v-row no-gutters>
       <v-col cols="5">
         <v-toolbar dense flat>

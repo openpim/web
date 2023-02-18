@@ -23,9 +23,15 @@
                     </v-tooltip>
                     <v-tooltip bottom v-if="canViewAttrConfigRef">
                       <template v-slot:activator="{ on }">
-                        <v-btn v-on="on" @click="showAttributesShowDialog()" icon><v-icon>mdi-format-list-bulleted-type</v-icon></v-btn>
+                        <v-btn v-on="on" @click="showAttributesShowDialog(1)" icon><v-icon>mdi-format-list-bulleted-type</v-icon></v-btn>
                       </template>
                       <span>{{ $t('ShowAttributes') }}</span>
+                    </v-tooltip>
+                    <v-tooltip bottom v-if="canViewAttrConfigRef">
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" @click="showAttributesShowDialog(2)" icon><v-icon>mdi-format-list-bulleted-square</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('ShowAttributes2') }}</span>
                     </v-tooltip>
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
@@ -1072,8 +1078,8 @@ export default {
       })
     }
 
-    function showAttributesShowDialog () {
-      showAttributesDialogRef.value.showDialog(itemRef.value)
+    function showAttributesShowDialog (type) {
+      showAttributesDialogRef.value.showDialog(itemRef.value, type)
     }
 
     function showAttributes () {
