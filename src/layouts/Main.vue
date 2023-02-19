@@ -362,7 +362,7 @@ export default {
     const token = localStorage.getItem('token')
     let lastProcess
     async function checkFinishedProcesses () {
-      const data = await loadFinishedProcesses({ page: 1, itemsPerPage: 1, sortBy: ['id'], sortDesc: [false] })
+      const data = await loadFinishedProcesses({ page: 1, itemsPerPage: 1, sortBy: ['id'], sortDesc: [true] })
       if (data.count > 0) {
         if (lastProcess === undefined) {
           lastProcess = data.rows[0]
