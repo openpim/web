@@ -1,4 +1,6 @@
-export default {
+import additionalAttrTypesList from '../_customizations/attributes/additionalTypes.js'
+
+const attrTypes = {
   Text: 1,
   Boolean: 2,
   Integer: 3,
@@ -8,3 +10,12 @@ export default {
   LOV: 7,
   URL: 8
 }
+
+if (additionalAttrTypesList) {
+  for (let i = 0; i < additionalAttrTypesList.length; i++) {
+    const addType = additionalAttrTypesList[i]
+    attrTypes[addType.name] = addType.value
+  }
+}
+
+export default attrTypes

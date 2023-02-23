@@ -46,6 +46,7 @@
                       </template>
                       <span>{{ $t('ItemRelationsList.ResetPageSize') }}</span>
                     </v-tooltip>
+                    <AfterButtonsComponent :item="item" :componentType="componentType" :relationIdentifier="identifier"></AfterButtonsComponent>
                   </th>
                 </tr>
               </thead>
@@ -200,8 +201,10 @@ import HistoryTable from '../components/HistoryTable'
 import dateFormat from 'dateformat'
 import router from '../router'
 
+import AfterButtonsComponent from '../_customizations/relations/list/afterButtons/AfterButtonsComponent'
+
 export default {
-  components: { ItemsSelectionDialog, AttributeValue, SystemInformation, HistoryTable },
+  components: { ItemsSelectionDialog, AttributeValue, SystemInformation, HistoryTable, AfterButtonsComponent },
   props: {
     item: {
       required: true

@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="canViewConfigRef">
+  <v-container v-if="canViewConfigRef" style="background-color:white">
     <v-row no-gutters>
       <v-col cols="4">
         <v-toolbar density="compact" flat>
@@ -105,6 +105,9 @@ export default {
   props: {
     item: {
       type: Object,
+      required: false
+    },
+    type: {
       required: false
     }
   },
@@ -236,6 +239,10 @@ export default {
         const errorMessage = {}
         errorMessage[currentLanguage.value.identifier] = ''
         const newAttr = { id: Date.now(), internalId: 0, group: false, languageDependent: false, order: 0, visible: [], valid: [], relations: [], name, errorMessage, options: [] }
+        if (props.item) {
+          newAttr.valid.push(props.item.typeId)
+          newAttr.visible.push(props.item.id)
+        }
         selectedRef.value.attributes.push(newAttr)
         const groupFiltered = groupsFiltered.value.find((el) => el.id === selectedRef.value.id)
         groupFiltered.children.push(newAttr)
@@ -361,19 +368,33 @@ export default {
     })
 
     watch(() => props.item, () => {
+      refreshItemAttributes()
+    })
+
+    watch(() => props.type, () => {
+      refreshItemAttributes()
+    })
+
+    function refreshItemAttributes () {
       if (!props.item) return
       const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
       groups.forEach(group => {
         const groupAttr = []
         group.attributes.forEach(attr => {
-          if (pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
-            groupAttr.push(attr)
+          if (props.type === 1) { // show attributes only for this object (check type)
+            if (attr.valid.includes(parseInt(props.item.typeId)) && pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
+              groupAttr.push(attr)
+            }
+          } else { // show attributes for any type of object going through this level
+            if (pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
+              groupAttr.push(attr)
+            }
           }
         })
         group.itemAttributes = groupAttr
       })
       groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.itemAttributes.slice(0, maxChiidrenNumber) }))
-    })
+    }
 
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_]*$/.test(v)) {

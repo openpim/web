@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container style="background-color:white">
     <v-row no-gutters>
       <v-col cols="12">
         <v-select v-if="dashboardsSelection.length > 1" v-model="selectedRef" :items="dashboardsSelection" :label="$t('Dashboards.Select')"></v-select>
