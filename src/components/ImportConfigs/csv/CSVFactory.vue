@@ -5,15 +5,15 @@
         <template v-slot:default>
           <thead>
             <tr>
-              <th class="text-left">{{$t('OptionsTable.Name')}}</th>
-              <th class="text-left">{{$t('OptionsTable.TargetName')}}</th>
+              <th class="text-left">{{$t('ImportConfig.OptionsTable.Column')}}</th>
+              <th class="text-left">{{$t('ImportConfig.OptionsTable.Attribute')}}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(elem, j) in selectedMappingRef" :key="j">
               <td class="pa-1 pr-10" style="width:220px;">{{ elem.name }}</td>
               <td class="pa-1 pr-10" style="width:220px;">
-                <input v-model="elem.targetName" @change="updateMappings" :placeholder="$t('OptionsTable.TargetName')" />
+                <input v-model="elem.targetName" @change="updateMappings" :placeholder="$t('ImportConfig.OptionsTable.Attribute')" />
                 <!--v-autocomplete item-text="text" item-value='identifier' v-model="elem.targetName" :items="allAttributes" :label="$t('OptionsTable.TargetName')" clearable/-->
               </td>
             </tr>

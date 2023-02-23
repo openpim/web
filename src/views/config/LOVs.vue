@@ -2,26 +2,24 @@
   <v-container v-if="canViewConfigRef">
     <v-row no-gutters>
       <v-col cols="3">
-        <v-toolbar dense flat>
+        <v-toolbar density="compact" flat>
           <v-toolbar-title>{{ $t('Config.LOV.LOVs') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+            <template v-slot:activator="{ props }">
+              <v-btn icon v-bind="props" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
         <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-list nav dense>
-          <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, i) in lovsFiltered" :key="i">
-              <v-list-item-icon><v-icon>mdi-view-headline</v-icon></v-list-item-icon>
-              <v-list-item-content>
+        <v-list nav density="compact" color="primary" v-model="itemRef">
+            <v-list-item v-for="(item, i) in lovsFiltered" :key="i" :value="item.identifier">
+              <template v-slot:prepend>
+                <v-icon>mdi-view-headline</v-icon>
+              </template>
                 <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
-              </v-list-item-content>
             </v-list-item>
-          </v-list-item-group>
         </v-list>
       </v-col>
       <v-col cols="9" v-if="selectedRef">
@@ -32,7 +30,7 @@
           </div>
 
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Languages.Name')"></LanguageDependentField>
-        <v-simple-table dense  fixed-header height="60vh"  class="mb-4">
+        <v-simple-table density="compact"  fixed-header height="60vh"  class="mb-4">
             <template v-slot:default>
               <thead>
                 <tr>
@@ -44,14 +42,14 @@
                   <th class="text-left">
                     {{$t('Config.LOV.Filter')}}
                     <v-tooltip top v-if="canEditConfigRef" class="ml-4">
-                      <template v-slot:activator="{ on }">
-                        <v-btn v-on="on" class="pa-0" icon color="primary" @click="addValue"><v-icon dark>mdi-plus</v-icon></v-btn>
+                      <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" class="pa-0" icon color="primary" @click="addValue"><v-icon dark>mdi-plus</v-icon></v-btn>
                       </template>
                       <span>{{ $t('Add') }}</span>
                     </v-tooltip>
                     <v-tooltip topclass="ml-4">
-                      <template v-slot:activator="{ on }">
-                        <v-btn v-on="on" class="pa-0" icon color="primary" @click="exportData"><v-icon dark>mdi-export</v-icon></v-btn>
+                      <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" class="pa-0" icon color="primary" @click="exportData"><v-icon dark>mdi-export</v-icon></v-btn>
                       </template>
                       <span>{{ $t('Config.LOV.Export') }}</span>
                     </v-tooltip>
@@ -104,27 +102,23 @@
                       <v-card-title class="subtitle-2 font-weight-bold" >
                         <div style="width:80%">{{ $t('Config.LOV.Visible') }}</div>
                         <v-tooltip bottom v-if="canEditConfigRef">
-                          <template v-slot:activator="{ on }">
-                            <v-btn icon v-on="on" @click="addVisible"><v-icon>mdi-plus</v-icon></v-btn>
+                          <template v-slot:activator="{ props }">
+                            <v-btn icon v-bind="props" @click="addVisible"><v-icon>mdi-plus</v-icon></v-btn>
                           </template>
                           <span>{{ $t('Add') }}</span>
                         </v-tooltip>
                         <v-tooltip bottom v-if="canEditConfigRef">
-                          <template v-slot:activator="{ on }">
-                            <v-btn icon v-on="on" @click="removeVisible" :disabled="visibleSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
+                          <template v-slot:activator="{ props }">
+                            <v-btn icon v-bind="props" @click="removeVisible" :disabled="visibleSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
                           </template>
                           <span>{{ $t('Remove') }}</span>
                         </v-tooltip>
                       </v-card-title>
                       <v-divider></v-divider>
-                      <v-list dense class="pt-0 pb-0">
-                        <v-list-item-group v-model="visibleSelectedRef" color="primary">
-                          <v-list-item dense class="pt-0 pb-0"  v-for="(item, i) in visible" :key="i">
-                            <v-list-item-content class="pt-0 pb-0" style="display: inline">
+                      <v-list density="compact" class="pt-0 pb-0" v-model="visibleSelectedRef" color="primary">
+                          <v-list-item density="compact" class="pt-0 pb-0"  v-for="(item, i) in visible" :key="i">
                             <router-link :to="'/item/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
-                            </v-list-item-content>
                           </v-list-item>
-                        </v-list-item-group>
                       </v-list>
                     </v-card>
                   </v-col>

@@ -2,26 +2,24 @@
   <v-container v-if="canViewConfigRef">
     <v-row no-gutters>
       <v-col cols="3">
-        <v-toolbar dense flat>
+        <v-toolbar density="compact" flat>
           <v-toolbar-title>{{ $t('Config.Roles.Roles') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+            <template v-slot:activator="{ props }">
+              <v-btn icon v-bind="props" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
         <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-list nav dense>
-          <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, i) in rolesFiltered" :key="i">
-              <v-list-item-icon><v-icon>mdi-account-check</v-icon></v-list-item-icon>
-              <v-list-item-content>
+        <v-list nav density="compact" v-model="itemRef" color="primary">
+            <v-list-item v-for="(item, i) in rolesFiltered" :key="i" :value="item.identifier">
+              <template v-slot:prepend>
+                <v-icon>mdi-account-check</v-icon>
+              </template>
                 <v-list-item-title>{{item.identifier + ' - ' + item.name}}</v-list-item-title>
-              </v-list-item-content>
             </v-list-item>
-          </v-list-item-group>
         </v-list>
       </v-col>
       <v-col cols="9">
@@ -34,29 +32,30 @@
           <v-text-field v-model="selectedRef.name" :label="$t('Config.Roles.Name')" :rules="nameRules" required></v-text-field>
 
           <v-tabs v-model="tabRef">
-            <v-tab >{{$t('Config.Roles.Data')}}</v-tab>
-            <v-tab >{{$t('Config.Roles.Relation')}}</v-tab>
-            <v-tab >{{$t('Config.Roles.Configuration')}}</v-tab>
-            <v-tab >{{$t('Config.Roles.Channels')}}</v-tab>
-            <v-tab >{{$t('Config.Roles.Other')}}</v-tab>
+            <v-tab value="data" >{{$t('Config.Roles.Data')}}</v-tab>
+            <v-tab value="relations" >{{$t('Config.Roles.Relation')}}</v-tab>
+            <v-tab value="configuration" >{{$t('Config.Roles.Configuration')}}</v-tab>
+            <v-tab value="channels" >{{$t('Config.Roles.Channels')}}</v-tab>
+            <v-tab value="other" >{{$t('Config.Roles.Other')}}</v-tab>
           </v-tabs>
-          <v-tabs-items v-model="tabRef">
+          <v-card-text>
+          <v-window v-model="tabRef">
             <!-- Items restrictions -->
-            <v-tab-item>
+            <v-window-item value="data">
               <v-card class="mb-5 mt-2">
                 <v-card-title class="subtitle-2 font-weight-bold" >
                   <div style="width:90%">{{ $t('Config.Roles.RestrictionsTypes') }}</div>
                   <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="editValid"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon v-bind="props" @click="editValid"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
                     </template>
                     <span>{{ $t('Edit') }}</span>
                   </v-tooltip>
                 </v-card-title>
                 <v-divider></v-divider>
                 <v-card-text>
-                <v-list dense class="pt-0 pb-0">
-                  <v-list-item  v-for="(item, i) in valid" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                <v-list density="compact" class="pt-0 pb-0">
+                  <v-list-item  v-for="(item, i) in valid" :key="i" density="compact" class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
                     <router-link :to="'/config/types/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
                   </v-list-item-content></v-list-item>
                 </v-list>
@@ -65,28 +64,24 @@
                 <v-card-title class="subtitle-2 font-weight-bold" >
                   <div style="width:80%">{{ $t('Config.Roles.RestrictionsFromItems') }}</div>
                   <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="addFromItems"><v-icon>mdi-plus</v-icon></v-btn>
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon v-bind="props" @click="addFromItems"><v-icon>mdi-plus</v-icon></v-btn>
                     </template>
                     <span>{{ $t('Add') }}</span>
                   </v-tooltip>
                   <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="removeFromItems" :disabled="fromItemsSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon v-bind="props" @click="removeFromItems" :disabled="fromItemsSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
                     </template>
                     <span>{{ $t('Remove') }}</span>
                   </v-tooltip>
                 </v-card-title>
                 <v-divider></v-divider>
                 <v-card-text>
-                <v-list dense class="pt-0 pb-0">
-                  <v-list-item-group v-model="fromItemsSelectedRef" color="primary">
-                    <v-list-item dense class="pt-0 pb-0"  v-for="(item, i) in fromItems" :key="i">
-                      <v-list-item-content class="pt-0 pb-0" style="display: inline">
+                <v-list density="compact" class="pt-0 pb-0" v-model="fromItemsSelectedRef" color="primary">
+                    <v-list-item density="compact" class="pt-0 pb-0"  v-for="(item, i) in fromItems" :key="i">
                       <router-link :to="'/item/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
-                      </v-list-item-content>
                     </v-list-item>
-                  </v-list-item-group>
                 </v-list>
                 <v-select class="pr-2" :readonly="!canEditConfigRef" v-model="selectedRef.itemAccess.access" :items="configSelection" :label="$t('Config.Roles.Access')"></v-select>
                 </v-card-text>
@@ -94,14 +89,14 @@
                 <v-card-title class="subtitle-2 font-weight-bold" >
                   <div style="width:90%">{{ $t('Config.Roles.RestrictionsAttributes') }}</div>
                   <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="editAttrItem"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon v-bind="props" @click="editAttrItem"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
                     </template>
                     <span>{{ $t('Edit') }}</span>
                   </v-tooltip>
                 </v-card-title>
-                <v-list dense class="pt-0 pb-0">
-                  <v-list-item  v-for="(item, i) in groupsAccessItem" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0">
+                <v-list density="compact" class="pt-0 pb-0">
+                  <v-list-item  v-for="(item, i) in groupsAccessItem" :key="i" density="compact" class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0">
                     <v-container>
                       <v-row align="center" no-gutters>
                         <v-col cols="6">
@@ -116,24 +111,24 @@
                   </v-list-item-content></v-list-item>
                 </v-list>
               </v-card>
-            </v-tab-item>
+            </v-window-item>
 
             <!-- Relations restrictions -->
-            <v-tab-item>
+            <v-window-item value="relations">
               <v-card class="mb-5 mt-2">
                 <v-card-title class="subtitle-2 font-weight-bold" >
                   <div style="width:90%">{{ $t('Config.Roles.RestrictionsRelations') }}</div>
                   <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="editRelations"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon v-bind="props" @click="editRelations"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
                     </template>
                     <span>{{ $t('Edit') }}</span>
                   </v-tooltip>
                 </v-card-title>
                 <v-divider></v-divider>
                 <v-card-text>
-                <v-list dense class="pt-0 pb-4">
-                  <v-list-item  v-for="item in roleRelations" :key="item.id" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                <v-list density="compact" class="pt-0 pb-4">
+                  <v-list-item  v-for="item in roleRelations" :key="item.id" density="compact" class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
                     <router-link :to="'/config/relations/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
                   </v-list-item-content></v-list-item>
                 </v-list>
@@ -143,14 +138,14 @@
                 <v-card-title class="subtitle-2 font-weight-bold" >
                   <div style="width:90%">{{ $t('Config.Roles.RestrictionsAttributes') }}</div>
                   <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="editAttrRel"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon v-bind="props" @click="editAttrRel"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
                     </template>
                     <span>{{ $t('Edit') }}</span>
                   </v-tooltip>
                 </v-card-title>
-                <v-list dense class="pt-0 pb-0">
-                  <v-list-item v-for="(item, i) in groupsAccessRel" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0">
+                <v-list density="compact" class="pt-0 pb-0">
+                  <v-list-item v-for="(item, i) in groupsAccessRel" :key="i" density="compact" class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0">
                     <v-container>
                       <v-row align="center" no-gutters>
                         <v-col cols="6">
@@ -165,10 +160,10 @@
                   </v-list-item-content></v-list-item>
                 </v-list>
               </v-card>
-            </v-tab-item>
+            </v-window-item>
 
             <!-- system setup restrictions -->
-            <v-tab-item>
+            <v-window-item value="configuration">
               <v-select prepend-icon="mdi-animation-outline" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.types" :items="configSelection" :label="$t('Config.Roles.Config.Types')"></v-select>
               <v-select prepend-icon="mdi-format-list-bulleted-type" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.attributes" :items="configSelection" :label="$t('Config.Roles.Config.Attributes')"></v-select>
               <v-select prepend-icon="mdi-vector-line" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.relations" :items="configSelection" :label="$t('Config.Roles.Config.Relations')"></v-select>
@@ -180,22 +175,22 @@
               <v-select prepend-icon="mdi-account-check" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.roles" :items="configSelection" :label="$t('Config.Roles.Config.Roles')"></v-select>
               <v-select prepend-icon="mdi-view-dashboard-outline" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.dashboards" :items="configSelection" :label="$t('Config.Roles.Config.Dashboards')"></v-select>
               <v-select prepend-icon="mdi-web" :readonly="!canEditConfigRef" v-model="selectedRef.configAccess.languages" :items="configSelection" :label="$t('Config.Roles.Config.Languages')"></v-select>
-            </v-tab-item>
+            </v-window-item>
 
             <!-- channels restrictions -->
-            <v-tab-item>
+            <v-window-item value="channels">
               <v-card class="mb-5 mt-2">
                 <v-card-title class="subtitle-2 font-weight-bold" >
                   <div style="width:90%">{{ $t('Config.Roles.RestrictionsChannels') }}</div>
                   <v-tooltip bottom v-if="canEditChannels">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="editChannels"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon v-bind="props" @click="editChannels"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
                     </template>
                     <span>{{ $t('Edit') }}</span>
                   </v-tooltip>
                 </v-card-title>
-                <v-list dense class="pt-0 pb-0">
-                  <v-list-item v-for="(item, i) in channelAccess" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0">
+                <v-list density="compact" class="pt-0 pb-0">
+                  <v-list-item v-for="(item, i) in channelAccess" :key="i" :value="item.identifier" density="compact" class="pt-0 pb-0">
                     <v-container>
                       <v-row align="center" no-gutters>
                         <v-col cols="6">
@@ -207,26 +202,27 @@
                         </v-col>
                       </v-row>
                     </v-container>
-                  </v-list-item-content></v-list-item>
+                  </v-list-item>
                 </v-list>
               </v-card>
-            </v-tab-item>
+            </v-window-item>
 
             <!-- other restrictions -->
-            <v-tab-item>
+            <v-window-item value="other">
               <div class="ml-4">
-                <v-checkbox v-model="selectedRef.otherAccess.audit" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.Audit')" required></v-checkbox>
-                <v-checkbox v-model="selectedRef.otherAccess.search" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.Search')" required></v-checkbox>
-                <v-checkbox v-model="selectedRef.otherAccess.exportCSV" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.ExportSCV')" required></v-checkbox>
-                <v-checkbox v-model="selectedRef.otherAccess.exportXLS" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.ExportXLS')" required></v-checkbox>
-                <v-checkbox v-model="selectedRef.otherAccess.importXLS" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.ImportXLS')" required></v-checkbox>
-                <v-checkbox v-model="selectedRef.otherAccess.searchRelations" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.SearchRelations')" required></v-checkbox>
-                <v-checkbox v-model="selectedRef.otherAccess.exportRelationsXLS" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.ExportRelationsXLS')" required></v-checkbox>
-                <v-checkbox v-model="selectedRef.otherAccess.importRelationsXLS" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.ImportRelationsXLS')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.audit" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.Audit')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.search" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.Search')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.imports" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.Imports')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.exportCSV" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.ExportSCV')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.exportXLS" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.ExportXLS')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.importXLS" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.ImportXLS')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.searchRelations" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.SearchRelations')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.exportRelationsXLS" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.ExportRelationsXLS')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.importRelationsXLS" :readonly="!canEditConfigRef" density="compact" :label="$t('Config.Roles.Other.ImportRelationsXLS')" required></v-checkbox>
               </div>
-            </v-tab-item>
-          </v-tabs-items>
-
+            </v-window-item>
+          </v-window>
+          </v-card-text>
           <OptionsTable :options="selectedRef.options" @changed="optionsChanged" />
 
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save" :disabled="selectedRef.identifier && selectedRef.identifier === 'admin'">{{ $t('Save') }}</v-btn>
@@ -634,14 +630,14 @@ export default {
       rolesFiltered,
       clearSelection,
       configSelection: [
-        { text: t('Config.Roles.Select.Config1'), value: 0 },
-        { text: t('Config.Roles.Select.Config2'), value: 1 },
-        { text: t('Config.Roles.Select.Config3'), value: 2 }
+        { title: t('Config.Roles.Select.Config1'), value: 0 },
+        { title: t('Config.Roles.Select.Config2'), value: 1 },
+        { title: t('Config.Roles.Select.Config3'), value: 2 }
       ],
       accessSelection: [
-        { text: t('Config.Roles.Select.Config1'), value: 0 },
-        { text: t('Config.Roles.Select.Config2'), value: 1 },
-        { text: t('Config.Roles.Select.Config3'), value: 2 }
+        { title: t('Config.Roles.Select.Config1'), value: 0 },
+        { title: t('Config.Roles.Select.Config2'), value: 1 },
+        { title: t('Config.Roles.Select.Config3'), value: 2 }
       ],
       identifierRules: [
         v => identifierValidation(v)
