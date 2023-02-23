@@ -148,42 +148,6 @@ export default {
       drawerRight.value = val
     }
 
-    async function finishedOptionsUpdate (options) {
-      finishedLoadingRef.value = true
-      const data = await loadFinishedProcesses(options)
-      finishedProcesses.value = data
-      finishedLoadingRef.value = false
-    }
-
-    function showLog (log) {
-      logRef.value = log
-      logDialogRef.value = true
-    }
-
-    const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
-    const token = localStorage.getItem('token')
-    let lastProcess
-    async function checkFinishedProcesses () {
-      const data = await loadFinishedProcesses({ page: 1, itemsPerPage: 1, sortBy: ['id'], sortDesc: [true] })
-      if (data.count > 0) {
-        if (lastProcess === undefined) {
-          lastProcess = data.rows[0]
-        } else if (lastProcess === null || lastProcess.id !== data.rows[0].id) {
-          // new finished process found
-          lastProcess = data.rows[0]
-          const msg = lastProcess.storagePath
-            ? i18n.t('Process.Finished2', { name: lastProcess.title, href: damUrl + 'asset-process/' + lastProcess.id + '?token=' + token, file: lastProcess.fileName || 'file.bin' })
-            : i18n.t('Process.Finished1', { name: lastProcess.title })
-          showInfo(msg)
-          activeOptionsUpdate(activeOptionsRef.value)
-          finishedOptionsUpdate(finishedOptionsRef.value)
-        }
-      } else if (lastProcess === undefined) {
-        lastProcess = null
-      }
-    }
-
-    let timer
     onMounted(() => {
       loadAllRoles().then(() => {
         loadAllDashboards().then(() => {

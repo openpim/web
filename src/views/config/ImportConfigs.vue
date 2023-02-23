@@ -185,7 +185,7 @@ export default {
         id: Date.now(),
         language: currentLanguage.value.identifier,
         internalId: 0,
-        name: name,
+        name,
         type: 2,
         mappings: [],
         beforeUpdateAction: generateEmptyActionObject(null, 3),
