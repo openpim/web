@@ -2,25 +2,25 @@
   <v-container v-if="canViewConfigRef" style="background-color:white">
     <v-row no-gutters>
       <v-col cols="4">
-        <v-toolbar dense flat>
+        <v-toolbar density="compact" flat>
           <v-toolbar-title>{{ $t('Config.Languages.Languages') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+            <template v-slot:activator="{ props }">
+              <v-btn icon v-bind="props" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
-        <v-list nav dense>
-          <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, i) in languages" :key="i">
-              <v-list-item-icon><v-icon>mdi-web</v-icon></v-list-item-icon>
-              <v-list-item-content>
+        <v-list nav density="compact" color="primary" @click:select="onSelectLanguage">
+<!--          <v-list-item-group v-model="itemRef" color="primary">-->
+            <v-list-item v-for="(item, i) in languages" :key="i" :value="i">
+              <template v-slot:prepend>
+                <v-icon>mdi-web</v-icon>
+              </template>
                 <v-list-item-title >{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
-              </v-list-item-content>
             </v-list-item>
-          </v-list-item-group>
+<!--          </v-list-item-group>-->
         </v-list>
       </v-col>
       <v-col cols="8">
@@ -75,6 +75,10 @@ export default {
     const formRef = ref(null)
     const selectedRef = ref(empty)
     const itemRef = ref(null)
+
+    const onSelectLanguage = (options) => {
+      itemRef.value = options.id
+    }
 
     watch(itemRef, (selected, previous) => {
       if (selected == null) {
@@ -150,7 +154,8 @@ export default {
       ],
       nameRules: [
         v => !!v || t('Config.Languages.Error.NameRequired')
-      ]
+      ],
+      onSelectLanguage
     }
   }
 }
