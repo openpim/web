@@ -31,7 +31,7 @@
                   </v-col>
                 </v-row>
 
-                <v-row no-gutters v-if="filter.attr !== '#level#'">
+                <v-row no-gutters v-if="filter.attr !== '#level#' && filter.attr !== 'collectionId'">
                   <v-col cols="12">
                     <v-select dense v-model="filter.operation" :items="operationSelection" :label="$t('Search.Filter.Attribute.Operation')"></v-select>
                   </v-col>
@@ -41,11 +41,14 @@
                     <template v-if="filter.attr === '#level#'">
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
-                    <v-select v-if="filter.attr && filter.attr !== '#level#' && lovsMapRef[filter.attr]" dense v-model="filter.value" :items="getLovItems(filter)" :label="$t('Search.Filter.Attribute.Value')"></v-select>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <template v-if="filter.attr === 'collectionId'">
+                      <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="collSelectionDialogRef.showDialog(false, filter)"></v-text-field>
+                    </template>
+                    <v-select v-if="filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && lovsMapRef[filter.attr]" dense v-model="filter.value" :items="getLovItems(filter)" :label="$t('Search.Filter.Attribute.Value')"></v-select>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
                     <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)"></v-text-field>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && getDateType(filter) && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)"></v-text-field>
-                    <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && getDateType(filter) && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)"></v-text-field>
+                    <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
 
@@ -72,6 +75,7 @@
   <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
   <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
   <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
+  <CollectionsSelectionDialog ref="collSelectionDialogRef" :editAccessOnly="true" @selected="collectionSelected"/>
   <DatePickerDialog ref="datePickerDialogRef" @selected="datePicker"/>
   <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="false" @selected="typesSelected"/>
   </v-row>
@@ -91,13 +95,14 @@ import * as channelsStore from '../store/channels'
 import SearchSaveDialog from '../components/SearchSaveDialog'
 import SearchLoadDialog from '../components/SearchLoadDialog'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
+import CollectionsSelectionDialog from '../components/CollectionsSelectionDialog'
 import TypeSelectionDialog from '../components/TypeSelectionDialog'
 import DatePickerDialog from '../components/DatePickerDialog'
 import AttributeType from '../constants/attributeTypes'
 import router from '../router'
 
 export default {
-  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, TypeSelectionDialog, DatePickerDialog },
+  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, CollectionsSelectionDialog, TypeSelectionDialog, DatePickerDialog },
   setup (props, context) {
     const { showError } = errorStore.useStore()
 
@@ -144,6 +149,7 @@ export default {
     const { loadAllChannels, getAvailableChannels } = channelsStore.useStore()
 
     const itemSelectionDialogRef = ref(null)
+    const collSelectionDialogRef = ref(null)
     const typeSelectionDialogRef = ref(null)
     const searchSaveDialogRef = ref(null)
     const searchLoadDialogRef = ref(null)
@@ -320,8 +326,36 @@ export default {
         })
         searchEntityRef.value = 'ITEM'
         selectedRef.value.entity = searchEntityRef.value
-        currentWhereRef.value = where
+        if (searchForKey(where, 'collectionId')) {
+          const newWhere = {}
+          if (where.OP_and) {
+            where.OP_and.forEach((value) => {
+              newWhere[Object.keys(value)] = value[Object.keys(value)]
+            })
+          } else {
+            where.OP_or.forEach((value) => {
+              newWhere[Object.keys(value)] = value[Object.keys(value)]
+            })
+          }
+          currentWhereRef.value = newWhere
+        } else {
+          currentWhereRef.value = where
+        }
       }
+    }
+
+    function searchForKey (obj, key) {
+      for (const prop in obj) {
+        if (prop === key) {
+          return true
+        } else if (typeof obj[prop] === 'object') {
+          const searchResult = searchForKey(obj[prop], key)
+          if (searchResult) {
+            return true
+          }
+        }
+      }
+      return false
     }
 
     function parseValue (attrObj, attr, value, filter) {
@@ -373,12 +407,20 @@ export default {
     } */
 
     function itemSelected (id, filter) {
+      console.log(id, filter)
       itemSelectionDialogRef.value.closeDialog()
       loadItemsByIds([id], false).then(items => {
         const item = items[0]
         filter.value = item.name[currentLanguage.value.identifier] || '[' + item.name[defaultLanguageIdentifier.value] + ']'
         filter.path = item.path
       })
+    }
+
+    function collectionSelected (collection, filter) {
+      console.log(collection, filter)
+      collSelectionDialogRef.value.closeDialog()
+      filter.value = collection.id
+      filter.path = collection.id
     }
 
     function typesSelected (id, filter) {
@@ -429,6 +471,7 @@ export default {
           { value: 'parentIdentifier', text: i18n.t('Item.parentIdentifier') },
           { value: 'typeIdentifier', text: i18n.t('Item.typeIdentifier') },
           { value: '#level#', text: i18n.t('Item.level') },
+          { value: 'collectionId', text: i18n.t('Collections.Collection') },
           { value: 'createdBy', text: i18n.t('CreatedBy') },
           { value: 'createdAt', text: i18n.t('CreatedAt'), type: 'datetime' },
           { value: 'updatedBy', text: i18n.t('UpdatedBy') },
@@ -532,8 +575,11 @@ export default {
       selectedFilterRef,
       searchSelected,
       itemSelectionDialogRef,
+      collSelectionDialogRef,
       datePickerDialogRef,
       itemSelected,
+      collectionSelected,
+      searchForKey,
       add,
       remove,
       save,

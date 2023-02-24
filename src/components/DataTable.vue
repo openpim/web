@@ -52,13 +52,31 @@
         </template>
         <span>{{ $t('DataTable.SaveColumns') }}</span>
       </v-tooltip>
-      <v-tooltip top v-if="hasChannelsRef && sendToChannelBtnVisible">
+      <v-tooltip top v-if="!hasChannelsRef">
         <template v-slot:activator="{ on }">
-          <v-btn v-on="on" icon @click="chanSelectionDialogRef.showDialog()"><v-icon>mdi-access-point-plus</v-icon></v-btn>
+          <v-btn v-on="on" icon @click="collSelectionDialogRef.showDialog()"><v-icon>mdi-access-point-plus</v-icon></v-btn>
         </template>
-        <span>{{ $t('Submit') }}</span>
+        <span>{{ $t('Item.toCollection') }}</span>
       </v-tooltip>
-
+      <template v-if="hasChannelsRef">
+        <v-menu offset-y>
+          <template v-slot:activator="{ on }"><v-btn v-on="on" icon><v-icon>mdi-access-point-plus</v-icon></v-btn></template>
+          <v-list>
+            <v-list-item >
+              <v-btn class="pl-1 pr-1" text @click="chanSelectionDialogRef.showDialog()" v-text="$t('Item.toChannel')"></v-btn>
+            </v-list-item>
+            <v-list-item>
+              <v-btn class="pl-1 pr-1" text @click="collSelectionDialogRef.showDialog()" v-text="$t('Item.toCollection')"></v-btn>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </template>
+      <v-tooltip top>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" icon @click="collSelectionDialogRef.showDialog(true)"><v-icon>mdi-access-point-minus</v-icon></v-btn>
+        </template>
+        <span>{{ $t('Collections.DeleteFromCollection') }}</span>
+      </v-tooltip>
       <template v-if="headersStorageName === 'item_headers' && buttonActions && buttonActions.length > 0">
         <v-menu offset-y>
           <template v-slot:activator="{ on }"><v-btn icon v-on="on"><v-icon>mdi-gesture-tap-button</v-icon></v-btn></template>
@@ -69,6 +87,12 @@
             </v-list>
         </v-menu>
       </template>
+      <v-tooltip top v-if="selectedRef.length !== 0">
+        <template v-slot:activator="{ on }">
+          <v-btn :disabled="!disabledButtonRef" v-on="on" icon @click="deleteFromCollection(selectedRef)"><v-icon>mdi-trash-can</v-icon></v-btn>
+        </template>
+        <span>{{ $t('Collections.DeleteFromCollection') }}</span>
+      </v-tooltip>
       <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData"></AfterButtonsComponent>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
@@ -77,10 +101,13 @@
       :loading="loadingRef"
       :headers="headersRef"
       :items="itemsRef"
+      :index="itemsRef.length"
       :height="'calc(100vh - '+ (parseInt(marginTop) + 220) +'px)'"
       hide-default-footer
       hide-default-header
+      item-key="identifier"
       class="elevation-1">
+
     <template v-slot:header="{ props }">
       <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
         <th v-for="header in props.headers" :key="header.identifier" class="dataTableHeader">
@@ -110,7 +137,7 @@
             </v-row>
           </v-container>
     </template>
-    <template v-slot:item="{ item, headers }">
+    <template v-slot:item="{ item, headers, index }">
       <tr @mouseup="divMouseUp" @mousemove="divMouseMove" class="zebra">
         <td v-for="(header, i) in headers" :key="i" @click="cellClicked(item, header)" class="truncate p-1">
 
@@ -129,12 +156,16 @@
 
           <v-img v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="50" max-height="50"></v-img>
 
-          <template v-if="!header.identifier.startsWith('#channel_') && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' && header.identifier != 'itemIdentifier' && header.identifier != 'targetIdentifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
+          <template v-if="header.value === '#select#' && selectedRef.length !== 0">
+            <v-checkbox v-model="selectedRef[index].select"></v-checkbox>
+          </template>
+
+          <template v-if="typeof (header.identifier) !== 'undefined' && !header.identifier.startsWith('#channel_') && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' && header.identifier != 'itemIdentifier' && header.identifier != 'targetIdentifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
             <span v-else>{{ getValue(item, header) }}</span>
           </template>
 
-          <template v-if="header.identifier.startsWith('#channel_')">
+          <template v-if="typeof (header.identifier) !== 'undefined' && header.identifier.startsWith('#channel_')">
             <template v-if="!getValue(item, header)"></template>
             <template v-else>
               <template v-if="getValue(item, header) === 1"><v-chip class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip></template>
@@ -149,7 +180,7 @@
             </template>
           </template>
 
-          <template v-if="!header.identifier.startsWith('#channel_') && inplaceItem && item.identifier === inplaceItem.identifier && header.identifier === inplaceHeader.identifier">
+          <template v-if="typeof (header.identifier) !== 'undefined' && !header.identifier.startsWith('#channel_') && inplaceItem && item.identifier === inplaceItem.identifier && header.identifier === inplaceHeader.identifier">
             <!-- Text, Integer, Float, URL-->
             <v-textarea v-if="!inplaceAttribute || inplaceAttribute.type===AttributeType.Text" @blur="inplaceBlur" auto-grow no-resize autofocus dense v-model="inplaceValue" required></v-textarea>
             <v-text-field v-if="inplaceAttribute && (inplaceAttribute.type===AttributeType.Integer || inplaceAttribute.type===AttributeType.Float || inplaceAttribute.type===AttributeType.URL)"
@@ -180,6 +211,7 @@
   </v-data-table>
   <ColumnsSelectionDialog ref="columnsSelectionDialogRef" @selected="columnsSelected" :getColumns="getAvailableColumns" />
   <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
+  <CollectionsSelectionDialog ref="collSelectionDialogRef" :editAccessOnly="true" @selected="collectionsSelected" @delete="deleteFromCollections"/>
   <ColumnsSaveDialog ref="columnsSaveDialogRef" @changed="loadColumns(true)"/>
   <AttrGroupsSelectionDialog ref="attrSelectionDialogRef" :multiselect="true" @selected="attrGroupsSelected"/>
   <ActionStatusDialog ref="buttonActionStatusDialog" />
@@ -282,6 +314,7 @@ import * as userStore from '../store/users'
 import * as searchStore from '../store/search'
 import * as attrStore from '../store/attributes'
 import * as channelsStore from '../store/channels'
+import * as collectionsStore from '../store/collections'
 import * as typesStore from '../store/types'
 import * as actionsStore from '../store/actions'
 import i18n from '../i18n'
@@ -289,17 +322,19 @@ import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 import ColumnsSaveDialog from './ColumnsSaveDialog'
 import ChannelsSelectionDialog from './ChannelsSelectionDialog'
+import CollectionsSelectionDialog from '../components/CollectionsSelectionDialog'
 import AttrGroupsSelectionDialog from './AttrGroupsSelectionDialog'
 import ActionStatusDialog from '../components/ActionStatusDialog'
 import AttributeType from '../constants/attributeTypes'
 import XLSX from 'xlsx'
 import dateFormat from 'dateformat'
 import router from '../router'
+import { useRouter } from '../router/useRouter'
 
 import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterButtonsComponent'
 
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent, ActionStatusDialog },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent, ActionStatusDialog, CollectionsSelectionDialog },
   props: {
     loadData: {
       required: true
@@ -348,6 +383,10 @@ export default {
     marginTop: {
       required: false,
       default: 100
+    },
+    select: {
+      required: false,
+      default: false
     }
   },
   setup (props, { emit, root }) {
@@ -360,6 +399,10 @@ export default {
     const { groups, findByIdentifier, getAttributesForItem } = attrStore.useStore()
 
     const { loadAllChannels, getAvailableChannels, submitItem } = channelsStore.useStore()
+
+    const { submitItemToCollection, removeFromCollection } = collectionsStore.useStore()
+
+    const { route } = useRouter()
 
     const {
       loadAllActions,
@@ -400,12 +443,14 @@ export default {
     const loadingRef = ref(false)
 
     const headersRef = ref([])
+    const selectedRef = ref([])
 
     const thumbnailsRef = ref([])
     const lovsMap = {}
     const savedColumnsSelectionRef = ref(null)
     const savedColumnsOptionsRef = ref([])
     const chanSelectionDialogRef = ref(null)
+    const collSelectionDialogRef = ref(null)
     const hasChannelsRef = ref([])
 
     // dor inplace editing
@@ -1097,6 +1142,97 @@ export default {
       showInfo(i18n.t('Submitted'))
     }
 
+    async function collectionsSelected (colId) {
+      collSelectionDialogRef.value.closeDialog()
+      const itemsPerPage = 1000
+      let total = -1
+      let page = 0
+
+      do {
+        page++
+        let data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+        if (total === -1) total = data.count
+        if (page !== 1 && data.rows.length === 0) {
+          // if we are iterating through channel status itself (for example the query is select all items that has status OK)
+          // them when we set status we are changing the result of query, so we can not iterate through pages, we need to always ask for 1 page until data will not be finished
+          // so try to load first page in this case
+          data = await props.loadData({ page: 1, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+        }
+        const mas = []
+        data.rows.forEach(row => {
+          mas.push(row.id)
+        })
+        submitItemToCollection(mas, colId)
+      } while (page * itemsPerPage < total)
+
+      excelDialogRef.value = false
+      showInfo(i18n.t('Submit'))
+    }
+
+    async function deleteFromCollections (colId) {
+      collSelectionDialogRef.value.closeDialog()
+      const itemsPerPage = 1000
+      let total = -1
+      let page = 0
+
+      do {
+        page++
+        let data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+        if (total === -1) total = data.count
+        if (page !== 1 && data.rows.length === 0) {
+          // if we are iterating through channel status itself (for example the query is select all items that has status OK)
+          // them when we set status we are changing the result of query, so we can not iterate through pages, we need to always ask for 1 page until data will not be finished
+          // so try to load first page in this case
+          data = await props.loadData({ page: 1, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+        }
+        const selectedItems = []
+        data.rows.forEach(item => {
+          selectedItems.push(item.id)
+        })
+        removeFromCollection(selectedItems, colId)
+      } while (page * itemsPerPage < total)
+
+      showInfo(i18n.t('Collections.Deleted'))
+    }
+
+    watch(() => itemsRef.value, (newValue, prevValue) => {
+      const arr = newValue
+      if (!props.select) {
+        selectedRef.value = []
+        return
+      }
+      const arr_ = []
+      arr.forEach(item => {
+        arr_.push({ id: item.id, select: false })
+      })
+      selectedRef.value = arr_
+    })
+
+    const disabledButtonRef = ref(false)
+
+    watch(() => selectedRef.value, (newValue, prevValue) => {
+      if (newValue.length === 0) return
+      disabledButtonRef.value = false
+      newValue.forEach((value) => {
+        if (value.select) disabledButtonRef.value = true
+      })
+    }, { deep: true })
+
+    function deleteFromCollection (arr) {
+      const selectedItems = []
+      arr.forEach(item => {
+        if (item.select) selectedItems.push(item.id)
+      })
+      const itemsRefDelete = []
+      removeFromCollection(selectedItems, route.value.params.id)
+      for (let i = 0; i < itemsRef.value.length; i++) {
+        const result = selectedItems.find(value => value === itemsRef.value[i].id)
+        if (result) itemsRefDelete.push(itemsRef.value.findIndex(obj => obj.id === result))
+      }
+      itemsRefDelete.forEach(index => itemsRef.value.splice(index, 1))
+      showInfo(i18n.t('Collections.Deleted'))
+    }
+
     function openSearch () {
       const name = props.item.name[currentLanguage.value.identifier] || '[' + props.item.name.name[defaultLanguageIdentifier.value] + ']'
       const search = { user: '', filters: [{ type: 'attr', attr: '#level#', operation: 1, value: name, path: props.item.path }], whereClause: {}, extended: false }
@@ -1188,6 +1324,7 @@ export default {
           return header
         })
         if (changed) localStorage.setItem(props.headersStorageName, JSON.stringify(tst))
+        if (props.select) tst.unshift({ align: 'start', filterable: false, identifier: '#select#', sortable: false, text: 'Выбор', value: '#select#' })
         headersRef.value = tst
       }
       const tst2 = localStorage.getItem('savedColumnsSelection')
@@ -1408,6 +1545,12 @@ export default {
       hasChannelsRef,
       chanSelectionDialogRef,
       channelsSelected,
+      collSelectionDialogRef,
+      collectionsSelected,
+      deleteFromCollection,
+      selectedRef,
+      deleteFromCollections,
+      disabledButtonRef,
       openSearch,
       attrSelectionDialogRef,
       attrGroupsSelected,
