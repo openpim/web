@@ -123,7 +123,7 @@
             <AfterButtonsComponent :item="itemRef"></AfterButtonsComponent>
             <v-spacer></v-spacer>
             <template v-if="sourceRelationSearch.length + targetRelationSearch.length === 1">
-              <v-btn v-if="sourceRelationSearch.length === 1" text @click="performRelationSearch(sourceRelationSearch[0].identifier, 'target')" v-text="getRelationSearchName(sourceRelationSearch[0]) || sourceRelationSearch[0].name[currentLanguage.identifier] || '[' + sourceRelationSearch[0].name[defaultLanguageIdentifier] + ']'"></v-btn>
+              <v-btn v-if="sourceRelationSearch.length === 1" text @click="performRelationSearch(sourceRelationSearch[0].identifier, 'source')" v-text="getRelationSearchName(sourceRelationSearch[0]) || sourceRelationSearch[0].name[currentLanguage.identifier] || '[' + sourceRelationSearch[0].name[defaultLanguageIdentifier] + ']'"></v-btn>
               <v-btn v-else text @click="performRelationSearch(targetRelationSearch[0].identifier, 'target')" v-text="getRelationSearchName(targetRelationSearch[0]) || targetRelationSearch[0].name[currentLanguage.identifier] || '[' + targetRelationSearch[0].name[defaultLanguageIdentifier] + ']'"></v-btn>
             </template>
             <template v-if="sourceRelationSearch.length + targetRelationSearch.length > 1">
