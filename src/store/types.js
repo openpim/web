@@ -5,6 +5,16 @@ import { currentLanguage } from './languages'
 
 const typesTree = reactive([])
 
+function findLinks (typeId, children, arr) {
+  for (var i = 0; i < children.length; i++) {
+    const item = children[i]
+    if (item.link === typeId) arr.push(item)
+    if (item.children && item.children.length > 0) {
+      findLinks(typeId, item.children, arr)
+    }
+  }
+}
+
 const actions = {
   loadAllTypes: async () => {
     if (typesTree.length > 0) return
@@ -64,6 +74,11 @@ const actions = {
     const path = []
     const node = findNodeByComparator(identifier, typesTree, path, (identifier, item) => item.identifier === identifier)
     return { node, path }
+  },
+  findAllLinkTypes: (typeId) => {
+    const arr = []
+    findLinks(typeId, typesTree, arr)
+    return arr
   },
   addType: (parentId) => {
     const name = {}
