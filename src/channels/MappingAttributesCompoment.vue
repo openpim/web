@@ -246,7 +246,6 @@ export default {
       if (attrMapping.expr && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
 
       const chanAttr = props.channelAttributes[i]
-      debugger
 
       const pimAttr = findByIdentifier(attrMapping.attrIdent)
       if (attrMapping.attrIdent && !attrMapping.expr && pimAttr) {
