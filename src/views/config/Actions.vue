@@ -1,20 +1,20 @@
 <template>
-  <v-container v-if="canViewConfigRef">
+  <v-container v-if="canViewConfigRef" style="background-color:white">
     <v-row no-gutters>
       <v-col cols="3">
         <v-toolbar density="compact" flat>
           <v-toolbar-title>{{ $t('Config.Actions.Title') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+            <template v-slot:activator="{ props }">
+              <v-btn icon v-bind="props" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
         <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-list nav density="compact" color="primary" v-model="itemRef">
-            <v-list-item v-for="(item, i) in actionsFiltered" :key="i">
+        <v-list nav density="compact" color="primary" v-model="itemRef" @click:select="onSelectAction">
+            <v-list-item v-for="(item, i) in actionsFiltered" :key="i" :value="i">
               <template v-slot:prepend>
                 <v-icon>mdi-file-code-outline</v-icon>
               </template>
@@ -34,26 +34,27 @@
         </v-form>
 
         <v-tabs v-model="tabRef">
-          <v-tab>{{$t('Config.Actions.Tab.Code')}}</v-tab>
-          <v-tab>{{$t('Config.Actions.Tab.Triggers')}}</v-tab>
+          <v-tab value="code">{{$t('Config.Actions.Tab.Code')}}</v-tab>
+          <v-tab value="triggers">{{$t('Config.Actions.Tab.Triggers')}}</v-tab>
         </v-tabs>
-        <v-tabs-items v-model="tabRef">
-          <v-tab-item> <!-- Code -->
+        <v-card-text>
+        <v-window v-model="tabRef">
+          <v-window-item value="code"> <!-- Code -->
             <v-textarea class="ml-3 mr-3" v-model="selectedRef.code" :label="$t('Config.Actions.Code')"></v-textarea>
-          </v-tab-item>
-          <v-tab-item> <!-- Triggers -->
+          </v-window-item>
+          <v-window-item value="triggers"> <!-- Triggers -->
             <v-toolbar density="compact" flat>
               <v-toolbar-title class="subtitle-2">{{ $t('Config.Actions.Triggers.Title') }}</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-tooltip bottom v-if="canEditConfigRef">
-                <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" @click="addTrigger"><v-icon>mdi-plus</v-icon></v-btn>
+                <template v-slot:activator="{ props }">
+                  <v-btn icon v-bind="props" @click="addTrigger"><v-icon>mdi-plus</v-icon></v-btn>
                 </template>
                 <span>{{ $t('Add') }}</span>
               </v-tooltip>
               <v-tooltip bottom v-if="canEditConfigRef">
-                <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" @click="removeTrigger"><v-icon>mdi-minus</v-icon></v-btn>
+                <template v-slot:activator="{ props }">
+                  <v-btn icon v-bind="props" @click="removeTrigger"><v-icon>mdi-minus</v-icon></v-btn>
                 </template>
                 <span>{{ $t('Remove') }}</span>
               </v-tooltip>
@@ -109,8 +110,9 @@
                     </v-list-item-title>
                 </v-list-item>
             </v-list>
-          </v-tab-item>
-        </v-tabs-items>
+          </v-window-item>
+        </v-window>
+        </v-card-text>
 
         <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
         <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
@@ -285,6 +287,10 @@ export default {
       return itemsRef.value.find(elem => elem.id === id)
     }
 
+    const onSelectAction = (options) => {
+      itemRef.value = options.id
+    }
+
     watch(itemRef, (selected, previous) => {
       if (selected == null) {
         selectedRef.value = empty
@@ -453,7 +459,8 @@ export default {
       ],
       nameRules: [
         v => !!v || t('Config.Actions.Error.NameRequired')
-      ]
+      ],
+      onSelectAction
     }
   }
 }

@@ -1,26 +1,24 @@
 <template>
-  <v-container v-if="canViewConfigRef">
+  <v-container v-if="canViewConfigRef" style="background-color:white">
     <v-row no-gutters>
       <v-col cols="12">
-        <v-toolbar dense flat>
+        <v-toolbar density="compact" flat>
           <v-toolbar-title>{{ $t('Config.Dashboards.Title') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+            <template v-slot:activator="{ props }">
+              <v-btn icon v-bind="props" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
-        <v-list nav dense style="max-height: 150px" class="overflow-y-auto">
-          <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, i) in dashboards" :key="i">
-              <v-list-item-icon><v-icon>mdi-view-dashboard-outline</v-icon></v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
-              </v-list-item-content>
+        <v-list nav density="compact" style="max-height: 150px" class="overflow-y-auto" color="primary" @click:select="onSelectDashboard">
+            <v-list-item v-for="(item, i) in dashboards" :key="i" :value="i">
+              <template v-slot:prepend>
+                <v-icon>mdi-view-dashboard-outline</v-icon>
+              </template>
+              <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
             </v-list-item>
-          </v-list-item-group>
         </v-list>
       </v-col>
       <v-col cols="12">
@@ -37,30 +35,28 @@
           <v-container>
             <v-row no-gutters>
               <v-col cols="3">
-                <v-toolbar dense flat>
+                <v-toolbar density="compact" flat>
                   <v-toolbar-title class="subtitle-2">{{ $t('Config.Dashboards.Components') }}</v-toolbar-title>
                   <v-spacer></v-spacer>
                   <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" @click="addComponent"><v-icon>mdi-plus</v-icon></v-btn>
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon v-bind="props" @click="addComponent"><v-icon>mdi-plus</v-icon></v-btn>
                     </template>
                     <span>{{ $t('Add') }}</span>
                   </v-tooltip>
                   <v-tooltip bottom v-if="canEditConfigRef">
-                    <template v-slot:activator="{ on }">
-                      <v-btn icon v-on="on" :disabled="componentRef == null" @click="removeComponent"><v-icon>mdi-minus</v-icon></v-btn>
+                    <template v-slot:activator="{ props }">
+                      <v-btn icon v-bind="props" :disabled="componentRef == null" @click="removeComponent"><v-icon>mdi-minus</v-icon></v-btn>
                     </template>
                     <span>{{ $t('Remove') }}</span>
                   </v-tooltip>
                 </v-toolbar>
-                <v-list nav dense>
-                  <v-list-item-group v-model="componentRef" color="primary">
-                    <v-list-item v-for="(component, i) in selectedRef.components" :key="i">
-                      <v-list-item-content>
+                <v-list nav density="compact" color="primary" @click:select="onSelectComponent">
+<!--                  <v-list-item-group v-model="componentRef" color="primary">-->
+                    <v-list-item v-for="(component, i) in selectedRef.components" :key="i" :value="i">
                         <v-list-item-title>{{component.title}}</v-list-item-title>
-                      </v-list-item-content>
                     </v-list-item>
-                  </v-list-item-group>
+<!--                  </v-list-item-group>-->
                 </v-list>
               </v-col>
               <v-col cols="9" v-if="selectedRef.components[componentRef]">
@@ -76,30 +72,28 @@
                   <v-textarea v-if="selectedRef.components[componentRef].type === 1" v-model="selectedRef.components[componentRef].groupWhere" :label="$t('Config.Dashboards.Components.Where')" rows="3"></v-textarea>
 
                   <template v-if="selectedRef.components[componentRef].type === 2">
-                    <v-toolbar dense flat>
+                    <v-toolbar density="compact" flat>
                       <v-toolbar-title class="subtitle-2">{{ $t('Config.Dashboards.Components.Queries') }}</v-toolbar-title>
                       <v-spacer></v-spacer>
                       <v-tooltip bottom v-if="canEditConfigRef">
-                        <template v-slot:activator="{ on }">
-                          <v-btn icon v-on="on" @click="addQuery"><v-icon>mdi-plus</v-icon></v-btn>
+                        <template v-slot:activator="{ props }">
+                          <v-btn icon v-bind="props" @click="addQuery"><v-icon>mdi-plus</v-icon></v-btn>
                         </template>
                         <span>{{ $t('Add') }}</span>
                       </v-tooltip>
                       <v-tooltip bottom v-if="canEditConfigRef">
-                        <template v-slot:activator="{ on }">
-                          <v-btn icon v-on="on" :disabled="queryRef == null" @click="removeQuery"><v-icon>mdi-minus</v-icon></v-btn>
+                        <template v-slot:activator="{ props }">
+                          <v-btn icon v-bind="props" :disabled="queryRef == null" @click="removeQuery"><v-icon>mdi-minus</v-icon></v-btn>
                         </template>
                         <span>{{ $t('Remove') }}</span>
                       </v-tooltip>
                     </v-toolbar>
-                    <v-list nav dense>
-                      <v-list-item v-model="queryRef" color="primary">
-                        <v-list-item v-for="(query, i) in selectedRef.components[componentRef].queries" :key="i">
-                          <v-list-item-content>
-                            <v-list-item-title>{{(i+1) + ': ' + query.label}}</v-list-item-title>
-                          </v-list-item-content>
+                    <v-list nav density="compact" color="primary" @click:select="onSelectQuery">
+<!--                      <v-list-item v-model="queryRef">-->
+                        <v-list-item v-for="(query, i) in selectedRef.components[componentRef].queries" :key="i" :value="i">
+                              <v-list-item-title>{{(i+1) + ': ' + query.label}}</v-list-item-title>
                         </v-list-item>
-                      </v-list-item>
+<!--                      </v-list-item>-->
                     </v-list>
                     <template v-if="queryRef != null">
                       <v-text-field v-model="selectedRef.components[componentRef].queries[queryRef].label" :label="$t('Config.Dashboards.Components.Label')" required></v-text-field>
@@ -191,6 +185,18 @@ export default {
       }
     })
 
+    const onSelectDashboard = (options) => {
+      itemRef.value = options.id
+    }
+
+    const onSelectComponent = (option) => {
+      componentRef.value = option.id
+    }
+
+    const onSelectQuery = (option) => {
+      queryRef.value = option.id
+    }
+
     function add () {
       selectedRef.value = addDashboard()
       itemRef.value = dashboards.length - 1
@@ -271,20 +277,20 @@ export default {
 
     function loadAvailableAttributes () {
       const arr = [
-        { value: 'id', text: t('Item.id') },
-        { value: 'identifier', text: t('Item.identifier') },
-        { value: 'typeIdentifier', text: t('Item.typeIdentifier') },
-        { value: 'createdBy', text: t('CreatedBy') },
-        { value: 'createdAt', text: t('CreatedAt') },
-        { value: 'updatedBy', text: t('UpdatedBy') },
-        { value: 'updatedAt', text: t('UpdatedAt') },
-        { value: 'fileOrigName', text: t('Item.fileOrigName') },
-        { value: 'mimeType', text: t('Item.mimeType') }
+        { value: 'id', title: t('Item.id') },
+        { value: 'identifier', title: t('Item.identifier') },
+        { value: 'typeIdentifier', title: t('Item.typeIdentifier') },
+        { value: 'createdBy', title: t('CreatedBy') },
+        { value: 'createdAt', title: t('CreatedAt') },
+        { value: 'updatedBy', title: t('UpdatedBy') },
+        { value: 'updatedAt', title: t('UpdatedAt') },
+        { value: 'fileOrigName', title: t('Item.fileOrigName') },
+        { value: 'mimeType', title: t('Item.mimeType') }
       ]
       for (let i = 0; i < languages.length; i++) {
         const lang = languages[i]
         const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-        arr.push({ value: 'name#' + lang.identifier, text: t('Item.name') + langText })
+        arr.push({ value: 'name#' + lang.identifier, title: t('Item.name') + langText })
       }
       const attrs = getAllItemsAttributes2(false)
       for (let i = 0; i < attrs.length; i++) {
@@ -294,10 +300,10 @@ export default {
           for (let i = 0; i < languages.length; i++) {
             const lang = languages[i]
             const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-            arr.push({ value: 'attr#' + attr.identifier + '#' + lang.identifier, text: attr.identifier + ' - ' + nameText + langText })
+            arr.push({ value: 'attr#' + attr.identifier + '#' + lang.identifier, title: attr.identifier + ' - ' + nameText + langText })
           }
         } else {
-          arr.push({ value: 'attr#' + attr.identifier, text: attr.identifier + ' - ' + nameText })
+          arr.push({ value: 'attr#' + attr.identifier, title: attr.identifier + ' - ' + nameText })
         }
       }
 
@@ -346,16 +352,19 @@ export default {
         v => !!v || t('Config.Dashboards.Error.NameRequired')
       ],
       typeSelection: [
-        { text: t('Config.Dashboards.Components.Type.Group'), value: 1 },
-        { text: t('Config.Dashboards.Components.Type.List'), value: 2 },
-        { text: t('Config.Dashboards.Components.Type.IFrame'), value: 3 }
+        { title: t('Config.Dashboards.Components.Type.Group'), value: 1 },
+        { title: t('Config.Dashboards.Components.Type.List'), value: 2 },
+        { title: t('Config.Dashboards.Components.Type.IFrame'), value: 3 }
       ],
       chartSelection: [
-        { text: t('Config.Dashboards.Components.Chart.Bar'), value: 1 },
-        { text: t('Config.Dashboards.Components.Chart.HorizontalBar'), value: 2 },
-        { text: t('Config.Dashboards.Components.Chart.Doughnut'), value: 3 },
-        { text: t('Config.Dashboards.Components.Chart.Pie'), value: 4 }
-      ]
+        { title: t('Config.Dashboards.Components.Chart.Bar'), value: 1 },
+        { title: t('Config.Dashboards.Components.Chart.HorizontalBar'), value: 2 },
+        { title: t('Config.Dashboards.Components.Chart.Doughnut'), value: 3 },
+        { title: t('Config.Dashboards.Components.Chart.Pie'), value: 4 }
+      ],
+      onSelectDashboard,
+      onSelectComponent,
+      onSelectQuery
     }
   }
 }

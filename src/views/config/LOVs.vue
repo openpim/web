@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="canViewConfigRef">
+  <v-container v-if="canViewConfigRef" style="background-color:white">
     <v-row no-gutters>
       <v-col cols="3">
         <v-toolbar density="compact" flat>
@@ -13,8 +13,8 @@
           </v-tooltip>
         </v-toolbar>
         <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-list nav density="compact" color="primary" v-model="itemRef">
-            <v-list-item v-for="(item, i) in lovsFiltered" :key="i" :value="item.identifier">
+        <v-list nav density="compact" color="primary" v-model="itemRef" @click:select="onSelectLov">
+            <v-list-item v-for="(item, i) in lovsFiltered" :key="i" :value="i">
               <template v-slot:prepend>
                 <v-icon>mdi-view-headline</v-icon>
               </template>
@@ -43,13 +43,13 @@
                     {{$t('Config.LOV.Filter')}}
                     <v-tooltip top v-if="canEditConfigRef" class="ml-4">
                       <template v-slot:activator="{ props }">
-                        <v-btn v-bind="props" class="pa-0" icon color="primary" @click="addValue"><v-icon dark>mdi-plus</v-icon></v-btn>
+                        <v-btn v-bind="props" class="pa-0" icon="mdi-plus" color="primary" @click="addValue" variant="text"></v-btn>
                       </template>
                       <span>{{ $t('Add') }}</span>
                     </v-tooltip>
                     <v-tooltip topclass="ml-4">
                       <template v-slot:activator="{ props }">
-                        <v-btn v-bind="props" class="pa-0" icon color="primary" @click="exportData"><v-icon dark>mdi-export</v-icon></v-btn>
+                        <v-btn v-bind="props" class="pa-0" icon="mdi-export" color="primary" @click="exportData" variant="text"></v-btn>
                       </template>
                       <span>{{ $t('Config.LOV.Export') }}</span>
                     </v-tooltip>
@@ -75,7 +75,7 @@
                   </td>
                   <td class="pa-1">
                     <input v-model="elem.filter" type="number" :placeholder="$t('Config.LOV.Filter')"/>
-                    <v-btn class="pa-0" icon color="primary" @click="removeValue(j)"><v-icon dark>mdi-close-circle-outline</v-icon></v-btn>
+                    <v-btn class="pa-0" icon="mdi-close-circle-outline" color="primary" @click="removeValue(j)" variant="text"></v-btn>
                   </td>
                 </tr>
               </tbody>
@@ -156,7 +156,7 @@ import { saveAs } from 'file-saver'
 
 export default {
   components: { LanguageDependentField, SystemInformation, ItemsSelectionDialog },
-  setup (props, { root }) {
+  setup (props) {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
       showInfo
@@ -236,6 +236,10 @@ export default {
       dialogElem.level = visible.value.map(item => item.path)
     }
 
+    const onSelectLov = (options) => {
+      itemRef.value = options.id
+    }
+
     watch(itemRef, (selected, previous) => {
       // if (typeof (previous) === 'undefined') return
       if (selected == null) {
@@ -258,12 +262,14 @@ export default {
       }
     })
 
+    // TODO: Move to transport level
     function checkOldValues () {
+      // root.$set removed, see https://v3-migration.vuejs.org/breaking-changes/
       selectedRef.value.values.forEach(elem => {
-        if (!elem.filter) root.$set(elem, 'filter', null)
-        if (!elem.level) root.$set(elem, 'level', [])
+        if (!elem.filter) elem.filter = null
+        if (!elem.level) elem.level = []
         awailableChannelsRef.value.forEach(channel => {
-          if (!elem[channel.identifier]) root.$set(elem, channel.identifier, {})
+          if (!elem[channel.identifier]) elem[channel.identifier] = {}
         })
       })
     }
@@ -410,7 +416,8 @@ export default {
       ],
       nameRules: [
         v => !!v || t('Config.LOV.Error.NameRequired')
-      ]
+      ],
+      onSelectLov
     }
   }
 }

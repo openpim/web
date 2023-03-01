@@ -86,14 +86,15 @@ export default {
             if (err.message === 'NOT_SAVED') activeRef.value = save.identifier ? [save.id] : []
           })
         }
-      } else if (activeRef.value.length > 0 && activeRef.value[0] < 1636642098632) {
+      } /* else if (activeRef.value.length > 0 && activeRef.value[0] < 1636642098632) {
+        console.log('!!!!!!!!!!!')
         // fix for duplicate. Active is also changed during duplicate, but this is new node (with big temporaly ID) and we do not need to go to / route
         router.push('/').then(() => {
           selectedRef.value = { id: -1 }
         }).catch((err) => {
           if (err.message === 'NOT_SAVED') activeRef.value = save.identifier ? [save.id] : []
         })
-      }
+      } */
     }
 
     async function loadChildren (item) {

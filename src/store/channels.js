@@ -26,6 +26,7 @@ function hasChannelAccess (channel, fullAccess) {
 let typePromise
 let chanPromise
 let chanPromiseAll
+let channelsMappingLoaded = false
 
 const actions = {
   loadAllChannelTypes: async () => {
@@ -56,15 +57,16 @@ const actions = {
   loadAllChannelsWithMapping: async () => {
     if (!chanPromiseAll) {
       chanPromiseAll = serverFetch('query { getChannels {id identifier name active type valid visible config mappings runtime createdAt createdBy updatedAt updatedBy} }')
-      channels.splice(0)
     }
     const data = await chanPromiseAll
-    if (channels.length > 0) return channels
+    if (channelsMappingLoaded) return channels
     if (data.getChannels) {
+      channels.splice(0)
       data.getChannels.forEach(element => {
         element.internalId = element.id
         channels.push(element)
       })
+      channelsMappingLoaded = true
     }
 
     return channels
