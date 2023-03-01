@@ -20,8 +20,7 @@
           <v-list-item v-for="(item, i) in colFilteredMain" :key="i">
             <v-list-item-icon><v-icon>mdi-bookmark-outline</v-icon></v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title
-                v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+              <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list-item-group>
@@ -36,8 +35,9 @@
           <v-list-item v-for="(item, i) in colFilteredOther" :key="i">
             <v-list-item-icon><v-icon>mdi-bookmark-outline</v-icon></v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title
-                v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+              <v-list-item-title>
+                {{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}
+              </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list-item-group>
@@ -54,7 +54,7 @@
   </v-dialog>
 </template>
 <script>
-import { ref, computed, watch, onMounted } from '@vue/composition-api'
+import { ref, computed, watch, onMounted } from 'vue'
 import * as collectionsStore from '../store/collections'
 import * as langStore from '../store/languages'
 import * as userStore from '../store/users'

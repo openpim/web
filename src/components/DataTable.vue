@@ -63,10 +63,10 @@
           <template v-slot:activator="{ on }"><v-btn v-on="on" icon><v-icon>mdi-access-point-plus</v-icon></v-btn></template>
           <v-list>
             <v-list-item >
-              <v-btn class="pl-1 pr-1" text @click="chanSelectionDialogRef.showDialog()" v-text="$t('Item.toChannel')"></v-btn>
+              <v-btn class="pl-1 pr-1" text @click="chanSelectionDialogRef.showDialog()">{{$t('Item.toChannel')}}</v-btn>
             </v-list-item>
             <v-list-item>
-              <v-btn class="pl-1 pr-1" text @click="collSelectionDialogRef.showDialog()" v-text="$t('Item.toCollection')"></v-btn>
+              <v-btn class="pl-1 pr-1" text @click="collSelectionDialogRef.showDialog()">{{$t('Item.toCollection')}}</v-btn>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -1165,13 +1165,13 @@ export default {
 
       do {
         page++
-        let data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+        let data = await props.loadData({ page, itemsPerPage, sortBy: ['id'], sortDesc: [false] })
         if (total === -1) total = data.count
         if (page !== 1 && data.rows.length === 0) {
           // if we are iterating through channel status itself (for example the query is select all items that has status OK)
           // them when we set status we are changing the result of query, so we can not iterate through pages, we need to always ask for 1 page until data will not be finished
           // so try to load first page in this case
-          data = await props.loadData({ page: 1, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+          data = await props.loadData({ page: 1, itemsPerPage, sortBy: ['id'], sortDesc: [false] })
         }
         const mas = []
         data.rows.forEach(row => {
@@ -1181,7 +1181,7 @@ export default {
       } while (page * itemsPerPage < total)
 
       excelDialogRef.value = false
-      showInfo(i18n.t('Submit'))
+      showInfo(t('Submit'))
     }
 
     async function deleteFromCollections (colId) {
@@ -1192,13 +1192,13 @@ export default {
 
       do {
         page++
-        let data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+        let data = await props.loadData({ page, itemsPerPage, sortBy: ['id'], sortDesc: [false] })
         if (total === -1) total = data.count
         if (page !== 1 && data.rows.length === 0) {
           // if we are iterating through channel status itself (for example the query is select all items that has status OK)
           // them when we set status we are changing the result of query, so we can not iterate through pages, we need to always ask for 1 page until data will not be finished
           // so try to load first page in this case
-          data = await props.loadData({ page: 1, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+          data = await props.loadData({ page: 1, itemsPerPage, sortBy: ['id'], sortDesc: [false] })
         }
         const selectedItems = []
         data.rows.forEach(item => {
@@ -1207,7 +1207,7 @@ export default {
         removeFromCollection(selectedItems, colId)
       } while (page * itemsPerPage < total)
 
-      showInfo(i18n.t('Collections.Deleted'))
+      showInfo(t('Collections.Deleted'))
     }
 
     watch(() => itemsRef.value, (newValue, prevValue) => {
@@ -1245,7 +1245,7 @@ export default {
         if (result) itemsRefDelete.push(itemsRef.value.findIndex(obj => obj.id === result))
       }
       itemsRefDelete.forEach(index => itemsRef.value.splice(index, 1))
-      showInfo(i18n.t('Collections.Deleted'))
+      showInfo(t('Collections.Deleted'))
     }
 
     function openSearch () {

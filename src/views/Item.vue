@@ -102,25 +102,25 @@
             </v-container>
           </v-card-title>
           <v-card-actions>
-            <v-btn v-if="canEditSelected" :color="itemChangedRef ? 'primary' : ''" depressed :text="!itemChangedRef" @click="save" v-text="$t('Save')"></v-btn>
-            <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
-            <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
-            <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
+            <v-btn v-if="canEditSelected" :color="itemChangedRef ? 'primary' : ''" depressed :text="!itemChangedRef" @click="save">{{$t('Save')}}</v-btn>
+            <v-btn v-if="canEditSelected" text @click="move">{{$t('Move')}}</v-btn>
+            <v-btn v-if="canEditSelected" text @click="duplicate">{{$t('Duplicate')}}</v-btn>
+            <v-btn v-if="canEditSelected" text @click="remove">{{$t('Remove')}}</v-btn>
             <v-menu offset-y v-if="hasChannels">
               <template v-slot:activator="{ on }">
-                <v-btn text v-on="on" v-text="$t('Submit')"></v-btn>
+                <v-btn text v-on="on">{{$t('Submit')}}</v-btn>
               </template>
               <v-list>
                 <v-list-item >
-                  <v-btn class="pl-1 pr-1" v-if="hasChannels" text @click="submit" v-text="$t('Item.toChannel')"></v-btn>
+                  <v-btn class="pl-1 pr-1" v-if="hasChannels" text @click="submit">{{$t('Item.toChannel')}}</v-btn>
                 </v-list-item>
                 <v-list-item>
-                  <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" v-text="$t('Item.toCollection')"></v-btn>
+                  <v-btn class="pl-1 pr-1" text @click="submitToCollcetion">{{$t('Item.toCollection')}}</v-btn>
                 </v-list-item>
               </v-list>
             </v-menu>
             <template v-if="!hasChannels">
-              <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" v-text="$t('Item.toCollection')"></v-btn>
+              <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" >{{$t('Item.toCollection')}}</v-btn>
             </template>
             <template v-if="buttonActions && buttonActions.length <= 3">
               <v-btn text @click="executeAction(trigger)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>

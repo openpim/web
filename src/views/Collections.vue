@@ -19,8 +19,8 @@
             </v-row>
           </v-card-title>
           <v-card-actions>
-            <v-btn v-if="readonlyUser()" :color="itemChangedRef ? 'primary' : ''" depressed :text="!itemChangedRef" @click="save" v-text="$t('Save')"></v-btn>
-            <v-btn v-if="readonlyUser()" text @click="remove" v-text="$t('Remove')"></v-btn>
+            <v-btn v-if="readonlyUser()" :color="itemChangedRef ? 'primary' : ''" depressed :text="!itemChangedRef" @click="save">{{$t('Save')}}</v-btn>
+            <v-btn v-if="readonlyUser()" text @click="remove">{{$t('Remove')}}</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>

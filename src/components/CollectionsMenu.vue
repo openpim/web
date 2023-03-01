@@ -16,8 +16,7 @@
           <v-list-item v-for="(item, i) in colFilteredMain" :key="i">
             <v-list-item-icon><v-icon>mdi-bookmark-outline</v-icon></v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title
-                v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+              <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list-item-group>
@@ -32,8 +31,7 @@
           <v-list-item v-for="(item, i) in colFilteredOther" :key="i">
             <v-list-item-icon><v-icon>mdi-bookmark-outline</v-icon></v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title
-                v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+              <v-list-item-title>{{item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'}}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list-item-group>

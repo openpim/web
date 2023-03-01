@@ -507,7 +507,7 @@ export default {
           { value: 'parentIdentifier', title: t('Item.parentIdentifier') },
           { value: 'typeIdentifier', title: t('Item.typeIdentifier') },
           { value: '#level#', title: t('Item.level') },
-          { value: 'collectionId', text: t('Collections.Collection') },
+          { value: 'collectionId', title: t('Collections.Collection') },
           { value: 'createdBy', title: t('CreatedBy') },
           { value: 'createdAt', title: t('CreatedAt'), type: 'datetime' },
           { value: 'updatedBy', title: t('UpdatedBy') },

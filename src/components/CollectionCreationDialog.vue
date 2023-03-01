@@ -28,7 +28,7 @@
   </v-row>
 </template>
 <script>
-import { ref } from '@vue/composition-api'
+import { ref } from 'vue'
 import * as langStore from '../store/languages'
 import * as collectionsStore from '../store/collections'
 import i18n from '../i18n'
@@ -55,7 +55,7 @@ export default {
       dialogRef.value = true
       const name = {}
       name[currentLanguage.value.identifier] = ''
-      newCollectionRef.value = { id: Date.now(), internalId: 0, public: false, name: name, identifier: '' }
+      newCollectionRef.value = { id: Date.now(), internalId: 0, public: false, name, identifier: '' }
     }
 
     function closeDialog () {

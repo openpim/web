@@ -28,17 +28,17 @@
           <v-icon>mdi-magnify</v-icon>
           <span>{{ $t('Main.Search') }}</span>
         </v-btn>
-        <v-btn to="/collections">
-            <span>{{ $t('Main.Collections') }}</span>
-            <v-icon>mdi-bookmark-outline</v-icon>
+        <v-btn to="/collections" class="btn-nav" variant="text">
+          <v-icon>mdi-bookmark-outline</v-icon>
+          <span>{{ $t('Main.Collections') }}</span>
         </v-btn>
-        <v-btn to="/imports" v-if="hasImportsAccess">
-            <span>{{ $t('Main.Imports') }}</span>
-            <v-icon>mdi-file-outline</v-icon>
+        <v-btn to="/imports" v-if="hasImportsAccess" class="btn-nav" variant="text">
+          <v-icon>mdi-file-outline</v-icon>
+          <span>{{ $t('Main.Imports') }}</span>
         </v-btn>
-        <v-btn to="/channels" v-if="hasChannelsRef">
-            <span>{{ $t('Main.Channels') }}</span>
-            <v-icon>mdi-access-point</v-icon>
+        <v-btn to="/channels" v-if="hasChannelsRef" class="btn-nav" variant="text">
+          <v-icon>mdi-access-point</v-icon>
+          <span>{{ $t('Main.Channels') }}</span>
         </v-btn>
         <v-btn to="/config/home" v-if="hasConfigRef" class="btn-nav" variant="text">
           <v-icon>mdi-cog-outline</v-icon>
