@@ -1,16 +1,15 @@
 import { reactive, provide, inject } from 'vue'
 import i18n from '../i18n'
-import { serverFetch, objectToGraphgl, generateSorting } from './utils'
+import * as userStore from './users'
+import { serverFetch, objectToGraphgl } from './utils'
 import { currentLanguage } from './languages'
 
 const collections = reactive([])
-const channels = reactive([])
 
 const actions = {
   loadAllCollections: async () => {
-    if (collections.length > 0) return collections
     const data = await serverFetch('query { getCollections {id identifier name public user createdAt createdBy updatedAt updatedBy} }')
-    if (collections.length > 0) return collections
+    collections.splice(0, collections.length)
     if (data.getCollections) {
       data.getCollections.forEach(element => {
         element.internalId = element.id
@@ -28,131 +27,70 @@ const actions = {
     }
     return res
   },
-  addChannel: () => {
+  addCollection: () => {
     const name = {}
-    name[currentLanguage.value.identifier] = i18n.t('Config.Channels.NewName')
-    const newChan = {
-      id: Date.now(),
-      language: currentLanguage.value.identifier,
-      internalId: 0,
-      name,
-      active: false,
-      type: 0,
-      valid: [],
-      visible: [],
-      config: { start: 1 },
-      mappings: {},
-      runtime: {}
-    }
-    channels.push(newChan)
-    return newChan
+    name[currentLanguage.value.identifier] = i18n.t('Collections.NewName')
+    const newCol = { id: '' + Date.now(), internalId: 0, name, public: false, user: userStore.store.currentUserRef.value.login }
+    collections.push(newCol)
+    return newCol
   },
-  saveChannel: async (channel) => {
-    if (channel.internalId === 0) {
-      const query = `
-        mutation { createChannel(identifier: "` + channel.identifier + '", name: ' + objectToGraphgl(channel.name) +
-        ', active: ' + channel.active +
-        ', type: ' + channel.type +
-        ', valid: [' + (channel.valid || []) +
-        '], visible: [' + (channel.visible || []) +
-        '], config: ' + objectToGraphgl(channel.config) +
-        ', mappings: ' + objectToGraphgl(channel.mappings) +
-        `)
-      }`
-      const data = await serverFetch(query)
-      const newId = parseInt(data.createLanguage)
-      channel.internalId = newId
-    } else {
-      const query = `
-        mutation { updateChannel(id: "` + channel.internalId + '", name: ' + (channel.name ? '' + objectToGraphgl(channel.name) : '') +
-        ', active: ' + channel.active +
-        ', type: ' + channel.type +
-        ', valid: [' + (channel.valid || []) +
-        '], visible: [' + (channel.visible || []) +
-        '], config: ' + objectToGraphgl(channel.config) +
-        ', mappings: ' + objectToGraphgl(channel.mappings) +
-        `)
-      }`
-      await serverFetch(query)
-    }
-  },
-  removeChannel: async (id) => {
-    const idx = channels.findIndex((elem) => elem.id === id)
-
-    if (channels[idx].internalId !== 0) {
-      const query = `
-        mutation { removeChannel(id: "` + channels[idx].internalId + `")
-      }`
-      await serverFetch(query)
-    }
-    channels.splice(idx, 1)
-  },
-  getChannelStatus: async (channelId) => {
-    const data = await serverFetch('query { getChannelStatus(id: "' + channelId + '") {status count} }')
-    return data.getChannelStatus
-  },
-  getChannelStatusByCategories: async (channelId) => {
-    const data = await serverFetch('query { getChannelStatusByCategories(id: "' + channelId + '") { id name statuses {status count} } }')
-    return data.getChannelStatusByCategories
-  },
-  updateItemChannels: async (item, channels) => {
+  saveCollection: async (collection) => {
     const query = `
-        mutation { updateItem(id: "` + item.id +
-      '",   channels: ' + objectToGraphgl(channels) +
-      `) { channels }
-      }`
-    const data = await serverFetch(query)
-    if (item) {
-      const itemData = data.updateItem
-      item.channels = itemData.channels
-    }
+      mutation { saveCollections(identifier: "` + collection.identifier + '", name: ' + objectToGraphgl(collection.name) +
+      ', publicCollection: ' + collection.public +
+      `)
+    }`
+    await serverFetch(query)
   },
-  submitItem: async (itemId, itemTypeId, itemPath, channelIds, item) => {
-    if (channelIds.length === 0) return
-    const channelsData = {}
-    let wasData = false
-    const pathArr = itemPath.split('.')
-
-    channels.forEach(channel => {
-      if (channelIds.includes(channel.internalId)) {
-        const tst = channel.valid.includes(itemTypeId) && channel.visible.find(elem => pathArr.includes(elem))
-        if (tst) {
-          channelsData[channel.identifier] = { status: 1 }
-          wasData = true
-        }
-      }
-    })
-    if (wasData) {
+  removeCollection: async (identifier) => {
+    const idx = collections.findIndex((elem) => elem.identifier === identifier)
+    if (collections[idx].internalId !== 0) {
       const query = `
-        mutation { updateItem(id: "` + itemId +
-        '",   channels: ' + objectToGraphgl(channelsData) +
-        `) { channels }
+        mutation { removeCollection(identifier: "` + collections[idx].identifier + `")
       }`
-      const data = await serverFetch(query)
-      if (item) {
-        const itemData = data.updateItem
-        item.channels = itemData.channels
-      }
+      await serverFetch(query)
+    }
+    collections.splice(idx, 1)
+  },
+  checkIdentifier: async (identifier) => {
+    const data = await serverFetch('query { getCollectionByIdentifier(identifier: "' + identifier + `") {
+      id
+    } }`)
+    if (data.getCollectionByIdentifier) {
+      return true
+    } else {
+      return false
     }
   },
-  loadExecutions: async (channelId, options) => {
-    const offset = (options.page - 1) * options.itemsPerPage
-    const order = generateSorting(options)
-    const data = await serverFetch('query { getExecutions(channelId: "' + channelId + '", offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) {
-      count, rows {id, status, startTime, finishTime, storagePath, log }}}`)
-    return data.getExecutions
+  submitItemToCollection: async (itemId, collectionId) => {
+    console.log(itemId, collectionId)
+    const query = `mutation {
+      addToCollection(
+          collectionId: ${collectionId},
+          items: [${itemId}]
+      )
+    }`
+    await serverFetch(query)
   },
-  getChannelCategories: async (channelId) => {
-    const data = await serverFetch('query { getChannelCategories(id: "' + channelId + '") { list {id name} tree } }')
-    return data.getChannelCategories
+  getCollectionByIdentifier: async (identifier) => {
+    const data = await serverFetch('query { getCollectionByIdentifier(identifier: "' + identifier + `") {
+      id
+    } }`)
+    if (data.getCollectionByIdentifier) {
+      return data.getCollectionByIdentifier.id
+    }
   },
-  getChannelAttributes: async (channelId, categoryId) => {
-    const data = await serverFetch('query { getChannelAttributes(channelId: "' + channelId + '", categoryId: "' + categoryId + '") {id name category required dictionary description dictionaryLink dictionaryLinkPost} }')
-    return data.getChannelAttributes
-  },
-  getChannelAttributeValues: async (channelId, categoryId, attributeId) => {
-    const data = await serverFetch('query { getChannelAttributeValues(channelId: "' + channelId + '", categoryId: "' + categoryId + '", attributeId: "' + attributeId + '") }')
-    return data.getChannelAttributeValues
+  removeFromCollection: async (itemIds, collectionId) => {
+    console.log(itemIds, collectionId)
+    const data = await serverFetch(`mutation {
+      removeFromCollection(
+          collectionId: ${collectionId},
+          items: [${itemIds}]
+      )
+    }`)
+    if (data.removeFromCollection) {
+      return data.removeFromCollection.id
+    }
   }
 }
 
