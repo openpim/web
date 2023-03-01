@@ -52,7 +52,7 @@
       <Processes v-if="drawerRight" />
     </v-navigation-drawer>
     <v-main>
-      <v-container class="fill-height" fluid>
+      <v-container class="fill-height align-start" fluid>
         <router-view :export="isExportSearch"></router-view>
       </v-container>
     </v-main>

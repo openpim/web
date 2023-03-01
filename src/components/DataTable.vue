@@ -72,8 +72,8 @@
         </v-menu>
       </template>
       <v-tooltip top>
-        <template v-slot:activator="{ on }">
-          <v-btn v-on="on" icon @click="collSelectionDialogRef.showDialog(true)"><v-icon>mdi-access-point-minus</v-icon></v-btn>
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props" icon @click="collSelectionDialogRef.showDialog(true)"><v-icon>mdi-access-point-minus</v-icon></v-btn>
         </template>
         <span>{{ $t('Collections.DeleteFromCollection') }}</span>
       </v-tooltip>
@@ -89,8 +89,8 @@
         </v-menu>
       </template>
       <v-tooltip top v-if="selectedRef.length !== 0">
-        <template v-slot:activator="{ on }">
-          <v-btn :disabled="!disabledButtonRef" v-on="on" icon @click="deleteFromCollection(selectedRef)"><v-icon>mdi-trash-can</v-icon></v-btn>
+        <template v-slot:activator="{ props }">
+          <v-btn :disabled="!disabledButtonRef" v-bind="props" icon @click="deleteFromCollection(selectedRef)"><v-icon>mdi-trash-can</v-icon></v-btn>
         </template>
         <span>{{ $t('Collections.DeleteFromCollection') }}</span>
       </v-tooltip>
