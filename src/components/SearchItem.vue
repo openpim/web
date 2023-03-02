@@ -36,7 +36,7 @@
                     <v-select dense v-model="filter.operation" :items="operationSelection" :label="$t('Search.Filter.Attribute.Operation')"></v-select>
                   </v-col>
                 </v-row>
-                <v-row no-gutters v-if="filter.attr && !filter.attr.endsWith('#status')">
+                <v-row no-gutters v-if="filter.attr && (!filter.attr.endsWith('#status') || filter.attr === 'attr#status')">
                   <v-col cols="12">
                     <template v-if="filter.attr === '#level#'">
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
@@ -48,8 +48,7 @@
                     <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
-
-                <v-row no-gutters v-if="filter.attr && filter.attr.endsWith('#status')">
+                <v-row no-gutters v-if="filter.attr && filter.attr.endsWith('#status') && filter.attr !== 'attr#status'">
                   <v-col cols="12">
                     <v-select dense v-model="filter.value" :items="statusSelection" :label="$t('ColumnsSelection.ChannelStatus')"></v-select>
                   </v-col>
