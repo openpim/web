@@ -315,7 +315,7 @@ const actions = {
       body: data
     })
     if (!resp.ok) {
-      err.store.showError(i18n.t('File.UploadFailed'))
+      err.store.showError(i18n.t('File.UploadFailed') + ' ' + (await resp.text()))
       return false
     } else {
       return await resp.json()
@@ -340,7 +340,7 @@ const actions = {
       body: data
     })
     if (!resp.ok) {
-      err.store.showError(i18n.t('File.UploadFailed'))
+      err.store.showError(i18n.t('File.UploadFailed') + ' ' + (await resp.text()))
       return false
     } else {
       return true
