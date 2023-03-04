@@ -73,14 +73,14 @@ export default {
     const login = ref('')
     const password = ref('')
 
-    function signInKeyListener (e) {
+    async function signInKeyListener (e) {
       if (e.key === 'Enter') {
-        signIn(login.value, password.value, props.pathAfterLogin)
+        await signIn(login.value, password.value, props.pathAfterLogin)
+        await loadAllRoles()
       }
     }
 
     onMounted(() => {
-      loadAllRoles()
       const params = {}
       window.location.href.replace(/[?&]+([^=&]+)=([^&#]*)/gi,
         (m, key, value) => {
