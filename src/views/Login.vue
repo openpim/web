@@ -52,6 +52,7 @@
 <script>
 import { ref, onMounted, onUnmounted } from '@vue/composition-api'
 import * as userStore from '../store/users'
+import * as rolesStore from '../store/roles'
 import i18n from '../i18n'
 
 export default {
@@ -65,6 +66,10 @@ export default {
       signIn
     } = userStore.useStore()
 
+    const {
+      loadAllRoles
+    } = rolesStore.useStore()
+
     const login = ref('')
     const password = ref('')
 
@@ -75,6 +80,7 @@ export default {
     }
 
     onMounted(() => {
+      loadAllRoles()
       const params = {}
       window.location.href.replace(/[?&]+([^=&]+)=([^&#]*)/gi,
         (m, key, value) => {
