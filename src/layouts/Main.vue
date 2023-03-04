@@ -17,7 +17,7 @@
             <span>{{ $t('Main.Search') }}</span>
             <v-icon>mdi-magnify</v-icon>
         </v-btn>
-        <v-btn to="/collections" v-if="hasCollectionsRef">
+        <v-btn to="/collections">
             <span>{{ $t('Main.Collections') }}</span>
             <v-icon>mdi-bookmark-outline</v-icon>
         </v-btn>
@@ -181,7 +181,6 @@ import AppHeader from '../components/AppHeader.vue'
 import * as userStore from '../store/users'
 import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
-import * as collectionsStore from '../store/collections'
 import * as rolesStore from '../store/roles'
 import * as dashStore from '../store/dashboards'
 import * as procStore from '../store/processes'
@@ -221,10 +220,6 @@ export default {
     } = channelsStore.useStore()
 
     const {
-      loadAllCollections
-    } = collectionsStore.useStore()
-
-    const {
       loadAllDashboards,
       getDashboardsForCurrentUser
     } = dashStore.useStore()
@@ -244,7 +239,6 @@ export default {
     const formRef = ref(null)
     const hasConfigRef = ref(false)
     const hasChannelsRef = ref(false)
-    const hasCollectionsRef = ref(false)
 
     const hasSearchAccess = ref(false)
     const hasImportsAccess = ref(false)
@@ -397,10 +391,7 @@ export default {
           loadAllChannels().then(channels => {
             if (channels && channels.length > 0) hasChannelsRef.value = true
           })
-          loadAllCollections().then(collections => {
-            if (collections && collections.length > 0) hasCollectionsRef.value = true
-          })
-          hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards') || canViewConfig('channels') || canViewConfig('importConfigs')
+          hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards') || canViewConfig('channels')
         }
       })
 
@@ -436,7 +427,6 @@ export default {
       formRef,
       hasConfigRef,
       hasChannelsRef,
-      hasCollectionsRef,
       isExportSearch: props.export,
       hasSearchAccess,
       hasImportsAccess,

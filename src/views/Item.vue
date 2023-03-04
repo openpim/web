@@ -106,7 +106,22 @@
             <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
-            <v-btn v-if="hasChannels" text @click="submit" v-text="$t('Submit')"></v-btn>
+            <v-menu offset-y v-if="hasChannels">
+              <template v-slot:activator="{ on }">
+                <v-btn text v-on="on" v-text="$t('Submit')"></v-btn>
+              </template>
+              <v-list>
+                <v-list-item >
+                  <v-btn class="pl-1 pr-1" v-if="hasChannels" text @click="submit" v-text="$t('Item.toChannel')"></v-btn>
+                </v-list-item>
+                <v-list-item>
+                  <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" v-text="$t('Item.toCollection')"></v-btn>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+            <template v-if="!hasChannels">
+              <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" v-text="$t('Item.toCollection')"></v-btn>
+            </template>
             <template v-if="buttonActions && buttonActions.length <= 3">
               <v-btn text @click="executeAction(trigger)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
@@ -342,6 +357,7 @@
     <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
     <ItemDuplicationDialog ref="itemDuplicationDialogRef" @duplicated="itemDuplicated"/>
     <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
+    <CollectionsSelectionDialog ref="collSelectionDialogRef" :editAccessOnly="true" @selected="collectionsSelected"/>
     <ShowAttributesDialog ref="showAttributesDialogRef" @selected="showAttributes"/>
   </v-container>
 </template>
@@ -361,6 +377,7 @@ import * as auditStore from '../store/audit'
 import * as channelsStore from '../store/channels'
 import * as searchStore from '../store/search'
 import * as lovsStore from '../store/lovs'
+import * as collectionsStore from '../store/collections'
 import i18n from '../i18n'
 import * as langStore from '../store/languages'
 import AttributeValue from '../components/AttributeValue'
@@ -374,6 +391,7 @@ import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import FileUploadDialog from '../components/FileUploadDialog'
 import ItemDuplicationDialog from '../components/ItemDuplicationDialog'
 import ChannelsSelectionDialog from '../components/ChannelsSelectionDialog'
+import CollectionsSelectionDialog from '../components/CollectionsSelectionDialog'
 import ActionStatusDialog from '../components/ActionStatusDialog'
 import ShowAttributesDialog from '../components/ShowAttributesDialog'
 import HistoryTable from '../components/HistoryTable'
@@ -413,6 +431,7 @@ export default {
     BeforeAttributesComponent,
     AfterAttributesComponent,
     ChannelsSelectionDialog,
+    CollectionsSelectionDialog,
     ActionStatusDialog,
     ShowAttributesDialog,
     pdf
@@ -432,6 +451,8 @@ export default {
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
     const { loadAllChannels, getAvailableChannels, submitItem, triggerChannel, updateItemChannels } = channelsStore.useStore()
+
+    const { submitItemToCollection } = collectionsStore.useStore()
 
     const { searchEntityRef } = searchStore.useStore()
 
@@ -499,6 +520,7 @@ export default {
     const fileUploadDialogRef = ref(null)
     const itemDuplicationDialogRef = ref(null)
     const chanSelectionDialogRef = ref(null)
+    const collSelectionDialogRef = ref(null)
     const showAttributesDialogRef = ref(null)
     const awailableChannelsRef = ref([])
     const buttonActionStatusDialog = ref(null)
@@ -1078,8 +1100,19 @@ export default {
       })
     }
 
-    function showAttributesShowDialog (type) {
-      showAttributesDialogRef.value.showDialog(itemRef.value, type)
+    function submitToCollcetion () {
+      collSelectionDialogRef.value.showDialog()
+    }
+
+    function collectionsSelected (collectionId) {
+      collSelectionDialogRef.value.closeDialog()
+      submitItemToCollection(itemRef.value.internalId, collectionId).then(() => {
+        showInfo(i18n.t('Collections.Submitted'))
+      })
+    }
+
+    function showAttributesShowDialog () {
+      showAttributesDialogRef.value.showDialog(itemRef.value)
     }
 
     function showAttributes () {
@@ -1278,10 +1311,13 @@ export default {
       channelsOnHead,
       hasChannels,
       submit,
+      submitToCollcetion,
       showAttributesShowDialog,
       chanSelectionDialogRef,
+      collSelectionDialogRef,
       showAttributesDialogRef,
       channelsSelected,
+      collectionsSelected,
       showAttributes,
       dateFormat,
       headAttributesKeyRef,
