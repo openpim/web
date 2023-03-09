@@ -94,7 +94,7 @@ import { ref, onMounted } from 'vue'
 import * as langStore from '../store/languages'
 import OptionsTable from '../components/OptionsTable.vue'
 import AttributeManageDialog from './AttributeManageDialog.vue'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import AttributeType from '../constants/attributeTypes'
 import * as attrStore from '../store/attributes'
 import * as errorStore from '../store/error'
@@ -158,6 +158,8 @@ export default {
     const {
       getChannelAttributeValues
     } = chanStore.useStore()
+
+    const { t } = useI18n()
 
     const exprAttrRef = ref(null)
     const exprDialogRef = ref(null)
@@ -236,14 +238,14 @@ export default {
     }
 
     function remove (i) {
-      if (confirm(i18n.t('Remove') + '?')) {
+      if (confirm(t('Remove') + '?')) {
         props.attributes.splice(i, 1)
         props.channelAttributes.splice(i, 1)
       }
     }
 
     async function manageAttribute (i, attrMapping) {
-      if (attrMapping.expr && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
+      if (attrMapping.expr && !confirm(t('MappingConfigComponent.Attr.ConfirmExist'))) return
 
       const chanAttr = props.channelAttributes[i]
 
@@ -276,7 +278,7 @@ export default {
           }
         }
         if (found) {
-          showInfo(i18n.t('AttributeManageDialog.AttributeFound'))
+          showInfo(t('AttributeManageDialog.AttributeFound'))
           const pimAttr = findByIdentifier(found.identifier)
           attrManageDialogRef.value.showDialog(pimAttr.item, pimAttr.groups.map(grp => grp.id), attrMapping)
         } else {
@@ -319,7 +321,7 @@ export default {
                 if (tst) {
                   pimAttr.type = AttributeType.LOV
                   pimAttr.lov = parseInt(tst.internalId || tst.id)
-                } else if (confirm(i18n.t('AttributeManageDialog.ConfirmDictionary'))) {
+                } else if (confirm(t('AttributeManageDialog.ConfirmDictionary'))) {
                   const lov = { identifier: catAttrId, id: Date.now(), internalId: 0, name, values: [] }
                   json.result.forEach(elem => {
                     const val = {}
@@ -332,10 +334,10 @@ export default {
                   pimAttr.lov = lov.internalId
                 }
               } else {
-                showError(i18n.t('AttributeManageDialog.DictionaryTooBig'))
+                showError(t('AttributeManageDialog.DictionaryTooBig'))
               }
             } else {
-              showError(i18n.t('AttributeManageDialog.DictionaryFailed'))
+              showError(t('AttributeManageDialog.DictionaryFailed'))
               console.error('Failed to load dictionary: ' + JSON.stringify(chanAttr))
             }
           }

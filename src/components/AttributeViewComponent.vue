@@ -53,7 +53,7 @@
 </template>
 <script>
 import { onMounted, computed, ref } from 'vue'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import AttributeType from '../constants/attributeTypes'
 import * as attrStore from '../store/attributes'
 import * as langStore from '../store/languages'
@@ -94,15 +94,17 @@ export default {
       loadAllRelations
     } = relStore.useStore()
 
+    const { t } = useI18n()
+
     let typeSelection = [
-      { text: i18n.t('Config.Attribute.Type.Text'), value: AttributeType.Text },
-      { text: i18n.t('Config.Attribute.Type.Boolean'), value: AttributeType.Boolean },
-      { text: i18n.t('Config.Attribute.Type.Integer'), value: AttributeType.Integer },
-      { text: i18n.t('Config.Attribute.Type.Float'), value: AttributeType.Float },
-      { text: i18n.t('Config.Attribute.Type.Date'), value: AttributeType.Date },
-      { text: i18n.t('Config.Attribute.Type.Time'), value: AttributeType.Time },
-      { text: i18n.t('Config.Attribute.Type.LOV'), value: AttributeType.LOV },
-      { text: i18n.t('Config.Attribute.Type.URL'), value: AttributeType.URL }
+      { text: t('Config.Attribute.Type.Text'), value: AttributeType.Text },
+      { text: t('Config.Attribute.Type.Boolean'), value: AttributeType.Boolean },
+      { text: t('Config.Attribute.Type.Integer'), value: AttributeType.Integer },
+      { text: t('Config.Attribute.Type.Float'), value: AttributeType.Float },
+      { text: t('Config.Attribute.Type.Date'), value: AttributeType.Date },
+      { text: t('Config.Attribute.Type.Time'), value: AttributeType.Time },
+      { text: t('Config.Attribute.Type.LOV'), value: AttributeType.LOV },
+      { text: t('Config.Attribute.Type.URL'), value: AttributeType.URL }
     ]
 
     if (additionalAttrTypesList) {
@@ -151,15 +153,15 @@ export default {
 
     function identifierValidation (v) {
       if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(v)) {
-        return i18n.t('Wrong.Attribute.Identifier')
+        return t('Wrong.Attribute.Identifier')
       }
       if (!v) {
-        return i18n.t('Config.Attributes.Error.IdentifierRequired')
+        return t('Config.Attributes.Error.IdentifierRequired')
       }
       if (v && props.attr.internalId === 0) {
         const found = checkIdentifier(v)
         if (found) {
-          return i18n.t('Config.Attributes.Error.IdentifierNotUnique')
+          return t('Config.Attributes.Error.IdentifierNotUnique')
         }
       }
       return true
@@ -179,10 +181,10 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.Attributes.Error.NameRequired')
+        v => !!v || t('Config.Attributes.Error.NameRequired')
       ],
       typeRules: [
-        v => !!v || i18n.t('Config.Attributes.Error.TypeRequired')
+        v => !!v || t('Config.Attributes.Error.TypeRequired')
       ],
       optionsChanged,
       typeSelection

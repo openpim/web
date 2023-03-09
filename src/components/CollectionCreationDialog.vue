@@ -31,7 +31,7 @@
 import { ref } from 'vue'
 import * as langStore from '../store/languages'
 import * as collectionsStore from '../store/collections'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 
 export default {
   name: 'CollectionCreation',
@@ -45,6 +45,8 @@ export default {
       checkIdentifier,
       saveCollection
     } = collectionsStore.useStore()
+
+    const { t } = useI18n()
 
     const dialogRef = ref(false)
     const formRef = ref(null)
@@ -67,7 +69,7 @@ export default {
       if (formRef.value.validate()) {
         checkIdentifier(newCollectionRef.value.identifier).then((val) => {
           if (val) {
-            identifierErrors.value = [i18n.t('Config.Attributes.Error.IdentifierNotUnique')]
+            identifierErrors.value = [t('Config.Attributes.Error.IdentifierNotUnique')]
             return
           }
           saveCollection(newCollectionRef.value)
@@ -78,10 +80,10 @@ export default {
 
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (!v) {
-        return i18n.t('ItemCreationDialog.IdentifierRequired')
+        return t('ItemCreationDialog.IdentifierRequired')
       }
       return true
     }
@@ -100,7 +102,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('ItemCreationDialog.NameRequired')
+        v => !!v || t('ItemCreationDialog.NameRequired')
       ]
     }
   }

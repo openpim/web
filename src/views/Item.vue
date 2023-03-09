@@ -378,7 +378,7 @@ import * as channelsStore from '../store/channels'
 import * as searchStore from '../store/search'
 import * as lovsStore from '../store/lovs'
 import * as collectionsStore from '../store/collections'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import * as langStore from '../store/languages'
 import AttributeValue from '../components/AttributeValue'
 import ItemRelationsList from '../components/ItemRelationsList'
@@ -503,6 +503,8 @@ export default {
     const {
       getLOVData
     } = lovsStore.useStore()
+
+    const { t } = useI18n()
 
     const itemsDataTableRef = ref(null)
     const historyTableRef = ref(null)
@@ -741,7 +743,7 @@ export default {
         })
       }
       if (result) {
-        showInfo(i18n.t('Saved'))
+        showInfo(t('Saved'))
         loadAssets(itemRef.value.id).then(arr => {
           arr.forEach(elem => {
             elem.type = findType(elem.typeId)?.node
@@ -752,7 +754,7 @@ export default {
     }
 
     function removeFile () {
-      if (confirm(i18n.t('ItemView.RemoveFile'))) {
+      if (confirm(t('ItemView.RemoveFile'))) {
         removeItemFile(itemRef.value.internalId).then(() => {
           itemRef.value.mimeType = ''
           itemRef.value.fileOrigName = ''
@@ -782,12 +784,12 @@ export default {
 
     const itemChangedRef = ref(false)
     function nameInput () {
-      router.dataChanged(itemRef.value.identifier + '_name', i18n.t('Router.Changed.Name'))
+      router.dataChanged(itemRef.value.identifier + '_name', t('Router.Changed.Name'))
       itemChangedRef.value = true
     }
 
     function attrInput () {
-      router.dataChanged(itemRef.value.identifier, i18n.t('Router.Changed.Attribute'))
+      router.dataChanged(itemRef.value.identifier, t('Router.Changed.Attribute'))
       itemChangedRef.value = true
     }
 
@@ -807,7 +809,7 @@ export default {
           // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
           if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
         })
-        showInfo(i18n.t('Saved'))
+        showInfo(t('Saved'))
       })
     }
 
@@ -843,25 +845,25 @@ export default {
             moveItem(itemRef.value, id).then(() => {
               itemPathRef.value = []
               loadItemPath(itemRef.value.path)
-              showInfo(i18n.t('Saved'))
+              showInfo(t('Saved'))
             })
           } else {
-            showError(i18n.t('ItemView.Move.WrongParent'))
+            showError(t('ItemView.Move.WrongParent'))
           }
         })
       }
     }
 
     async function remove () {
-      if (confirm(i18n.t('ItemView.RemoveItem'))) {
+      if (confirm(t('ItemView.RemoveItem'))) {
         const data = await loadChildren(itemRef.value.internalId, { page: 1, itemsPerPage: 1 })
         if (data.count > 0) {
-          showError(i18n.t('ItemView.Remove.HasChildrenError'))
+          showError(t('ItemView.Remove.HasChildrenError'))
         } else {
           const checkRelationsOnDelete = getOption(itemType.value, 'checkRelationsOnDelete', true)
           const res = !checkRelationsOnDelete ? false : await hasRelations(itemRef.value.internalId)
           if (res) {
-            showError(i18n.t('ItemView.Remove.HasRelationsError'))
+            showError(t('ItemView.Remove.HasRelationsError'))
           } else {
             removeItem(itemRef.value.internalId).then(() => {
               router.push('/')
@@ -1014,7 +1016,7 @@ export default {
 
     function executeAction (trigger) {
       if (trigger.askBeforeExec) {
-        if (!confirm(i18n.t('Execute') + '?')) return
+        if (!confirm(t('Execute') + '?')) return
       }
       if (trigger.selectItems) {
         itemSelectionDialogRef.value.showDialog(trigger, trigger.selectItemsFilter ? trigger.selectItemsFilter.split(',').map(elem => parseInt(elem)) : null)
@@ -1048,7 +1050,7 @@ export default {
         } else if (result.message) {
           showInfo(result.message)
         } else {
-          showInfo(i18n.t('Started'))
+          showInfo(t('Started'))
         }
       }).finally(() => {
         buttonActionStatusDialog.value.closeDialog()
@@ -1096,7 +1098,7 @@ export default {
       chanSelectionDialogRef.value.closeDialog()
       if (arr.length === 0) return
       submitItem(itemRef.value.internalId, itemRef.value.typeId, itemRef.value.path, arr, itemRef.value).then(() => {
-        showInfo(i18n.t('Submitted'))
+        showInfo(t('Submitted'))
       })
     }
 
@@ -1107,7 +1109,7 @@ export default {
     function collectionsSelected (collectionId) {
       collSelectionDialogRef.value.closeDialog()
       submitItemToCollection(itemRef.value.internalId, collectionId).then(() => {
-        showInfo(i18n.t('Collections.Submitted'))
+        showInfo(t('Collections.Submitted'))
       })
     }
 
@@ -1137,7 +1139,7 @@ export default {
     }
 
     function removeChannel (channel) {
-      if (confirm(i18n.t('Config.Channels.ConfirmRemove'))) {
+      if (confirm(t('Config.Channels.ConfirmRemove'))) {
         const channels = itemRef.value.channels
         channels[channel.identifier].is_deleted = true
         updateItemChannels(itemRef.value, channels)
@@ -1193,6 +1195,8 @@ export default {
         loadAllAttributes(),
         loadAllRelations(),
         loadAllTypes()]).then(() => {
+        console.log('route', route)
+
         if (route.value && route.value.params && route.value.params.id) {
           itemPathRef.value = []
           loadItemByIdentifier(route.value.params.id).then((item) => {
@@ -1342,7 +1346,7 @@ export default {
       canViewAttrConfigRef,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
-        v => !!v || i18n.t('ItemCreationDialog.NameRequired')
+        v => !!v || t('ItemCreationDialog.NameRequired')
       ]
     }
   }

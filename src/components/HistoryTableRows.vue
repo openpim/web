@@ -21,7 +21,7 @@
 </template>
 <script>
 import HistoryTableRows from './HistoryTableRows'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import * as langStore from '../store/languages'
 import * as attrStore from '../store/attributes'
 
@@ -53,6 +53,8 @@ export default {
       findByIdentifier
     } = attrStore.useStore()
 
+    const { t } = useI18n()
+
     function isObject (obj) {
       return obj != null && obj.constructor.name === 'Object'
     }
@@ -63,15 +65,15 @@ export default {
 
     function getTitle (name) {
       if (props.level === 1) {
-        if (name === 'typeIdentifier') return i18n.t('HistoryTable.typeIdentifier')
-        if (name === 'parentIdentifier') return i18n.t('HistoryTable.parentIdentifier')
-        if (name === 'mimeType') return i18n.t('HistoryTable.mimeType')
-        if (name === 'fileOrigName') return i18n.t('HistoryTable.fileOrigName')
-        if (name === 'relationIdentifier') return i18n.t('HistoryTable.relationIdentifier')
-        if (name === 'itemIdentifier') return i18n.t('HistoryTable.itemIdentifier')
-        if (name === 'targetIdentifier') return i18n.t('HistoryTable.targetIdentifier')
-        if (name === 'name') return i18n.t('HistoryTable.ObjName')
-        if (name === 'values') return i18n.t('HistoryTable.Values')
+        if (name === 'typeIdentifier') return t('HistoryTable.typeIdentifier')
+        if (name === 'parentIdentifier') return t('HistoryTable.parentIdentifier')
+        if (name === 'mimeType') return t('HistoryTable.mimeType')
+        if (name === 'fileOrigName') return t('HistoryTable.fileOrigName')
+        if (name === 'relationIdentifier') return t('HistoryTable.relationIdentifier')
+        if (name === 'itemIdentifier') return t('HistoryTable.itemIdentifier')
+        if (name === 'targetIdentifier') return t('HistoryTable.targetIdentifier')
+        if (name === 'name') return t('HistoryTable.ObjName')
+        if (name === 'values') return t('HistoryTable.Values')
       } else if (props.level === 2) {
         let tst = languages.find(lang => lang.identifier === name)
         if (!tst) tst = findByIdentifier(name)?.item

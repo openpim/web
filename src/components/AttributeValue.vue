@@ -317,7 +317,7 @@ import * as lovStore from '../store/lovs'
 import { ref, computed, onMounted, onUnmounted, onBeforeUpdate, watch } from 'vue'
 import LanguageDependentField from './LanguageDependentField'
 import AttributeType from '../constants/attributeTypes'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import XRegExp from 'xregexp'
 import eventBus from '../eventBus'
 import dateFormat from 'dateformat'
@@ -355,6 +355,8 @@ export default {
     const {
       getLOVData
     } = lovStore.useStore()
+
+    const { t } = useI18n()
 
     const lovSelection = computed(() => {
       let values = lovData.value
@@ -415,7 +417,7 @@ export default {
         const tst = '' + (props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier])
         const regx = XRegExp('^-?[0-9]+$', 'g')
         if (tst !== 'undefined' && tst.length > 0 && !regx.test(tst)) {
-          const msg = i18n.t('Attribute.Error.WrongValue')
+          const msg = t('Attribute.Error.WrongValue')
           if (props.dense) {
             alert(msg)
           } else {
@@ -430,7 +432,7 @@ export default {
         const regex = XRegExp(props.attr.pattern, 'g')
         if (!regex.test(value)) {
           validRef.value = false
-          const msg = props.attr.errorMessage[currentLanguage.value.identifier] ? props.attr.errorMessage[currentLanguage.value.identifier] : i18n.t('Attribute.Error.WrongValue')
+          const msg = props.attr.errorMessage[currentLanguage.value.identifier] ? props.attr.errorMessage[currentLanguage.value.identifier] : t('Attribute.Error.WrongValue')
           if (props.dense) {
             alert(msg)
           } else {

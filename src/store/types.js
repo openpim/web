@@ -6,7 +6,7 @@ import { currentLanguage } from './languages'
 const typesTree = reactive([])
 
 function findLinks (typeId, children, arr) {
-  for (var i = 0; i < children.length; i++) {
+  for (let i = 0; i < children.length; i++) {
     const item = children[i]
     if (item.link === typeId) arr.push(item)
     if (item.children && item.children.length > 0) {

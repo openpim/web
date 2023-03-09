@@ -40,7 +40,7 @@ import { ref, computed, watch } from 'vue'
 import * as langStore from '../store/languages'
 import * as errorStore from '../store/error'
 import * as userStore from '../store/users'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 
 export default {
   name: 'ItemCreation',
@@ -54,6 +54,8 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier
     } = langStore.useStore()
+
+    const { t } = useI18n()
 
     const dialogRef = ref(false)
     const empty = { id: -1 }
@@ -88,7 +90,7 @@ export default {
       if (formRef.value.validate()) {
         identifierExists(newItemRef.value.identifier).then((val) => {
           if (val) {
-            identifierErrors.value = [i18n.t('Config.Attributes.Error.IdentifierNotUnique')]
+            identifierErrors.value = [t('Config.Attributes.Error.IdentifierNotUnique')]
             return
           }
           const newItem = newItemRef.value
@@ -116,9 +118,9 @@ export default {
           dialogRef.value = true
         } else {
           if (itemSelected.id === -1) {
-            showError(i18n.t('ItemCreationDialog.NoChildrenRoot'))
+            showError(t('ItemCreationDialog.NoChildrenRoot'))
           } else {
-            showError(i18n.t('ItemCreationDialog.NoChildren',
+            showError(t('ItemCreationDialog.NoChildren',
               { typeName: (itemSelected.name[currentLanguage.value.identifier] || '[' + itemSelected.name[defaultLanguageIdentifier.value] + ']') }))
           }
         }
@@ -131,10 +133,10 @@ export default {
 
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
+        return t('Wrong.Identifier')
       }
       if (!v) {
-        return i18n.t('ItemCreationDialog.IdentifierRequired')
+        return t('ItemCreationDialog.IdentifierRequired')
       }
       return true
     }
@@ -156,7 +158,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('ItemCreationDialog.NameRequired')
+        v => !!v || t('ItemCreationDialog.NameRequired')
       ]
     }
   }

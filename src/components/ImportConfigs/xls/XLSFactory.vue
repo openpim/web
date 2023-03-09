@@ -28,7 +28,7 @@
 <script>
 
 import { ref, watch } from 'vue'
-import i18n from '@/i18n'
+import { useI18n } from 'vue-i18n'
 import XLSX from 'xlsx'
 import ExcelTabSelectionDialog from '@/components/ImportConfigs/ExcelTabSelectionDialog.vue'
 
@@ -37,6 +37,8 @@ export default {
   props: {
   },
   setup (props, { root }) {
+    const { t } = useI18n()
+
     const fileUploadRef = ref(null)
     const excelAvailableTabsRef = ref([])
     const excelColumnsRef = ref([])
@@ -90,7 +92,7 @@ export default {
               const cell = ws[XLSX.utils.encode_cell({ r: 0, c: colNum })]
               if (!cell) continue
               if ((!cell.c || cell.c.length === 0) && !cell.v === '#delete#') {
-                alert(i18n.t('DataTable.ExcelImport.WrongFormat'))
+                alert(t('DataTable.ExcelImport.WrongFormat'))
                 // showError(i18n.t('DataTable.ExcelImport.WrongFormat'))
                 // excelDialogRef.value = false
                 return

@@ -83,7 +83,7 @@ import * as langStore from '../store/languages'
 import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
 import dateFormat from 'dateformat'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted, watch } from 'vue'
 
 export default {
@@ -104,16 +104,18 @@ export default {
 
     const { showError } = errorStore.useStore()
 
+    const { t } = useI18n()
+
     const itemsRef = ref([])
     const totalItemsRef = ref(0)
     const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: ['startTime'], sortDesc: [true] })
     const loadingRef = ref(false)
     const headersRef = ref([
-      { identifier: 'startTime', text: i18n.t('ExecutionsTable.StartTime'), align: 'start', sortable: true, filterable: true, value: 'startTime' },
-      { identifier: 'finishTime', text: i18n.t('ExecutionsTable.EndTime'), align: 'start', sortable: true, filterable: true, value: 'finishTime' },
-      { identifier: 'status', text: i18n.t('ExecutionsTable.Status'), align: 'start', sortable: true, filterable: true, value: 'status' },
-      { identifier: 'file', text: i18n.t('ExecutionsTable.File'), align: 'start', sortable: false, filterable: false, value: 'file' },
-      { identifier: 'log', text: i18n.t('ExecutionsTable.Log'), align: 'start', sortable: false, filterable: false, value: 'log' }
+      { identifier: 'startTime', text: t('ExecutionsTable.StartTime'), align: 'start', sortable: true, filterable: true, value: 'startTime' },
+      { identifier: 'finishTime', text: t('ExecutionsTable.EndTime'), align: 'start', sortable: true, filterable: true, value: 'finishTime' },
+      { identifier: 'status', text: t('ExecutionsTable.Status'), align: 'start', sortable: true, filterable: true, value: 'status' },
+      { identifier: 'file', text: t('ExecutionsTable.File'), align: 'start', sortable: false, filterable: false, value: 'file' },
+      { identifier: 'log', text: t('ExecutionsTable.Log'), align: 'start', sortable: false, filterable: false, value: 'log' }
     ])
     const dialogRef = ref(false)
     const logRef = ref('')
