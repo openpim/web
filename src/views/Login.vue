@@ -64,6 +64,7 @@ import { ref, onMounted } from 'vue'
 import * as userStore from '../store/users'
 import { useI18n } from 'vue-i18n'
 import i18n, { loadLocaleMessages } from '../i18n'
+import * as rolesStore from '../store/roles'
 
 export default {
   props: {
@@ -77,6 +78,11 @@ export default {
       signOut
     } = userStore.useStore()
     const { t, locale } = useI18n()
+
+    const {
+      loadAllRoles
+    } = rolesStore.useStore()
+
     const login = ref('')
     const password = ref('')
 

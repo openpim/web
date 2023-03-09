@@ -283,7 +283,6 @@ export default {
 
     function save () {
       if (formRef.value.validate()) {
-        debugger
         if (!selectedRef.value.beforeUpdateAction.identifier) {
           const tmpCode = selectedRef.value.beforeUpdateAction.code
           selectedRef.value.beforeUpdateAction = getActionForImportConfig(selectedRef.value.identifier, 3)
