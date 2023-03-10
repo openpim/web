@@ -64,7 +64,7 @@
             </v-col>
           </v-row>
 
-          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" :canManageOrder="true" />
+          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :category="categoryRef" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" :canManageOrder="true" />
         </div>
       </v-col>
       <v-col cols="1">
@@ -151,7 +151,7 @@ import RelationsSelectionDialog from '../../components/RelationsSelectionDialog'
 import MappingAttributesCompoment from '../MappingAttributesCompoment'
 import ChannelsCategorySelectionDialog from '../../components/ChannelsCategorySelectionDialog.vue'
 
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 import getChannelFactory from '../../channels'
 
 export default {
@@ -194,6 +194,8 @@ export default {
       relations,
       loadAllRelations
     } = relStore.useStore()
+
+    const { t } = useI18n()
 
     const mappedCategories = computed(() => {
       if (props.channel && props.channel.mappings) {
@@ -252,7 +254,7 @@ export default {
     }
 
     function remove () {
-      if (confirm(i18n.t('MappingConfigComponent.Remove.Confirm'))) {
+      if (confirm(t('MappingConfigComponent.Remove.Confirm'))) {
         props.channel.mappings[categoryIdRef.value] = { deleted: true }
         categoryIdRef.value = null
       }
@@ -301,7 +303,7 @@ export default {
 
     function categoryToCopySelected (mapping) {
       relCategoryDialogRef.value.closeDialog()
-      if (confirm(i18n.t('MappingConfigComponent.CopyMappingConfirmation'))) {
+      if (confirm(t('MappingConfigComponent.CopyMappingConfirmation'))) {
         for (let i = 0; i < categoryRef.value.attributes.length; i++) {
           const attr = categoryRef.value.attributes[i]
           const tst = mapping.attributes.find(elem => elem.id === attr.id)
@@ -345,11 +347,11 @@ export default {
         }
         lovAttributes.value = lovArr
 
-        const arr = [{ value: '$id', text: i18n.t('MappingConfigComponent.Id') }, { value: '$parentId', text: i18n.t('MappingConfigComponent.ParentId') }]
+        const arr = [{ value: '$id', text: t('MappingConfigComponent.Id') }, { value: '$parentId', text: t('MappingConfigComponent.ParentId') }]
         for (let i = 0; i < languages.length; i++) {
           const lang = languages[i]
           const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-          arr.push({ value: '$name#' + lang.identifier, text: i18n.t('MappingConfigComponent.Name') + langText })
+          arr.push({ value: '$name#' + lang.identifier, text: t('MappingConfigComponent.Name') + langText })
         }
 
         const attrs = getAllItemsAttributes()

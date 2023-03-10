@@ -193,7 +193,7 @@ import * as langStore from '../store/languages'
 import * as relStore from '../store/relations'
 import * as typesStore from '../store/types'
 import ItemsSelectionDialog from './ItemsSelectionDialog'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import * as userStore from '../store/users'
 import AttributeValue from './AttributeValue'
 import SystemInformation from './SystemInformation'
@@ -263,6 +263,8 @@ export default {
     const {
       findType
     } = typesStore.useStore()
+
+    const { t } = useI18n()
 
     const pageSize = ref(localStorage.getItem('relPageSize') ? parseInt(localStorage.getItem('relPageSize')) : 5)
     const itemSelectionDialogRef = ref(null)
@@ -385,7 +387,7 @@ export default {
 
       if (props.componentType === 'source') {
         if (!rel.multi && sourceRelations[identifier].length > 0) {
-          showError(i18n.t('ItemRelationsList.OnlyOne'))
+          showError(t('ItemRelationsList.OnlyOne'))
         } else {
           const data = { id: -Date.now(), relationId: rel.id, item: props.item, values: {} }
           createLanguageDependentValues(rel.id, data)
@@ -413,22 +415,22 @@ export default {
 
       // check identifier
       if (!/^[A-Za-z0-9_-]*$/.test(itemRel.identifier)) {
-        showError(i18n.t('Wrong.Identifier'))
+        showError(t('Wrong.Identifier'))
         return
       }
       if (!itemRel.identifier) {
-        showError(i18n.t('ItemRelationsList.IdentifierRequired'))
+        showError(t('ItemRelationsList.IdentifierRequired'))
         return
       }
 
       if (props.componentType === 'source') {
         if (!itemRel.target) {
-          showError(i18n.t('ItemRelationsList.TargetRequired'))
+          showError(t('ItemRelationsList.TargetRequired'))
           return
         }
       } else {
         if (!itemRel.item) {
-          showError(i18n.t('ItemRelationsList.SourceRequired'))
+          showError(t('ItemRelationsList.SourceRequired'))
           return
         }
       }
@@ -437,13 +439,13 @@ export default {
       if (itemRel.id < 0) {
         identifierExists(itemRel.identifier).then((val) => {
           if (val) {
-            showError(i18n.t('ItemRelationsList.IdentifierNotUnique'))
+            showError(t('ItemRelationsList.IdentifierNotUnique'))
           } else {
             // create
             saveItemRelation(itemRel).then(() => {
               router.clearDataChanged(itemRel.identifier)
               changedRelations.value.splice(changedIdx, 1)
-              showInfo(i18n.t('Saved'))
+              showInfo(t('Saved'))
             })
           }
         })
@@ -452,13 +454,13 @@ export default {
         saveItemRelation(itemRel).then(() => {
           router.clearDataChanged(itemRel.identifier)
           changedRelations.value.splice(changedIdx, 1)
-          showInfo(i18n.t('Saved'))
+          showInfo(t('Saved'))
         })
       }
     }
 
     function remove (identifier, id) {
-      if (confirm(i18n.t('ItemRelationsList.Confirm.Delete'))) {
+      if (confirm(t('ItemRelationsList.Confirm.Delete'))) {
         removeItemRelation(props.componentType, identifier, id)
       }
     }
@@ -485,16 +487,16 @@ export default {
                 if (!itemRel.identifier) {
                   const newIdentifier = props.componentType === 'source' ? props.item.identifier + '_' + items[0].identifier + '_' + nextId : items[0].identifier + '_' + props.item.identifier + '_' + nextId
                   root.$set(itemRel, 'identifier', newIdentifier)
-                  router.dataChanged(newIdentifier, i18n.t('Router.Changed.ItemRelation') + newIdentifier)
+                  router.dataChanged(newIdentifier, t('Router.Changed.ItemRelation') + newIdentifier)
                 } else {
-                  router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
+                  router.dataChanged(itemRel.identifier, t('Router.Changed.ItemRelation') + itemRel.identifier)
                 }
                 executeClientAction(itemRel, { type: props.componentType })
                 changedRelations.value.push(itemRel.id)
               }
             })
           } else {
-            showError(i18n.t('ItemRelationsList.WrongSelection'))
+            showError(t('ItemRelationsList.WrongSelection'))
           }
         })
       })
@@ -546,7 +548,7 @@ export default {
 
     function attrChange (itemRel, attr) {
       executeClientAction(itemRel, { type: 'attribute', attr })
-      router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
+      router.dataChanged(itemRel.identifier, t('Router.Changed.ItemRelation') + itemRel.identifier)
       changedRelations.value.push(itemRel.id)
     }
 
@@ -619,8 +621,8 @@ export default {
       groupsRef,
       groupRelationsRef,
       selectedGroupRef,
-      required: value => !!value || i18n.t('ItemRelationsList.Required'),
-      pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive'),
+      required: value => !!value || t('ItemRelationsList.Required'),
+      pageSizePositive: value => parseInt(value) > 1 || t('ItemRelationsList.MustBePositive'),
       damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
       token: localStorage.getItem('token'),
       dateFormat,

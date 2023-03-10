@@ -56,7 +56,7 @@
             </v-col>
           </v-row>
 
-          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
+          <MappingAttributesCompoment class="mt-5" v-if="pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :category="categoryRef" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="channelAttributesRef" />
         </div>
       </v-col>
       <v-col cols="1">
@@ -122,7 +122,7 @@ import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
 import MappingAttributesCompoment from './MappingAttributesCompoment'
 import ChannelsCategorySelectionDialog from '../components/ChannelsCategorySelectionDialog.vue'
 
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import getChannelFactory from '../channels'
 
 export default {
@@ -179,6 +179,8 @@ export default {
       relations,
       loadAllRelations
     } = relStore.useStore()
+
+    const { t } = useI18n()
 
     const mappedCategories = computed(() => {
       if (props.channel && props.channel.mappings) {
@@ -267,7 +269,7 @@ export default {
     }
 
     function remove () {
-      if (confirm(i18n.t('MappingConfigComponent.Remove.Confirm'))) {
+      if (confirm(t('MappingConfigComponent.Remove.Confirm'))) {
         props.channel.mappings[categoryIdRef.value] = { deleted: true }
         // root.$delete(props.channel.mappings, categoryIdRef.value)
         categoryIdRef.value = null

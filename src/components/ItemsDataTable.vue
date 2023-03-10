@@ -1,7 +1,7 @@
 <template>
   <div>
     <DataTable
-      v-if="hasAccess('search') && item"
+      v-if="hasAccess('search') && item && !collection"
       ref="itemsDataTableRef"
       :loadData="loadItemChildren"
       :headersStorageName="'item_headers'"
@@ -34,7 +34,25 @@
       :exportXLSEnabled="hasAccess('exportXLS')"
       :importXLSEnabled="hasAccess('importXLS')"
       :marginTop="marginTop"
-      v-if="hasAccess('search') && !item"
+      v-if="hasAccess('search') && !item && !collection"
+    />
+    <DataTable
+      ref="itemsDataTableRef"
+      :loadData="loadDataForCollectionFunction"
+      :headersStorageName="'item_headers'"
+      :defaultHeadersArr="defaultHeadersArray"
+      :export="false"
+      :availableColumns="getAvailableColumns"
+      :importEntities="importItems"
+      :updateEntity="updateItem"
+      :searchHeader="'Collections.ItemsOfCollection'"
+      :attrGroupsBtnVisible="true"
+      :sendToChannelBtnVisible="true"
+      :exportXLSEnabled="hasAccess('exportXLS')"
+      :importXLSEnabled="hasAccess('importXLS')"
+      :marginTop="marginTop"
+      :select="true"
+      v-if="collection"
     />
   </div>
 </template>
@@ -60,6 +78,9 @@ export default {
       required: true
     },
     item: {
+      required: false
+    },
+    collection: {
       required: false
     },
     loadItemChildren: {
@@ -95,6 +116,21 @@ export default {
     }
 
     function loadDataFunction (options) {
+      const tmp = new Promise((resolve, reject) => {
+        if (!options) return
+        if (!currentWhereRef.value) {
+          resolve({ count: 0, rows: [] })
+        } else {
+          searchItems(currentWhereRef.value, options)
+            .then((data) => resolve(data))
+            .catch((error) => showError(error))
+        }
+      })
+      tmp.where = currentWhereRef.value || {}
+      return tmp
+    }
+
+    function loadDataForCollectionFunction (options) {
       const tmp = new Promise((resolve, reject) => {
         if (!options) return
         if (!currentWhereRef.value) {
@@ -242,6 +278,7 @@ export default {
       isExportSearch: props.export,
       itemsDataTableRef,
       loadDataFunction,
+      loadDataForCollectionFunction,
       updateItem,
       DataChanged,
       childrenLoaded

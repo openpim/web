@@ -94,7 +94,7 @@ import { ref, onMounted } from 'vue'
 import * as langStore from '../store/languages'
 import OptionsTable from '../components/OptionsTable.vue'
 import AttributeManageDialog from './AttributeManageDialog.vue'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import AttributeType from '../constants/attributeTypes'
 import * as attrStore from '../store/attributes'
 import * as errorStore from '../store/error'
@@ -127,6 +127,9 @@ export default {
     canManageOrder: {
       type: Boolean,
       default: false
+    },
+    category: {
+      required: false
     }
   },
   setup (props, { root }) {
@@ -155,6 +158,8 @@ export default {
     const {
       getChannelAttributeValues
     } = chanStore.useStore()
+
+    const { t } = useI18n()
 
     const exprAttrRef = ref(null)
     const exprDialogRef = ref(null)
@@ -233,14 +238,14 @@ export default {
     }
 
     function remove (i) {
-      if (confirm(i18n.t('Remove') + '?')) {
+      if (confirm(t('Remove') + '?')) {
         props.attributes.splice(i, 1)
         props.channelAttributes.splice(i, 1)
       }
     }
 
     async function manageAttribute (i, attrMapping) {
-      if (attrMapping.expr && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
+      if (attrMapping.expr && !confirm(t('MappingConfigComponent.Attr.ConfirmExist'))) return
 
       const chanAttr = props.channelAttributes[i]
 
@@ -253,13 +258,19 @@ export default {
         // check if necessary attribute was already created
         const check = 'channel' + props.channel.type + 'attribute'
         let found = null
+
+        let catAttrId = chanAttr.id
+        if (chanAttr.dictionary && chanAttr.dictionaryLink && chanAttr.dictionaryLinkPost) { // LOV
+          catAttrId = chanAttr.category + '_' + chanAttr.id
+        }
+
         // eslint-disable-next-line no-labels
         end:
         for (let i = 0; i < groups.length; i++) {
           const group = groups[i]
           for (let j = 0; j < group.attributes.length; j++) {
             const tst = group.attributes[j]
-            if (tst.options.some(option => option.name === check && option.value === chanAttr.id)) {
+            if (tst.options.some(option => option.name === check && option.value === catAttrId)) {
               found = tst
               // eslint-disable-next-line no-labels
               break end
@@ -267,16 +278,16 @@ export default {
           }
         }
         if (found) {
-          showInfo(i18n.t('AttributeManageDialog.AttributeFound'))
+          showInfo(t('AttributeManageDialog.AttributeFound'))
           const pimAttr = findByIdentifier(found.identifier)
           attrManageDialogRef.value.showDialog(pimAttr.item, pimAttr.groups.map(grp => grp.id), attrMapping)
         } else {
           const name = {}
-          name[currentLanguage.value.identifier] = chanAttr.name
+          name[currentLanguage.value.identifier] = chanAttr.name + (chanAttr.dictionary && chanAttr.dictionaryLink && chanAttr.dictionaryLinkPost && props.category ? ' - ' + props.category.name : '')
           const errorMessage = {}
           errorMessage[currentLanguage.value.identifier] = ''
           const pimAttr = {
-            identifier: chanAttr.id,
+            identifier: catAttrId,
             id: Date.now(),
             internalId: 0,
             type: AttributeType.Text,
@@ -294,7 +305,7 @@ export default {
           if (chanAttr.description) {
             pimAttr.options.push({ name: 'description', value: chanAttr.description })
           }
-          pimAttr.options.push({ name: 'channel' + props.channel.type + 'attribute', value: chanAttr.id })
+          pimAttr.options.push({ name: 'channel' + props.channel.type + 'attribute', value: catAttrId })
 
           if (chanAttr.name.includes('(Integer)')) pimAttr.type = AttributeType.Integer
           else if (chanAttr.name.includes('(Decimal)')) pimAttr.type = AttributeType.Float
@@ -306,12 +317,12 @@ export default {
             const json = await getChannelAttributeValues(props.channel.id, chanAttr.category, chanAttr.id)
             if (json) {
               if (!json.has_next) {
-                const tst = lovs.find(lov => lov.identifier === chanAttr.id)
+                const tst = lovs.find(lov => lov.identifier === catAttrId)
                 if (tst) {
                   pimAttr.type = AttributeType.LOV
                   pimAttr.lov = parseInt(tst.internalId || tst.id)
-                } else if (confirm(i18n.t('AttributeManageDialog.ConfirmDictionary'))) {
-                  const lov = { identifier: chanAttr.id, id: Date.now(), internalId: 0, name, values: [] }
+                } else if (confirm(t('AttributeManageDialog.ConfirmDictionary'))) {
+                  const lov = { identifier: catAttrId, id: Date.now(), internalId: 0, name, values: [] }
                   json.result.forEach(elem => {
                     const val = {}
                     val[currentLanguage.value.identifier] = elem.value
@@ -323,10 +334,10 @@ export default {
                   pimAttr.lov = lov.internalId
                 }
               } else {
-                showError(i18n.t('AttributeManageDialog.DictionaryTooBig'))
+                showError(t('AttributeManageDialog.DictionaryTooBig'))
               }
             } else {
-              showError(i18n.t('AttributeManageDialog.DictionaryFailed'))
+              showError(t('AttributeManageDialog.DictionaryFailed'))
               console.error('Failed to load dictionary: ' + JSON.stringify(chanAttr))
             }
           }

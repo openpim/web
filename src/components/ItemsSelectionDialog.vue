@@ -78,7 +78,8 @@ export default {
     } = langStore.useStore()
 
     const {
-      findType
+      findType,
+      findAllLinkTypes
     } = typesStore.useStore()
 
     const tabRef = ref(null)
@@ -177,20 +178,26 @@ export default {
         return false
       }
 
-      function cloneWithFilter (elem) {
+      function cloneWithFilter (elem, arr) {
         const clone = { ...elem }
         clone.children = elem.children.filter(item => {
           const type = findType(item.typeId)
-          return hasTypes(type.node, typesFilter.value)
-        }).map(child => { return cloneWithFilter(child) })
+          return hasTypes(type.node, arr)
+        }).map(child => { return cloneWithFilter(child, arr) })
         return clone
       }
 
       if (typesFilter.value && typesFilter.value.length > 0) {
+        const arr = [...typesFilter.value]
+        typesFilter.value.forEach(typeId => {
+          const linkTypes = findAllLinkTypes(parseInt(typeId))
+          linkTypes.forEach(type => { arr.push(type.internalId) })
+        })
+
         return itemsTree.filter(item => {
           const type = findType(item.typeId)
-          return hasTypes(type.node, typesFilter.value)
-        }).map(elem => { return cloneWithFilter(elem) })
+          return hasTypes(type.node, arr)
+        }).map(elem => { return cloneWithFilter(elem, arr) })
       } else {
         return itemsTree
       }

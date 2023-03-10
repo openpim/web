@@ -106,7 +106,22 @@
             <v-btn v-if="canEditSelected" text @click="move">{{$t('Move')}}</v-btn>
             <v-btn v-if="canEditSelected" text @click="duplicate">{{$t('Duplicate')}}</v-btn>
             <v-btn v-if="canEditSelected" text @click="remove">{{$t('Remove')}}</v-btn>
-            <v-btn v-if="hasChannels" text @click="submit">{{$t('Submit')}}</v-btn>
+            <v-menu offset-y v-if="hasChannels">
+              <template v-slot:activator="{ on }">
+                <v-btn text v-on="on">{{$t('Submit')}}</v-btn>
+              </template>
+              <v-list>
+                <v-list-item >
+                  <v-btn class="pl-1 pr-1" v-if="hasChannels" text @click="submit">{{$t('Item.toChannel')}}</v-btn>
+                </v-list-item>
+                <v-list-item>
+                  <v-btn class="pl-1 pr-1" text @click="submitToCollcetion">{{$t('Item.toCollection')}}</v-btn>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+            <template v-if="!hasChannels">
+              <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" >{{$t('Item.toCollection')}}</v-btn>
+            </template>
             <template v-if="buttonActions && buttonActions.length <= 3">
               <v-btn text @click="executeAction(trigger)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
@@ -123,7 +138,7 @@
             <AfterButtonsComponent :item="itemRef"></AfterButtonsComponent>
             <v-spacer></v-spacer>
             <template v-if="sourceRelationSearch.length + targetRelationSearch.length === 1">
-              <v-btn v-if="sourceRelationSearch.length === 1" text @click="performRelationSearch(sourceRelationSearch[0].identifier, 'target')">{{getRelationSearchName(sourceRelationSearch[0]) || sourceRelationSearch[0].name[currentLanguage.identifier] || '[' + sourceRelationSearch[0].name[defaultLanguageIdentifier] + ']'}}</v-btn>
+              <v-btn v-if="sourceRelationSearch.length === 1" text @click="performRelationSearch(sourceRelationSearch[0].identifier, 'source')">{{getRelationSearchName(sourceRelationSearch[0]) || sourceRelationSearch[0].name[currentLanguage.identifier] || '[' + sourceRelationSearch[0].name[defaultLanguageIdentifier] + ']'}}</v-btn>
               <v-btn v-else text @click="performRelationSearch(targetRelationSearch[0].identifier, 'target')">{{getRelationSearchName(targetRelationSearch[0]) || targetRelationSearch[0].name[currentLanguage.identifier] || '[' + targetRelationSearch[0].name[defaultLanguageIdentifier] + ']'}}</v-btn>
             </template>
             <template v-if="sourceRelationSearch.length + targetRelationSearch.length > 1">
@@ -342,6 +357,7 @@
     <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
     <ItemDuplicationDialog ref="itemDuplicationDialogRef" @duplicated="itemDuplicated"/>
     <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
+    <CollectionsSelectionDialog ref="collSelectionDialogRef" :editAccessOnly="true" @selected="collectionsSelected"/>
     <ShowAttributesDialog ref="showAttributesDialogRef" @selected="showAttributes"/>
   </v-container>
 </template>
@@ -361,7 +377,8 @@ import * as auditStore from '../store/audit'
 import * as channelsStore from '../store/channels'
 import * as searchStore from '../store/search'
 import * as lovsStore from '../store/lovs'
-import i18n from '../i18n'
+import * as collectionsStore from '../store/collections'
+import { useI18n } from 'vue-i18n'
 import * as langStore from '../store/languages'
 import AttributeValue from '../components/AttributeValue'
 import ItemRelationsList from '../components/ItemRelationsList'
@@ -374,6 +391,7 @@ import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import FileUploadDialog from '../components/FileUploadDialog'
 import ItemDuplicationDialog from '../components/ItemDuplicationDialog'
 import ChannelsSelectionDialog from '../components/ChannelsSelectionDialog'
+import CollectionsSelectionDialog from '../components/CollectionsSelectionDialog'
 import ActionStatusDialog from '../components/ActionStatusDialog'
 import ShowAttributesDialog from '../components/ShowAttributesDialog'
 import HistoryTable from '../components/HistoryTable'
@@ -413,6 +431,7 @@ export default {
     BeforeAttributesComponent,
     AfterAttributesComponent,
     ChannelsSelectionDialog,
+    CollectionsSelectionDialog,
     ActionStatusDialog,
     ShowAttributesDialog,
     VuePdfEmbed
@@ -432,6 +451,8 @@ export default {
     const { checkAuditEnabled, auditEnabled } = auditStore.useStore()
 
     const { loadAllChannels, getAvailableChannels, submitItem, triggerChannel, updateItemChannels } = channelsStore.useStore()
+
+    const { submitItemToCollection } = collectionsStore.useStore()
 
     const { searchEntityRef } = searchStore.useStore()
 
@@ -483,6 +504,8 @@ export default {
       getLOVData
     } = lovsStore.useStore()
 
+    const { t } = useI18n()
+
     const itemsDataTableRef = ref(null)
     const historyTableRef = ref(null)
     const itemRef = ref(null)
@@ -499,6 +522,7 @@ export default {
     const fileUploadDialogRef = ref(null)
     const itemDuplicationDialogRef = ref(null)
     const chanSelectionDialogRef = ref(null)
+    const collSelectionDialogRef = ref(null)
     const showAttributesDialogRef = ref(null)
     const awailableChannelsRef = ref([])
     const buttonActionStatusDialog = ref(null)
@@ -719,7 +743,7 @@ export default {
         })
       }
       if (result) {
-        showInfo(i18n.t('Saved'))
+        showInfo(t('Saved'))
         loadAssets(itemRef.value.id).then(arr => {
           arr.forEach(elem => {
             elem.type = findType(elem.typeId)?.node
@@ -730,7 +754,7 @@ export default {
     }
 
     function removeFile () {
-      if (confirm(i18n.t('ItemView.RemoveFile'))) {
+      if (confirm(t('ItemView.RemoveFile'))) {
         removeItemFile(itemRef.value.internalId).then(() => {
           itemRef.value.mimeType = ''
           itemRef.value.fileOrigName = ''
@@ -760,12 +784,12 @@ export default {
 
     const itemChangedRef = ref(false)
     function nameInput () {
-      router.dataChanged(itemRef.value.identifier + '_name', i18n.t('Router.Changed.Name'))
+      router.dataChanged(itemRef.value.identifier + '_name', t('Router.Changed.Name'))
       itemChangedRef.value = true
     }
 
     function attrInput () {
-      router.dataChanged(itemRef.value.identifier, i18n.t('Router.Changed.Attribute'))
+      router.dataChanged(itemRef.value.identifier, t('Router.Changed.Attribute'))
       itemChangedRef.value = true
     }
 
@@ -785,7 +809,7 @@ export default {
           // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
           if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
         })
-        showInfo(i18n.t('Saved'))
+        showInfo(t('Saved'))
       })
     }
 
@@ -821,25 +845,25 @@ export default {
             moveItem(itemRef.value, id).then(() => {
               itemPathRef.value = []
               loadItemPath(itemRef.value.path)
-              showInfo(i18n.t('Saved'))
+              showInfo(t('Saved'))
             })
           } else {
-            showError(i18n.t('ItemView.Move.WrongParent'))
+            showError(t('ItemView.Move.WrongParent'))
           }
         })
       }
     }
 
     async function remove () {
-      if (confirm(i18n.t('ItemView.RemoveItem'))) {
+      if (confirm(t('ItemView.RemoveItem'))) {
         const data = await loadChildren(itemRef.value.internalId, { page: 1, itemsPerPage: 1 })
         if (data.count > 0) {
-          showError(i18n.t('ItemView.Remove.HasChildrenError'))
+          showError(t('ItemView.Remove.HasChildrenError'))
         } else {
           const checkRelationsOnDelete = getOption(itemType.value, 'checkRelationsOnDelete', true)
           const res = !checkRelationsOnDelete ? false : await hasRelations(itemRef.value.internalId)
           if (res) {
-            showError(i18n.t('ItemView.Remove.HasRelationsError'))
+            showError(t('ItemView.Remove.HasRelationsError'))
           } else {
             removeItem(itemRef.value.internalId).then(() => {
               router.push('/')
@@ -992,7 +1016,7 @@ export default {
 
     function executeAction (trigger) {
       if (trigger.askBeforeExec) {
-        if (!confirm(i18n.t('Execute') + '?')) return
+        if (!confirm(t('Execute') + '?')) return
       }
       if (trigger.selectItems) {
         itemSelectionDialogRef.value.showDialog(trigger, trigger.selectItemsFilter ? trigger.selectItemsFilter.split(',').map(elem => parseInt(elem)) : null)
@@ -1026,7 +1050,7 @@ export default {
         } else if (result.message) {
           showInfo(result.message)
         } else {
-          showInfo(i18n.t('Started'))
+          showInfo(t('Started'))
         }
       }).finally(() => {
         buttonActionStatusDialog.value.closeDialog()
@@ -1074,12 +1098,23 @@ export default {
       chanSelectionDialogRef.value.closeDialog()
       if (arr.length === 0) return
       submitItem(itemRef.value.internalId, itemRef.value.typeId, itemRef.value.path, arr, itemRef.value).then(() => {
-        showInfo(i18n.t('Submitted'))
+        showInfo(t('Submitted'))
       })
     }
 
-    function showAttributesShowDialog (type) {
-      showAttributesDialogRef.value.showDialog(itemRef.value, type)
+    function submitToCollcetion () {
+      collSelectionDialogRef.value.showDialog()
+    }
+
+    function collectionsSelected (collectionId) {
+      collSelectionDialogRef.value.closeDialog()
+      submitItemToCollection(itemRef.value.internalId, collectionId).then(() => {
+        showInfo(t('Collections.Submitted'))
+      })
+    }
+
+    function showAttributesShowDialog () {
+      showAttributesDialogRef.value.showDialog(itemRef.value)
     }
 
     function showAttributes () {
@@ -1104,7 +1139,7 @@ export default {
     }
 
     function removeChannel (channel) {
-      if (confirm(i18n.t('Config.Channels.ConfirmRemove'))) {
+      if (confirm(t('Config.Channels.ConfirmRemove'))) {
         const channels = itemRef.value.channels
         channels[channel.identifier].is_deleted = true
         updateItemChannels(itemRef.value, channels)
@@ -1160,6 +1195,8 @@ export default {
         loadAllAttributes(),
         loadAllRelations(),
         loadAllTypes()]).then(() => {
+        console.log('route', route)
+
         if (route.value && route.value.params && route.value.params.id) {
           itemPathRef.value = []
           loadItemByIdentifier(route.value.params.id).then((item) => {
@@ -1278,10 +1315,13 @@ export default {
       channelsOnHead,
       hasChannels,
       submit,
+      submitToCollcetion,
       showAttributesShowDialog,
       chanSelectionDialogRef,
+      collSelectionDialogRef,
       showAttributesDialogRef,
       channelsSelected,
+      collectionsSelected,
       showAttributes,
       dateFormat,
       headAttributesKeyRef,
@@ -1306,7 +1346,7 @@ export default {
       canViewAttrConfigRef,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
-        v => !!v || i18n.t('ItemCreationDialog.NameRequired')
+        v => !!v || t('ItemCreationDialog.NameRequired')
       ]
     }
   }

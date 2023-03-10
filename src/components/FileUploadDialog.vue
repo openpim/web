@@ -59,7 +59,7 @@ import * as itemStore from '../store/item'
 import * as userStore from '../store/users'
 import * as errorStore from '../store/error'
 import ItemsSelectionDialog from './ItemsSelectionDialog'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 
 export default {
   name: 'FileUploadDialog',
@@ -91,6 +91,8 @@ export default {
       loadItemsByIds,
       nextId
     } = itemStore.useStore()
+
+    const { t } = useI18n()
 
     const formRef = ref(null)
     const dialogRef = ref(false)
@@ -140,7 +142,7 @@ export default {
           itemSelectionDialogRef.value.closeDialog()
           selectedParentRef.value = parent
         } else {
-          showError(i18n.t('FileUploadDialog.SelectParent.WrongParent'))
+          showError(t('FileUploadDialog.SelectParent.WrongParent'))
         }
       })
     }

@@ -51,7 +51,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn variant="flat" color="primary" @click="signIn(login, password, pathAfterLogin)" type="submit">{{ $t('Login.Login') }}</v-btn>
+            <v-btn variant="flat" color="primary" @click="doLogin()" type="submit">{{ $t('Login.Login') }}</v-btn>
           </v-card-actions>
         </v-form>
       </v-card>
@@ -62,6 +62,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import * as userStore from '../store/users'
+import * as rolesStore from '../store/roles'
 import { useI18n } from 'vue-i18n'
 import i18n, { loadLocaleMessages } from '../i18n'
 
@@ -77,6 +78,11 @@ export default {
       signOut
     } = userStore.useStore()
     const { t, locale } = useI18n()
+
+    const {
+      loadAllRoles
+    } = rolesStore.useStore()
+
     const login = ref('')
     const password = ref('')
 
@@ -96,10 +102,15 @@ export default {
       loadLocaleMessages(i18n, locale.value)
     }
 
+    const doLogin = () => {
+      signIn(login.value, password.value, props.pathAfterLogin)
+      loadAllRoles()
+    }
+
     return {
       login,
       password,
-      signIn,
+      doLogin,
       changeLocale,
       languageSelect: process.env.VUE_APP_I18N_LANGUAGE_SELECT === 'true',
       localeSelection: [

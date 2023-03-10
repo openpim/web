@@ -53,7 +53,7 @@ import * as langStore from '../store/languages'
 import * as errorStore from '../store/error'
 import * as auditStore from '../store/audit'
 import dateFormat from 'dateformat'
-import i18n from '../i18n'
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted, watch } from 'vue'
 
 import HistoryTableRows from './HistoryTableRows'
@@ -81,13 +81,15 @@ export default {
 
     const { showError } = errorStore.useStore()
 
+    const { t } = useI18n()
+
     const itemsRef = ref([])
     const totalItemsRef = ref(0)
     const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: ['changedAt'], sortDesc: [true] })
     const loadingRef = ref(false)
-    const headersRef = ref([{ identifier: 'operation', text: i18n.t('HistoryTable.Operation'), align: 'start', sortable: true, filterable: false, value: 'operation' },
-      { identifier: 'user', text: i18n.t('HistoryTable.User'), align: 'start', sortable: false, filterable: false, value: 'user' },
-      { identifier: 'changedAt', text: i18n.t('HistoryTable.ChangedAt'), align: 'start', sortable: true, filterable: false, value: 'changedAt' },
+    const headersRef = ref([{ identifier: 'operation', text: t('HistoryTable.Operation'), align: 'start', sortable: true, filterable: false, value: 'operation' },
+      { identifier: 'user', text: t('HistoryTable.User'), align: 'start', sortable: false, filterable: false, value: 'user' },
+      { identifier: 'changedAt', text: t('HistoryTable.ChangedAt'), align: 'start', sortable: true, filterable: false, value: 'changedAt' },
       { text: '', value: 'data-table-expand' }])
 
     watch(() => props.item, (newItem, oldItem) => {

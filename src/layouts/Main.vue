@@ -28,17 +28,17 @@
           <v-icon>mdi-magnify</v-icon>
           <span>{{ $t('Main.Search') }}</span>
         </v-btn>
-        <v-btn to="/collections" v-if="hasCollectionsRef">
-            <span>{{ $t('Main.Collections') }}</span>
-            <v-icon>mdi-bookmark-outline</v-icon>
+        <v-btn to="/collections" class="btn-nav" variant="text">
+          <v-icon>mdi-bookmark-outline</v-icon>
+          <span>{{ $t('Main.Collections') }}</span>
         </v-btn>
-        <v-btn to="/imports" v-if="hasImportsAccess">
-            <span>{{ $t('Main.Imports') }}</span>
-            <v-icon>mdi-file-outline</v-icon>
+        <v-btn to="/imports" v-if="hasImportsAccess" class="btn-nav" variant="text">
+          <v-icon>mdi-file-outline</v-icon>
+          <span>{{ $t('Main.Imports') }}</span>
         </v-btn>
-        <v-btn to="/channels" v-if="hasChannelsRef">
-            <span>{{ $t('Main.Channels') }}</span>
-            <v-icon>mdi-access-point</v-icon>
+        <v-btn to="/channels" v-if="hasChannelsRef" class="btn-nav" variant="text">
+          <v-icon>mdi-access-point</v-icon>
+          <span>{{ $t('Main.Channels') }}</span>
         </v-btn>
         <v-btn to="/config/home" v-if="hasConfigRef" class="btn-nav" variant="text">
           <v-icon>mdi-cog-outline</v-icon>
@@ -52,7 +52,7 @@
       <Processes v-if="drawerRight" />
     </v-navigation-drawer>
     <v-main>
-      <v-container class="fill-height" fluid>
+      <v-container class="fill-height align-start" fluid>
         <router-view :export="isExportSearch"></router-view>
       </v-container>
     </v-main>
@@ -72,7 +72,6 @@ import UserDialog from '../components/common/UserDialog'
 import Processes from '../components/common/Processes'
 import * as userStore from '../store/users'
 import * as channelsStore from '../store/channels'
-import * as collectionsStore from '../store/collections'
 import * as rolesStore from '../store/roles'
 import * as dashStore from '../store/dashboards'
 
@@ -100,10 +99,6 @@ export default {
     } = channelsStore.useStore()
 
     const {
-      loadAllCollections
-    } = collectionsStore.useStore()
-
-    const {
       loadAllDashboards,
       getDashboardsForCurrentUser
     } = dashStore.useStore()
@@ -119,7 +114,6 @@ export default {
 
     const hasConfigRef = ref(false)
     const hasChannelsRef = ref(false)
-    const hasCollectionsRef = ref(false)
 
     const hasSearchAccess = ref(false)
     const hasImportsAccess = ref(false)
@@ -159,10 +153,7 @@ export default {
           loadAllChannels().then(channels => {
             if (channels && channels.length > 0) hasChannelsRef.value = true
           })
-          loadAllCollections().then(collections => {
-            if (collections && collections.length > 0) hasCollectionsRef.value = true
-          })
-          hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards') || canViewConfig('channels') || canViewConfig('importConfigs')
+          hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards') || canViewConfig('channels')
         }
       })
     })
@@ -179,7 +170,6 @@ export default {
       currentUserRef,
       hasConfigRef,
       hasChannelsRef,
-      hasCollectionsRef,
       isExportSearch: props.export,
       hasSearchAccess,
       hasImportsAccess,

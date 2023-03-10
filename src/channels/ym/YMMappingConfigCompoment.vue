@@ -85,7 +85,7 @@ import MappingAttributesCompoment from '../MappingAttributesCompoment'
 import ChannelsCategorySelectionDialog from '../../components/ChannelsCategorySelectionDialog.vue'
 import YMAdditionalParams from '../ym/YMAdditionalParams.vue'
 
-import i18n from '../../i18n'
+import { useI18n } from 'vue-i18n'
 
 export default {
   props: {
@@ -116,6 +116,8 @@ export default {
     } = relStore.useStore()
 
     const { canEditConfig } = userStore.useStore()
+
+    const { t } = useI18n()
 
     const mappedCategories = computed(() => {
       if (props.channel && props.channel.mappings) {
@@ -271,7 +273,7 @@ export default {
     }
 
     function remove () {
-      if (confirm(i18n.t('MappingConfigComponent.Remove.Confirm'))) {
+      if (confirm(t('MappingConfigComponent.Remove.Confirm'))) {
         props.channel.mappings[categoryIdRef.value] = { deleted: true }
         // root.$delete(props.channel.mappings, categoryIdRef.value)
         categoryIdRef.value = null
