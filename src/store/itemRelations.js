@@ -360,12 +360,12 @@ const actions = {
       const group = groups[i]
 
       const roles = userStore.store.currentRoles
-      let access = 2
+      let access = -1
       for (let i = 0; i < roles.length; i++) {
         const role = roles[i]
         if (role.relAccess.relations.find(id => id === relationId)) {
           const tst = role.relAccess.groups.find(data => data.groupId === group.id)
-          if (tst && tst.access < access) access = tst.access
+          if (tst && tst.access > access) access = tst.access
         }
       }
 
