@@ -79,6 +79,7 @@
   "Config.Attributes.LanguageDependent": "Language dependent",
   "Config.Attributes.ForObjects": "For items",
   "Config.Attributes.ForRelations": "For relations",
+  "Config.Attributes.ShowEmptyGroups": "Show empty groups",
   "Config.Attribute.Type.Text": "Text",
   "Config.Attribute.Type.Boolean": "Boolean",
   "Config.Attribute.Type.Integer": "Integer",

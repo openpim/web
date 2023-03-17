@@ -12,7 +12,8 @@
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
-        <v-text-field @input="searchChanged" @clear="searchChanged" v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
+        <template v-if="item"><input type="checkbox" v-model="showEmptyGroups" class="ml-5 mr-2">{{$t('Config.Attributes.ShowEmptyGroups')}}</template>
+        <v-text-field @input="searchChanged" @clear="searchChanged" v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5 mt-2 pt-0"></v-text-field>
         <v-treeview dense activatable hoverable :items="groupsFiltered" @update:active="activeChanged" :active="activeRef" :open="openRef">
           <template v-slot:prepend="{ item }">
             <v-icon>{{ item.group ? 'mdi-format-list-bulleted-type' : 'mdi-alpha-a-box-outline' }}</v-icon>
@@ -152,6 +153,7 @@ export default {
     const openRef = ref([])
     const selectedGroupsRef = ref([])
     const maxChiidrenNumber = 100
+    const showEmptyGroups = ref(false)
 
     const connectGroups = computed(() => {
       return selectedGroupsRef.value ? groups.filter((grp) => !selectedGroupsRef.value.find((item) => item.id === grp.id)) : []
@@ -380,6 +382,11 @@ export default {
       refreshItemAttributes()
     })
 
+    watch(showEmptyGroups, () => {
+      searchRef.value = ''
+      refreshItemAttributes()
+    })
+
     function refreshItemAttributes () {
       if (!props.item) return
       const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
@@ -399,7 +406,7 @@ export default {
           }
         })
         newGroup.attributes = groupAttr
-        newGroups.push(newGroup)
+        if (showEmptyGroups.value || groupAttr.length > 0) newGroups.push(newGroup)
       })
       filteredAttributes = newGroups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
       groupsFiltered.value = filteredAttributes.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.children }))
@@ -445,6 +452,8 @@ export default {
       currentLanguage,
       optionsChanged,
       defaultLanguageIdentifier,
+      showEmptyGroups,
+      refreshItemAttributes,
       identifierRules: [
         v => identifierValidation(v)
       ],
