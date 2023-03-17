@@ -170,7 +170,11 @@ export default {
           }, 1000)
         }
       } else {
-        groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
+        if (props.item) {
+          groupsFiltered.value = filteredAttributes
+        } else {
+          groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
+        }
       }
     }
 
@@ -179,8 +183,9 @@ export default {
       activeRef.value = []
       selectedRef.value = empty
       groupsFiltered.value = []
-      for (let k = 0; k < groups.length; k++) {
-        const group = groups[k]
+      const groupsToUse = props.item ? filteredAttributes : groups
+      for (let k = 0; k < groupsToUse.length; k++) {
+        const group = groupsToUse[k]
         if (group.name[currentLanguage.value.identifier].toLowerCase().includes(searchRef.value.toLowerCase())) {
           groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) })
           continue
@@ -365,6 +370,8 @@ export default {
       })
     })
 
+    let filteredAttributes = []
+    refreshItemAttributes()
     watch(() => props.item, () => {
       refreshItemAttributes()
     })
@@ -376,8 +383,9 @@ export default {
     function refreshItemAttributes () {
       if (!props.item) return
       const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
-      console.log(555, props.type)
+      const newGroups = []
       groups.forEach(group => {
+        const newGroup = { ...group }
         const groupAttr = []
         group.attributes.forEach(attr => {
           if (props.type === 1) { // show attributes only for this object (check type)
@@ -390,9 +398,11 @@ export default {
             }
           }
         })
-        group.itemAttributes = groupAttr
+        newGroup.attributes = groupAttr
+        newGroups.push(newGroup)
       })
-      groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.itemAttributes.slice(0, maxChiidrenNumber) }))
+      filteredAttributes = newGroups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
+      groupsFiltered.value = filteredAttributes.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.children }))
     }
 
     function identifierValidation (v) {
