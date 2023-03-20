@@ -380,7 +380,7 @@ const actions = {
           if (attr.relations && attr.relations.find(relId => relId === relationId)) {
             const idx = attrs.findIndex(elem => elem.identifier === attr.identifier)
             if (idx === -1) {
-              if (access > 0) {
+              if (access === -1 || access > 0) {
                 attr.readonly = (access === 1)
                 attrs.push(attr)
               }
