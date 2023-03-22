@@ -3,6 +3,7 @@ import WBFactory from './wb'
 import OzonFactory from './ozon'
 import YMFactory from './ym'
 import ExtMapFactory from './extmap'
+import MDMFactory from './mdm'
 
 function getConfigCompoment () { return null }
 function getStandardAttributes () { return null }
@@ -22,6 +23,7 @@ export default function getChannelFactory (type) {
     case 3: return OzonFactory
     case 4: return YMFactory
     case 5: return ExtMapFactory
+    case 6: return MDMFactory
     default: return empty
   }
 }
