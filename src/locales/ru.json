@@ -76,6 +76,7 @@
   "Config.Attributes.LanguageDependent": "Зависит от языка",
   "Config.Attributes.ForObjects": "Для объектов",
   "Config.Attributes.ForRelations": "Для зависимостей",
+  "Config.Attributes.ShowEmptyGroups": "Показывать пустые группы",
   "Config.Attribute.Type.Text": "Текст",
   "Config.Attribute.Type.Boolean": "Да/Нет",
   "Config.Attribute.Type.Integer": "Целочисленный",
