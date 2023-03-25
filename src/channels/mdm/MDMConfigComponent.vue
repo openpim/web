@@ -41,7 +41,7 @@
         <span v-if="supplierCategoryRef">
           <router-link :to="'/item/' + supplierCategoryRef.identifier">{{ supplierCategoryRef.identifier }}</router-link><span class="ml-2">- {{ supplierCategoryRef.name[currentLanguage.identifier] || '[' + supplierCategoryRef.name[defaultLanguageIdentifier] + ']' }}</span>
         </span>
-        <v-btn color="blue darken-1" v-if="!readonly" text @click="supplierCategorySelectionDialogRef.showDialog()">Выбрать</v-btn>
+        <v-btn color="blue darken-1" v-if="!readonly" text @click="supplierCategorySelectionDialogRef.showDialog()">{{ $t('Select') }}</v-btn>
       </v-col>
     </v-row>
 
@@ -63,7 +63,7 @@
       </v-list>
     </v-card>
 
-    <v-card class="mb-5 mt-2">
+    <v-card class="mb-8 mt-2">
       <v-card-title class="subtitle-2 font-weight-bold" >
         <div style="width:90%">{{ $t('MappingConfigComponent.MasterRelations') }}</div>
         <v-tooltip bottom v-if="!readonly">
@@ -82,8 +82,57 @@
     </v-card>
 
     <v-row>
+      <v-col cols="11">
+        <v-autocomplete v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories.filter(elem => !elem.deleted)" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')" clearable></v-autocomplete>
+      </v-col>
+      <v-col cols="1">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-on="on" :disabled="!supplierCategoryRef || !supplierCategoryTypes.length" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+          </template>
+          <span>{{ $t('Add') }}</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn icon :disabled="!categoryIdRef" v-on="on" @click="remove"><v-icon>mdi-minus</v-icon></v-btn>
+          </template>
+          <span>{{ $t('Remove') }}</span>
+        </v-tooltip>
+      </v-col>
+    </v-row>
+
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="dialogRef" persistent width="90%">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('MappingConfigComponent.Add.Title') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <template v-if="categoriesTreeRef">
+                      <span v-if="!categoriesTreeRef.length">{{ $t('MappingConfigComponent.СategoriesNotFound') }}</span>
+                      <v-treeview class="scroll-body" dense hoverable activatable :items="categoriesTreeRef" :active.sync="treeActiveRef" :load-children="addChildren2TreeView"></v-treeview>
+                    </template>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Cancel') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="addCategory">{{ $t('Select') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+
+    <v-row>
       <v-col cols="12">
-        <MappingAttributesCompoment class="mt-5" v-if="masterAttributesRef.length && supplierAttributesRef.length" :readonly="readonly" :category="supplierCategoryRef" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="supplierAttributesRef" :pimAttributes="masterAttributesRef" :channelAttributes="channelAttributesRef" />
+        <MappingAttributesCompoment class="mt-5" v-if="masterAttributesRef.length && !categoryRef.deleted" :readonly="readonly" :category="categoryRef" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="masterAttributesRef" :channelAttributes="channelAttributesRef" />
       </v-col>
     </v-row>
     <ItemsSelectionDialog ref="supplierCategorySelectionDialogRef" @selected="supplierCategorySelected"/>
@@ -94,7 +143,8 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, watch } from '@vue/composition-api'
+
+import { ref, onMounted, watch, computed } from '@vue/composition-api'
 
 import * as itemStore from '@/store/item'
 import * as langStore from '@/store/languages'
@@ -110,6 +160,7 @@ import TypeSelectionDialog from '@/components/TypeSelectionDialog'
 import MappingAttributesCompoment from '@/channels/MappingAttributesCompoment'
 
 import getChannelFactory from '@/channels'
+import i18n from '@/i18n'
 
 export default {
   props: {
@@ -126,6 +177,7 @@ export default {
     const { canEditConfig } = userStore.useStore()
 
     const {
+      loadChildren,
       loadItemsByIds,
       searchItems
     } = itemStore.useStore()
@@ -152,7 +204,6 @@ export default {
     } = relStore.useStore()
 
     const channelAttributesRef = ref([])
-    const supplierAttributesRef = ref([])
     const masterAttributesRef = ref([])
 
     const supplierCategoryRef = ref(null)
@@ -171,6 +222,22 @@ export default {
     const typesLoadedRef = ref(false)
     const relationsLoadedRef = ref(false)
 
+    const categoryIdRef = ref(null)
+    const categoryRef = ref(null)
+    const newCategoryIdRef = ref(null)
+    const dialogRef = ref(false)
+    const categoriesTreeRef = ref(null)
+    const treeSearchRef = ref('')
+    const treeActiveRef = ref([])
+
+    const mappedCategories = computed(() => {
+      if (props.channel && props.channel.mappings) {
+        return Object.values(props.channel.mappings)
+      } else {
+        return []
+      }
+    })
+
     watch(() => props.channel, (chan, previousValue) => {
       if (!typesLoadedRef.value && !relationsLoadedRef.value) return
       supplierCategoryRef.value = chan.config.supplierCategory ? chan.config.supplierCategory : null
@@ -179,13 +246,9 @@ export default {
       masterProductTypes.value = chan.config.masterProductTypes ? chan.config.masterProductTypes.map((id) => findType(id).node) : []
       masterRelations.value = chan.config.masterRelations ? chan.config.masterRelations.map(id => relations.find(rel => rel.id === id)) : []
       masterAttributesRef.value = []
-      supplierAttributesRef.value = []
-      loadAttributes()
+      categoryRef.value = { attributes: [] }
+      categoryIdRef.value = null
     })
-
-    /* watch(() => supplierAttributesRef.value, (attrs, previousValue) => {
-      console.log(JSON.stringify([...supplierAttributesRef.value]))
-    }) */
 
     function editSupplierProductTypes () {
       supplierProductTypeSelectionDialogRef.value.showDialog('', props.channel.config.supplierProductTypes)
@@ -204,44 +267,154 @@ export default {
     }
 
     function supplierCategorySelected (id) {
-      if (supplierCategorySelectionDialogRef.value) supplierCategorySelectionDialogRef.value.closeDialog()
-      loadItemsByIds([id], false).then(items => {
-        supplierCategoryRef.value = items[0]
-        props.channel.config.supplierCategory = supplierCategoryRef.value
-        loadAttributes()
+      loadItemsByIds([id], false).then(async items => {
+        if (mappedCategories.value.length && mappedCategories.value.some(el => !el.path.startsWith(items[0].path))) {
+          if (confirm(i18n.t('MappingConfigComponent.MappingsForPathesWillBeDeletedWarning'))) {
+            for (let i = 0; i < mappedCategories.value.length; i++) {
+              const mappedCategory = mappedCategories.value[i]
+              if (!mappedCategory.path.startsWith(items[0]).path) {
+                console.log('deleted!')
+                props.channel.mappings['category_' + mappedCategory.id].deleted = true
+              }
+            }
+            if (categoryRef.value) {
+              categoryRef.value.attributes = []
+            }
+            masterAttributesRef.value = []
+            categoryIdRef.value = null
+            supplierCategoryRef.value = items[0]
+            props.channel.config.supplierCategory = supplierCategoryRef.value
+            supplierCategorySelectionDialogRef.value.closeDialog()
+            loadAttributes()
+          }
+        } else {
+          supplierCategoryRef.value = items[0]
+          props.channel.config.supplierCategory = supplierCategoryRef.value
+          supplierCategorySelectionDialogRef.value.closeDialog()
+          loadAttributes()
+        }
       })
     }
 
     function supplierCategoryTypesSelected (arr) {
-      props.channel.config.supplierCategoryTypes = arr
-      supplierCategoryTypes.value = props.channel.config.supplierCategoryTypes.map((id) => findType(id).node)
-      supplierCategoryTypeSelectionDialogRef.value.closeDialog()
-      loadAttributes()
+      if (!mappedCategories.value.length || !mappedCategories.value.some(el => arr.indexOf(parseInt(el.typeId)) === -1)) {
+        props.channel.config.supplierCategoryTypes = arr
+        supplierCategoryTypes.value = props.channel.config.supplierCategoryTypes.map((id) => findType(id).node)
+        supplierCategoryTypeSelectionDialogRef.value.closeDialog()
+      } else {
+        if (confirm(i18n.t('MappingConfigComponent.MappingsForTypesWillBeDeletedWarning'))) {
+          for (let i = 0; i < mappedCategories.value.length; i++) {
+            const mappedCategory = mappedCategories.value[i]
+            if (arr.indexOf(parseInt(mappedCategory.typeId) === -1)) {
+              props.channel.mappings['category_' + mappedCategory.id].deleted = true
+            }
+          }
+          if (categoryRef.value) {
+            categoryRef.value.attributes = []
+          }
+          masterAttributesRef.value = []
+          categoryIdRef.value = null
+          props.channel.config.supplierCategoryTypes = arr
+          supplierCategoryTypes.value = props.channel.config.supplierCategoryTypes.map((id) => findType(id).node)
+          supplierCategoryTypeSelectionDialogRef.value.closeDialog()
+        } else {
+          supplierCategoryTypeSelectionDialogRef.value.closeDialog()
+        }
+      }
     }
 
     function supplierProductTypesSelected (arr) {
       props.channel.config.supplierProductTypes = arr
       supplierProductTypes.value = props.channel.config.supplierProductTypes.map((id) => findType(id).node)
       supplierProductTypeSelectionDialogRef.value.closeDialog()
-      loadAttributes()
     }
 
     function masterProductTypesSelected (arr) {
       props.channel.config.masterProductTypes = arr
       masterProductTypes.value = props.channel.config.masterProductTypes.map((id) => findType(id).node)
       masterProductTypeSelectionDialogRef.value.closeDialog()
-      loadAttributes()
     }
 
     function relationsSelected (arr) {
+      if (mappedCategories.value.length) {
+        alert(i18n.t('MappingConfigComponent.MasterRelationChangedWarning'))
+      }
       props.channel.config.masterRelations = arr
       masterRelations.value = props.channel.config.masterRelations.map(id => relations.find(rel => rel.id === id))
       relSelectionDialogRef.value.closeDialog()
       loadAttributes()
     }
 
+    function addCategory () {
+      if (treeActiveRef.value.length === 0) return
+      categoryRef.value = findNodeByComparator(treeActiveRef.value[0], categoriesTreeRef.value, [], (id, item) => item.id === id)
+
+      if (props.channel.config.supplierCategoryTypes.indexOf(parseInt(categoryRef.value.typeId)) === -1) {
+        alert(i18n.t('MappingConfigComponent.IncorrectCategoryTypeSelected'))
+        return
+      }
+
+      dialogRef.value = false
+      loadAttributes()
+      root.$set(props.channel.mappings, 'category_' + categoryRef.value.id, categoryRef.value)
+      categoryIdRef.value = categoryRef.value.id
+    }
+
+    function findNodeByComparator (id, children, path, comparator) {
+      for (var i = 0; i < children.length; i++) {
+        const item = children[i]
+        if (comparator(id, item)) {
+          return item
+        } else if (item.children && item.children.length > 0) {
+          const found = findNodeByComparator(id, item.children, path, comparator)
+          if (found) {
+            if (path) path.unshift(item.name)
+            return found
+          }
+        }
+      }
+      return null
+    }
+
+    async function add () {
+      categoriesTreeRef.value = []
+      categoriesTreeRef.value = await loadFilterChildren(supplierCategoryRef.value)
+      newCategoryIdRef.value = null
+      dialogRef.value = true
+    }
+
+    async function loadFilterChildren (item) {
+      const data = await loadChildren(item.id, { page: 1, itemsPerPage: 10000 })
+      for (let i = 0; i < data.rows.length; i++) {
+        data.rows[i].name = (data.rows[i].name[currentLanguage.value.identifier] || '[' + data.rows[i].name[defaultLanguageIdentifier.value] + ']')
+        data.rows[i].children = []
+      }
+      // return data.rows.filter(row => props.channel.config.supplierCategoryTypes.indexOf(parseInt(row.typeId)) !== -1).filter(row => mappedCategories.value.findIndex(el => el.id === row.id) === -1)
+      return data.rows.filter(row => mappedCategories.value.findIndex(el => el.id === row.id && !el.deleted) === -1)
+    }
+
+    async function addChildren2TreeView (item) {
+      item.children = await loadFilterChildren(item)
+    }
+
+    function remove () {
+      if (confirm(i18n.t('MappingConfigComponent.Remove.Confirm'))) {
+        props.channel.mappings['category_' + categoryIdRef.value] = { deleted: true }
+        // root.$delete(props.channel.mappings, 'category_' + categoryIdRef.value)
+        categoryRef.value.attributes = []
+        masterAttributesRef.value = []
+        categoryIdRef.value = null
+      }
+    }
+
+    function categoryChanged () {
+      categoryRef.value = mappedCategories.value.find(elem => elem.id === categoryIdRef.value)
+      // if (categoryRef.value?.categoryAttr) lovChanged(categoryRef.value.categoryAttr)
+      loadAttributes()
+    }
+
     function loadAttributes () {
-      if (!props.channel.type || !supplierCategoryRef.value) return
+      if (!props.channel.type || !categoryRef.value || !categoryRef.value.identifier) return
       masterAttributesRef.value = []
       let validMasterTypes = []
       for (let i = 0; i < masterRelations.value.length; i++) {
@@ -266,7 +439,7 @@ export default {
             as: 'sourceItem',
             required: true,
             where: {
-              identifier: supplierCategoryRef.value.identifier
+              identifier: categoryRef.value.identifier
             }
           }]
         }]
@@ -286,8 +459,10 @@ export default {
           }
         }
 
-        supplierAttributesRef.value = []
-        const path = supplierCategoryRef.value.path
+        const existedAttrs = categoryRef.value.attributes || []
+
+        categoryRef.value.attributes = []
+        const path = categoryRef.value.path
         const pathArr = path.split('.').map(elem => parseInt(elem))
         const attrs = getAllItemsAttributes()
         const validSupplierTypes = supplierCategoryTypes.value.concat(supplierProductTypes.value)
@@ -329,34 +504,39 @@ export default {
               for (let l = 0; i < languages.length; l++) {
                 const lang = languages[l]
                 const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-                supplierAttributesRef.value.push({ id: attr.id, value: attr.identifier + '#' + lang.identifier, name: nameText + langText })
+                categoryRef.value.attributes.push({ id: attr.id, value: attr.identifier + '#' + lang.identifier, name: nameText + langText })
               }
             } else {
-              supplierAttributesRef.value.push({ id: attr.id, value: attr.identifier, name: nameText })
+              categoryRef.value.attributes.push({ id: attr.id, value: attr.identifier, name: nameText })
             }
           }
 
           if (isMasterValid && isMasterVisible) {
-            const nameText = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
+            const nameText = attr.identifier + ' : ' + (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
             masterAttributesRef.value.push({ id: attr.id, value: attr.identifier, text: nameText })
           }
         }
 
-        for (let i = 0; i < supplierAttributesRef.value.length; i++) {
-          const attr = supplierAttributesRef.value[i]
-          const existedMapping = props.channel.mappings.attributes.find(el => el.value === attr.value)
-          if (existedMapping) {
-            if (existedMapping.attrIdent) {
-              attr.attrIdent = existedMapping.attrIdent
+        const tmp = categoryRef.value.attributes
+        tmp.sort((a, b) => {
+          return channelAttributesRef.value.findIndex(elem => elem.id === a.id) - channelAttributesRef.value.findIndex(elem => elem.id === b.id)
+        })
+        categoryRef.value.attributes = tmp
+
+        if (existedAttrs.length) {
+          for (let i = 0; i < categoryRef.value.attributes.length; i++) {
+            const attr = categoryRef.value.attributes[i]
+            const existedAttr = existedAttrs.find(el => el.value === attr.value)
+            if (existedAttr && existedAttr.attrIdent) {
+              attr.attrIdent = existedAttr.attrIdent
             }
-            if (existedMapping.expr) {
-              attr.expr = existedMapping.expr
+            if (existedAttr && existedAttr.expr) {
+              attr.expr = existedAttr.expr
             }
           }
         }
 
-        channelAttributesRef.value = supplierAttributesRef.value
-        props.channel.mappings.attributes = supplierAttributesRef.value
+        channelAttributesRef.value = categoryRef.value.attributes
       })
     }
 
@@ -376,8 +556,21 @@ export default {
     })
 
     return {
+      categoryIdRef,
+      categoryRef,
+      newCategoryIdRef,
+      add,
+      addCategory,
+      remove,
+      categoryChanged,
+      mappedCategories,
+      dialogRef,
+      categoriesTreeRef,
+      treeSearchRef,
+      addChildren2TreeView,
+      treeActiveRef,
+
       channelAttributesRef,
-      supplierAttributesRef,
       masterAttributesRef,
 
       supplierCategoryRef,
