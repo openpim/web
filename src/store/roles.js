@@ -14,6 +14,8 @@ const actions = {
       data.getRoles.forEach(element => {
         roles.push(element)
       })
+    } else {
+      promise = null
     }
   },
   addRole: () => {
