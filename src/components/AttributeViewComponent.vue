@@ -15,7 +15,18 @@
           <v-text-field v-if="attr.type === AttributeType.Text || attr.type === AttributeType.Integer || attr.type === AttributeType.Float || attr.type === AttributeType.Date || attr.type === AttributeType.DateTime" v-model="attr.pattern" :label="$t('Config.Attribute.Pattern')" required></v-text-field>
           <LanguageDependentField v-if="attr.type === AttributeType.Text || attr.type === AttributeType.Integer || attr.type === AttributeType.Float || attr.type === AttributeType.Date || attr.type === AttributeType.DateTime" :values="attr.errorMessage" v-model="attr.errorMessage[currentLanguage.identifier]" :label="$t('Config.Attribute.ErrorMessage')"></LanguageDependentField>
 
-          <v-select v-if="attr.type === AttributeType.LOV" v-model="attr.lov" :items="lovSelection" :label="$t('Config.Attribute.LOV')"></v-select>
+          <v-container v-if="attr.type === AttributeType.LOV">
+            <v-row v-if="attr.type === AttributeType.LOV">
+              <v-select v-model="attr.lov" :items="lovSelection" :label="$t('Config.Attribute.LOV')"></v-select>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="changeLOV(attr.lov)"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                </template>
+                <span>{{ $t('Edit') }}</span>
+              </v-tooltip>
+            </v-row>
+          </v-container>
+
           <v-text-field v-model="attr.order" type="number" :label="$t('Config.Attributes.Order')" required></v-text-field>
 
           <v-tabs v-model="tabRef">
@@ -49,6 +60,25 @@
 
           <OptionsTable :options="attr.options" @changed="optionsChanged" />
     <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="true" @selected="relationsSelected"/>
+    <template v-if=changeLOVDialogRef>
+      <v-dialog v-model="changeLOVDialogRef" persistent max-width="1200px">
+        <v-card>
+          <v-card-title>
+            <span class="headline">{{ $t('Config.Attribute.LOV') }}</span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <LOVViewComponent ref="changeLOVDialogRef" :lov="lov" :canEditConfig="canEditConfig" @selected="closeChangeLOV"/>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text v-if="canEditConfig && lov.id !== -1" @click="save">{{ $t('Save') }}</v-btn>
+            <v-btn color="blue darken-1" text @click=closeChangeLOV()>{{ $t('Cancel') }}</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </template>
   </div>
 </template>
 <script>
@@ -59,17 +89,19 @@ import * as attrStore from '../store/attributes'
 import * as langStore from '../store/languages'
 import * as relStore from '../store/relations'
 import * as lovStore from '../store/lovs'
+import * as errorStore from '../store/error'
 
 import OptionsTable from '../components/OptionsTable'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import SystemInformation from '../components/SystemInformation'
 import LanguageDependentField from '../components/LanguageDependentField'
 import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
+import LOVViewComponent from '../components/LOVViewComponent'
 
 import additionalAttrTypesList from '../_customizations/attributes/additionalTypes.js'
 
 export default {
-  components: { OptionsTable, ValidVisibleComponent, SystemInformation, LanguageDependentField, RelationsSelectionDialog },
+  components: { OptionsTable, ValidVisibleComponent, SystemInformation, LanguageDependentField, RelationsSelectionDialog, LOVViewComponent },
   props: {
     attr: {
       required: true
@@ -84,6 +116,10 @@ export default {
       defaultLanguageIdentifier,
       loadAllLanguages
     } = langStore.useStore()
+
+    const {
+      showInfo
+    } = errorStore.useStore()
 
     const {
       checkIdentifier
@@ -110,11 +146,13 @@ export default {
       typeSelection = [...typeSelection, ...mappedAddAttrTypeList]
     }
 
-    const { getLOVsForSelect } = lovStore.useStore()
+    const { lovs, loadAllLOVs, saveLOV, getLOVsForSelect } = lovStore.useStore()
 
     const lovSelection = ref([])
+    const lov = ref({ id: -1 })
     const tabRef = ref(null)
     const relSelectionDialogRef = ref(null)
+    const changeLOVDialogRef = ref(null)
     const rels = ref([])
 
     const attrRelations = computed(() => {
@@ -134,6 +172,27 @@ export default {
       props.attr.relations = arr
     }
 
+    function changeLOV (value) {
+      if (!value) return
+      lov.value = lovs.find(function (lov) {
+        return lov.id === value.toString()
+      })
+      changeLOVDialogRef.value = true
+    }
+
+    function closeChangeLOV () {
+      changeLOVDialogRef.value = false
+    }
+
+    function save () {
+      if (lov.value) {
+        saveLOV(lov.value).then(() => {
+          showInfo(i18n.t('Saved'))
+        })
+      }
+      closeChangeLOV()
+    }
+
     onMounted(() => {
       loadAllRelations().then(() => {
         rels.value = relations
@@ -143,6 +202,7 @@ export default {
           lovSelection.value = arr
         })
       )
+      Promise.all([loadAllLOVs()])
     })
 
     function optionsChanged (val) {
@@ -166,9 +226,14 @@ export default {
     }
 
     return {
+      lov,
+      save,
+      changeLOV,
+      closeChangeLOV,
       editRelations,
       relationsSelected,
       relSelectionDialogRef,
+      changeLOVDialogRef,
       tabRef,
       AttributeType,
       lovSelection,
