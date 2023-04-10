@@ -245,7 +245,7 @@ const store = {
   ...actions
 }
 
-export { store, currentUserRef }
+export { store, currentUserRef, currentRoles }
 
 const StoreSymbol = Symbol('UserStore')
 
