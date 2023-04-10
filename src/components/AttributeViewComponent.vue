@@ -17,7 +17,7 @@
 
           <v-container v-if="attr.type === AttributeType.LOV">
             <v-row v-if="attr.type === AttributeType.LOV">
-              <v-select v-model="attr.lov" :items="lovSelection" :label="$t('Config.Attribute.LOV')"></v-select>
+              <v-autocomplete v-model="attr.lov" :items="lovSelection" :label="$t('Config.Attribute.LOV')"></v-autocomplete>
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                   <v-btn icon v-on="on" @click="changeLOV(attr.lov)"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
