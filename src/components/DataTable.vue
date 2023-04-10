@@ -836,7 +836,7 @@ export default {
                   if (!item.name) item.name = {}
                   item.name[lang] = '' + cell.v
                 }
-              } else if (header.startsWith('attr') && ((cell && cell.v) || ((!cell || !cell.v) && importEmptyValuesRef.value))) {
+              } else if (header.startsWith('attr') && ((cell && cell.v !== null && cell.v !== undefined) || ((!cell || !cell.v) && importEmptyValuesRef.value))) {
                 if (!item.values) item.values = {}
                 let attr = header.substring(5)
                 let cellVal = cell ? cell.v : null

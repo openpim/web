@@ -121,7 +121,7 @@ function objectToGraphgl (value) {
         }
         result += '],'
       } else if (Object.prototype.toString.call(obj) === '[object String]') {
-        const attr = attrStore.store.findByIdentifier(prop)
+        const attr = attrStore.store.findByIdentifier(prop, true)
         if (obj) {
           if (attr && attr.item.type === 3) { // Integer
             result += prop + ':' + (isNaN(parseInt(obj)) ? null : parseInt(obj)) + ','
@@ -141,7 +141,7 @@ function objectToGraphgl (value) {
           }
         }
       } else {
-        const attr = attrStore.store.findByIdentifier(prop)
+        const attr = attrStore.store.findByIdentifier(prop, true)
         const noEmpty = !obj && attr ? attr.item.options.some(elem => elem.name === 'noEmptyValue' && elem.value === 'true') : false
         if (!noEmpty) result += prop + ':' + obj + ','
       }

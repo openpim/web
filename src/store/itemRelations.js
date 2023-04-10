@@ -360,12 +360,12 @@ const actions = {
       const group = groups[i]
 
       const roles = userStore.store.currentRoles
-      let access = 2
+      let access = -1
       for (let i = 0; i < roles.length; i++) {
         const role = roles[i]
         if (role.relAccess.relations.find(id => id === relationId)) {
           const tst = role.relAccess.groups.find(data => data.groupId === group.id)
-          if (tst && tst.access < access) access = tst.access
+          if (tst && tst.access > access) access = tst.access
         }
       }
 
@@ -380,7 +380,7 @@ const actions = {
           if (attr.relations && attr.relations.find(relId => relId === relationId)) {
             const idx = attrs.findIndex(elem => elem.identifier === attr.identifier)
             if (idx === -1) {
-              if (access > 0) {
+              if (access === -1 || access > 0) {
                 attr.readonly = (access === 1)
                 attrs.push(attr)
               }

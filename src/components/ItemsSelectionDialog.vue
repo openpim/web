@@ -164,7 +164,13 @@ export default {
         if (typesArr.includes(node.internalId)) return true
         if (node.children && node.children.length > 0) {
           for (let i = 0; i < node.children.length; i++) {
-            const child = node.children[i]
+            let child = node.children[i]
+            if (child.link) {
+              const tst = findType(child.link).node
+              if (node.internalId !== tst.internalId) {
+                child = tst
+              }
+            }
             if (hasTypes(child, typesArr)) return true
           }
         }

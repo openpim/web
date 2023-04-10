@@ -277,10 +277,16 @@ const actions = {
     const query = `
       mutation { moveItem(id: "` + item.internalId + '", parentId: "' + parentId + `") { 
         path
+        name
+        values
+        channels
       }
     }`
     const data = await serverFetch(query)
     item.path = data.moveItem.path
+    item.name = data.moveItem.name
+    item.values = data.moveItem.values
+    item.channels = data.moveItem.channels
 
     removeNodeByInternalId(item.internalId, itemsTree)
 

@@ -4,7 +4,7 @@ import * as userStore from './users'
 
 const groups = reactive([])
 
-function findByComparator (id, comparator) {
+function findByComparator (id, comparator, onlyFirst) {
   const arr = []
   let item = null
   for (var i = 0; i < groups.length; i++) {
@@ -16,6 +16,7 @@ function findByComparator (id, comparator) {
       const attr = group.attributes[j]
       if (comparator(id, attr)) {
         item = attr
+        if (onlyFirst) return { item: item, groups: [group] }
         arr.push(group)
       }
     }
@@ -38,8 +39,8 @@ const actions = {
   findById: (id) => {
     return findByComparator(id, (id, item) => item.id === id)
   },
-  findByIdentifier: (identifier) => {
-    return findByComparator(identifier, (identifier, item) => item.identifier === identifier)
+  findByIdentifier: (identifier, onlyFirst) => {
+    return findByComparator(identifier, (identifier, item) => item.identifier === identifier, onlyFirst)
   },
   checkIdentifier: (identifier) => {
     return findByComparator(identifier, (identifier, item) => item.identifier === identifier && item.internalId !== 0)
