@@ -9,7 +9,7 @@ const actions = {
     if (!promise) promise = serverFetch('query { getRoles {id, internalId, identifier, name, configAccess, relAccess, itemAccess, channelAccess, otherAccess, options, updatedAt, updatedBy, createdAt, createdBy } }')
     const data = await promise
     if (roles.length > 0) return
-    if (data & data.getRoles) {
+    if (data && data.getRoles) {
       if (roles.length > 0) return
       data.getRoles.forEach(element => {
         roles.push(element)
