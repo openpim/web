@@ -51,7 +51,7 @@
       :exportXLSEnabled="hasAccess('exportXLS')"
       :importXLSEnabled="hasAccess('importXLS')"
       :marginTop="marginTop"
-      :select="true"
+      :collection="collection"
       v-if="collection"
     />
   </div>

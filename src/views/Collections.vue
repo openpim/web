@@ -25,7 +25,7 @@
         </v-card>
       </v-col>
     </v-row>
-    <ItemsDataTable :export="false" :collection="true"/>
+    <ItemsDataTable :export="false" :collection="collectionRef"/>
   </v-container>
 </template>
 

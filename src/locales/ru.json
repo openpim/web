@@ -651,7 +651,7 @@
   "Collections.SelectionDialog.Title": "Выбор коллекций",
   "Collections.Submitted": "Отправлен",
   "Collections.DeleteFromCollection": "Удалить из коллекции",
-  "Collections.Deleted": "Удален",
+  "Collections.Deleted": "Записи удалены из коллекции",
   "CollectionCreationDialog.Title": "Создание",
   "CollectionCreationDialog.Identifier": "Идентификатор",
   "CollectionCreationDialog.Name": "Наименование",

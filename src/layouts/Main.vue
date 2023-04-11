@@ -17,10 +17,10 @@
             <span>{{ $t('Main.Search') }}</span>
             <v-icon>mdi-magnify</v-icon>
         </v-btn>
-        <!-- v-btn to="/collections">
+        <v-btn to="/collections">
             <span>{{ $t('Main.Collections') }}</span>
             <v-icon>mdi-bookmark-outline</v-icon>
-        </v-btn -->
+        </v-btn>
         <v-btn to="/imports" v-if="hasImportsAccess">
             <span>{{ $t('Main.Imports') }}</span>
             <v-icon>mdi-file-outline</v-icon>

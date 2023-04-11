@@ -87,9 +87,9 @@
             </v-list>
         </v-menu>
       </template>
-      <v-tooltip top v-if="selectedRef.length !== 0">
+      <v-tooltip top>
         <template v-slot:activator="{ on }">
-          <v-btn :disabled="!disabledButtonRef" v-on="on" icon @click="deleteFromCollection(selectedRef)"><v-icon>mdi-trash-can</v-icon></v-btn>
+          <v-btn v-on="on" icon @click="deleteFromCollection"><v-icon>mdi-trash-can</v-icon></v-btn>
         </template>
         <span>{{ $t('Collections.DeleteFromCollection') }}</span>
       </v-tooltip>
@@ -106,6 +106,7 @@
       hide-default-footer
       hide-default-header
       item-key="identifier"
+      :show-select="!!collection"
       class="elevation-1">
 
     <template v-slot:header="{ props }">
@@ -137,9 +138,13 @@
             </v-row>
           </v-container>
     </template>
-    <template v-slot:item="{ item, headers, index }">
+    <template v-slot:item="{ item, headers }">
       <tr @mouseup="divMouseUp" @mousemove="divMouseMove" class="zebra">
         <td v-for="(header, i) in headers" :key="i" @click="cellClicked(item, header)" class="truncate p-1">
+
+          <template v-if="header.value === 'data-table-select'">
+            <v-checkbox v-model="item.selected" required></v-checkbox>
+          </template>
 
           <router-link v-if="header.identifier === 'identifier' && searchEntityRef === 'ITEM'" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
           <router-link v-if="header.identifier === 'parentIdentifier' && searchEntityRef === 'ITEM'" :to="'/item/' + item.parentIdentifier">{{ item.parentIdentifier }}</router-link>
@@ -155,10 +160,6 @@
           <span v-if="header.identifier === '#targetParentName#'">{{ getParentNameByItemId(item.targetId) }}</span>
 
           <v-img v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="50" max-height="50"></v-img>
-
-          <template v-if="header.value === '#select#' && selectedRef.length !== 0">
-            <v-checkbox v-model="selectedRef[index].select"></v-checkbox>
-          </template>
 
           <template v-if="typeof (header.identifier) !== 'undefined' && !header.identifier.startsWith('#channel_') && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' && header.identifier != 'itemIdentifier' && header.identifier != 'targetIdentifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
@@ -329,7 +330,6 @@ import AttributeType from '../constants/attributeTypes'
 import XLSX from 'xlsx'
 import dateFormat from 'dateformat'
 import router from '../router'
-import { useRouter } from '../router/useRouter'
 
 import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterButtonsComponent'
 
@@ -384,7 +384,7 @@ export default {
       required: false,
       default: 100
     },
-    select: {
+    collection: {
       required: false,
       default: false
     }
@@ -401,8 +401,6 @@ export default {
     const { loadAllChannels, getAvailableChannels, submitItem } = channelsStore.useStore()
 
     const { submitItemToCollection, removeFromCollection } = collectionsStore.useStore()
-
-    const { route } = useRouter()
 
     const {
       loadAllActions,
@@ -443,7 +441,6 @@ export default {
     const loadingRef = ref(false)
 
     const headersRef = ref([])
-    const selectedRef = ref([])
 
     const thumbnailsRef = ref([])
     const lovsMap = {}
@@ -1195,41 +1192,13 @@ export default {
       showInfo(i18n.t('Collections.Deleted'))
     }
 
-    watch(() => itemsRef.value, (newValue, prevValue) => {
-      const arr = newValue
-      if (!props.select) {
-        selectedRef.value = []
-        return
-      }
-      const arr_ = []
-      arr.forEach(item => {
-        arr_.push({ id: item.id, select: false })
-      })
-      selectedRef.value = arr_
-    })
-
-    const disabledButtonRef = ref(false)
-
-    watch(() => selectedRef.value, (newValue, prevValue) => {
-      if (newValue.length === 0) return
-      disabledButtonRef.value = false
-      newValue.forEach((value) => {
-        if (value.select) disabledButtonRef.value = true
-      })
-    }, { deep: true })
-
-    function deleteFromCollection (arr) {
+    async function deleteFromCollection () {
       const selectedItems = []
-      arr.forEach(item => {
-        if (item.select) selectedItems.push(item.id)
+      itemsRef.value.forEach(item => {
+        if (item.selected) selectedItems.push(item.id)
       })
-      const itemsRefDelete = []
-      removeFromCollection(selectedItems, route.value.params.id)
-      for (let i = 0; i < itemsRef.value.length; i++) {
-        const result = selectedItems.find(value => value === itemsRef.value[i].id)
-        if (result) itemsRefDelete.push(itemsRef.value.findIndex(obj => obj.id === result))
-      }
-      itemsRefDelete.forEach(index => itemsRef.value.splice(index, 1))
+      await removeFromCollection(selectedItems, props.collection.id)
+      DataChanged()
       showInfo(i18n.t('Collections.Deleted'))
     }
 
@@ -1324,7 +1293,6 @@ export default {
           return header
         })
         if (changed) localStorage.setItem(props.headersStorageName, JSON.stringify(tst))
-        if (props.select) tst.unshift({ align: 'start', filterable: false, identifier: '#select#', sortable: false, text: 'Выбор', value: '#select#' })
         headersRef.value = tst
       }
       const tst2 = localStorage.getItem('savedColumnsSelection')
@@ -1548,9 +1516,7 @@ export default {
       collSelectionDialogRef,
       collectionsSelected,
       deleteFromCollection,
-      selectedRef,
       deleteFromCollections,
-      disabledButtonRef,
       openSearch,
       attrSelectionDialogRef,
       attrGroupsSelected,
