@@ -4,7 +4,7 @@
     <v-navigation-drawer :width="drawerWidth" v-model="drawer" ref="drawerRef" :clipped="$vuetify.breakpoint.lgAndUp" app v-if="currentUserRef.tenantId !== '0'">
       <router-view name="menu"></router-view>
 
-      <v-bottom-navigation grow height="90" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">
+      <v-bottom-navigation grow height="55" class="mt-2 mb-1" v-model="activeBottom" v-if="!isExportSearch">
         <v-btn to="/" v-if="hasDashboards">
             <span>{{ $t('Main.Dashboards') }}</span>
             <v-icon>mdi-sitemap</v-icon>
