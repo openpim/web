@@ -10,6 +10,7 @@
             </template>
             <div v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
         </template>
       </v-text-field>
       <LanguageDependentField :attr="attr" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && attr.languageDependent" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :errors="errors"></LanguageDependentField>
@@ -22,6 +23,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
         </template>
       </v-textarea>
       <v-textarea :counter="getCounterOption()" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="3" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :error-messages="errors">
@@ -32,6 +34,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
         </template>
       </v-textarea>
 
@@ -49,6 +52,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
         </template>
       </v-checkbox>
       <v-checkbox @change="attrInput" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier][currentLanguage.identifier] === null" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
@@ -59,6 +63,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
         </template>
       </v-checkbox>
 
@@ -71,6 +76,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
         </template>
       </v-text-field>
       <v-text-field :counter="getCounterOption()" @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
@@ -81,6 +87,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
         </template>
       </v-text-field>
 
@@ -93,6 +100,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
         </template>
       </v-text-field>
       <v-text-field :counter="getCounterOption()" @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
@@ -103,6 +111,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
         </template>
       </v-text-field>
 
@@ -160,6 +169,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values" :lov="lovSelection"/>
         </template>
       </v-autocomplete>
       <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
@@ -173,6 +183,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values" :lov="lovSelection"/>
         </template>
       </v-autocomplete>
 
@@ -195,6 +206,7 @@
                     </template>
                     <p v-html="desc.replaceAll('\n', '<br>')"/>
                   </v-tooltip>
+                  <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
                 </template>
               </v-text-field>
             </v-col>
@@ -224,6 +236,7 @@
                     </template>
                     <p v-html="desc.replaceAll('\n', '<br>')"/>
                   </v-tooltip>
+                  <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
                 </template>
               </v-text-field>
             </v-col>
@@ -323,13 +336,14 @@ import eventBus from '../eventBus'
 import dateFormat from 'dateformat'
 
 import CustomAttributeValueComponent from '../_customizations/attributes/CustomAttributeValueComponent.vue'
+import CustomAttributeTooltipComponent from '../_customizations/attributes/CustomAttributeTooltipComponent.vue'
 
 // Jodit
 import 'jodit/build/jodit.min.css'
 import { JoditEditor } from 'jodit-vue'
 
 export default {
-  components: { LanguageDependentField, JoditEditor, CustomAttributeValueComponent },
+  components: { LanguageDependentField, JoditEditor, CustomAttributeValueComponent, CustomAttributeTooltipComponent },
   props: {
     item: {
       required: true
