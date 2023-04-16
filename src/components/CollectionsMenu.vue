@@ -126,7 +126,6 @@ export default {
     })
 
     watch(collectionRefMain, (selected, previous) => {
-      console.log(selected)
       if (selected == null) {
         if (previous != null && collectionRefOther.value == null) router.push('/collections')
         return
@@ -148,7 +147,6 @@ export default {
     })
 
     watch(collectionRefOther, (selected, previous) => {
-      console.log(selected)
       const selected_ = collectionRefOther.value + colFilteredMain.value.length
       if (selected == null) {
         if (previous != null && collectionRefMain.value == null) router.push('/collections')

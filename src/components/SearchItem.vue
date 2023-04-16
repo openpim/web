@@ -406,7 +406,6 @@ export default {
     } */
 
     function itemSelected (id, filter) {
-      console.log(id, filter)
       itemSelectionDialogRef.value.closeDialog()
       loadItemsByIds([id], false).then(items => {
         const item = items[0]
@@ -416,7 +415,6 @@ export default {
     }
 
     function collectionSelected (collection, filter) {
-      console.log(collection, filter)
       collSelectionDialogRef.value.closeDialog()
       filter.value = collection.id
       filter.path = collection.id

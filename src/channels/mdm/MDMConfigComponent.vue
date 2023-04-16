@@ -273,7 +273,6 @@ export default {
             for (let i = 0; i < mappedCategories.value.length; i++) {
               const mappedCategory = mappedCategories.value[i]
               if (!mappedCategory.path.startsWith(items[0]).path) {
-                console.log('deleted!')
                 props.channel.mappings['category_' + mappedCategory.id].deleted = true
               }
             }

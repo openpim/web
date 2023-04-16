@@ -63,7 +63,6 @@ const actions = {
     }
   },
   submitItemToCollection: async (itemId, collectionId) => {
-    console.log(itemId, collectionId)
     const query = `mutation {
       addToCollection(
           collectionId: ${collectionId},
@@ -81,7 +80,6 @@ const actions = {
     }
   },
   removeFromCollection: async (itemIds, collectionId) => {
-    console.log(itemIds, collectionId)
     const data = await serverFetch(`mutation { 
       removeFromCollection(
           collectionId: ${collectionId},
