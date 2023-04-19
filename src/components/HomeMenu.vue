@@ -53,7 +53,8 @@ export default {
       findItem,
       loadItems,
       loadItemsByIds,
-      loadItemRelationsChildren
+      loadItemRelationsChildren,
+      createItemInTree
     } = itemStore.useStore()
 
     const {
@@ -138,6 +139,12 @@ export default {
           if (!itemInTree.children || !itemInTree.children.length) {
             await loadChildren(itemsArr[i])
           }
+          const nextItem = itemsArr[i + 1]
+          const hasItem = itemInTree.children.some(elem => elem.id === nextItem.id)
+          if (!hasItem) {
+            createItemInTree(nextItem, itemInTree)
+          }
+
           openRef.value.push(itemsArr[i].id)
         }
         activeRef.value = [itemsArr[itemsArr.length - 1].id]
