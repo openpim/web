@@ -30,7 +30,7 @@
                   <th class="text-left" v-if="componentType === 'source' && getOption(identifier, 'showItemUpdateDate', '') === 'true'" >{{$t('ItemRelationsList.TargetDate')}}</th>
                   <th class="text-left" v-if="componentType === 'target' && getOption(identifier, 'showItemUpdateDate', '') === 'true'">{{$t('ItemRelationsList.SourceDate')}}</th>
 
-                  <th class="text-left pa-0" v-for="(attr, j) in getAttributesForRelation(identifier)" :key="'A'+j">
+                  <th class="text-left pa-0" v-for="(attr, j) in getAttributesForRelation(identifier)" :key="'A'+j" :width="getOption2(attr, 'tableWidth', '')">
                     {{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}
                   </th>
                   <th class="text-left">
