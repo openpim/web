@@ -463,7 +463,8 @@ export default {
 
     const {
       currentLanguage,
-      defaultLanguageIdentifier
+      defaultLanguageIdentifier,
+      loadAllLanguages
     } = langStore.useStore()
 
     const {
@@ -1183,8 +1184,14 @@ export default {
     onMounted(() => {
       window.addEventListener('keydown', hotkey)
       timer = setInterval(refreshChannels, 60000)
-      loadAllChannels().then(() => {
-        awailableChannelsRef.value = getAvailableChannels(false)
+      Promise.all([loadAllLanguages(), loadAllChannels()]).then(() => {
+        const channels = getAvailableChannels(false)
+        channels.sort((a, b) => {
+          const aName = '' + (a.name[currentLanguage.value.identifier] || a.name[defaultLanguageIdentifier.value])
+          const bName = '' + (b.name[currentLanguage.value.identifier] || b.name[defaultLanguageIdentifier.value])
+          return aName.localeCompare(bName)
+        })
+        awailableChannelsRef.value = channels
       })
       searchEntityRef.value = 'ITEM'
       Promise.all([
