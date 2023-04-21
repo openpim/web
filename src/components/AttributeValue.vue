@@ -46,6 +46,7 @@
       <!-- Boolean -->
       <v-checkbox @change="attrInput" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier] === null" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
         <template #append>
+          <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
               <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
@@ -57,6 +58,7 @@
       </v-checkbox>
       <v-checkbox @change="attrInput" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier][currentLanguage.identifier] === null" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
         <template #append>
+          <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
               <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
@@ -597,6 +599,14 @@ export default {
       }
     }
 
+    function clearValue () {
+      if (props.attr.languageDependent) {
+        props.values[props.attr.identifier][currentLanguage.value.identifier] = null
+      } else {
+        props.values[props.attr.identifier] = null
+      }
+    }
+
     return {
       multivalueRef,
       attrBlur,
@@ -627,7 +637,8 @@ export default {
       dateSaveValue,
       dateEnterPressed,
       showAlert,
-      removeValue
+      removeValue,
+      clearValue
     }
   }
 }
