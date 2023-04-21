@@ -364,6 +364,9 @@ const actions = {
       typeId
       identifier
       name
+      relationName
+      relationId
+      name
       mainImage
       image
       mimeType

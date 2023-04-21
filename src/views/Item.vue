@@ -268,9 +268,9 @@
                 <v-col class="pl-0 pr-0" :cols="12/parseInt(getOption(itemType, 'galeryPageLength',  '1'))" v-for="(n, j) in parseInt(getOption(itemType, 'galeryPageLength',  '1'))" :key="'img'+j" :set="file=getGaleryFile(i, j)">
                   <v-card v-if="file && file.image" class="ma-2" flat style="background: white" >
                     <v-card-text class="pa-0">
-                      <div class="d-inline-flex">
+                      <div class="d-inline-flex ml-3">
                         <router-link :to="'/item/' + file.identifier">
-                          <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }} </div>
+                          <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }} - {{ file.relationName[currentLanguage.identifier] || '[' + file.relationName[defaultLanguageIdentifier] + ']' }}</div>
                         </router-link>
                         <a :href="damUrl + 'asset/' + file.id + '?token=' + token" class="ml-1" style="text-decoration: none"><v-icon color="grey darken-1">mdi-download-circle-outline</v-icon></a>
                       </div>
@@ -280,7 +280,7 @@
                   <v-card v-if="file && !file.image" class="ma-4" style="background: white;border:1px solid grey">
                     <v-card-title>
                       <a v-if="file.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + file.id + '?inline&token=' + token" target="_blank"><pdf :src="damUrl + 'asset/' + file.id + '?token=' + token"> </pdf></a>
-                      <a v-else :href="damUrl + 'asset/' + file.id + '?token=' + token">{{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }}</a>
+                      <a v-else :href="damUrl + 'asset/' + file.id + '?token=' + token">{{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }} - {{ file.relationName[currentLanguage.identifier] || '[' + file.relationName[defaultLanguageIdentifier] + ']' }}</a>
                       <v-btn :to="'/item/' + file.identifier" icon color="black" class="ml-4"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
                     </v-card-title>
                   </v-card>
