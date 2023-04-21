@@ -270,7 +270,7 @@
                     <v-card-text class="pa-0">
                       <div class="d-inline-flex ml-3">
                         <router-link :to="'/item/' + file.identifier">
-                          <div>({{file.identifier}}) {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }} - {{ file.relationName[currentLanguage.identifier] || '[' + file.relationName[defaultLanguageIdentifier] + ']' }}</div>
+                          <div>{{getOption(file.type, 'hideIdentifier',  false) ? '' : '('+file.identifier+')' }} {{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }} - {{ file.relationName[currentLanguage.identifier] || '[' + file.relationName[defaultLanguageIdentifier] + ']' }}</div>
                         </router-link>
                         <a :href="damUrl + 'asset/' + file.id + '?token=' + token" class="ml-1" style="text-decoration: none"><v-icon color="grey darken-1">mdi-download-circle-outline</v-icon></a>
                       </div>
