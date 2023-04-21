@@ -427,8 +427,9 @@ export default {
       errors.value = []
       validRef.value = true
 
-      if (props.attr.type === AttributeType.Integer) {
-        const tst = '' + (props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier])
+      const rawVal = (props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier])
+      if (props.attr.type === AttributeType.Integer && rawVal !== null && rawVal !== undefined) {
+        const tst = '' + rawVal
         const regx = XRegExp('^-?[0-9]+$', 'g')
         if (tst !== 'undefined' && tst.length > 0 && !regx.test(tst)) {
           const msg = i18n.t('Attribute.Error.WrongValue')
@@ -442,7 +443,7 @@ export default {
       }
 
       if (props.attr.pattern) {
-        const value = '' + (props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier])
+        const value = '' + rawVal
         const regex = XRegExp(props.attr.pattern, 'g')
         if (!regex.test(value)) {
           validRef.value = false
