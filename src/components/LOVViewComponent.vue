@@ -166,7 +166,7 @@ export default {
 
     const { loadItemsByIds } = itemStore.useStore()
 
-    const { getAvailableChannels } = channelsStore.useStore()
+    const { loadAllChannels, getAvailableChannels } = channelsStore.useStore()
 
     const lovSelection = ref([])
     const formRef = ref(null)
@@ -232,7 +232,9 @@ export default {
           lovSelection.value = arr
         })
       )
-      awailableChannelsRef.value = getAvailableChannels(true)
+      loadAllChannels().then(() => {
+        awailableChannelsRef.value = getAvailableChannels(true)
+      })
     })
 
     function identifierValidation (v) {
