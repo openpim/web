@@ -326,6 +326,11 @@ export default {
       }
     }
 
+    function reloadRelation (relationId) {
+      const rel = relations.find(rel => rel.id === relationId)
+      if (rel) pageChanged(rel.identifier)
+    }
+
     const itemRelations = computed(() => {
       const relations = props.componentType === 'source' ? sourceRelations : targetRelations
       if (groupRelationsRef.value && selectedGroupRef.value !== null) {
@@ -630,6 +635,7 @@ export default {
       groupsRef,
       groupRelationsRef,
       selectedGroupRef,
+      reloadRelation,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive'),
       damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',

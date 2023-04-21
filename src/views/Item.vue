@@ -290,7 +290,7 @@
             </v-carousel>
           </v-tab-item>
           <v-tab-item v-if="hasSources" eager>  <!-- Links from -->
-            <ItemRelationsList :item="itemRef" componentType="source" @dataLoaded="sourcesLoaded" class="mb-12"></ItemRelationsList>
+            <ItemRelationsList :item="itemRef" componentType="source" @dataLoaded="sourcesLoaded" ref="sourceRelationsListRef" class="mb-12"></ItemRelationsList>
           </v-tab-item>
           <v-tab-item v-if="hasTargets" eager>  <!-- Links to -->
             <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded" class="mb-12"></ItemRelationsList>
@@ -528,6 +528,7 @@ export default {
     const tabsMode = ref(localStorage.getItem('tabsMode') === 'true' || false)
     const attrTabRef = ref(null)
     const dataTableMarginTop = ref(0)
+    const sourceRelationsListRef = ref(null)
 
     const canViewAttrConfigRef = ref(false)
 
@@ -739,16 +740,19 @@ export default {
         const fileData = filesData[i]
         uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier, fileData.fileName, fileData.fileIdentifier).then((ok) => {
           if (!ok) result = false
+          else {
+            sourceRelationsListRef.value.reloadRelation(fileData.relationId)
+            loadAssets(itemRef.value.id).then(arr => {
+              arr.forEach(elem => {
+                elem.type = findType(elem.typeId)?.node
+              })
+              filesRef.value = arr
+            })
+          }
         })
       }
       if (result) {
         showInfo(i18n.t('Saved'))
-        loadAssets(itemRef.value.id).then(arr => {
-          arr.forEach(elem => {
-            elem.type = findType(elem.typeId)?.node
-          })
-          filesRef.value = arr
-        })
       }
     }
 
@@ -1347,6 +1351,7 @@ export default {
       refresh,
       removeChannel,
       canViewAttrConfigRef,
+      sourceRelationsListRef,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
