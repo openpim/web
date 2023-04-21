@@ -183,7 +183,7 @@
 </div>
 </template>
 <script>
-import { ref, reactive, watch, computed } from '@vue/composition-api'
+import { ref, reactive, watch, computed, onMounted } from '@vue/composition-api'
 import * as actionsStore from '../store/actions'
 import * as auditStore from '../store/audit'
 import * as errorStore from '../store/error'
@@ -227,7 +227,8 @@ export default {
     } = userStore.useStore()
 
     const {
-      relations
+      relations,
+      loadAllRelations
     } = relStore.useStore()
 
     const {
@@ -261,7 +262,8 @@ export default {
     } = itemStore.useStore()
 
     const {
-      findType
+      findType,
+      loadAllTypes
     } = typesStore.useStore()
 
     const pageSize = ref(localStorage.getItem('relPageSize') ? parseInt(localStorage.getItem('relPageSize')) : 5)
@@ -380,11 +382,15 @@ export default {
 
     function add (identifier) {
       const rel = relations.find(rel => rel.identifier === identifier)
+      if (!rel) return
 
       props.item.type = findType(props.item.typeId).node
+      if (!props.item.type) return
 
       if (props.componentType === 'source') {
-        if (!rel.multi && sourceRelations[identifier].length > 0) {
+        const rels = sourceRelations[identifier]
+        if (!rels) return
+        if (!rel.multi && rels.length > 0) {
           showError(i18n.t('ItemRelationsList.OnlyOne'))
         } else {
           const data = { id: -Date.now(), relationId: rel.id, item: props.item, values: {} }
@@ -582,6 +588,11 @@ export default {
       historySelectedRef.value = itemRel
       historyDialogRef.value = true
     }
+
+    onMounted(() => {
+      loadAllRelations()
+      loadAllTypes()
+    })
 
     return {
       currentLanguage,
