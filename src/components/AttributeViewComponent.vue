@@ -68,7 +68,7 @@
           </v-card-title>
           <v-card-text>
             <v-container>
-              <LOVViewComponent ref="changeLOVDialogRef" :lov="lov" :canEditConfig="canEditConfig" @selected="closeChangeLOV"/>
+              <LOVViewComponent ref="changeLOVDialogRef" :lov="lov" :canEditConfig="canEditConfig" />
             </v-container>
           </v-card-text>
           <v-card-actions>

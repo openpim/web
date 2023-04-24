@@ -5,7 +5,6 @@
               <v-text-field style="min-width: 100%" v-model="lov.identifier"  :disabled="lov.internalId !== 0" :rules="identifierRules" :label="$t('Config.Languages.Identifier')" required></v-text-field>
               <SystemInformation :data="lov"></SystemInformation>
             </div>
-
             <LanguageDependentField :values="lov.name" v-model="lov.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Languages.Name')"></LanguageDependentField>
           <v-simple-table dense  fixed-header height="60vh"  class="mb-4">
               <template v-slot:default>
@@ -13,7 +12,7 @@
                   <tr>
                     <th class="text-left">{{ $t('Config.LOV.ID') }}</th>
                     <th class="text-left">{{ $t('Config.LOV.Value') }}</th>
-                    <th class="text-left" v-for="(channel, i) in awailableChannelsRef" :key="i">{{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}</th>
+                    <th class="text-left" v-for="(channel, i) in availableChannelsRef" :key="i">{{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}</th>
                     <th class="text-left">{{ $t('Config.LOV.Level') }}</th>
                     <th class="text-left">{{ $t('Config.LOV.URL') }}</th>
                     <th class="text-left">
@@ -41,7 +40,7 @@
                     <td class="pa-1">
                       <input v-model="elem.value[currentLanguage.identifier]" size="50" :placeholder="$t('Config.LOV.Value')"/>
                     </td>
-                    <td class="pa-1" v-for="(channel, i) in awailableChannelsRef" :key="i">
+                    <td class="pa-1" v-for="(channel, i) in availableChannelsRef" :key="i">
                       <input v-model="elem[channel.identifier][currentLanguage.identifier]"/>
                     </td>
                     <td class="pa-1">
@@ -140,7 +139,7 @@ export default {
       required: true
     }
   },
-  setup (props) {
+  setup (props, { root }) {
     const {
       currentLanguage,
       defaultLanguageIdentifier,
@@ -166,7 +165,7 @@ export default {
 
     const { loadItemsByIds } = itemStore.useStore()
 
-    const { getAvailableChannels } = channelsStore.useStore()
+    const { loadAllChannels, getAvailableChannels } = channelsStore.useStore()
 
     const lovSelection = ref([])
     const formRef = ref(null)
@@ -176,7 +175,7 @@ export default {
 
     const dialogRef = ref(false)
     const visible = ref([])
-    const awailableChannelsRef = ref([])
+    const availableChannelsRef = ref([])
     let dialogElem = null
 
     const itemSelectionDialogRef = ref(null)
@@ -232,7 +231,16 @@ export default {
           lovSelection.value = arr
         })
       )
-      awailableChannelsRef.value = getAvailableChannels(true)
+      loadAllChannels().then(() => {
+        availableChannelsRef.value = getAvailableChannels(true)
+        props.lov.values.forEach(elem => {
+          if (!elem.filter) root.$set(elem, 'filter', null)
+          if (!elem.level) root.$set(elem, 'level', [])
+          availableChannelsRef.value.forEach(channel => {
+            if (!elem[channel.identifier]) root.$set(elem, channel.identifier, {})
+          })
+        })
+      })
     })
 
     function identifierValidation (v) {
@@ -257,7 +265,7 @@ export default {
       let max = props.lov.values.reduce((accumulator, currentValue) => Math.max(accumulator, currentValue.id), 0)
       if (!max) max = 0
       const tmp = { id: ++max, value: val, filter: null, level: [] }
-      awailableChannelsRef.value.forEach(channel => {
+      availableChannelsRef.value.forEach(channel => {
         tmp[channel.identifier] = {}
       })
       props.lov.values.push(tmp)
@@ -304,7 +312,7 @@ export default {
       exportData,
       showInfo,
       relSelectionDialogRef,
-      awailableChannelsRef,
+      availableChannelsRef,
       tabRef,
       AttributeType,
       lovSelection,
