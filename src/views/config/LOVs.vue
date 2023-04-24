@@ -80,7 +80,7 @@ export default {
     const itemRef = ref(null)
     const searchRef = ref('')
 
-    const awailableChannelsRef = ref([])
+    const availableChannelsRef = ref([])
 
     watch(itemRef, (selected, previous) => {
       // if (typeof (previous) === 'undefined') return
@@ -108,7 +108,7 @@ export default {
       selectedRef.value.values.forEach(elem => {
         if (!elem.filter) root.$set(elem, 'filter', null)
         if (!elem.level) root.$set(elem, 'level', [])
-        awailableChannelsRef.value.forEach(channel => {
+        availableChannelsRef.value.forEach(channel => {
           if (!elem[channel.identifier]) root.$set(elem, channel.identifier, {})
         })
       })
@@ -149,7 +149,7 @@ export default {
     onMounted(() => {
       loadAllTypes()
       Promise.all([loadAllLOVs(), loadAllChannels()]).then(() => {
-        awailableChannelsRef.value = getAvailableChannels(true)
+        availableChannelsRef.value = getAvailableChannels(true)
 
         canViewConfigRef.value = canViewConfig('lovs')
         canEditConfigRef.value = canEditConfig('lovs')
@@ -197,7 +197,7 @@ export default {
       add,
       currentLanguage,
       defaultLanguageIdentifier,
-      awailableChannelsRef,
+      availableChannelsRef,
       identifierRules: [
         v => identifierValidation(v)
       ],
