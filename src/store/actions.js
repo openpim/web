@@ -72,7 +72,7 @@ const actionList = {
     return response.executeAction
   },
   executeTableButtonAction: async (itemId, buttonText, where) => {
-    const query = 'mutation { executeTableButtonAction(' + (itemId ? 'itemId: "' + itemId + '",' : '') + ' buttonText: "' + buttonText + '" where: ' + objectToGraphgl(where) + ') { error, compileError, message, data }}'
+    const query = 'mutation { executeTableButtonAction(' + (itemId ? 'itemId: "' + itemId + '",' : '') + ' buttonText: "' + buttonText + '" where: """' + JSON.stringify(where) + '""") { error, compileError, message, data }}'
     const response = await serverFetch(query)
     return response.executeTableButtonAction
   },
