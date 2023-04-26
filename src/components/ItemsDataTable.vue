@@ -126,6 +126,10 @@ export default {
         }
       })
       tmp.where = currentWhereRef.value || {}
+      tmp.applyFilter = (filter) => {
+        // currentWhereRef.value = { id: 1068 }
+        // TODO
+      }
       return tmp
     }
 
@@ -141,6 +145,10 @@ export default {
         }
       })
       tmp.where = currentWhereRef.value || {}
+      tmp.applyFilter = (filter) => {
+        // currentWhereRef.value = { id: 1068 }
+        // TODO
+      }
       return tmp
     }
 

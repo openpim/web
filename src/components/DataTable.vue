@@ -117,6 +117,7 @@
               <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
             </v-btn>
             <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" class="resizer"></div>
+            <!-- div><input type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="header.filter" @input="filterChanged(header)"/></div -->
         </th>
       </tr>
     </template>
@@ -1462,6 +1463,27 @@ export default {
       buttonActionStatusDialog.value.closeDialog()
     }
 
+    let awaitingFilter = null
+    function filterChanged (header) {
+      if (header.filter && header.filter.length > 1) {
+        if (awaitingFilter) {
+          clearTimeout(awaitingFilter)
+          awaitingFilter = null
+        }
+        if (!awaitingFilter) {
+          awaitingFilter = setTimeout(() => {
+            applyFilter(header)
+          }, 1000)
+        }
+      }
+    }
+    function applyFilter (header) {
+      console.log(222, header.filter)
+      // TODO send filter to loadData
+      props.loadData().applyFilter()
+      optionsUpdate(optionsRef.value)
+    }
+
     return {
       columnsSelectionDialogRef,
       columnsSaveDialogRef,
@@ -1545,6 +1567,7 @@ export default {
       buttonActions,
       executeAction,
       buttonActionStatusDialog,
+      filterChanged,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive')

@@ -65,6 +65,10 @@ export default {
         }
       })
       tmp.where = {}
+      tmp.applyFilter = (filter) => {
+        // currentWhereRef.value = { id: 1068 }
+        // TODO
+      }
       return tmp
     }
 

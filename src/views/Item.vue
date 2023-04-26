@@ -1235,6 +1235,10 @@ export default {
         loadChildren(itemRef.value.id, options).then(data => resolve(data))
       })
       tmp.where = { parentIdentifier: itemRef.value.identifier }
+      tmp.applyFilter = (filter) => {
+        // currentWhereRef.value = { id: 1068 }
+        // TODO
+      }
       return tmp
     }
 
