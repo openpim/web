@@ -123,7 +123,6 @@ export default {
       return arr
     })
 
-    // TODO: potential bug, if user change relation selection after parent selection fileItemType will be old one
     function parentSelected (id) {
       if (!id) return
       loadItemsByIds([id], false).then(items => {
@@ -175,8 +174,8 @@ export default {
         const defOption = rel.options.find(option => option.name === 'defaultParentId')
         if (defOption && !isNaN(parseInt(defOption.value))) parentSelected(parseInt(defOption.value))
 
-        const fItemTypeId = rel.targets.find(typeId => findType(typeId).node.file)
-        fItemType = findType(fItemTypeId).node
+        fileItemTypeId = rel.targets.find(typeId => findType(typeId).node.file)
+        fItemType = findType(fileItemTypeId).node
         identifierRef.value = fItemType.identifier + nextItemId
       }
     }
