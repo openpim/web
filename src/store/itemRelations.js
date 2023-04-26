@@ -416,20 +416,22 @@ const actions = {
         ', relationId: ' + itemRel.relationId +
         ', targetId: ' + itemRel.target.id +
         ', values: ' + objectToGraphgl(itemRel.values) +
-        `)
+        `) { id values }
       }`
       const data = await serverFetch(query)
-      const newId = parseInt(data.createItemRelation)
+      const newId = parseInt(data.createItemRelation.id)
       itemRel.id = newId
+      itemRel.values = data.createItemRelation.values
     } else {
       const query = `
         mutation { updateItemRelation(id: "` + itemRel.id +
         '", itemId: ' + itemRel.item.id +
         ', targetId: ' + itemRel.target.id +
         ', values: ' + objectToGraphgl(itemRel.values) +
-        `)
+        `) { id values }
       }`
-      await serverFetch(query)
+      const data = await serverFetch(query)
+      itemRel.values = data.updateItemRelation.values
     }
   },
   updateItemRelation: async (itemRel) => {
