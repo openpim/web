@@ -10,10 +10,10 @@
     </v-col>
   </v-row>
 
-  <v-expansion-panels popout multiple focusable :model="panels" class="mt-3">
+  <v-expansion-panels popout multiple focusable v-model="panels" class="mt-3">
     <template v-for="(rel, identifier, i) in itemRelations">
     <h5 style="flex: 1 0 100%; max-width: calc(100% - 32px);" :class="getOption(identifier, 'class', '')" :style="getOption(identifier, 'style', '')" :key="'T'+i" v-if="!groupRelationsRef && getOption(identifier, 'title', null)">{{getOption(identifier, 'title', null)}}</h5>
-    <v-expansion-panel :key="i" :class="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'class', '')" :style="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'style', '')">
+    <v-expansion-panel @change="panelChanged(i, identifier)" :key="i" :class="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'class', '')" :style="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'style', '')">
       <v-expansion-panel-header class="pb-0">{{ getRelationName(identifier) }}</v-expansion-panel-header>
       <v-expansion-panel-content>
         <v-simple-table dense>
@@ -343,10 +343,21 @@ export default {
     })
 
     function calculateGroups () {
-      if (!groupRelationsRef.value) return
+      const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
+      if (!groupRelationsRef.value) {
+        // open relations that were opened at previous item
+        let idx = 0
+        const openPanels = []
+        for (const relIdent in itemRels) {
+          const tst = localStorage.getItem('relState-' + relIdent)
+          if (tst && tst === 'true') openPanels.push(idx)
+          idx++
+        }
+        if (openPanels.length > 0) panels.value = openPanels
+        return
+      }
 
       const groupsArr = []
-      const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
       let grp = null
       for (const relIdent in itemRels) {
         const rel = relations.find(rel => rel.identifier === relIdent)
@@ -361,6 +372,11 @@ export default {
         }
       }
       groupsRef.value = groupsArr
+    }
+
+    function panelChanged (idx, identifier) {
+      const newState = !panels.value.includes(idx)
+      localStorage.setItem('relState-' + identifier, newState)
     }
 
     function getRelationName (identifier) {
@@ -636,6 +652,7 @@ export default {
       groupRelationsRef,
       selectedGroupRef,
       reloadRelation,
+      panelChanged,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive'),
       damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
