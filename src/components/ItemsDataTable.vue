@@ -114,21 +114,21 @@ export default {
       emit('dataLoaded', rows, total)
     }
 
+    let where = null
     function loadDataFunction (options) {
       const tmp = new Promise((resolve, reject) => {
         if (!options) return
-        if (!currentWhereRef.value) {
+        if (!currentWhereRef.value && !where) {
           resolve({ count: 0, rows: [] })
         } else {
-          searchItems(currentWhereRef.value, options)
+          searchItems(where || currentWhereRef.value, options)
             .then((data) => resolve(data))
             .catch((error) => showError(error))
         }
       })
       tmp.where = currentWhereRef.value || {}
-      tmp.applyFilter = (filter) => {
-        // currentWhereRef.value = { id: 1068 }
-        // TODO
+      tmp.applyFilter = (newWhere) => {
+        where = newWhere
       }
       return tmp
     }
@@ -136,18 +136,17 @@ export default {
     function loadDataForCollectionFunction (options) {
       const tmp = new Promise((resolve, reject) => {
         if (!options) return
-        if (!currentWhereRef.value) {
+        if (!currentWhereRef.value && !where) {
           resolve({ count: 0, rows: [] })
         } else {
-          searchItems(currentWhereRef.value, options)
+          searchItems(where || currentWhereRef.value, options)
             .then((data) => resolve(data))
             .catch((error) => showError(error))
         }
       })
       tmp.where = currentWhereRef.value || {}
-      tmp.applyFilter = (filter) => {
-        // currentWhereRef.value = { id: 1068 }
-        // TODO
+      tmp.applyFilter = (newWhere) => {
+        where = newWhere
       }
       return tmp
     }

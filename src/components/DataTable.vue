@@ -117,7 +117,9 @@
               <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
             </v-btn>
             <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" class="resizer"></div>
-            <!-- div><input type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="header.filter" @input="filterChanged(header)"/></div -->
+            <div v-if="header.identifier !== '#thumbnail#' && header.identifier !== '#parentName#' &&  header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' && !header.lov">
+              <input type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="header.filter" @input="filterChanged(header)"/>
+            </div>
         </th>
       </tr>
     </template>
@@ -1465,22 +1467,53 @@ export default {
 
     let awaitingFilter = null
     function filterChanged (header) {
-      if (header.filter && header.filter.length > 1) {
-        if (awaitingFilter) {
-          clearTimeout(awaitingFilter)
-          awaitingFilter = null
-        }
-        if (!awaitingFilter) {
-          awaitingFilter = setTimeout(() => {
-            applyFilter(header)
-          }, 1000)
-        }
+      if (awaitingFilter) {
+        clearTimeout(awaitingFilter)
+        awaitingFilter = null
+      }
+      if (!awaitingFilter) {
+        awaitingFilter = setTimeout(() => {
+          applyFilter(header)
+        }, 1000)
       }
     }
+    const filterHeaders = []
     function applyFilter (header) {
-      console.log(222, header.filter)
-      // TODO send filter to loadData
-      props.loadData().applyFilter()
+      if (!header.filter) {
+        const idx = filterHeaders.findIndex(elem => elem.identifier === header.identifier)
+        if (idx !== -1) filterHeaders.splice(idx, 1)
+      } else if (!filterHeaders.some(elem => elem.identifier === header.identifier)) {
+        filterHeaders.push(header)
+      }
+
+      if (filterHeaders.length === 0) {
+        props.loadData().applyFilter(null)
+        optionsUpdate(optionsRef.value)
+        return
+      }
+
+      // calculate new where
+      const arr = [props.loadData().where]
+      const newWhere = { OP_and: arr }
+      for (const filterHeader of filterHeaders) {
+        const operation = {}
+        if (typeof filterHeader.value === 'object' && !Array.isArray(filterHeader.value)) {
+          const valuePath = filterHeader.value.path
+          let obj = operation
+          for (let i = 0; i < valuePath.length - 1; i++) {
+            const pathElem = valuePath[i]
+            const internalObj = {}
+            obj[pathElem] = internalObj
+            obj = internalObj
+          }
+          obj[valuePath[valuePath.length - 1]] = { OP_iLike: '%' + filterHeader.filter + '%' }
+        } else {
+          operation[filterHeader.value] = { OP_iLike: '%' + filterHeader.filter + '%' }
+        }
+        arr.push(operation)
+      }
+
+      props.loadData().applyFilter(newWhere)
       optionsUpdate(optionsRef.value)
     }
 

@@ -53,21 +53,21 @@ export default {
       if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
     })
 
+    let where = null
     function loadDataFunction (options) {
       const tmp = new Promise((resolve, reject) => {
         if (!options) return
         if (!currentWhereRef.value) {
           resolve({ count: 0, rows: [] })
         } else {
-          searchItemRelations(currentWhereRef.value, options)
+          searchItemRelations(where || currentWhereRef.value, options)
             .then((data) => resolve(data))
             .catch((error) => showError(error))
         }
       })
       tmp.where = {}
-      tmp.applyFilter = (filter) => {
-        // currentWhereRef.value = { id: 1068 }
-        // TODO
+      tmp.applyFilter = (newWhere) => {
+        where = newWhere
       }
       return tmp
     }

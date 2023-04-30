@@ -481,6 +481,7 @@ export default {
       removeItemFile,
       loadAssets,
       loadChildren,
+      searchItems,
       hasRelations,
       loadItemChannels
     } = itemStore.useStore()
@@ -1229,15 +1230,21 @@ export default {
       }
     }
 
+    let where = null
     function loadDataFunction (options) {
       const tmp = new Promise((resolve, reject) => {
         if (!options) return
-        loadChildren(itemRef.value.id, options).then(data => resolve(data))
+        if (where) {
+          searchItems(where, options)
+            .then((data) => resolve(data))
+            .catch((error) => showError(error))
+        } else {
+          loadChildren(itemRef.value.id, options).then(data => resolve(data))
+        }
       })
       tmp.where = { parentIdentifier: itemRef.value.identifier }
-      tmp.applyFilter = (filter) => {
-        // currentWhereRef.value = { id: 1068 }
-        // TODO
+      tmp.applyFilter = (newWhere) => {
+        where = newWhere
       }
       return tmp
     }
