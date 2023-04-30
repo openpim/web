@@ -27,12 +27,12 @@
                       </template>
                       <span>{{ $t('ShowAttributes') }}</span>
                     </v-tooltip>
-                    <v-tooltip bottom v-if="canViewAttrConfigRef">
+                    <!-- v-tooltip bottom v-if="canViewAttrConfigRef">
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" @click="showAttributesShowDialog(2)" icon><v-icon>mdi-format-list-bulleted-square</v-icon></v-btn>
                       </template>
                       <span>{{ $t('ShowAttributes2') }}</span>
-                    </v-tooltip>
+                    </v-tooltip -->
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" @click="refresh" icon><v-icon>mdi-refresh</v-icon></v-btn>
