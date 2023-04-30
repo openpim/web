@@ -93,7 +93,7 @@
         </template>
         <span>{{ $t('Collections.DeleteFromCollection') }}</span>
       </v-tooltip>
-      <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData"></AfterButtonsComponent>
+      <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData" :processButtonAction="processButtonAction"></AfterButtonsComponent>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
       :options="optionsRef"
@@ -1435,13 +1435,13 @@ export default {
       if (trigger.askBeforeExec) {
         if (!confirm(i18n.t('Execute') + '?')) return
       }
-      processButtonAction(trigger)
+      processButtonAction(trigger.itemButton)
     }
 
-    async function processButtonAction (trigger, itemId) {
+    async function processButtonAction (button, data) {
       buttonActionStatusDialog.value.showDialog()
-      const where = props.loadData().where
-      await executeTableButtonAction(props.item ? props.item.internalId : null, trigger.itemButton, where || {}).then((result) => {
+      const where = filterWhere || props.loadData().where
+      await executeTableButtonAction(props.item ? props.item.internalId : null, button, where || {}, data).then((result) => {
         if (result.data) {
           if (result.data.router) {
             router.push(result.data.router)
@@ -1478,6 +1478,7 @@ export default {
       }
     }
     const filterHeaders = []
+    let filterWhere = null
     function applyFilter (header) {
       if (!header.filter) {
         const idx = filterHeaders.findIndex(elem => elem.identifier === header.identifier)
@@ -1489,6 +1490,7 @@ export default {
       if (filterHeaders.length === 0) {
         props.loadData().applyFilter(null)
         optionsUpdate(optionsRef.value)
+        filterWhere = null
         return
       }
 
@@ -1514,6 +1516,7 @@ export default {
       }
 
       props.loadData().applyFilter(newWhere)
+      filterWhere = newWhere
       optionsUpdate(optionsRef.value)
     }
 
@@ -1599,6 +1602,7 @@ export default {
       dateFormat,
       buttonActions,
       executeAction,
+      processButtonAction,
       buttonActionStatusDialog,
       filterChanged,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,

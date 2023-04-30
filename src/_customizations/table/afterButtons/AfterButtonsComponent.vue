@@ -15,6 +15,9 @@ export default {
     },
     loadData: {
       required: true
+    },
+    processButtonAction: {
+      required: true
     }
   },
   setup (props) {
