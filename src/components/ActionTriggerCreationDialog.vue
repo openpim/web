@@ -117,6 +117,16 @@
                       <v-btn color="blue darken-1" text @click="itemSelectionDialogRef.showDialog()">{{ $t('Config.Actions.Triggers.SelectItem.Button') }}</v-btn>
                     </div>
                   </div>
+                  <div>
+                    <div class="align-center">
+                      <v-btn color="blue darken-1" text @click="editRoles">{{ $t('Config.Users.Roles') }}</v-btn>
+                        <v-list dense class="pt-0 pb-0">
+                          <v-list-item v-for="(item, i) in userRoles" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                            <router-link :to="'/config/roles/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name }}</span>
+                          </v-list-item-content></v-list-item>
+                        </v-list>
+                    </div>
+                  </div>
                   </template>
                 </v-form>
               </v-col>

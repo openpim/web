@@ -105,6 +105,8 @@
                           <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
                         </template>
                         <br />
+                        {{ $t('Config.Roles') + ': ' }}
+                        {{ roles.map(role => role.name).join(', ') }}
                         {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
                         {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
                       </div>

@@ -395,7 +395,7 @@ export default {
   setup (props, { emit, root }) {
     const { showError, showInfo } = errorStore.useStore()
 
-    const { currentUserRef, hasAccess, canEditItem, canEditAttrGroup } = userStore.useStore()
+    const { currentUserRef, hasAccess, canEditItem, canEditAttrGroup, currentRoles } = userStore.useStore()
 
     const { savedColumnsRef, loadAllSavedColumns, searchEntityRef } = searchStore.useStore()
 
@@ -1423,7 +1423,10 @@ export default {
                   ((!trigger.itemType && !trigger.itemFrom) ||
                   (props.item && parseInt(props.item.typeId) === parseInt(trigger.itemType) && pathArr.includes(parseInt(trigger.itemFrom))))
           if (result) {
-            arr.push({ ...trigger, order: action.order })
+            const hasRole = currentRoles.some(role => trigger.roles && trigger.roles.includes(parseInt(role.id)))
+            if (!trigger.roles || trigger.roles.length === 0 || hasRole) {
+              arr.push({ ...trigger, order: action.order })
+            }
           }
         }
       })
