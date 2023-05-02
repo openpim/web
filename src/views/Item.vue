@@ -21,6 +21,12 @@
                       </template>
                       <span>{{ $t('ItemView.ToggleTabsMode.Tooltip') }}</span>
                     </v-tooltip>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" @click="toggleTableMode" icon><v-icon :color="tableMode ? 'primary' : ''">mdi-table</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('ItemView.ToggleTableMode.Tooltip') }}</span>
+                    </v-tooltip>
                     <v-tooltip bottom v-if="canViewAttrConfigRef">
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" @click="showAttributesShowDialog(1)" icon><v-icon>mdi-format-list-bulleted-type</v-icon></v-btn>
@@ -189,14 +195,42 @@
                     <v-expansion-panel-header>{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
                        <v-container class="pa-0">
-                        <v-row no-gutters>
+                        <v-row no-gutters v-if="!tableMode">
                           <template v-for="(attr,i) in group.itemAttributes">
                             <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
-                              <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
+                              <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="false"></AttributeValue>
                             </v-col>
                             <v-col :key="i+1000" v-if="getOption(attr, 'space', null)" :cols="getOption(attr, 'space', null)">
                             </v-col>
                             </template>
+                        </v-row>
+                        <v-row no-gutters v-if="tableMode">
+                          <template>
+                            <template v-for="n in parseInt(getOption(group, 'tableColumns', 2))">
+                              <v-col :cols="Math.round(12/parseInt(getOption(group, 'tableColumns', 2)))" :key="n">
+                                <v-simple-table dense class="stripped-table" style="width: 98%;">
+                                <template v-slot:default>
+                                  <thead>
+                                    <th style="width: 2%;">#</th>
+                                    <th style="width: 49%;">Name</th>
+                                    <th style="width: 49%;">Value</th>
+                                  </thead>
+                                  <tbody>
+                                    <template v-for="(attr,i) in group.itemAttributes">
+                                      <tr v-if="i < Math.ceil((group.itemAttributes.length/parseInt(getOption(group, 'tableColumns', 2))))*n && i >= Math.ceil((group.itemAttributes.length/parseInt(getOption(group, 'tableColumns', 2))))*(n-1)" :key="i">
+                                        <td>{{ i + 1 }}</td>
+                                        <td class="stripped-table-text" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
+                                        <td>
+                                          <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="true"></AttributeValue>
+                                        </td>
+                                      </tr>
+                                    </template>
+                                  </tbody>
+                                </template>
+                              </v-simple-table>
+                              </v-col>
+                            </template>
+                          </template>
                         </v-row>
                        </v-container>
                     </v-expansion-panel-content>
@@ -214,12 +248,38 @@
                   <v-tabs-items v-model="attrTabRef">
                     <v-tab-item v-for="(group,i) in attrGroups" :key="i">
                       <v-container class="pa-0">
-                        <v-row no-gutters>
+                        <v-row no-gutters v-if="!tableMode">
                           <template v-for="(attr,i) in group.itemAttributes">
                             <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
-                              <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false"></AttributeValue>
+                              <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="false"></AttributeValue>
                             </v-col>
                             <v-col :key="i+1000" v-if="getOption(attr, 'space', null)" :cols="getOption(attr, 'space', null)">
+                            </v-col>
+                          </template>
+                        </v-row>
+                        <v-row no-gutters v-if="tableMode">
+                          <template v-for="n in parseInt(getOption(group, 'tableColumns', 2))">
+                            <v-col :cols="Math.round(12/parseInt(getOption(group, 'tableColumns', 2)))" :key="n">
+                              <v-simple-table dense class="stripped-table" style="width: 98%;">
+                              <template v-slot:default>
+                                <thead>
+                                  <th style="width: 2%;">#</th>
+                                  <th style="width: 49%;">Name</th>
+                                  <th style="width: 49%;">Value</th>
+                                </thead>
+                                <tbody>
+                                  <template v-for="(attr,i) in group.itemAttributes">
+                                    <tr v-if="i < Math.ceil((group.itemAttributes.length/parseInt(getOption(group, 'tableColumns', 2))))*n && i >= Math.ceil((group.itemAttributes.length/parseInt(getOption(group, 'tableColumns', 2))))*(n-1)" :key="i">
+                                      <td>{{ i + 1 }}</td>
+                                      <td class="stripped-table-text" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
+                                      <td>
+                                        <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="true"></AttributeValue>
+                                      </td>
+                                    </tr>
+                                  </template>
+                                </tbody>
+                              </template>
+                            </v-simple-table>
                             </v-col>
                           </template>
                         </v-row>
@@ -361,6 +421,20 @@
     <ShowAttributesDialog ref="showAttributesDialogRef" @selected="showAttributes"/>
   </v-container>
 </template>
+
+<style scoped>
+.stripped-table tbody tr:nth-of-type(even) {
+    background-color: rgba(0, 0, 0, .03);
+}
+
+.stripped-table tbody tr td.stripped-table-text {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    min-height: 30px;
+    max-width: 100px;
+}
+</style>
 
 <script>
 import { ref, onMounted, watch, computed, onBeforeUpdate, onUnmounted } from '@vue/composition-api'
@@ -527,6 +601,7 @@ export default {
     const awailableChannelsRef = ref([])
     const buttonActionStatusDialog = ref(null)
     const tabsMode = ref(localStorage.getItem('tabsMode') === 'true' || false)
+    const tableMode = ref(localStorage.getItem('tableMode') === 'true' || false)
     const attrTabRef = ref(null)
     const dataTableMarginTop = ref(0)
     const sourceRelationsListRef = ref(null)
@@ -718,6 +793,11 @@ export default {
     function toggleTabsMode () {
       tabsMode.value = !tabsMode.value
       localStorage.setItem('tabsMode', tabsMode.value)
+    }
+
+    function toggleTableMode () {
+      tableMode.value = !tableMode.value
+      localStorage.setItem('tableMode', tableMode.value)
     }
 
     function upload () {
@@ -1354,9 +1434,11 @@ export default {
       performRelationSearch,
       toTop,
       tabsMode,
+      tableMode,
       attrTabRef,
       headerAttrs,
       toggleTabsMode,
+      toggleTableMode,
       tabsContainerRef,
       dataTableMarginTop,
       refresh,

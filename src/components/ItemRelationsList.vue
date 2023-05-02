@@ -103,7 +103,7 @@
                     </span>
                   </td>
                   <td class="text-left pa-0" v-for="(attr, idx) in getAttributesForRelation(identifier)" :key="'attr'+idx">
-                    <AttributeValue @input="attrChange(itemRel, attr)" :item="item" :attr="attr" :values="itemRel.values" :dense="true"></AttributeValue>
+                    <AttributeValue @input="attrChange(itemRel, attr)" :item="item" :attr="attr" :values="itemRel.values" :dense="true" inTableView="false"></AttributeValue>
                   </td>
                   <td class="pa-1">
                     <v-tooltip top v-if="canEditItemRelation">
