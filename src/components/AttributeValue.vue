@@ -269,7 +269,7 @@
       </v-text-field>
       <LanguageDependentField :attr="attr" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && attr.languageDependent" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :errors="errors"></LanguageDependentField>
 
-      <v-textarea :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && !attr.languageDependent" :rows="3" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
+      <v-textarea :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && !attr.languageDependent" :rows="getNumberOption('textareaRows', 3)" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -280,7 +280,7 @@
           <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
         </template>
       </v-textarea>
-      <v-textarea :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="3" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :error-messages="errors">
+      <v-textarea :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="getNumberOption('textareaRows', 3)" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">

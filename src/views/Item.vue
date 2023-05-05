@@ -205,31 +205,29 @@
                             </template>
                         </v-row>
                         <v-row no-gutters v-if="tableMode">
-                          <template>
-                            <template v-for="n in parseInt(getOption(group, 'tableColumns', 2))">
-                              <v-col :cols="Math.round(12/parseInt(getOption(group, 'tableColumns', 2)))" :key="n">
-                                <v-simple-table dense class="stripped-table" style="width: 98%;">
-                                <template v-slot:default>
-                                  <thead>
-                                    <th style="width: 2%;">#</th>
-                                    <th style="width: 49%;">Name</th>
-                                    <th style="width: 49%;">Value</th>
-                                  </thead>
-                                  <tbody>
-                                    <template v-for="(attr,i) in group.itemAttributes">
-                                      <tr v-if="i < Math.ceil((group.itemAttributes.length/parseInt(getOption(group, 'tableColumns', 2))))*n && i >= Math.ceil((group.itemAttributes.length/parseInt(getOption(group, 'tableColumns', 2))))*(n-1)" :key="i">
-                                        <td>{{ i + 1 }}</td>
-                                        <td class="stripped-table-text" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
-                                        <td>
-                                          <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="true"></AttributeValue>
-                                        </td>
-                                      </tr>
-                                    </template>
-                                  </tbody>
-                                </template>
-                              </v-simple-table>
-                              </v-col>
-                            </template>
+                          <template v-for="n in parseInt(getOption(group, 'tableColumns', 2))">
+                            <v-col :cols="Math.round(12/parseInt(getOption(group, 'tableColumns', 2)))" :key="n">
+                              <v-simple-table dense class="stripped-table" style="width: 98%;">
+                              <template v-slot:default>
+                                <thead>
+                                  <th style="width: 2%;">#</th>
+                                  <th style="width: 49%;">Name</th>
+                                  <th style="width: 49%;">Value</th>
+                                </thead>
+                                <tbody>
+                                  <template v-for="(attr,i) in group.itemAttributes">
+                                    <tr v-if="getAttrRange(group.itemAttributes, i) < getTableRowsCount(group)*n && getAttrRange(group.itemAttributes, i) >= getTableRowsCount(group)*(n-1)" :key="i">
+                                      <td>{{ i + 1 }}</td>
+                                      <td class="stripped-table-text" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
+                                      <td>
+                                        <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="true"></AttributeValue>
+                                      </td>
+                                    </tr>
+                                  </template>
+                                </tbody>
+                              </template>
+                            </v-simple-table>
+                            </v-col>
                           </template>
                         </v-row>
                        </v-container>
@@ -269,7 +267,7 @@
                                 </thead>
                                 <tbody>
                                   <template v-for="(attr,i) in group.itemAttributes">
-                                    <tr v-if="i < Math.ceil((group.itemAttributes.length/parseInt(getOption(group, 'tableColumns', 2))))*n && i >= Math.ceil((group.itemAttributes.length/parseInt(getOption(group, 'tableColumns', 2))))*(n-1)" :key="i">
+                                    <tr v-if="getAttrRange(group.itemAttributes, i) < getTableRowsCount(group)*n && getAttrRange(group.itemAttributes, i) >= getTableRowsCount(group)*(n-1)" :key="i">
                                       <td>{{ i + 1 }}</td>
                                       <td class="stripped-table-text" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
                                       <td>
@@ -777,6 +775,33 @@ export default {
         return []
       }
     })
+
+    function getRowsCount (attrs, index) {
+      let rowsCount = 0
+      for (let i = 0; i < index; i++) {
+        const attr = attrs[i]
+        if (attr) {
+          if (attr.type === AttributeType.Text && attr.multiLine) {
+            rowsCount += parseInt(getOption(attr, 'textareaRows', 3))
+          } else if (attr.type === AttributeType.Text && attr.richText) {
+            rowsCount += 3
+          } else {
+            rowsCount += 1
+          }
+        }
+      }
+      return rowsCount
+    }
+
+    function getAttrRange (attrs, index) {
+      const count = getRowsCount(attrs, index)
+      return count
+    }
+
+    function getTableRowsCount (group) {
+      const count = getRowsCount(group.itemAttributes, group.itemAttributes.length)
+      return Math.ceil((count / parseInt(getOption(group, 'tableColumns', 2))))
+    }
 
     function childrenLoaded (rows, total) {
       totalChildrenRef.value = total || 0
@@ -1385,6 +1410,8 @@ export default {
       imageKeyRef,
       filesRef,
       getGaleryFile,
+      getAttrRange,
+      getTableRowsCount,
       mainImage,
       damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
       token: localStorage.getItem('token'),
