@@ -1445,6 +1445,7 @@ export default {
       buttonActionStatusDialog.value.showDialog()
       const where = filterWhere || props.loadData().where
       await executeTableButtonAction(props.item ? props.item.internalId : null, button, where || {}, data).then((result) => {
+        optionsUpdate(optionsRef.value)
         if (result.data) {
           if (result.data.router) {
             router.push(result.data.router)
