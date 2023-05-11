@@ -210,16 +210,16 @@
                               <v-simple-table dense class="stripped-table" style="width: 98%;">
                               <template v-slot:default>
                                 <thead>
-                                  <th style="width: 2%;">#</th>
-                                  <th style="width: 49%;">Name</th>
-                                  <th style="width: 49%;">Value</th>
+                                  <th style="width: 2%;">{{ $t('ItemView.TableMode.Column.Number') }}</th>
+                                  <th style="width: 49%;">{{ $t('ItemView.TableMode.Column.Name') }}</th>
+                                  <th style="width: 49%;">{{ $t('ItemView.TableMode.Column.Value') }}</th>
                                 </thead>
                                 <tbody>
                                   <template v-for="(attr,i) in group.itemAttributes">
                                     <tr v-if="getAttrRange(group.itemAttributes, i) < getTableRowsCount(group)*n && getAttrRange(group.itemAttributes, i) >= getTableRowsCount(group)*(n-1)" :key="i">
-                                      <td>{{ i + 1 }}</td>
-                                      <td class="stripped-table-text" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
-                                      <td>
+                                      <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', '')">{{ i + 1 }}</td>
+                                      <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', 'stripped-table-text')" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
+                                      <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', '')">
                                         <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="true"></AttributeValue>
                                       </td>
                                     </tr>
@@ -261,16 +261,16 @@
                               <v-simple-table dense class="stripped-table" style="width: 98%;">
                               <template v-slot:default>
                                 <thead>
-                                  <th style="width: 2%;">#</th>
-                                  <th style="width: 49%;">Name</th>
-                                  <th style="width: 49%;">Value</th>
+                                  <th style="width: 2%;">{{ $t('ItemView.TableMode.Column.Number') }}</th>
+                                  <th style="width: 49%;">{{ $t('ItemView.TableMode.Column.Name') }}</th>
+                                  <th style="width: 49%;">{{ $t('ItemView.TableMode.Column.Value') }}</th>
                                 </thead>
                                 <tbody>
                                   <template v-for="(attr,i) in group.itemAttributes">
                                     <tr v-if="getAttrRange(group.itemAttributes, i) < getTableRowsCount(group)*n && getAttrRange(group.itemAttributes, i) >= getTableRowsCount(group)*(n-1)" :key="i">
-                                      <td>{{ i + 1 }}</td>
-                                      <td class="stripped-table-text" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
-                                      <td>
+                                      <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', '')">{{ i + 1 }}</td>
+                                      <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', 'stripped-table-text')" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
+                                      <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', '')">
                                         <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="true"></AttributeValue>
                                       </td>
                                     </tr>
