@@ -1025,6 +1025,7 @@ export default {
     }
 
     function DataChanged () {
+      clearFilters()
       optionsRef.value.page = 1
       loadingRef.value = true
       totalItemsRef.value = 0
@@ -1522,6 +1523,13 @@ export default {
       props.loadData().applyFilter(newWhere)
       filterWhere = newWhere
       optionsUpdate(optionsRef.value)
+    }
+    function clearFilters () {
+      filterHeaders.forEach(header => {
+        header.filter = ''
+      })
+      filterWhere = null
+      filterHeaders.splice(0, filterHeaders.length)
     }
 
     return {
