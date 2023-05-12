@@ -117,8 +117,9 @@
               <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
             </v-btn>
             <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" class="resizer"></div>
-            <div v-if="header.identifier !== '#thumbnail#' && header.identifier !== '#parentName#' &&  header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' && !header.lov">
-              <input type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="header.filter" @input="filterChanged(header)"/>
+            <div v-if="header.identifier !== '#thumbnail#' && header.identifier !== '#parentName#' &&  header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#'">
+              <input v-if="!header.lov" type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="header.filter" @input="filterChanged(header)"/>
+              <v-autocomplete v-if="header.lov" v-model="header.filter" :items="getLOVItems(header.lov)" dense clearable class="ml-2 mr-2" @input="filterChanged(header)"></v-autocomplete>
             </div>
         </th>
       </tr>
@@ -1513,9 +1514,17 @@ export default {
             obj[pathElem] = internalObj
             obj = internalObj
           }
-          obj[valuePath[valuePath.length - 1]] = { OP_iLike: '%' + filterHeader.filter + '%' }
+          if (filterHeader.lov) {
+            obj[valuePath[valuePath.length - 1]] = filterHeader.multivalue ? { OP_substring: '' + filterHeader.filter } : { OP_eq: filterHeader.filter }
+          } else {
+            obj[valuePath[valuePath.length - 1]] = { OP_iLike: '%' + filterHeader.filter + '%' }
+          }
         } else {
-          operation[filterHeader.value] = { OP_iLike: '%' + filterHeader.filter + '%' }
+          if (filterHeader.lov) {
+            operation[filterHeader.value] = filterHeader.multivalue ? { OP_substring: '' + filterHeader.filter } : { OP_eq: filterHeader.filter }
+          } else {
+            operation[filterHeader.value] = { OP_iLike: '%' + filterHeader.filter + '%' }
+          }
         }
         arr.push(operation)
       }
@@ -1530,6 +1539,12 @@ export default {
       })
       filterWhere = null
       filterHeaders.splice(0, filterHeaders.length)
+    }
+    function getLOVItems (lovId) {
+      if (!lovsMap) return []
+      const lovValues = lovsMap[lovId]
+      if (!lovValues) return []
+      return lovValues.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
     }
 
     return {
@@ -1617,6 +1632,7 @@ export default {
       processButtonAction,
       buttonActionStatusDialog,
       filterChanged,
+      getLOVItems,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive')

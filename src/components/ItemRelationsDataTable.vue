@@ -110,12 +110,18 @@ export default {
             const lang = languages[i]
             const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
             const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameText + langText, textLong: nameText + langText, textShort: nameShort + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
-            if (attr.type === AttributeType.LOV && attr.lov) data.lov = attr.lov
+            if (attr.type === AttributeType.LOV && attr.lov) {
+              data.lov = attr.lov
+              data.multivalue = attr.options.some(option => option.name === 'multivalue' && option.value === 'true')
+            }
             arr.push(data)
           }
         } else {
           const data = { identifier: 'attr_' + attr.identifier, text: nameText, textLong: nameText, textShort: nameShort, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
-          if (attr.type === AttributeType.LOV && attr.lov) data.lov = attr.lov
+          if (attr.type === AttributeType.LOV && attr.lov) {
+            data.lov = attr.lov
+            data.multivalue = attr.options.some(option => option.name === 'multivalue' && option.value === 'true')
+          }
           arr.push(data)
         }
       }
