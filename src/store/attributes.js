@@ -34,6 +34,7 @@ const actions = {
         element.attributes = element.attributes.sort((a, b) => a.order - b.order)
         groups.push(element)
       })
+      groups.sort((a, b) => a.order - b.order)
     }
   },
   findById: (id) => {
