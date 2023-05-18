@@ -190,7 +190,7 @@
             <v-card flat v-if="!tabsMode">
               <v-card-text class="pt-2 pl-0 pr-0">
                 <BeforeAttributesComponent></BeforeAttributesComponent>
-                <v-expansion-panels popout multiple focusable>
+                <v-expansion-panels popout multiple focusable v-model="groupPanels">
                   <v-expansion-panel v-for="(group,i) in attrGroups" :key="i">
                     <v-expansion-panel-header>{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
@@ -605,6 +605,8 @@ export default {
     const sourceRelationsListRef = ref(null)
 
     const canViewAttrConfigRef = ref(false)
+
+    const groupPanels = ref([])
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -1047,7 +1049,12 @@ export default {
       })
 
       if (!item.values) item.values = {}
+      let grpIdx = 0
       attrGroups.value.forEach(group => {
+        const expandTst = getOption(group, 'openByDefault', null)
+        if (expandTst) groupPanels.value.push(grpIdx)
+        grpIdx++
+
         group.itemAttributes.forEach(attr => {
           let attrValue = getOption(attr, 'default', null)
           if (attrValue && attr.lov) attrValue = parseInt(attrValue)
@@ -1472,6 +1479,7 @@ export default {
       removeChannel,
       canViewAttrConfigRef,
       sourceRelationsListRef,
+      groupPanels,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
