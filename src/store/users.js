@@ -27,7 +27,7 @@ async function userLogin (token, user, pathAfterLogin) {
 let promise
 const actions = {
   loadAllUsers: async () => {
-    if (!promise) promise = serverFetch('query { getUsers {id internalId login name email roles options external createdAt createdBy updatedAt updatedBy } }')
+    if (!promise) promise = serverFetch('query { getUsers {id internalId login name email roles options props external createdAt createdBy updatedAt updatedBy } }')
     const data = await promise
     if (data.getUsers) {
       data.getUsers.forEach(element => {
@@ -36,7 +36,7 @@ const actions = {
     }
   },
   addUser: () => {
-    const newUser = { id: Date.now(), internalId: 0, name: '', roles: [], options: [] }
+    const newUser = { id: Date.now(), internalId: 0, name: '', roles: [], options: [], props: [] }
     users.push(newUser)
     return newUser
   },
@@ -47,8 +47,9 @@ const actions = {
         '", roles: [' + user.roles +
         '], password: "' + (user.password1 ? user.password1 : '') +
         '", email: "' + (user.email ? user.email : '') +
-        '", options: ' + objectToGraphgl(user.options) + ` )
-      }`
+        '", options: ' + objectToGraphgl(user.options) +
+        ' props: ' + objectToGraphgl(user.props) + `
+      )}`
       const data = await serverFetch(query)
       const newId = parseInt(data.createUser)
       user.internalId = newId
@@ -58,8 +59,9 @@ const actions = {
         (user.roles ? ', roles: [' + user.roles + ']' : '') +
         ', password: "' + (user.password1 ? user.password1 : '') +
         '", email: "' + (user.email ? user.email : '') +
-        '", options: ' + objectToGraphgl(user.options) + ` )
-      }`
+        '", options: ' + objectToGraphgl(user.options) +
+        ' props: ' + objectToGraphgl(user.props) + `
+      )}`
       await serverFetch(query)
     }
   },
@@ -95,7 +97,7 @@ const actions = {
           'Content-Type': 'application/json',
           Accept: 'application/json'
         },
-        body: JSON.stringify({ query: 'mutation {signIn(login: "' + login + '", password: "' + password + '") { token, user {id internalId login name email roles tenantId options external} }}' })
+        body: JSON.stringify({ query: 'mutation {signIn(login: "' + login + '", password: "' + password + '") { token, user {id internalId login name email roles tenantId options props external} }}' })
       })
       if (resp.ok) {
         localStorage.setItem('locale', i18n.locale)
@@ -112,7 +114,7 @@ const actions = {
     }
   },
   signInAs: async (id) => {
-    const data = await serverFetch('mutation {signInAs(id: "' + id + '") { token, user {id internalId login name email roles tenantId options external} }}')
+    const data = await serverFetch('mutation {signInAs(id: "' + id + '") { token, user {id internalId login name email roles tenantId options props external} }}')
     await userLogin(data.signInAs.token, data.signInAs.user, '/')
   },
   reloadModel: async () => {

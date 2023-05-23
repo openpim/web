@@ -140,6 +140,28 @@
                     <v-text-field v-if="currentUserRef.login !== 'demo'" type="password" :error-messages="passwordErrors" v-model="currentUserRef.password1" :label="$t('Config.Users.Password1')" required></v-text-field>
                     <v-text-field v-if="currentUserRef.login !== 'demo'" type="password" :error-messages="passwordErrors" v-model="currentUserRef.password2" :label="$t('Config.Users.Password2')" required></v-text-field>
                   </template>
+                  <v-row>
+                    <v-col cols="12" class="pa-0" v-if="isUserAdmin">
+                      <v-expansion-panels flat focusable>
+                        <v-expansion-panel>
+                          <v-expansion-panel-header>{{ $t('User.Additionally') }}</v-expansion-panel-header>
+                          <v-expansion-panel-content>
+                            <v-container class="pa-0">
+                              <v-row no-gutters>
+                                <v-checkbox class="pt-4 pb-0 pr-5 pl-5" v-model="currentUserRef.startClean" :label="$t('User.StartTheCleaningProcedure')" required></v-checkbox>
+                              </v-row>
+                              <v-row no-gutters>
+                                <v-text-field class="pt-4 pb-0 pr-5 pl-5" v-model="currentUserRef.cron" :label="$t('User.CronPattern')" :placeholder="$t('Config.Channels.Cron')" required></v-text-field>
+                              </v-row>
+                              <v-row no-gutters>
+                                <v-text-field class="pt-4 pb-0 pr-5 pl-5" v-model="currentUserRef.daysToSaveDeleted" :label="$t('User.NumberOfDaysToSaveDeletedData')" type="number" required></v-text-field>
+                              </v-row>
+                            </v-container>
+                          </v-expansion-panel-content>
+                        </v-expansion-panel>
+                      </v-expansion-panels>
+                    </v-col>
+                  </v-row>
                 </v-form>
               </v-col>
             </v-row>
@@ -274,6 +296,7 @@ export default {
         }
         userDialogRef.value = false
         passwordErrors.value = []
+        currentUserRef.value.props = { cron: currentUserRef.value.cron, daysToSaveDeleted: parseInt(currentUserRef.value.daysToSaveDeleted), startClean: currentUserRef.value.startClean }
         saveUser(currentUserRef.value).then(() => {
           localStorage.setItem('user', JSON.stringify(currentUserRef.value))
           currentUserRef.value.password1 = ''
