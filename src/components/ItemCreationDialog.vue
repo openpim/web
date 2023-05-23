@@ -41,6 +41,7 @@ import * as langStore from '../store/languages'
 import * as errorStore from '../store/error'
 import * as userStore from '../store/users'
 import i18n from '../i18n'
+import newItemGenerator from '../_customizations/item/newItemGenerator'
 
 export default {
   name: 'ItemCreation',
@@ -64,10 +65,14 @@ export default {
     const identifierErrors = ref([])
     let newId
 
-    watch(typeSelectedRef, (val) => {
+    watch(typeSelectedRef, async (val) => {
       if (val) {
         const type = findType(val).node
-        if (!newItemRef.value.identifier || !newItemRef.value.identifier.startsWith(type.identifier)) {
+        const obj = await newItemGenerator(newId, type, newItemRef.value, selectedItemRef.value)
+        if (obj) {
+          newItemRef.value.identifier = obj.identifier
+          if (obj.name) newItemRef.value.name = obj.name
+        } else if (!newItemRef.value.identifier || !newItemRef.value.identifier.startsWith(type.identifier)) {
           newItemRef.value.identifier = type.identifier + newId
         }
       }
