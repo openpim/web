@@ -36,7 +36,7 @@ const actions = {
     }
   },
   addUser: () => {
-    const newUser = { id: Date.now(), internalId: 0, name: '', roles: [], options: [], props: [] }
+    const newUser = { id: Date.now(), internalId: 0, name: '', roles: [], options: [], props: {} }
     users.push(newUser)
     return newUser
   },
