@@ -1229,8 +1229,8 @@ export default {
       })
     }
 
-    function showAttributesShowDialog () {
-      showAttributesDialogRef.value.showDialog(itemRef.value)
+    function showAttributesShowDialog (type) {
+      showAttributesDialogRef.value.showDialog(itemRef.value, type)
     }
 
     function showAttributes () {
