@@ -1535,6 +1535,7 @@ export default {
       optionsUpdate(optionsRef.value)
     }
     function clearFilters () {
+      props.loadData().applyFilter(null)
       filterHeaders.forEach(header => {
         header.filter = ''
       })
