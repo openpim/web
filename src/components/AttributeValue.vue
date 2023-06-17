@@ -701,7 +701,7 @@ export default {
         }
       }
 
-      if (props.attr.pattern) {
+      if (rawVal && props.attr.pattern) {
         const value = '' + rawVal
         const regex = XRegExp(props.attr.pattern, 'g')
         if (!regex.test(value)) {

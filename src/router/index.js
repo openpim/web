@@ -439,7 +439,7 @@ router.beforeEach(async (to, from, next) => {
         userStore.store.currentUserRef.value = user
         if (user.tenantId !== '0') {
           await rolesStore.store.loadAllRoles()
-          user.roles.forEach(roleId => userStore.store.currentRoles.push(rolesStore.store.roles.find(role => role.id === roleId)))
+          if (userStore.store.currentRoles.length === 0) user.roles.forEach(roleId => userStore.store.currentRoles.push(rolesStore.store.roles.find(role => role.id === roleId)))
         }
         // console.log(userStore.store.currentRoles)
       }
