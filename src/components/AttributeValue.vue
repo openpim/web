@@ -641,6 +641,8 @@ export default {
       }
 
       const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']', url: elem.url } })
+      const sort = getOption('lovNameSort', false)
+      if (sort) arr.sort((a, b) => a.text.localeCompare(b.text))
       return arr
     })
 
