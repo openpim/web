@@ -637,7 +637,7 @@ export default {
         values = values.filter(elem => elem.filter === lovFilterRef.value)
       }
       if (props.item) {
-        values = values.filter(elem => !elem.level || elem.level.length === 0 || elem.level.find(path => props.item.path.startsWith(path)))
+        values = values.filter(elem => !elem.level || elem.level.length === 0 || elem.level === '[]' || elem.level.find(path => props.item.path.startsWith(path)))
       }
 
       const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']', url: elem.url } })
