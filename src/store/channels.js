@@ -81,30 +81,40 @@ const actions = {
   saveChannel: async (channel) => {
     if (channel.internalId === 0) {
       const query = `
-        mutation { createChannel(identifier: "` + channel.identifier + '", name: ' + objectToGraphgl(channel.name) +
+        mutation($config: JSONObject, $mappings: JSONObject) { createChannel(identifier: "` + channel.identifier + '", name: ' + objectToGraphgl(channel.name) +
         ', active: ' + channel.active +
         ', type: ' + channel.type +
         ', valid: [' + (channel.valid || []) +
         '], visible: [' + (channel.visible || []) +
-        '], config: ' + objectToGraphgl(channel.config) +
-        ', mappings: ' + objectToGraphgl(channel.mappings) +
+        '], config: $config, mappings: $mappings' +
         `)
       }`
-      const data = await serverFetch(query)
+
+      const variables = {
+        config: channel.config,
+        mappings: channel.mappings
+      }
+
+      const data = await serverFetch(query, variables)
       const newId = parseInt(data.createLanguage)
       channel.internalId = newId
     } else {
       const query = `
-        mutation { updateChannel(id: "` + channel.internalId + '", name: ' + (channel.name ? '' + objectToGraphgl(channel.name) : '') +
+        mutation($config: JSONObject, $mappings: JSONObject) { updateChannel(id: "` + channel.internalId + '", name: ' + (channel.name ? '' + objectToGraphgl(channel.name) : '') +
         ', active: ' + channel.active +
         ', type: ' + channel.type +
         ', valid: [' + (channel.valid || []) +
         '], visible: [' + (channel.visible || []) +
-        '], config: ' + objectToGraphgl(channel.config) +
-        ', mappings: ' + objectToGraphgl(channel.mappings) +
+        '], config: $config, mappings: $mappings' +
         `)
       }`
-      await serverFetch(query)
+
+      const variables = {
+        config: channel.config,
+        mappings: channel.mappings
+      }
+
+      await serverFetch(query, variables)
     }
   },
   removeChannel: async (id) => {
