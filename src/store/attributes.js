@@ -71,7 +71,7 @@ const actions = {
           '", order: ' + item.order +
           ', languageDependent: ' + item.languageDependent +
           ', type: ' + item.type +
-          (typeof (item.pattern) !== 'undefined' ? ', pattern: "' + item.pattern + '"' : '') +
+          (typeof (item.pattern) !== 'undefined' ? ', pattern: """' + item.pattern + '"""' : '') +
           (item.errorMessage ? ', errorMessage: ' + objectToGraphgl(item.errorMessage) : '') +
           (typeof (item.richText) !== 'undefined' ? ', richText: ' + item.richText : '') +
           (typeof (item.multiLine) !== 'undefined' ? ', multiLine: ' + item.multiLine : '') +
@@ -100,7 +100,7 @@ const actions = {
           ', order: ' + item.order +
           ', languageDependent: ' + item.languageDependent +
           ', type: ' + item.type +
-          (typeof (item.pattern) !== 'undefined' ? ', pattern: "' + item.pattern + '"' : '') +
+          (typeof (item.pattern) !== 'undefined' ? ', pattern: """' + item.pattern + '"""' : '') +
           (item.errorMessage ? ', errorMessage: ' + objectToGraphgl(item.errorMessage) : '') +
           (typeof (item.richText) !== 'undefined' ? ', richText: ' + item.richText : '') +
           (typeof (item.multiLine) !== 'undefined' ? ', multiLine: ' + item.multiLine : '') +
