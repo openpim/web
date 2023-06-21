@@ -434,7 +434,20 @@ export default {
       })
     }
 
-    function save (identifier, id) {
+    async function saveAll () {
+      const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
+      for (const prop in itemRels) {
+        const rels = itemRels[prop]
+        for (let i = 0; i < rels.length; i++) {
+          const rel = rels[i]
+          if (changedRelations.value.includes(rel.id)) {
+            await save(prop, rel.id, true)
+          }
+        }
+      }
+    }
+
+    async function save (identifier, id, skipMsg) {
       const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
       const itemRel = itemRels[identifier].find(elem => elem.id === id)
 
@@ -462,25 +475,22 @@ export default {
 
       const changedIdx = changedRelations.value.indexOf(itemRel.id)
       if (itemRel.id < 0) {
-        identifierExists(itemRel.identifier).then((val) => {
-          if (val) {
-            showError(i18n.t('ItemRelationsList.IdentifierNotUnique'))
-          } else {
-            // create
-            saveItemRelation(itemRel).then(() => {
-              router.clearDataChanged(itemRel.identifier)
-              changedRelations.value.splice(changedIdx, 1)
-              showInfo(i18n.t('Saved'))
-            })
-          }
-        })
-      } else {
-        // update
-        saveItemRelation(itemRel).then(() => {
+        const val = await identifierExists(itemRel.identifier)
+        if (val) {
+          showError(i18n.t('ItemRelationsList.IdentifierNotUnique'))
+        } else {
+          // create
+          await saveItemRelation(itemRel)
           router.clearDataChanged(itemRel.identifier)
           changedRelations.value.splice(changedIdx, 1)
-          showInfo(i18n.t('Saved'))
-        })
+          if (!skipMsg) showInfo(i18n.t('Saved'))
+        }
+      } else {
+        // update
+        await saveItemRelation(itemRel)
+        router.clearDataChanged(itemRel.identifier)
+        changedRelations.value.splice(changedIdx, 1)
+        if (!skipMsg) showInfo(i18n.t('Saved'))
       }
     }
 
@@ -626,6 +636,7 @@ export default {
       getRelationName,
       add,
       save,
+      saveAll,
       remove,
       select,
       itemSelectionDialogRef,

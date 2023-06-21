@@ -351,7 +351,7 @@
             <ItemRelationsList :item="itemRef" componentType="source" @dataLoaded="sourcesLoaded" ref="sourceRelationsListRef" class="mb-12"></ItemRelationsList>
           </v-tab-item>
           <v-tab-item v-if="hasTargets" eager>  <!-- Links to -->
-            <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded" class="mb-12"></ItemRelationsList>
+            <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded" ref="targetRelationsListRef" class="mb-12"></ItemRelationsList>
           </v-tab-item>
           <v-tab-item v-if="totalChildrenRef === -1 || totalChildrenRef > 0" eager>  <!-- Children -->
 
@@ -603,6 +603,7 @@ export default {
     const attrTabRef = ref(null)
     const dataTableMarginTop = ref(0)
     const sourceRelationsListRef = ref(null)
+    const targetRelationsListRef = ref(null)
 
     const canViewAttrConfigRef = ref(false)
 
@@ -904,24 +905,24 @@ export default {
       itemChangedRef.value = true
     }
 
-    function save () {
+    async function save () {
       // TODO !!! not working yet https://composition-api.vuejs.org/api.html#template-refs
       for (let i = 0; i < attributeValues.value.length; i++) {
         const attrVal = attributeValues.value[i]
         if (!attrVal.isValid()) return
       }
-      updateItem(itemRef.value).then(() => {
-        router.clearDataChanged(itemRef.value.identifier + '_name')
-        router.clearDataChanged(itemRef.value.identifier)
-        itemChangedRef.value = false
-        // TODO: use existing table options
-        loadDataFunction({ page: 1, itemsPerPage: 10 }).then(data => {
-          childrenLoaded(data.rows, data.count)
-          // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
-          if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
-        })
-        showInfo(i18n.t('Saved'))
-      })
+      if (sourceRelationsListRef) await sourceRelationsListRef.value.saveAll()
+      if (targetRelationsListRef) await targetRelationsListRef.value.saveAll()
+      await updateItem(itemRef.value)
+      router.clearDataChanged(itemRef.value.identifier + '_name')
+      router.clearDataChanged(itemRef.value.identifier)
+      itemChangedRef.value = false
+      // TODO: use existing table options
+      const data = await loadDataFunction({ page: 1, itemsPerPage: 10 })
+      childrenLoaded(data.rows, data.count)
+      // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
+      if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
+      showInfo(i18n.t('Saved'))
     }
 
     function duplicate () {
@@ -1479,6 +1480,7 @@ export default {
       removeChannel,
       canViewAttrConfigRef,
       sourceRelationsListRef,
+      targetRelationsListRef,
       groupPanels,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
