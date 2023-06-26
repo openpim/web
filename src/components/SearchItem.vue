@@ -21,7 +21,7 @@
       </v-toolbar>
       <v-list nav dense class="ma-0" v-if="selectedRef && !selectedRef.extended">
         <v-list-item-group v-model="selectedFilterRef" color="primary">
-          <v-list-item v-for="(filter, i) in selectedRef.filters" :key="i" :three-line="filter.type === 'attr'">
+          <v-list-item v-for="(filter, i) in selectedRef.filters" :key="i" :value="i" :three-line="filter.type === 'attr'">
             <v-list-item-icon><v-icon>{{filter.type === 'attr' ? 'mdi-alpha-a-box-outline' : ''}}</v-icon></v-list-item-icon>
             <v-list-item-content>
               <v-container class="pa-0">
