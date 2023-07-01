@@ -911,8 +911,8 @@ export default {
         const attrVal = attributeValues.value[i]
         if (!attrVal.isValid()) return
       }
-      if (sourceRelationsListRef) await sourceRelationsListRef.value.saveAll()
-      if (targetRelationsListRef) await targetRelationsListRef.value.saveAll()
+      if (sourceRelationsListRef.value) await sourceRelationsListRef.value.saveAll()
+      if (targetRelationsListRef.value) await targetRelationsListRef.value.saveAll()
       await updateItem(itemRef.value)
       router.clearDataChanged(itemRef.value.identifier + '_name')
       router.clearDataChanged(itemRef.value.identifier)
