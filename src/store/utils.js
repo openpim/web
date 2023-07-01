@@ -130,6 +130,7 @@ function objectToGraphgl (value) {
           } else {
             let tmp = obj
             if (tmp.endsWith('"')) tmp += ' '
+            tmp = tmp.replaceAll('"""', '\\"""')
             result += prop + ':"""' + tmp + '""",'
           }
         } else {
