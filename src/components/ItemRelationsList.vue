@@ -40,6 +40,12 @@
                       </template>
                       <span>{{ $t('Add') }}</span>
                     </v-tooltip>
+                    <v-tooltip top v-if="canEditItemRelationByIdentifier(identifier)">
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" class="pa-0" icon color="primary" @click="saveAllTab(identifier)"><v-icon dark>mdi-content-save-outline</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('Save') }}</span>
+                    </v-tooltip>
                     <v-tooltip top>
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" class="pa-0" icon color="primary" @click="pageSize = 5;pageSizeChanged(identifier)"><v-icon dark>mdi-alpha-r</v-icon></v-btn>
@@ -447,6 +453,17 @@ export default {
       }
     }
 
+    async function saveAllTab (identifier) {
+      const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
+      const rels = itemRels[identifier]
+      for (let i = 0; i < rels.length; i++) {
+        const rel = rels[i]
+        if (changedRelations.value.includes(rel.id)) {
+          await save(identifier, rel.id, true)
+        }
+      }
+    }
+
     async function save (identifier, id, skipMsg) {
       const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
       const itemRel = itemRels[identifier].find(elem => elem.id === id)
@@ -637,6 +654,7 @@ export default {
       add,
       save,
       saveAll,
+      saveAllTab,
       remove,
       select,
       itemSelectionDialogRef,
