@@ -16,7 +16,6 @@
           <LanguageDependentField v-if="attr.type === AttributeType.Text || attr.type === AttributeType.Integer || attr.type === AttributeType.Float || attr.type === AttributeType.Date || attr.type === AttributeType.DateTime" :values="attr.errorMessage" v-model="attr.errorMessage[currentLanguage.identifier]" :label="$t('Config.Attribute.ErrorMessage')"></LanguageDependentField>
 
           <v-container v-if="attr.type === AttributeType.LOV">
-            {{ attr }}
             <v-row v-if="attr.type === AttributeType.LOV">
               <v-autocomplete v-model="attr.lov" :items="lovSelection" :label="$t('Config.Attribute.LOV')" clearable clear-icon="mdi-close-circle-outline"></v-autocomplete>
               <v-tooltip bottom v-if="attr.lov">
