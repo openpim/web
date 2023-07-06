@@ -16,13 +16,20 @@
           <LanguageDependentField v-if="attr.type === AttributeType.Text || attr.type === AttributeType.Integer || attr.type === AttributeType.Float || attr.type === AttributeType.Date || attr.type === AttributeType.DateTime" :values="attr.errorMessage" v-model="attr.errorMessage[currentLanguage.identifier]" :label="$t('Config.Attribute.ErrorMessage')"></LanguageDependentField>
 
           <v-container v-if="attr.type === AttributeType.LOV">
+            {{ attr }}
             <v-row v-if="attr.type === AttributeType.LOV">
-              <v-autocomplete v-model="attr.lov" :items="lovSelection" :label="$t('Config.Attribute.LOV')"></v-autocomplete>
-              <v-tooltip bottom>
+              <v-autocomplete v-model="attr.lov" :items="lovSelection" :label="$t('Config.Attribute.LOV')" clearable clear-icon="mdi-close-circle-outline"></v-autocomplete>
+              <v-tooltip bottom v-if="attr.lov">
                 <template v-slot:activator="{ on }">
                   <v-btn icon v-on="on" @click="changeLOV(attr.lov)"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
                 </template>
                 <span>{{ $t('Edit') }}</span>
+              </v-tooltip>
+              <v-tooltip bottom v-if="!attr.lov">
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="addNewLOV()"><v-icon>mdi-plus</v-icon></v-btn>
+                </template>
+                <span>{{ $t('Add') }}</span>
               </v-tooltip>
             </v-row>
           </v-container>
@@ -146,7 +153,7 @@ export default {
       typeSelection = [...typeSelection, ...mappedAddAttrTypeList]
     }
 
-    const { lovs, loadAllLOVs, saveLOV, getLOVsForSelect } = lovStore.useStore()
+    const { lovs, loadAllLOVs, saveLOV, getLOVsForSelect, addLOV } = lovStore.useStore()
 
     const lovSelection = ref([])
     const lov = ref({ id: -1 })
@@ -172,11 +179,18 @@ export default {
       props.attr.relations = arr
     }
 
+    function addNewLOV () {
+      lov.value = addLOV()
+      changeLOVDialogRef.value = true
+    }
+
     function changeLOV (value) {
       if (!value) return
+      const previousLOV = lov.value
       lov.value = lovs.find(function (lov) {
-        return lov.id === value.toString()
+        return (lov.id === value.toString())
       })
+      if (typeof lov.value === 'undefined') lov.value = previousLOV
       changeLOVDialogRef.value = true
     }
 
@@ -184,13 +198,19 @@ export default {
       changeLOVDialogRef.value = false
     }
 
-    function save () {
+    async function save () {
       if (lov.value) {
-        saveLOV(lov.value).then(() => {
+        await saveLOV(lov.value).then(() => {
           showInfo(i18n.t('Saved'))
+          closeChangeLOV()
         })
+        if (lov.value.id !== lov.value.internalId) {
+          props.attr.lov = lov.value.internalId
+          getLOVsForSelect().then((arr) => {
+            lovSelection.value = arr
+          })
+        }
       }
-      closeChangeLOV()
     }
 
     onMounted(() => {
@@ -229,6 +249,7 @@ export default {
       lov,
       save,
       changeLOV,
+      addNewLOV,
       closeChangeLOV,
       editRelations,
       relationsSelected,
