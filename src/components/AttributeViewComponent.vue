@@ -183,7 +183,7 @@ export default {
     }
 
     async function addNewLOV () {
-      const obj = await newLOVGenerator(await nextId('lovs_id_seq'), props.attr)
+      const obj = await newLOVGenerator(nextId, props.attr)
       lov.value = addLOV()
       if (obj) {
         lov.value.identifier = obj.identifier

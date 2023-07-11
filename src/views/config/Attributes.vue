@@ -256,7 +256,7 @@ export default {
         const groupFiltered = groupsFiltered.value.find((el) => el.id === selectedRef.value.id)
         groupFiltered.children.push(newAttr)
         openRef.value = [selectedRef.value.id]
-        const obj = await newAttributeGenerator(await nextId('attributes_id_seq'))
+        const obj = await newAttributeGenerator(nextId)
         if (obj) {
           newAttr.identifier = obj.identifier
           if (obj.name) newAttr.name = obj.name

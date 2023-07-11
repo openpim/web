@@ -131,7 +131,7 @@ export default {
     }
 
     async function add () {
-      const obj = await newLOVGenerator(await nextId('lovs_id_seq'))
+      const obj = await newLOVGenerator(nextId)
       selectedRef.value = addLOV()
       itemRef.value = lovs.length - 1
       if (obj) {
