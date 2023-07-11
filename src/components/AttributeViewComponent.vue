@@ -96,6 +96,7 @@ import * as langStore from '../store/languages'
 import * as relStore from '../store/relations'
 import * as lovStore from '../store/lovs'
 import * as errorStore from '../store/error'
+import * as itemsStore from '../store/item'
 
 import OptionsTable from '../components/OptionsTable'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
@@ -105,6 +106,7 @@ import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
 import LOVViewComponent from '../components/LOVViewComponent'
 
 import additionalAttrTypesList from '../_customizations/attributes/additionalTypes.js'
+import newLOVGenerator from '../_customizations/lovs/newLOVGenerator.js'
 
 export default {
   components: { OptionsTable, ValidVisibleComponent, SystemInformation, LanguageDependentField, RelationsSelectionDialog, LOVViewComponent },
@@ -135,6 +137,8 @@ export default {
       relations,
       loadAllRelations
     } = relStore.useStore()
+
+    const { nextId } = itemsStore.useStore()
 
     let typeSelection = [
       { text: i18n.t('Config.Attribute.Type.Text'), value: AttributeType.Text },
@@ -178,8 +182,13 @@ export default {
       props.attr.relations = arr
     }
 
-    function addNewLOV () {
+    async function addNewLOV () {
+      const obj = await newLOVGenerator(await nextId('lovs_id_seq'), props.attr)
       lov.value = addLOV()
+      if (obj) {
+        lov.value.identifier = obj.identifier
+        if (obj.name) lov.value.name = obj.name
+      }
       changeLOVDialogRef.value = true
     }
 

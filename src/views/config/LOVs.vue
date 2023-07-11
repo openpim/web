@@ -40,11 +40,13 @@ import * as langStore from '../../store/languages'
 import * as lovStore from '../../store/lovs'
 import * as errorStore from '../../store/error'
 import * as typesStore from '../../store/types'
+import * as itemsStore from '../../store/item'
 import * as channelsStore from '../../store/channels'
 import i18n from '../../i18n'
 import * as userStore from '../../store/users'
 import router from '../../router'
 import LOVViewComponent from '../../components/LOVViewComponent.vue'
+import newLOVGenerator from '../../_customizations/lovs/newLOVGenerator'
 
 export default {
   components: { LOVViewComponent },
@@ -71,6 +73,8 @@ export default {
     const { loadAllChannels, getAvailableChannels } = channelsStore.useStore()
 
     const { loadAllTypes } = typesStore.useStore()
+
+    const { nextId } = itemsStore.useStore()
 
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
@@ -126,9 +130,14 @@ export default {
       itemRef.value = null
     }
 
-    function add () {
+    async function add () {
+      const obj = await newLOVGenerator(await nextId('lovs_id_seq'))
       selectedRef.value = addLOV()
       itemRef.value = lovs.length - 1
+      if (obj) {
+        selectedRef.value.identifier = obj.identifier
+        if (obj.name) selectedRef.value.name = obj.name
+      }
     }
 
     function save () {

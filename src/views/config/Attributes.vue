@@ -94,12 +94,14 @@ import { ref, computed, onMounted, watch } from '@vue/composition-api'
 import i18n from '../../i18n'
 import router from '../../router'
 import * as errorStore from '../../store/error'
+import * as itemsStore from '../../store/item'
 import * as langStore from '../../store/languages'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
 import OptionsTable from '../../components/OptionsTable'
 import AttributeViewComponent from '../../components/AttributeViewComponent.vue'
+import newAttributeGenerator from '../../_customizations/attributes/newAttributeGenerator'
 
 export default {
   components: { LanguageDependentField, SystemInformation, OptionsTable, AttributeViewComponent },
@@ -137,6 +139,8 @@ export default {
       removeGroup,
       removeAttribute
     } = attrStore.useStore()
+
+    const { nextId } = itemsStore.useStore()
 
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
@@ -237,7 +241,7 @@ export default {
       selectedRef.value.options = val
     }
 
-    function add () {
+    async function add () {
       if (selectedRef.value && selectedRef.value.group) {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('Config.Attributes.Attr.NewName')
@@ -252,6 +256,11 @@ export default {
         const groupFiltered = groupsFiltered.value.find((el) => el.id === selectedRef.value.id)
         groupFiltered.children.push(newAttr)
         openRef.value = [selectedRef.value.id]
+        const obj = await newAttributeGenerator(await nextId('attributes_id_seq'))
+        if (obj) {
+          newAttr.identifier = obj.identifier
+          if (obj.name) newAttr.name = obj.name
+        }
         selectedRef.value = newAttr
         selectedGroupsRef.value = []
       } else {
