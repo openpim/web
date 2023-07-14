@@ -61,6 +61,7 @@ const actions = {
     return data.getSearchByIdentifier
   },
   save: async (search) => {
+    if (!search.extended) search.whereClause = { orAnd: search.orAnd }
     const query = `
       mutation { saveSearch(identifier: "` + search.identifier + '", name: ' + (search.name ? objectToGraphgl(search.name) : '') +
       ', entity: "' + search.entity + '"' +

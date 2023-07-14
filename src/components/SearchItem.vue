@@ -159,6 +159,7 @@ export default {
     const extendedSearchRef = ref('{ "identifier": "???", ... }')
 
     async function searchSelected (selected) {
+      if (!selected.extended && selected.whereClause && selected.whereClause.orAnd) selected.orAnd = selected.whereClause.orAnd
       if (!selected.orAnd) selected.orAnd = 1
       if (selected.filters) await updateFiltersLOVs(selected.filters)
       if (selected.user === currentUserRef.value.login) {

@@ -168,6 +168,7 @@ export default {
     const lovsMap = {}
 
     function searchSelected (selected) {
+      if (!selected.extended && selected.whereClause && selected.whereClause.orAnd) selected.orAnd = selected.whereClause.orAnd
       if (!selected.orAnd) selected.orAnd = 1
       if (selected.user === currentUserRef.value.login) {
         selectedRef.value = selected

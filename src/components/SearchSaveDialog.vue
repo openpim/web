@@ -126,6 +126,7 @@ export default {
           data.extended = selected.extended
           data.filters = selected.filters
           data.whereClause = selected.whereClause
+          if (!selected.extended && selected.whereClause && selected.whereClause.orAnd) data.orAnd = selected.whereClause.orAnd
           indexlInListRef.value = idx
         } else {
           creationRef.value = true
