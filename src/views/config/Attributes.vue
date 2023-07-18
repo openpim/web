@@ -44,13 +44,12 @@
           <AttributeViewComponent :attr="selectedRef" :canEditConfig="canEditConfigRef" />
 
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
-          <v-menu offset-y v-if="canEditConfigRef">
+          <v-menu :close-on-content-click="false" offset-y v-if="canEditConfigRef">
             <template v-slot:activator="{ on }"><v-btn class="mr-4" v-on="on"> {{ $t('Config.Attributes.Connect') }}</v-btn></template>
-            <v-list>
-              <v-list-item v-for="(grp, index) in connectGroups" :key="index" @click="assign(grp.id)">
-                <v-list-item-title>{{ grp.name[currentLanguage.identifier] || '[' + grp.name[defaultLanguageIdentifier] + ']' }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
+            <v-card class="pa-4">
+              <v-autocomplete v-model="grpId" item-value="id" :items="connectGroups" :item-text="'name.' + currentLanguage.identifier || 'name.' + defaultLanguageIdentifier" clearable clear-icon="mdi-close-circle-outline"></v-autocomplete>
+              <div class="text-end"><v-btn @click="assign(grpId)"> {{ $t('Config.Attributes.Connect') }}</v-btn></div>
+            </v-card>
           </v-menu>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
@@ -102,6 +101,7 @@ import SystemInformation from '../../components/SystemInformation'
 import OptionsTable from '../../components/OptionsTable'
 import AttributeViewComponent from '../../components/AttributeViewComponent.vue'
 import newAttributeGenerator from '../../_customizations/attributes/newAttributeGenerator'
+import filterAttrGroups from '../../_customizations/attributes/filterAttrGroups'
 
 export default {
   components: { LanguageDependentField, SystemInformation, OptionsTable, AttributeViewComponent },
@@ -158,9 +158,15 @@ export default {
     const selectedGroupsRef = ref([])
     const maxChiidrenNumber = 100
     const showEmptyGroups = ref(false)
+    const grpId = ref(null)
 
     const connectGroups = computed(() => {
-      return selectedGroupsRef.value ? groups.filter((grp) => !selectedGroupsRef.value.find((item) => item.id === grp.id)) : []
+      const filteredGroups = filterAttrGroups(selectedRef.value, selectedGroupsRef.value, groups)
+      if (filteredGroups) {
+        return filteredGroups
+      } else {
+        return selectedGroupsRef.value ? groups.filter((grp) => !selectedGroupsRef.value.find((item) => item.id === grp.id)) : []
+      }
     })
 
     let awaitingSearch = null
@@ -438,6 +444,7 @@ export default {
     }
 
     return {
+      grpId,
       canViewConfigRef,
       canEditConfigRef,
       groups,

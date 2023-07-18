@@ -46,6 +46,12 @@
                       </template>
                       <span>{{ $t('Save') }}</span>
                     </v-tooltip>
+                    <v-tooltip top v-if="canEditItemRelationByIdentifier(identifier)">
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" class="pa-0" icon color="primary" @click="removeAllTab(identifier)"><v-icon dark>mdi-minus</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('Remove') }}</span>
+                    </v-tooltip>
                     <v-tooltip top>
                       <template v-slot:activator="{ on }">
                         <v-btn v-on="on" class="pa-0" icon color="primary" @click="pageSize = 5;pageSizeChanged(identifier)"><v-icon dark>mdi-alpha-r</v-icon></v-btn>
@@ -464,6 +470,24 @@ export default {
       }
     }
 
+    function removeAllTab (identifier) {
+      if (confirm(i18n.t('ItemRelationsList.Confirm.DeleteAllItemRelations'))) {
+        const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
+        const rels = itemRels[identifier]
+        for (let i = 0; i < rels.length; i++) {
+          const rel = rels[i]
+          removeItemRelation(props.componentType, identifier, rel.id)
+        }
+        if (props.componentType === 'source') {
+          sourceRelations[identifier] = []
+          sourceRelationsTotal[identifier] = 0
+        } else {
+          targetRelations[identifier] = []
+          targetRelationsTotal[identifier] = 0
+        }
+      }
+    }
+
     async function save (identifier, id, skipMsg) {
       const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
       const itemRel = itemRels[identifier].find(elem => elem.id === id)
@@ -656,6 +680,7 @@ export default {
       saveAll,
       saveAllTab,
       remove,
+      removeAllTab,
       select,
       itemSelectionDialogRef,
       itemsSelected,

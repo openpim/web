@@ -360,6 +360,7 @@
   "ItemRelationsList.TargetRequired": "Не введено назначение",
   "ItemRelationsList.SourceRequired": "Не введен источник",
   "ItemRelationsList.Confirm.Delete": "Удалить ссылку?",
+  "ItemRelationsList.Confirm.DeleteAllItemRelations": "Удалить ВСЕ ссылки?",
   "ItemRelationsList.RowsPerPage": "Записей на страницу:",
   "ItemRelationsList.TotalRows": "Всего:",
   "ItemRelationsList.Required": "Поле обязательно",

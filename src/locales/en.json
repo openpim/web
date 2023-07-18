@@ -363,6 +363,7 @@
   "ItemRelationsList.TargetRequired": "Target required",
   "ItemRelationsList.SourceRequired": "Source required",
   "ItemRelationsList.Confirm.Delete": "Remove link?",
+  "ItemRelationsList.Confirm.DeleteAllItemRelations": "Remove ALL links?",
   "ItemRelationsList.RowsPerPage": "Rows per page:",
   "ItemRelationsList.TotalRows": "Total rows:",
   "ItemRelationsList.Required": "Required",
