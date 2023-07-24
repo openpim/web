@@ -10,7 +10,15 @@
               <template v-slot:default>
                 <thead>
                   <tr>
-                    <th class="text-left">{{ $t('Config.LOV.ID') }}</th>
+                    <th class="text-left">
+                      <v-tooltip top v-if="canEditConfig" class="ml-4">
+                        <template v-slot:activator="{ on }">
+                          <v-btn v-on="on" class="pa-0" icon color="primary" @click="addValue"><v-icon dark>mdi-plus</v-icon></v-btn>
+                        </template>
+                        <span>{{ $t('Add') }}</span>
+                      </v-tooltip>
+                      {{ $t('Config.LOV.ID') }}
+                    </th>
                     <th class="text-left">{{ $t('Config.LOV.Value') }}</th>
                     <th class="text-left" v-for="(channel, i) in availableChannelsRef" :key="i">{{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}</th>
                     <th class="text-left">{{ $t('Config.LOV.Level') }}</th>
