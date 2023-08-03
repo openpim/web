@@ -1058,14 +1058,17 @@ export default {
                 return Object.values(val).reduce((accumulator, currentValue, currentIndex, array) => {
                   const tst = lovValues.find(elem => elem.id === currentValue)
                   if (tst) accumulator += tst.value[currentLanguage.value.identifier] || '[' + tst.value[defaultLanguageIdentifier.value] + ']'
-                  else accumulator += currentValue
 
-                  if (currentIndex !== array.length - 1) accumulator += ', '
+                  if (currentIndex !== array.length - 1 && tst) accumulator += ', '
                   return accumulator
                 }, '')
               } else {
                 const tst = lovValues.find(elem => elem.id === val)
-                if (tst) val = tst.value[currentLanguage.value.identifier] || '[' + tst.value[defaultLanguageIdentifier.value] + ']'
+                if (tst) {
+                  val = tst.value[currentLanguage.value.identifier] || '[' + tst.value[defaultLanguageIdentifier.value] + ']'
+                } else {
+                  val = null
+                }
                 return val
               }
             } else {
