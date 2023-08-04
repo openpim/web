@@ -93,9 +93,13 @@
                   </template>
                   <template v-if="triggerRef.type === 5"> <!-- Attribute -->
                     <v-radio-group v-model="triggerRef.event">
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.BeforeCreate')" value="1"></v-radio>
                       <v-radio :label="$t('Config.Actions.Triggers.Event.AfterCreate')" value="2"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.BeforeUpdate')" value="3"></v-radio>
                       <v-radio :label="$t('Config.Actions.Triggers.Event.AfterUpdate')" value="4"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.BeforeDelete')" value="5"></v-radio>
                       <v-radio :label="$t('Config.Actions.Triggers.Event.AfterDelete')" value="6"></v-radio>
+
                     </v-radio-group>
                   </template>
                   <template v-if="triggerRef.type === 6"> <!-- table button -->
