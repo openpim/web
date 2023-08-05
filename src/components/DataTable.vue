@@ -920,7 +920,7 @@ export default {
         }
       }
       reader.readAsBinaryString(file)
-      fileUploadRef.value.value = ''
+      fileUploadRef.value = null
     }
 
     function convertValueIfNecessary (attr, cellVal) {
