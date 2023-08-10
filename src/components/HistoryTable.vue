@@ -25,7 +25,18 @@
                 <tr><th style="width:50%" class="text-left teal--text">{{ $t('HistoryTable.Name') }}</th>
                 <th style="width:50%" class="text-left teal--text">{{ $t('HistoryTable.Value') }}</th></tr>
               </thead>
-              <HistoryTableRows :data="item.data.added" color="teal--text" :level="1" />
+              <tbody>
+                <tr v-for="(value, name) in item.data.added" :key="name">
+                  <template v-if="name != 'values'">
+                  <td><div class="teal--text mt-2">{{ getTitle(name) }}:</div></td>
+                  <td>{{value}}</td>
+                  </template>
+                </tr>
+                <tr v-for="(value, name) in item.data.added.values" :key="name">
+                  <td><div class="teal--text mt-2">{{ getTitle(name) }}:</div></td>
+                  <td>{{value}}</td>
+                </tr>
+              </tbody>
             </template>
           </v-simple-table>
         </template>
@@ -38,7 +49,20 @@
                 <th style="width:30%" class="text-left indigo--text">{{ $t('HistoryTable.Value') }}</th>
                 <th style="width:30%" class="text-left indigo--text">{{ $t('HistoryTable.OldValue') }}</th></tr>
               </thead>
-              <HistoryTableRows :data="item.data.changed" :old="item.data.old" color="indigo--text" :level="1" />
+              <tbody>
+                <tr v-for="(value, name) in item.data.changed" :key="name">
+                  <template v-if="name != 'values'">
+                  <td><div class="indigo--text mt-2">{{ getTitle(name) }}:</div></td>
+                  <td>{{value}}</td>
+                  <td>{{item.data.old[name]}}</td>
+                  </template>
+                </tr>
+                <tr v-for="(value, name) in item.data.changed.values" :key="name">
+                  <td><div class="indigo--text mt-2">{{ getTitle(name) }}:</div></td>
+                  <td>{{value}}</td>
+                  <td>{{item.data.old.values[name]}}</td>
+                </tr>
+              </tbody>
             </template>
           </v-simple-table>
         </template>
@@ -52,14 +76,12 @@
 import * as langStore from '../store/languages'
 import * as errorStore from '../store/error'
 import * as auditStore from '../store/audit'
+import * as attrStore from '../store/attributes'
 import dateFormat from 'dateformat'
 import i18n from '../i18n'
 import { ref, onMounted, watch } from '@vue/composition-api'
 
-import HistoryTableRows from './HistoryTableRows'
-
 export default {
-  components: { HistoryTableRows },
   props: {
     item: {
       required: true
@@ -78,6 +100,10 @@ export default {
       loadItemHistory,
       loadItemRelationHistory
     } = auditStore.useStore()
+
+    const {
+      findByIdentifier
+    } = attrStore.useStore()
 
     const { showError } = errorStore.useStore()
 
@@ -127,6 +153,26 @@ export default {
       return !obj || Object.keys(obj).length === 0
     }
 
+    function getTitle (name) {
+      if (name === 'typeIdentifier') return i18n.t('HistoryTable.typeIdentifier')
+      else if (name === 'parentIdentifier') return i18n.t('HistoryTable.parentIdentifier')
+      else if (name === 'mimeType') return i18n.t('HistoryTable.mimeType')
+      else if (name === 'fileOrigName') return i18n.t('HistoryTable.fileOrigName')
+      else if (name === 'relationIdentifier') return i18n.t('HistoryTable.relationIdentifier')
+      else if (name === 'itemIdentifier') return i18n.t('HistoryTable.itemIdentifier')
+      else if (name === 'targetIdentifier') return i18n.t('HistoryTable.targetIdentifier')
+      else if (name === 'name') return i18n.t('HistoryTable.ObjName')
+      else if (name === 'values') return i18n.t('HistoryTable.Values')
+      else {
+        const tst = findByIdentifier(name)?.item
+        return tst ? tst.name[currentLanguage.value.identifier] || tst.name[defaultLanguageIdentifier.value] : name
+      }
+    }
+
+    function isObject (obj) {
+      return obj != null && obj.constructor.name === 'Object'
+    }
+
     onMounted(() => {
       optionsUpdate(optionsRef.value)
     })
@@ -140,7 +186,9 @@ export default {
       optionsUpdate,
       optionsRef,
       loadingRef,
+      isObject,
       isObjectEmpty,
+      getTitle,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }
