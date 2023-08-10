@@ -76,7 +76,7 @@
 import * as langStore from '../store/languages'
 import * as errorStore from '../store/error'
 import * as auditStore from '../store/audit'
-import * as attrStore from '../store/attributes'
+// import * as attrStore from '../store/attributes'
 import dateFormat from 'dateformat'
 import i18n from '../i18n'
 import { ref, onMounted, watch } from '@vue/composition-api'
@@ -101,9 +101,9 @@ export default {
       loadItemRelationHistory
     } = auditStore.useStore()
 
-    const {
-      findByIdentifier
-    } = attrStore.useStore()
+    // const {
+    //  findByIdentifier
+    // } = attrStore.useStore()
 
     const { showError } = errorStore.useStore()
 
@@ -164,8 +164,10 @@ export default {
       else if (name === 'name') return i18n.t('HistoryTable.ObjName')
       else if (name === 'values') return i18n.t('HistoryTable.Values')
       else {
-        const tst = findByIdentifier(name)?.item
-        return tst ? tst.name[currentLanguage.value.identifier] || tst.name[defaultLanguageIdentifier.value] : name
+        // finding attribute can be very long if we have a lot of them, disable this temporary
+        // const tst = findByIdentifier(name)?.item
+        // return tst ? tst.name[currentLanguage.value.identifier] || tst.name[defaultLanguageIdentifier.value] : name
+        return name
       }
     }
 
