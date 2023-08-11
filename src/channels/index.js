@@ -4,6 +4,7 @@ import OzonFactory from './ozon'
 import YMFactory from './ym'
 import ExtMapFactory from './extmap'
 import MDMFactory from './mdm'
+import XLSTemplFactory from './xlsTemplate'
 
 function getConfigCompoment () { return null }
 function getStandardAttributes () { return null }
@@ -24,6 +25,7 @@ export default function getChannelFactory (type) {
     case 4: return YMFactory
     case 5: return ExtMapFactory
     case 6: return MDMFactory
+    case 7: return XLSTemplFactory
     default: return empty
   }
 }

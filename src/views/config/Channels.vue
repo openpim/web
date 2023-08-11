@@ -128,9 +128,10 @@ import OzonConfigCompoment from '../../channels/ozon/OzonConfigCompoment'
 import YMConfigCompoment from '../../channels/ym/YMConfigCompoment'
 import ExtMapConfigCompoment from '../../channels/extmap/ExtMapConfigCompoment'
 import MDMConfigCompoment from '../../channels/mdm/MDMConfigComponent'
+import XLSTemplConfigCompoment from '../../channels/xlsTemplate/XLSTemplConfigCompoment.vue'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment, YMConfigCompoment, ExtMapConfigCompoment, MDMConfigCompoment },
+  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment, YMConfigCompoment, ExtMapConfigCompoment, MDMConfigCompoment, XLSTemplConfigCompoment },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
@@ -235,7 +236,8 @@ export default {
       { value: 3, text: i18n.t('Channels.Type.Ozon') },
       { value: 4, text: i18n.t('Channels.Type.YM') },
       { value: 5, text: i18n.t('Channels.Type.ExternalWithMapping') },
-      { value: 6, text: i18n.t('Channels.Type.MDM') }
+      { value: 6, text: i18n.t('Channels.Type.MDM') },
+      { value: 7, text: i18n.t('Channels.Type.ExcelTemplate') }
     ])
 
     onMounted(() => {
