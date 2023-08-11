@@ -608,14 +608,14 @@ export default {
       const idx = optionsRef.value.sortBy.findIndex(elem => elem === header.value)
       if (idx === -1) {
         // replace previous sorting
-        const prevHeader = headersRef.value.find(elem => elem.value === optionsRef.value.sortBy[0])
+        /* const prevHeader = headersRef.value.find(elem => elem.value === optionsRef.value.sortBy[0])
         if (prevHeader) prevHeader.icon = 'mdi-arrow-up-down'
         optionsRef.value.sortBy = [header.value, 'id']
-        optionsRef.value.sortDesc = [false, false]
+        optionsRef.value.sortDesc = [false, false] */
         // replace previous sorting
 
-        // optionsRef.value.sortBy.unshift(header.value)
-        // optionsRef.value.sortDesc.unshift(false)
+        optionsRef.value.sortBy.push(header.value)
+        optionsRef.value.sortDesc.push(false)
         header.icon = 'mdi-arrow-down'
       } else {
         if (!optionsRef.value.sortDesc[idx]) {
