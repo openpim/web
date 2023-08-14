@@ -19,6 +19,7 @@ async function userLogin (token, user, pathAfterLogin) {
     router.push({ path: '/selectUser', query: null })
   } else {
     await rolesStore.store.loadAllRoles()
+    currentRoles.splice(0) // clear current roles
     user.roles.forEach(roleId => currentRoles.push(rolesStore.store.roles.find(role => role.id === roleId)))
     router.push({ path: pathAfterLogin, query: null })
   }
