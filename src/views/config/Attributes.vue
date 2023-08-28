@@ -266,6 +266,7 @@ export default {
         if (obj) {
           newAttr.identifier = obj.identifier
           if (obj.name) newAttr.name = obj.name
+          if (obj.options) newAttr.options = obj.options
         }
         selectedRef.value = newAttr
         selectedGroupsRef.value = []
