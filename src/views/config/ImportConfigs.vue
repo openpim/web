@@ -32,7 +32,7 @@
           </div>
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.ImportConfigs.Name')"></LanguageDependentField>
           <v-select v-model="selectedRef.type" :items="types" :readonly="!canEditConfigRef" :label="$t('Config.ImportConfigs.Type')"></v-select>
-          <v-card class="mx-auto mb-5">
+          <!--v-card class="mx-auto mb-5">
             <v-card-title>Actions</v-card-title>
               <v-card-text>
                 <v-expansion-panels multiple focusable>
@@ -50,7 +50,7 @@
                   </v-expansion-panel>
                 </v-expansion-panels>
               </v-card-text>
-            </v-card>
+            </v-card-->
           <component v-if="importConfigFactory.getConfigCompoment()" :is="importConfigFactory.getConfigCompoment()" :availableFields="availableFields" :mappings="selectedRef.mappings" :readonly="!canEditConfigRef" ></component>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
