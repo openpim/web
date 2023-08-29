@@ -53,6 +53,7 @@
             </v-card-->
           <component v-if="importConfigFactory.getConfigCompoment()" :is="importConfigFactory.getConfigCompoment()" :availableFields="availableFields" :mappings="selectedRef.mappings" :readonly="!canEditConfigRef" ></component>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
+          <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">Save and test</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
       </v-col>
