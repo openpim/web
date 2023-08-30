@@ -114,8 +114,8 @@ export default {
 
     const {
       loadAllActions,
-      actions,
-      saveAction
+      actions
+      // saveAction
     } = actionsStore.useStore()
 
     const importConfigFactory = computed(() => {
@@ -155,8 +155,20 @@ export default {
       eventBus.on('tab_updated', data => {
         selectedRef.value.tab = data
       })
+
       eventBus.on('mappings_updated', data => {
+        console.log(data)
         selectedRef.value.mappings = data
+      })
+
+      eventBus.on('file_updated', data => {
+        console.log(data)
+        selectedRef.value.filedata = data
+      })
+
+      eventBus.on('config_updated', data => {
+        console.log(data)
+        selectedRef.value.config = data
       })
 
       canViewConfigRef.value = canViewConfig('importConfigs')
@@ -198,6 +210,8 @@ export default {
 
     onUnmounted(() => {
       eventBus.off('mappings_updated')
+      eventBus.off('config_updated')
+      eventBus.off('file_updated')
     })
 
     watch(itemRef, (selected, previous) => {
@@ -283,7 +297,7 @@ export default {
     })
 
     function save () {
-      if (formRef.value.validate()) {
+      /* if (formRef.value.validate()) {
         if (!selectedRef.value.beforeUpdateAction.identifier) {
           const tmpCode = selectedRef.value.beforeUpdateAction.code
           selectedRef.value.beforeUpdateAction = getActionForImportConfig(selectedRef.value.identifier, 3)
@@ -297,6 +311,12 @@ export default {
         actions.push(selectedRef.value.beforeUpdateAction)
         actions.push(selectedRef.value.afterUpdateAction)
         Promise.all([saveImportConfig(selectedRef.value), saveAction(selectedRef.value.beforeUpdateAction), saveAction(selectedRef.value.afterUpdateAction)]).then(() => {
+          showInfo(i18n.t('Saved'))
+        })
+      } */
+
+      if (formRef.value.validate()) {
+        Promise.all([saveImportConfig(selectedRef.value)]).then(() => {
           showInfo(i18n.t('Saved'))
         })
       }

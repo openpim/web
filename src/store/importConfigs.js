@@ -17,24 +17,30 @@ const actions = {
     return importConfigs
   },
   saveImportConfig: async (importsConfig) => {
+    const variables = {
+      config: { data: importsConfig.config },
+      mappings: { data: importsConfig.mappings },
+      filedata: { data: importsConfig.filedata }
+    }
     if (importsConfig.internalId === 0) {
       const query = `
-        mutation { createImportConfig(identifier: "` + importsConfig.identifier + '", name: ' + objectToGraphgl(importsConfig.name) +
+        mutation($config: JSONObject, $mappings: JSONObject, $filedata: JSONObject) { createImportConfig(identifier: "` + importsConfig.identifier + '", name: ' + objectToGraphgl(importsConfig.name) +
         ', type: ' + importsConfig.type +
-        ', mappings: ' + objectToGraphgl(importsConfig.mappings) +
+        ', mappings: $mappings, filedata: $filedata, config: $config' +
         `)
       }`
-      const data = await serverFetch(query)
+
+      const data = await serverFetch(query, variables)
       const newId = parseInt(data.createImportConfig)
       importsConfig.internalId = newId
     } else {
       const query = `
-        mutation { updateImportConfig(id: "` + importsConfig.internalId + '", name: ' + (importsConfig.name ? '' + objectToGraphgl(importsConfig.name) : '') +
+        mutation($config: JSONObject, $mappings: JSONObject, $filedata: JSONObject) { updateImportConfig(id: "` + importsConfig.internalId + '", name: ' + (importsConfig.name ? '' + objectToGraphgl(importsConfig.name) : '') +
         ', type: ' + importsConfig.type +
-        ', mappings: ' + objectToGraphgl(importsConfig.mappings) +
+        ', mappings: $mappings, filedata: $filedata, config: $config' +
         `)
       }`
-      await serverFetch(query)
+      await serverFetch(query, variables)
     }
   },
   removeImportConfig: async (id) => {
