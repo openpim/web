@@ -1505,7 +1505,8 @@ export default {
       }
 
       // calculate new where
-      const arr = [props.loadData().where]
+      const prevCondition = props.loadData().where
+      const arr = [prevCondition]
       const newWhere = { OP_and: arr }
       for (const filterHeader of filterHeaders) {
         const operation = {}
@@ -1531,6 +1532,12 @@ export default {
           }
         }
         arr.push(operation)
+      }
+      if (prevCondition.include) {
+        // if we have include at old where we should move it under new where root
+        if (prevCondition.where) delete arr[0].include // leave the old where as we have it and delete include to move it
+        else arr.splice(0, 1) // we have only include at first level so delete all first condition as we are moving include
+        newWhere.include = prevCondition.include
       }
 
       props.loadData().applyFilter(newWhere)
