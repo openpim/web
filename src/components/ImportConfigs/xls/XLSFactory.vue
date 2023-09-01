@@ -1,43 +1,65 @@
 <template>
   <div>
-    <v-file-input v-model="fileUploadRef" :label="$t('DataTable.ExcelImport.FileUpload')"></v-file-input>
+    <v-file-input v-model="fileUploadRef" @click:clear="resetFile" clearable @change="fileChanged" :label="$t('DataTable.ExcelImport.FileUpload')" truncate-length="100"></v-file-input>
     <v-select v-model="excelSelectedTabRef" @change="excelSelectedTabChanged" :items="excelAvailableTabsRef" :label="$t('Config.ImportConfigs.Available.Excel.Tabs')"></v-select>
-    <v-row>
+    <v-row v-if="excelSelectedTabRef">
       <v-col cols="6">
-        <v-text-field v-model="headersLineNum" @input="headersLineNumChanged" :disabled="noHeadersCheckBox" :rules="lineNumRules" label="Headers line number" type="number" :hint="headersHint" persistent-hint/>
+        <v-text-field v-model="headersLineNum" @input="headersLineNumChanged" :disabled="noHeadersRef" :rules="lineNumRules" label="Headers line number" type="number" :hint="headersHint" persistent-hint/>
       </v-col>
       <v-col cols="6">
-        <v-checkbox v-model="noHeadersCheckBox" label="No headers"/>
+        <v-checkbox v-model="noHeadersRef" @change="noHeadersChanged" label="No headers"/>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="excelSelectedTabRef">
       <v-col cols="6" class="py-0">
         <v-text-field v-model="dataLineNum" @input="dataLineNumChanged" label="Data line number" type="number" :hint="dataHint" persistent-hint/>
       </v-col>
       <v-col cols="6" class="py-0">
-        <v-text-field v-model="limitRef" label="Limit" type="number" hint="Maximum number of lines to upload. 0 - upload all lines" persistent-hint/>
+        <v-text-field v-model="limitRef" @input="limitChanged" label="Limit" type="number" hint="Maximum number of lines to upload. 0 - upload all lines" persistent-hint/>
       </v-col>
     </v-row>
-    <v-simple-table dense class="py-4 my-6">
+    <v-simple-table dense class="py-4 my-6" v-if="excelSelectedTabRef">
       <template v-slot:default>
         <thead>
           <tr>
-            <th class="text-left">{{$t('ImportConfig.OptionsTable.Attribute')}}</th>
-            <th class="text-left">{{$t('ImportConfig.OptionsTable.Column')}}</th>
-            <th class="text-left">{{$t('ImportConfig.OptionsTable.Expession')}}</th>
+            <th class="text-left grey lighten-3 py-4">{{$t('ImportConfig.OptionsTable.Attribute')}}</th>
+            <th class="text-left grey lighten-3 py-4">{{$t('ImportConfig.OptionsTable.Column')}}
+                <v-tooltip top>
+                    <template v-slot:activator="{ on }">
+                      <v-btn v-on="on" color="primary" class="pa-0 mx-6" icon @click="showUnmappedColumns"><v-icon dark>mdi-format-list-bulleted</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Show unmapped columns') }}</span>
+                </v-tooltip>
+            </th>
+            <th class="text-left grey lighten-3 py-4">{{$t('ImportConfig.OptionsTable.Expession')}}</th>
+            <th class="text-left grey lighten-3 py-4 px-0" style="width: 50px;">
+              <v-tooltip top>
+                  <template v-slot:activator="{ on }">
+                    <v-btn v-on="on" class="pa-0" icon color="primary" @click="addRow"><v-icon dark>mdi-plus</v-icon></v-btn>
+                  </template>
+                  <span>{{ $t('Add') }}</span>
+              </v-tooltip>
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(elem, j) in defaultMappingRef" :key="j">
-            <td class="pa-1 pr-10" style="width:220px;">
-              <v-autocomplete v-model="elem.attribute" :items="allAttributesRef" item-text="name" item-value="identifier" label="xxxx" clearable></v-autocomplete>
+          <tr v-for="(elem, j) in mappingRef" :key="j">
+            <td class="pa-1 pr-10">
+              <v-autocomplete v-model="elem.attribute" @change="updateMappings" @click:clear="updateMappings" :items="getFilteredAttributes(elem)" item-text="name" item-value="identifier" label="Select attribute" clearable></v-autocomplete>
             </td>
-            <td class="pa-1 pr-10" style="width:220px;">
-              <!--input v-model="elem.column" :placeholder="$t('ImportConfig.OptionsTable.Column')" /-->
-              <v-autocomplete v-model="elem.column" :items="selectedHeadersRef" item-text="name" item-value="name" :label="$t('MappingConfigComponent.Category')" clearable></v-autocomplete>
+            <td class="pa-1 pr-10">
+              <v-autocomplete v-model="elem.column" @change="updateMappings" @click:clear="updateMappings" :items="selectedHeadersRef" item-text="name" item-value="name" label="Select column" clearable></v-autocomplete>
             </td>
-            <td class="pa-1 pr-10" style="width:220px;">
-              <v-text-field v-model="elem.expression" dense class="ml-3 mr-3" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(elem)" />
+            <td class="pa-1 pr-10">
+              <v-text-field v-model="elem.expression" @input="updateMappings" dense class="ml-3 mr-3" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(elem)" />
+            </td>
+            <td class="pa-0">
+              <v-tooltip top>
+                  <template v-slot:activator="{ on }">
+                    <v-btn v-on="on" class="pa-0" icon @click="deleteRow(j)"><v-icon dark>mdi-delete-outline</v-icon></v-btn>
+                  </template>
+                  <span>{{ $t('Delete') }}</span>
+              </v-tooltip>
             </td>
           </tr>
         </tbody>
@@ -58,18 +80,40 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="exprDialogRef = false">{{ $t('Close') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="closeExpressionDialog">{{ $t('Close') }}</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
       </v-row>
     </template>
+    <template>
+      <v-dialog v-model="unmappedColumnsDialogRef" persistent max-width="40%">
+          <v-card>
+            <v-card-title>Unmapped columns</v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-list dense class="pt-0 pb-0">
+                  <v-list-item v-for="(item, i) in unmappedColumns" :key="i" dense class="pt-0 pb-0">
+                    <v-list-item-content class="pt-0 pb-0" style="display: inline">{{ item.name }}</v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="unmappedColumnsDialogRef = false">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+    </template>
   </div>
 </template>
 <script>
 
-import { ref, watch, onMounted, computed } from '@vue/composition-api'
+import { ref, onMounted, computed } from '@vue/composition-api'
 import * as attrStore from '@/store/attributes'
+import * as langStore from '@/store/languages'
+import eventBus from '@/eventBus'
 import i18n from '@/i18n'
 import XLSX from 'xlsx'
 
@@ -80,21 +124,26 @@ export default {
     const fileUploadRef = ref(null)
     const excelAvailableTabsRef = ref([])
     const excelSelectedTabRef = ref(null)
-    const empty = { id: -1, type: 1 }
-    const selectedHeadersRef = ref(null)
+    const selectedHeadersRef = ref([])
     const selectedDataRef = ref(null)
     const headersLineNum = ref(1)
     const dataLineNum = ref(2)
     const excelSheetData = ref([])
-    const noHeadersCheckBox = ref(false)
+    const noHeadersRef = ref(false)
     const exprDialogRef = ref(false)
     const exprAttrRef = ref(null)
     const limitRef = ref(0)
+    const unmappedColumnsDialogRef = ref(false)
 
     const {
       loadAllAttributes,
       groups
     } = attrStore.useStore()
+
+    const {
+      currentLanguage,
+      defaultLanguageIdentifier
+    } = langStore.useStore()
 
     const extraAttributes = [
       {
@@ -111,23 +160,25 @@ export default {
       }
     ]
 
-    const defaultMappingRef = ref([
+    const defaultMapping = [
       {
         attribute: 'identifier',
-        column: '',
-        expression: ''
+        column: null,
+        expression: null
       },
       {
         attribute: 'type',
-        column: '',
-        expression: ''
+        column: null,
+        expression: null
       },
       {
         attribute: 'parent',
-        column: '',
-        expression: ''
+        column: null,
+        expression: null
       }
-    ])
+    ]
+
+    const mappingRef = ref([...defaultMapping])
 
     const lineNumRules = [
       val => val >= 1 || 'Значение должно быть больше ли равно 1!',
@@ -142,12 +193,39 @@ export default {
       }
     ]
 
+    const getFilteredAttributes = (fieldMapping) => {
+      const res = []
+      if (fieldMapping && fieldMapping.attribute) {
+        const currentObj = {
+          identifier: fieldMapping.attribute,
+          name: allAttributesRef.value.find(el => el.identifier === fieldMapping.attribute).name
+        }
+        res.push(currentObj)
+      }
+      allAttributesRef.value.forEach((el) => {
+        if (!mappingRef.value.some(mapping => mapping.attribute === el.identifier)) {
+          res.push(el)
+        }
+      })
+      return res
+    }
+
     const headersHint = computed(() => {
       return selectedHeadersRef.value ? selectedHeadersRef.value.map(el => el.name).toString() + '' : ''
     })
 
     const dataHint = computed(() => {
       return selectedDataRef.value ? selectedDataRef.value.map(el => el.name).toString() + '' : ''
+    })
+
+    const unmappedColumns = computed(() => {
+      const res = []
+      selectedHeadersRef.value.forEach((el) => {
+        if (!mappingRef.value.some(mapping => mapping.column === el.name)) {
+          res.push(el)
+        }
+      })
+      return res
     })
 
     const allAttributesRef = ref([])
@@ -158,7 +236,7 @@ export default {
           const group = groups[i]
           for (var j = 0; j < group.attributes.length; j++) {
             const attr = group.attributes[j]
-            attr.name = attr.identifier + ' (' + attr.name.ru + ')'
+            attr.name = attr.identifier + ' (' + (attr.name[currentLanguage.value.identifier] || attr.name[defaultLanguageIdentifier.value]) + ')'
             arr.push(attr)
           }
         }
@@ -166,51 +244,112 @@ export default {
       })
     })
 
+    function resetFile () {
+      excelSelectedTabRef.value = null
+      limitRef.value = 0
+      headersLineNum.value = 1
+      dataLineNum.value = 2
+      noHeadersRef.value = false
+      excelAvailableTabsRef.value = []
+      selectedHeadersRef.value = []
+      excelSheetData.value = []
+      mappingRef.value = [...defaultMapping]
+    }
+
     function showExpression (attr) {
       exprAttrRef.value = attr
       exprDialogRef.value = true
     }
 
-    watch(fileUploadRef, async (selected, previous) => {
+    async function fileChanged (selected) {
       if (selected == null) {
-        fileUploadRef.value = empty
+        fileUploadRef.value = null
         return
       }
+      resetFile()
       await readFile()
-    })
+      eventBus.emit('file_updated', excelSheetData.value)
+    }
 
-    /* watch(headersLineNum, async (selected, previous) => {
-      const selected2 = selected !== '' ? selected : 1
+    function noHeadersChanged (selected) {
       const tabIndex = excelAvailableTabsRef.value.indexOf(excelSelectedTabRef.value)
-      selectedHeadersRef.value = excelSheetData.value[tabIndex] && excelSheetData.value[tabIndex].length ? excelSheetData.value[tabIndex][selected2 - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
-    }) */
+      if (!selected) {
+        selectedHeadersRef.value = excelSheetData.value[tabIndex] && excelSheetData.value[tabIndex].length ? excelSheetData.value[tabIndex][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+      } else {
+        selectedHeadersRef.value = excelSheetData.value[tabIndex] && excelSheetData.value[tabIndex].length ? excelSheetData.value[tabIndex][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
+      }
+      mappingRef.value = mappingRef.value.map(el => ({ attribute: el.attribute, mapping: null, expression: el.expression }))
+      eventBus.emit('config_updated', getConfigObject())
+      updateMappings()
+    }
 
     function dataLineNumChanged (input) {
       const selected = input !== '' ? input : 1
       const tabIndex = excelAvailableTabsRef.value.indexOf(excelSelectedTabRef.value)
       selectedDataRef.value = excelSheetData.value[tabIndex] && excelSheetData.value[tabIndex].length ? excelSheetData.value[tabIndex][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+      eventBus.emit('config_updated', getConfigObject())
     }
 
     function headersLineNumChanged (input) {
       const selected = input !== '' ? input : 1
       const tabIndex = excelAvailableTabsRef.value.indexOf(excelSelectedTabRef.value)
       selectedHeadersRef.value = excelSheetData.value[tabIndex] && excelSheetData.value[tabIndex].length ? excelSheetData.value[tabIndex][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+      eventBus.emit('config_updated', getConfigObject())
+    }
+
+    function limitChanged (input) {
+      eventBus.emit('config_updated', getConfigObject())
     }
 
     function excelSelectedTabChanged (selected) {
       if (selected) {
         const tabIndex = excelAvailableTabsRef.value.indexOf(selected)
-        selectedHeadersRef.value = excelSheetData.value[tabIndex] && excelSheetData.value[tabIndex].length ? excelSheetData.value[tabIndex][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+        if (!noHeadersRef.value) {
+          selectedHeadersRef.value = excelSheetData.value[tabIndex] && excelSheetData.value[tabIndex].length ? excelSheetData.value[tabIndex][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+        } else {
+          selectedHeadersRef.value = excelSheetData.value[tabIndex] && excelSheetData.value[tabIndex].length ? excelSheetData.value[tabIndex][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
+        }
         selectedDataRef.value = excelSheetData.value[tabIndex] && excelSheetData.value[tabIndex].length ? excelSheetData.value[tabIndex][dataLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+      }
+      eventBus.emit('config_updated', getConfigObject())
+    }
+
+    function getConfigObject () {
+      return {
+        selectedTab: excelSelectedTabRef.value,
+        noHeadersChecked: noHeadersRef.value,
+        headerLineNumber: headersLineNum.value,
+        dataLineNuber: dataLineNum.value,
+        limit: limitRef.value
       }
     }
 
-    /* watch(excelSelectedTabRef, (selected, previous) => {
-      if (selected) {
-        const tabIndex = excelAvailableTabsRef.value.indexOf(selected)
-        selectedHeadersRef.value = excelSheetData.value[tabIndex] && excelSheetData.value[tabIndex].length ? excelSheetData.value[tabIndex][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+    function addRow () {
+      mappingRef.value.push({
+        attribute: null,
+        column: null,
+        expression: null
+      })
+    }
+
+    function deleteRow (indx) {
+      if (confirm('Are you sure?')) {
+        mappingRef.value.splice(indx, 1)
       }
-    }) */
+    }
+
+    function showUnmappedColumns () {
+      unmappedColumnsDialogRef.value = true
+    }
+
+    function closeExpressionDialog () {
+      exprDialogRef.value = false
+      updateMappings()
+    }
+
+    function updateMappings () {
+      eventBus.emit('mappings_updated', mappingRef.value)
+    }
 
     async function readFile () {
       return new Promise((resolve, reject) => {
@@ -228,8 +367,8 @@ export default {
               if (!ws || !ws['!ref']) continue
               const options = { header: 1 }
               excelSheetData.value[i] = XLSX.utils.sheet_to_json(ws, options)
-              resolve()
             }
+            resolve()
           } catch (err) {
             console.error('Error opening file', err)
             reject(err)
@@ -241,7 +380,7 @@ export default {
 
     return {
       allAttributesRef,
-      defaultMappingRef,
+      mappingRef,
       fileUploadRef,
       excelAvailableTabsRef,
       excelSelectedTabRef,
@@ -249,7 +388,7 @@ export default {
       headersLineNum,
       i18n,
       lineNumRules,
-      noHeadersCheckBox,
+      noHeadersRef,
       dataLineNum,
       showExpression,
       exprDialogRef,
@@ -260,7 +399,19 @@ export default {
       excelSelectedTabChanged,
       selectedDataRef,
       dataLineNumChanged,
-      limitRef
+      limitRef,
+      fileChanged,
+      noHeadersChanged,
+      addRow,
+      deleteRow,
+      showUnmappedColumns,
+      unmappedColumnsDialogRef,
+      unmappedColumns,
+      resetFile,
+      getFilteredAttributes,
+      limitChanged,
+      updateMappings,
+      closeExpressionDialog
     }
   }
 }
