@@ -707,10 +707,12 @@
   "ImportConfig.UnmappedColumns": "Не сопоставленные столбцы",
   "ImportConfig.MaxFileSizeNotification": "Слишком большой размер файла. Попробуйте уменьшить размер, удалив часть данных.",
   "ImportConfig.ExcelExtensionNotification": "Неверный формат. Доступные расширения: XLS, XLSX and XLSM.",
+  "ImportConfig.CSVExtensionNotification": "Неверный формат. Доступные расширения: CSV.",
   "ImportConfig.ValueMustBeGreaterOrEqual1": "Значение должно быть больше или равно 1",
   "ImportConfig.ValueCannotBeGreaterThanTotalAmount": "Значение не может быть большим количества строк во вкладке.",
   "ImportConfig.AreYouSure": "Вы уверены?",
   "ImportConfig.Attribute.identifier": "Идентификатор",
   "ImportConfig.Attribute.type": "Тип",
-  "ImportConfig.Attribute.parent": "Родитель"
+  "ImportConfig.Attribute.parent": "Родитель",
+  "ImportConfig.Error.title": "Ошибка"
 }

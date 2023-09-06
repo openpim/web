@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row v-if="importConfig && importConfig.filedata && importConfig.filedata.fileData && isNew">
+    <v-row v-if="importConfig && importConfig.filedata && importConfig.filedata.info && !importConfig.filedata.info.fileName">
       <v-col cols="10">
         <v-file-input v-model="fileUploadRef" @click:clear="resetFile" clearable @change="fileChanged" :label="$t('ImportConfig.SelectFile')" truncate-length="100"></v-file-input>
       </v-col>
@@ -8,14 +8,14 @@
         <v-btn color="primary" class="mt-6" :disabled="!fileUploadRef" text @click="uploadTemplate">{{ $t('ImportConfig.UploadFile') }}</v-btn>
       </v-col>
     </v-row>
-    <v-row v-if="importConfig && importConfig.filedata && importConfig.filedata.fileData && !isNew" class="mt-1 mb-3">
+    <v-row v-if="importConfig && importConfig.filedata && importConfig.filedata.info && importConfig.filedata.info.fileName" class="mt-1 mb-0">
       <v-col>
-        <a :href="damUrl + 'import-config-template/' + importConfig.id + '?token=' + token">{{ importConfig.filedata.fileData.fileName ? importConfig.filedata.fileData.fileName : 'file.xls' }}</a>
-        <v-btn class="ml-3" color="primary" text @click="isNew = true">{{ $t('ImportConfig.SelectAnotherFile') }}</v-btn>
+        <a :href="damUrl + 'import-config-template/' + importConfig.id + '?token=' + token">{{ importConfig.filedata.info.fileName ? importConfig.filedata.info.fileName : 'file.xls' }}</a>
+        <v-btn class="ml-3" color="primary" text @click="importConfig.filedata.info.fileName = null; selectedTabRef = null">{{ $t('ImportConfig.SelectAnotherFile') }}</v-btn>
       </v-col>
     </v-row>
-    <v-select v-if="importConfig && importConfig.filedata && importConfig.filedata.fileData.fileName" v-model="excelSelectedTabRef" @change="excelSelectedTabChanged" :items="excelAvailableTabs" :label="$t('ImportConfig.AvailableTabs')"></v-select>
-    <v-row v-if="excelSelectedTabRef">
+    <v-select v-if="importConfig && importConfig.filedata && importConfig.filedata.info.fileName" v-model="selectedTabRef" @change="selectedTabChanged" :items="availableTabs" :label="$t('ImportConfig.AvailableTabs')"></v-select>
+    <v-row v-if="selectedTabRef">
       <v-col cols="6">
         <v-text-field v-model="headersLineNum" @input="headersLineNumChanged" :disabled="noHeadersRef" :rules="lineNumRules" :label="$t('ImportConfig.HeadersLineNumber')" type="number" :hint="headersHint" persistent-hint/>
       </v-col>
@@ -23,7 +23,7 @@
         <v-checkbox v-model="noHeadersRef" @change="noHeadersChanged" :label="$t('ImportConfig.NoHeader')"/>
       </v-col>
     </v-row>
-    <v-row v-if="excelSelectedTabRef">
+    <v-row v-if="selectedTabRef">
       <v-col cols="6" class="py-0">
         <v-text-field v-model="dataLineNum" @input="dataLineNumChanged" :label="$t('ImportConfig.DataLineNumber')" type="number" :hint="dataHint" persistent-hint/>
       </v-col>
@@ -31,7 +31,7 @@
         <v-text-field v-model="limitRef" @input="limitChanged" :label="$t('ImportConfig.Limit')" type="number" :hint="$t('ImportConfig.LimitHint')" persistent-hint/>
       </v-col>
     </v-row>
-    <v-simple-table dense class="py-4 my-6" v-if="excelSelectedTabRef">
+    <v-simple-table dense class="py-4 my-6" v-if="selectedTabRef">
       <template v-slot:default>
         <thead>
           <tr>
@@ -124,7 +124,7 @@
         <div>
           <v-card>
             <v-toolbar dark color="primary">
-              <v-toolbar-title>{{ $t("error_title") }}</v-toolbar-title>
+              <v-toolbar-title>{{ $t("ImportConfig.Error.title") }}</v-toolbar-title>
             </v-toolbar>
             <v-card-text>{{ $t("ImportConfig.MaxFileSizeNotification") }}</v-card-text>
             <v-card-actions>
@@ -140,9 +140,9 @@
         <div>
           <v-card>
             <v-toolbar dark color="primary">
-              <v-toolbar-title>{{ $t("error_title") }}</v-toolbar-title>
+              <v-toolbar-title>{{ $t("ImportConfig.Error.title") }}</v-toolbar-title>
             </v-toolbar>
-            <v-card-text>{{ $t("ImportConfig.ExtensionNotification") }}</v-card-text>
+            <v-card-text>{{ $t("ImportConfig.ExcelExtensionNotification") }}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn @click="alertFileExtensionIncorrectRef = false">{{ $t("Close") }}</v-btn>
@@ -170,18 +170,18 @@ export default {
   },
   setup (props, { root }) {
     const fileUploadRef = ref(null)
-    const excelSelectedTabRef = ref(null)
+    const selectedTabRef = ref(null)
     const selectedHeadersRef = ref([])
     const selectedDataRef = ref(null)
     const headersLineNum = ref(1)
     const dataLineNum = ref(2)
-    const excelSheetData = ref([])
+    const sheetData = ref([])
     const noHeadersRef = ref(false)
     const exprDialogRef = ref(false)
     const exprAttrRef = ref(null)
     const limitRef = ref(0)
     const unmappedColumnsDialogRef = ref(false)
-    const fileData = ref(null)
+    const info = ref(null)
     const mappingRef = ref([])
     const isNew = ref(false)
 
@@ -190,7 +190,6 @@ export default {
 
     const {
       uploadImportConfigTemplate
-      // getImportConfigTemplateData
     } = importConfigStore.useStore()
 
     const {
@@ -237,11 +236,9 @@ export default {
     ]
 
     const lineNumRules = [
-      // 'Значение должно быть больше ли равно 1!'
-      // 'Значение не может быть больше количества строк во вкладке!'
       val => val >= 1 || i18n.t('ImportConfig.ValueMustBeGreaterOrEqual1'),
       val => {
-        const maxLength = excelSheetData.value[excelSelectedTabRef.value] ? excelSheetData.value[excelSelectedTabRef.value].length : 1
+        const maxLength = sheetData.value[selectedTabRef.value] ? sheetData.value[selectedTabRef.value].length : 1
         if (val < maxLength + 1) {
           return true
         } else {
@@ -251,31 +248,24 @@ export default {
     ]
 
     watch(() => props.importConfig, async (newValue, previousValue) => {
-      if (!newValue.isNew) {
-        // const resp = await getImportConfigTemplateData(newValue.id)
-        // const respJson = await resp.json()
-        // excelSheetData.value = respJson.data
-      }
-
       isNew.value = newValue.isNew ? newValue.isNew : false
 
-      fileData.value = newValue.filedata.fileData
-      excelSheetData.value = newValue.filedata.data
+      info.value = newValue.filedata.info
+      sheetData.value = newValue.filedata.data
 
-      excelSelectedTabRef.value = newValue.config.selectedTab
+      selectedTabRef.value = newValue.config.selectedTab
       noHeadersRef.value = newValue.config.noHeadersChecked
       headersLineNum.value = newValue.config.headerLineNumber
       dataLineNum.value = newValue.config.dataLineNuber
       limitRef.value = newValue.config.limit
       mappingRef.value = newValue.mappings
-      excelSelectedTabChanged(excelSelectedTabRef.value)
+      selectedTabChanged(selectedTabRef.value)
     })
 
     const getFilteredAttributes = (fieldMapping) => {
       const res = []
       const name = allAttributesRef.value.find(el => el.identifier === fieldMapping.attribute) ? allAttributesRef.value.find(el => el.identifier === fieldMapping.attribute).name : null
       if (fieldMapping && fieldMapping.attribute && name) {
-        console.log(fieldMapping.attribute)
         const currentObj = {
           identifier: fieldMapping.attribute,
           name: allAttributesRef.value.find(el => el.identifier === fieldMapping.attribute).name
@@ -308,8 +298,8 @@ export default {
       return res
     })
 
-    const excelAvailableTabs = computed(() => {
-      return Object.keys(excelSheetData.value)
+    const availableTabs = computed(() => {
+      return Object.keys(sheetData.value)
     })
 
     const allAttributesRef = ref([])
@@ -325,45 +315,23 @@ export default {
         }
       }
       allAttributesRef.value = extraAttributes.concat(arr)
-
-      /* if (props.importConfig) {
-        if (!props.importConfig.isNew) {
-          const resp = await getImportConfigTemplateData(props.importConfig.id)
-          const respJson = await resp.json()
-          excelSheetData.value = respJson.data
-        }
-        console.log(props.importConfig.config)
-        excelSelectedTabRef.value = props.importConfig.config.selectedTab
-        noHeadersRef.value = props.importConfig.config.noHeadersChecked
-        headersLineNum.value = props.importConfig.config.headerLineNumber
-        dataLineNum.value = props.importConfig.config.dataLineNuber
-        limitRef.value = props.importConfig.config.limit
-
-        excelSelectedTabChanged(excelSelectedTabRef.value)
-
-        // TODO: mapping нужно сохранять в виде массива!
-        mappingRef.value = []
-        for (const key in Object.keys(props.importConfig.mappings)) {
-          mappingRef.value.push(props.importConfig.mappings[key])
-        }
-      } */
     })
 
     async function uploadTemplate () {
       const resp = await uploadImportConfigTemplate(fileUploadRef.value)
-      fileData.value = resp.fileData
-      excelSheetData.value = resp.data
+      info.value = resp.info
+      sheetData.value = resp.data
       eventBus.emit('file_updated', resp)
     }
 
     function resetFile () {
-      excelSelectedTabRef.value = null
+      selectedTabRef.value = null
       limitRef.value = 0
       headersLineNum.value = 1
       dataLineNum.value = 2
       noHeadersRef.value = false
       selectedHeadersRef.value = []
-      excelSheetData.value = []
+      sheetData.value = []
       mappingRef.value = [...defaultMapping]
     }
 
@@ -378,8 +346,6 @@ export default {
         return
       }
 
-      console.log(selected)
-
       if (selected) {
         const extension = selected.name.split('.').pop().toUpperCase()
         if (!(extension === 'XLS' || extension === 'XLSX' || extension === 'XLSM')) {
@@ -388,7 +354,6 @@ export default {
           return
         }
         const size = selected.size
-        console.log(size)
         if (size > 1000000) {
           alertMaxSizeExceededRef.value = true
           fileUploadRef.value = null
@@ -397,15 +362,13 @@ export default {
       }
 
       resetFile()
-      // await readFile()
-      // eventBus.emit('file_updated', excelSheetData.value)
     }
 
     function noHeadersChanged (selected) {
       if (!selected) {
-        selectedHeadersRef.value = excelSheetData.value[excelSelectedTabRef.value] && excelSheetData.value[excelSelectedTabRef.value].length ? excelSheetData.value[excelSelectedTabRef.value][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+        selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
       } else {
-        selectedHeadersRef.value = excelSheetData.value[excelSelectedTabRef.value] && excelSheetData.value[excelSelectedTabRef.value].length ? excelSheetData.value[excelSelectedTabRef.value][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
+        selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
       }
       mappingRef.value = mappingRef.value.map(el => ({ attribute: el.attribute, mapping: null, expression: el.expression }))
       eventBus.emit('config_updated', getConfigObject())
@@ -414,13 +377,13 @@ export default {
 
     function dataLineNumChanged (input) {
       const selected = input !== '' ? input : 1
-      selectedDataRef.value = excelSheetData.value[excelSelectedTabRef.value] && excelSheetData.value[excelSelectedTabRef.value].length ? excelSheetData.value[excelSelectedTabRef.value][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+      selectedDataRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
       eventBus.emit('config_updated', getConfigObject())
     }
 
     function headersLineNumChanged (input) {
       const selected = input !== '' ? input : 1
-      selectedHeadersRef.value = excelSheetData.value[excelSelectedTabRef.value] && excelSheetData.value[excelSelectedTabRef.value].length ? excelSheetData.value[excelSelectedTabRef.value][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+      selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
       eventBus.emit('config_updated', getConfigObject())
     }
 
@@ -428,14 +391,14 @@ export default {
       eventBus.emit('config_updated', getConfigObject())
     }
 
-    function excelSelectedTabChanged (selected) {
+    function selectedTabChanged (selected) {
       if (selected) {
         if (!noHeadersRef.value) {
-          selectedHeadersRef.value = excelSheetData.value[excelSelectedTabRef.value] && excelSheetData.value[excelSelectedTabRef.value].length ? excelSheetData.value[excelSelectedTabRef.value][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+          selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
         } else {
-          selectedHeadersRef.value = excelSheetData.value[excelSelectedTabRef.value] && excelSheetData.value[excelSelectedTabRef.value].length ? excelSheetData.value[excelSelectedTabRef.value][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
+          selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
         }
-        selectedDataRef.value = excelSheetData.value[excelSelectedTabRef.value] && excelSheetData.value[excelSelectedTabRef.value].length ? excelSheetData.value[excelSelectedTabRef.value][dataLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+        selectedDataRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][dataLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
       }
       eventBus.emit('config_updated', getConfigObject())
       updateMappings()
@@ -443,7 +406,7 @@ export default {
 
     function getConfigObject () {
       return {
-        selectedTab: excelSelectedTabRef.value,
+        selectedTab: selectedTabRef.value,
         noHeadersChecked: noHeadersRef.value,
         headerLineNumber: headersLineNum.value,
         dataLineNuber: dataLineNum.value,
@@ -482,7 +445,7 @@ export default {
       allAttributesRef,
       mappingRef,
       fileUploadRef,
-      excelSelectedTabRef,
+      selectedTabRef,
       selectedHeadersRef,
       headersLineNum,
       i18n,
@@ -495,7 +458,7 @@ export default {
       headersHint,
       dataHint,
       headersLineNumChanged,
-      excelSelectedTabChanged,
+      selectedTabChanged,
       selectedDataRef,
       dataLineNumChanged,
       limitRef,
@@ -512,9 +475,9 @@ export default {
       updateMappings,
       closeExpressionDialog,
       uploadTemplate,
-      excelAvailableTabs,
+      availableTabs,
       damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
-      fileData,
+      info,
       token: localStorage.getItem('token'),
       isNew,
       alertFileExtensionIncorrectRef,

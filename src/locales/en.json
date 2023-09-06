@@ -712,10 +712,12 @@
   "ImportConfig.UnmappedColumns": "Unmapped columns",
   "ImportConfig.MaxFileSizeNotification": "The file size is too big",
   "ImportConfig.ExcelExtensionNotification": "Allowed extensions are XLS, XLSX and XLSM.",
+  "ImportConfig.CSVExtensionNotification": "Allowed extension is CSV.",
   "ImportConfig.ValueMustBeGreaterOrEqual1": "Value must be greater or equal 1",
   "ImportConfig.ValueCannotBeGreaterThanTotalAmount": "Value can not be greater than total amount of rows",
   "ImportConfig.AreYouSure": "Are you sure?",
   "ImportConfig.Attribute.identifier": "Identifier",
   "ImportConfig.Attribute.type": "Type",
-  "ImportConfig.Attribute.parent": "Parent"
+  "ImportConfig.Attribute.parent": "Parent",
+  "ImportConfig.Error.title": "Error"
 }
