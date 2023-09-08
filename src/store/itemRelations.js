@@ -161,6 +161,7 @@ const actions = {
       })
       createLanguageDependentValues(rel.id, itemRels.rows)
       root.$set(sourceRelations, identifier, itemRels.rows)
+      root.$set(sourceRelationsTotal, rel.identifier, itemRels.count)
     } else {
       root.$set(sourceRelations, identifier, [])
     }
@@ -348,6 +349,7 @@ const actions = {
       })
       createLanguageDependentValues(rel.id, itemRels.rows)
       root.$set(targetRelations, identifier, itemRels.rows)
+      root.$set(targetRelationsTotal, rel.identifier, itemRels.count)
     } else {
       root.$set(targetRelations, identifier, [])
     }
