@@ -32,9 +32,10 @@
 
                   <th class="text-left pa-0" v-for="(attr, j) in getAttributesForRelation(identifier)" :key="'A'+j" :width="getOption2(attr, 'tableWidth', '')">
                     <div>{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</div>
-                    <input v-if="!attr.lov" type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="attr.IRfilter" @input="filterChanged(identifier, attr)"/>
-                    <v-autocomplete v-if="attr.lov" v-model="attr.IRfilter" :items="getLOVItems(attr.lov)" dense clearable class="ml-2 mr-2" @input="filterChanged(identifier, attr)"></v-autocomplete>
-
+                    <input v-if="!attr.lov && attr.type !== 2" type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="attr.IRfilter" @input="filterChanged(identifier, attr)"/>
+                    <v-autocomplete v-if="attr.lov && attr.type !== 2" v-model="attr.IRfilter" :items="getLOVItems(attr.lov)" dense clearable class="ml-2 mr-2" @input="filterChanged(identifier, attr)"></v-autocomplete>
+                    <!-- skip type = 2 (boolean) for now because data can be true, false, empty and also the control should have ability to show not filter
+                      all this is impossible to make with usual checkbox -->
                   </th>
                   <th class="text-left">
                     <v-tooltip top v-if="canEditItemRelationByIdentifier(identifier)">
