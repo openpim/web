@@ -3,6 +3,7 @@ import i18n from '../i18n'
 import { serverFetch, objectToGraphgl, generateSorting } from './utils'
 import { currentLanguage } from './languages'
 import * as userStore from './users'
+import * as err from './error'
 
 const channels = reactive([])
 const channelTypes = reactive([])
@@ -209,6 +210,25 @@ const actions = {
   getChannelAttributeValues: async (channelId, categoryId, attributeId) => {
     const data = await serverFetch('query { getChannelAttributeValues(channelId: "' + channelId + '", categoryId: "' + categoryId + '", attributeId: "' + attributeId + '") }')
     return data.getChannelAttributeValues
+  },
+  uploadXlsxTemplate: async (id, file) => {
+    const data = new FormData()
+    data.append('file', file)
+    data.append('id', id)
+
+    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'xlsx-template-upload', {
+      method: 'POST',
+      headers: {
+        'x-token': localStorage.getItem('token')
+      },
+      body: data
+    })
+    if (!resp.ok) {
+      err.store.showError(i18n.t('File.UploadFailed') + ' ' + (await resp.text()))
+      return false
+    } else {
+      return await resp.json()
+    }
   }
 }
 
