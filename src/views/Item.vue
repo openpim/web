@@ -195,7 +195,7 @@
                     <v-expansion-panel-header>{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
                        <v-container class="pa-0">
-                        <v-row no-gutters v-if="!tableMode">
+                        <v-row no-gutters v-if="!tableMode || getOption(group, 'noTableView')">
                           <template v-for="(attr,i) in group.itemAttributes">
                             <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
                               <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="false"></AttributeValue>
@@ -204,7 +204,7 @@
                             </v-col>
                             </template>
                         </v-row>
-                        <v-row no-gutters v-if="tableMode">
+                        <v-row no-gutters v-if="tableMode && !getOption(group, 'noTableView')">
                           <template v-for="n in parseInt(getOption(group, 'tableColumns', 2))">
                             <v-col :cols="Math.round(12/parseInt(getOption(group, 'tableColumns', 2)))" :key="n">
                               <v-simple-table dense class="stripped-table" style="width: 98%;">
@@ -246,7 +246,7 @@
                   <v-tabs-items v-model="attrTabRef">
                     <v-tab-item v-for="(group,i) in attrGroups" :key="i">
                       <v-container class="pa-0">
-                        <v-row no-gutters v-if="!tableMode">
+                        <v-row no-gutters v-if="!tableMode || getOption(group, 'noTableView')">
                           <template v-for="(attr,i) in group.itemAttributes">
                             <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
                               <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="false"></AttributeValue>
@@ -255,7 +255,7 @@
                             </v-col>
                           </template>
                         </v-row>
-                        <v-row no-gutters v-if="tableMode">
+                        <v-row no-gutters v-if="tableMode && !getOption(group, 'noTableView')">
                           <template v-for="n in parseInt(getOption(group, 'tableColumns', 2))">
                             <v-col :cols="Math.round(12/parseInt(getOption(group, 'tableColumns', 2)))" :key="n">
                               <v-simple-table dense class="stripped-table" style="width: 98%;">
