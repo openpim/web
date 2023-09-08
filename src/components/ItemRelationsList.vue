@@ -16,7 +16,7 @@
     <v-expansion-panel @change="panelChanged(i, identifier)" :key="i" :class="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'class', '')" :style="getOption(identifier, 'title', null) ? '' : getOption(identifier, 'style', '')">
       <v-expansion-panel-header class="pb-0">{{ getRelationName(identifier) }} ({{ componentType === 'source' ? sourceRelationsTotal[identifier] : targetRelationsTotal[identifier]}})</v-expansion-panel-header>
       <v-expansion-panel-content>
-        <v-simple-table dense>
+        <v-simple-table dense :key="'panel'+relationsRefreshKeys[identifier]">
             <template v-slot:default>
               <thead>
                 <tr>
@@ -31,7 +31,10 @@
                   <th class="text-left" v-if="componentType === 'target' && getOption(identifier, 'showItemUpdateDate', '') === 'true'">{{$t('ItemRelationsList.SourceDate')}}</th>
 
                   <th class="text-left pa-0" v-for="(attr, j) in getAttributesForRelation(identifier)" :key="'A'+j" :width="getOption2(attr, 'tableWidth', '')">
-                    {{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}
+                    <div>{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</div>
+                    <input v-if="!attr.lov" type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="attr.IRfilter" @input="filterChanged(identifier, attr)"/>
+                    <v-autocomplete v-if="attr.lov" v-model="attr.IRfilter" :items="getLOVItems(attr.lov)" dense clearable class="ml-2 mr-2" @input="filterChanged(identifier, attr)"></v-autocomplete>
+
                   </th>
                   <th class="text-left">
                     <v-tooltip top v-if="canEditItemRelationByIdentifier(identifier)">
@@ -204,6 +207,7 @@ import * as itemStore from '../store/item'
 import * as langStore from '../store/languages'
 import * as relStore from '../store/relations'
 import * as typesStore from '../store/types'
+import * as lovsStore from '../store/lovs'
 import ItemsSelectionDialog from './ItemsSelectionDialog'
 import i18n from '../i18n'
 import * as userStore from '../store/users'
@@ -278,6 +282,10 @@ export default {
       loadAllTypes
     } = typesStore.useStore()
 
+    const {
+      getLOVData
+    } = lovsStore.useStore()
+
     const pageSize = ref(localStorage.getItem('relPageSize') ? parseInt(localStorage.getItem('relPageSize')) : 5)
     const itemSelectionDialogRef = ref(null)
     const historyDialogRef = ref(false)
@@ -291,6 +299,9 @@ export default {
     const groupsRef = ref([])
     const selectedGroupRef = ref(null)
 
+    const lovsMap = {}
+    const relationsRefreshKeys = reactive({})
+
     watch(() => props.item, (newValue, previousValue) => {
       const type = findType(newValue.typeId)?.node
       if (type) {
@@ -298,12 +309,14 @@ export default {
         groupRelationsRef.value = tst && tst.value === 'true'
       }
 
+      currentFilter = {}
       if (props.componentType === 'source') {
         loadSourceRelations(newValue, root, 0, pageSize.value).then(() => {
           emit('dataLoaded', sourceRelations)
 
           for (const identifier in sourceRelationsTotal) {
             root.$set(pagesSource, identifier, 1)
+            root.$set(relationsRefreshKeys, identifier, 1)
           }
           calculateGroups()
         })
@@ -313,6 +326,7 @@ export default {
 
           for (const identifier in targetRelationsTotal) {
             root.$set(pagesTarget, identifier, 1)
+            root.$set(relationsRefreshKeys, identifier, 1)
           }
           calculateGroups()
         })
@@ -331,10 +345,11 @@ export default {
     function pageChanged (identifier) {
       const newPage = props.componentType === 'source' ? pagesSource[identifier] : pagesTarget[identifier]
       const offset = (newPage - 1) * pageSize.value
+
       if (props.componentType === 'source') {
-        loadSourcePage(props.item, root, identifier, offset, pageSize.value)
+        loadSourcePage(props.item, root, identifier, offset, pageSize.value, Object.getOwnPropertyNames(currentFilter).length !== 0 ? { values: currentFilter } : null)
       } else {
-        loadTargetPage(props.item, root, identifier, offset, pageSize.value)
+        loadTargetPage(props.item, root, identifier, offset, pageSize.value, Object.getOwnPropertyNames(currentFilter).length !== 0 ? { values: currentFilter } : null)
       }
     }
 
@@ -630,7 +645,12 @@ export default {
 
     function getAttributesForRelation (identifier) {
       const rel = relations.find(rel => rel.identifier === identifier)
-      return getAttributesForRelationId(rel.id)
+      const arr = getAttributesForRelationId(rel.id)
+      const attrLovs = arr.filter(attr => attr.lov)
+      loadLOVs(attrLovs).then((loaded) => {
+        if (loaded) relationsRefreshKeys[identifier] = relationsRefreshKeys[identifier] + 1
+      })
+      return arr
     }
 
     function getOption (identifier, name, defaultValue) {
@@ -659,6 +679,39 @@ export default {
       if (itemRel.id < 0) return
       historySelectedRef.value = itemRel
       historyDialogRef.value = true
+    }
+
+    let currentFilter = {}
+    function filterChanged (relationIdentifier, attr) {
+      if (currentFilter[attr.identifier]) {
+        if (attr.IRfilter) {
+          currentFilter[attr.identifier] = attr.IRfilter
+        } else {
+          delete currentFilter[attr.identifier]
+        }
+      } else {
+        currentFilter[attr.identifier] = attr.IRfilter
+      }
+      pageChanged(relationIdentifier)
+    }
+
+    function getLOVItems (lovId) {
+      const lovValues = lovsMap[lovId]
+      if (!lovValues) return []
+      return lovValues.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
+    }
+
+    async function loadLOVs (attrs) {
+      let loaded = false
+      for (let i = 0; i < attrs.length; i++) {
+        const attr = attrs[i]
+        if (!lovsMap[attr.lov]) {
+          const values = await getLOVData(attr.lov)
+          lovsMap[attr.lov] = values
+          loaded = true
+        }
+      }
+      return loaded
     }
 
     onMounted(() => {
@@ -707,6 +760,9 @@ export default {
       selectedGroupRef,
       reloadRelation,
       panelChanged,
+      filterChanged,
+      getLOVItems,
+      relationsRefreshKeys,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive'),
       damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',

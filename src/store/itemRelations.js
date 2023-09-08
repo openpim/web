@@ -113,13 +113,14 @@ const actions = {
       }
     }
   },
-  loadSourcePage: async (item, root, identifier, offset, limit) => {
+  loadSourcePage: async (item, root, identifier, offset, limit, where) => {
     const relations = relStore.store.relations
     const rel = relations.find(rel => rel.identifier === identifier)
     const res = await serverFetch('query { getSourceRelations(itemId: ' + item.id +
         ', relationId:' + rel.id +
         ', offset:' + offset +
         ', limit:' + limit +
+        (where ? ', where:' + objectToGraphgl(where) : '') +
         `) 
         { count,
           rows 
@@ -299,13 +300,14 @@ const actions = {
     const data = await serverFetch(query)
     return data.import.itemRelations
   },
-  loadTargetPage: async (item, root, identifier, offset, limit) => {
+  loadTargetPage: async (item, root, identifier, offset, limit, where) => {
     const relations = relStore.store.relations
     const rel = relations.find(rel => rel.identifier === identifier)
     const res = await serverFetch('query { getTargetRelations(itemId: ' + item.id +
         ', relationId:' + rel.id +
         ', offset:' + offset +
         ', limit:' + limit +
+        (where ? ', where:' + objectToGraphgl(where) : '') +
         `) 
         { count,
           rows 
