@@ -101,7 +101,7 @@ export default {
     async function submit () {
       if (colFilteredMain.value[collectionRefMain.value]) {
         if (colFilteredMain.value[collectionRefMain.value].internalId === 0) {
-          const collectionId = await getCollectionByIdentifier(colFilteredMain.value[collectionRefMain.value].id)
+          const collectionId = await getCollectionByIdentifier(colFilteredMain.value[collectionRefMain.value].identifier)
           emit('selected', collectionId)
         } else {
           emit('selected', colFilteredMain.value[collectionRefMain.value].id)
@@ -115,7 +115,7 @@ export default {
     async function delFromColl () {
       if (colFilteredMain.value[collectionRefMain.value]) {
         if (colFilteredMain.value[collectionRefMain.value].internalId === 0) {
-          const collectionId = await getCollectionByIdentifier(colFilteredMain.value[collectionRefMain.value].id)
+          const collectionId = await getCollectionByIdentifier(colFilteredMain.value[collectionRefMain.value].identifier)
           emit('delete', collectionId)
         } else {
           emit('delete', colFilteredMain.value[collectionRefMain.value].id)

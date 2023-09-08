@@ -31,29 +31,10 @@
             <SystemInformation :data="selectedRef"></SystemInformation>
           </div>
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.ImportConfigs.Name')"></LanguageDependentField>
-          <v-select v-model="selectedRef.type" :items="types" :readonly="!canEditConfigRef" :label="$t('Config.ImportConfigs.Type')"></v-select>
-          <!--v-card class="mx-auto mb-5">
-            <v-card-title>Actions</v-card-title>
-              <v-card-text>
-                <v-expansion-panels multiple focusable>
-                  <v-expansion-panel key="1">
-                    <v-expansion-panel-header>Before update</v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                      <v-textarea class="ml-3 mr-3" v-model="selectedRef.beforeUpdateAction.code" :label="$t('Config.Actions.Code')"></v-textarea>
-                    </v-expansion-panel-content>
-                  </v-expansion-panel>
-                  <v-expansion-panel key="2">
-                    <v-expansion-panel-header>After update</v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                      <v-textarea class="ml-3 mr-3" v-model="selectedRef.afterUpdateAction.code" :label="$t('Config.Actions.Code')"></v-textarea>
-                    </v-expansion-panel-content>
-                  </v-expansion-panel>
-                </v-expansion-panels>
-              </v-card-text>
-            </v-card-->
-          <component v-if="importConfigFactory.getConfigCompoment()" :is="importConfigFactory.getConfigCompoment()" :availableFields="availableFields" :mappings="selectedRef.mappings" :readonly="!canEditConfigRef" ></component>
-          <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
-          <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">Save and test</v-btn>
+          <v-select v-model="selectedRef.type" @change="resetModel" :items="types" :readonly="!canEditConfigRef" :label="$t('Config.ImportConfigs.Type')"></v-select>
+          <component v-if="importConfigFactory.getConfigCompoment()" :is="importConfigFactory.getConfigCompoment()" :importConfig="selectedRef" :readonly="!canEditConfigRef" ></component>
+          <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="!selectedRef.filedata.info.fileName" @click="save">{{ $t('Save') }}</v-btn>
+          <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="!selectedRef.filedata.info.fileName" @click="save">Save and test</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
       </v-col>
@@ -65,7 +46,7 @@
 import { ref, onMounted, onUnmounted, computed, watch } from '@vue/composition-api'
 import * as errorStore from '../../store/error'
 import * as importConfigsStore from '../../store/importConfigs'
-import * as actionsStore from '../../store/actions'
+// import * as actionsStore from '../../store/actions'
 import * as attrStore from '../../store/attributes'
 import * as typesStore from '../../store/types'
 import * as langStore from '../../store/languages'
@@ -92,7 +73,8 @@ export default {
 
     const canEditConfigRef = ref(false)
     const canViewConfigRef = ref(false)
-    const empty = { id: -1, type: 2, afterUpdateAction: generateEmptyActionObject('empty', 3), beforeUpdateAction: generateEmptyActionObject('empty', 4) }
+    // const empty = { id: -1, type: 2, afterUpdateAction: generateEmptyActionObject('empty', 3), beforeUpdateAction: generateEmptyActionObject('empty', 4) }
+    const empty = { id: -1, type: 2 }
     const formRef = ref(null)
     const itemRef = ref(null)
     const searchRef = ref('')
@@ -111,12 +93,6 @@ export default {
     const {
       getAttributesForItem
     } = attrStore.useStore()
-
-    const {
-      loadAllActions,
-      actions
-      // saveAction
-    } = actionsStore.useStore()
 
     const importConfigFactory = computed(() => {
       return getImportConfigFactory(selectedRef.value.type)
@@ -173,7 +149,7 @@ export default {
 
       canViewConfigRef.value = canViewConfig('importConfigs')
       canEditConfigRef.value = canEditConfig('importConfigs')
-      Promise.all([loadAllTypes(), loadAllActions(), loadAllImportConfigs()]).then(() => {
+      Promise.all([loadAllTypes(), loadAllImportConfigs()]).then(() => {
         typesLoadedRef.value = true
         clearSelection()
         const id = router.currentRoute.params.id
@@ -181,8 +157,6 @@ export default {
           const idx = importConfigs.findIndex((elem) => elem.identifier === id)
           if (idx !== -1) {
             selectedRef.value = importConfigs[idx]
-            selectedRef.value.beforeUpdateAction = getActionForImportConfig(importConfigs[idx].identifier, 3)
-            selectedRef.value.afterUpdateAction = getActionForImportConfig(importConfigs[idx].identifier, 4)
             itemRef.value = idx
           } else {
             router.push('/config/imports')
@@ -196,16 +170,73 @@ export default {
       name[currentLanguage.value.identifier] = i18n.t('Config.ImportConfigs.NewName')
       const newImportConfig = {
         id: Date.now(),
+        isNew: true,
         language: currentLanguage.value.identifier,
         internalId: 0,
         name: name,
         type: 2,
-        mappings: [],
-        beforeUpdateAction: generateEmptyActionObject(null, 3),
-        afterUpdateAction: generateEmptyActionObject(null, 4)
+        mappings: [
+          {
+            attribute: 'identifier',
+            column: null,
+            expression: null
+          },
+          {
+            attribute: 'type',
+            column: null,
+            expression: null
+          },
+          {
+            attribute: 'parent',
+            column: null,
+            expression: null
+          }
+        ],
+        config: {
+          headerLineNumber: 1,
+          dataLineNuber: 2,
+          limit: 0
+        },
+        filedata: {
+          info: {},
+          data: {}
+        }
+        // beforeUpdateAction: generateEmptyActionObject(null, 3),
+        // afterUpdateAction: generateEmptyActionObject(null, 4)
       }
       importConfigs.push(newImportConfig)
       return newImportConfig
+    }
+
+    function resetModel () {
+      selectedRef.value.filedata = {
+        info: {},
+        data: {}
+      }
+
+      selectedRef.value.config = {
+        headerLineNumber: 1,
+        dataLineNuber: 2,
+        limit: 0
+      }
+
+      selectedRef.value.mappings = [
+        {
+          attribute: 'identifier',
+          column: null,
+          expression: null
+        },
+        {
+          attribute: 'type',
+          column: null,
+          expression: null
+        },
+        {
+          attribute: 'parent',
+          column: null,
+          expression: null
+        }
+      ]
     }
 
     onUnmounted(() => {
@@ -224,8 +255,8 @@ export default {
           showInfo(i18n.t('Config.NotSaved'))
         }
         selectedRef.value = importConfigsFiltered.value[selected]
-        selectedRef.value.beforeUpdateAction = getActionForImportConfig(importConfigsFiltered.value[selected].identifier, 3)
-        selectedRef.value.afterUpdateAction = getActionForImportConfig(importConfigsFiltered.value[selected].identifier, 4)
+        // selectedRef.value.beforeUpdateAction = getActionForImportConfig(importConfigsFiltered.value[selected].identifier, 3)
+        // selectedRef.value.afterUpdateAction = getActionForImportConfig(importConfigsFiltered.value[selected].identifier, 4)
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
           router.push('/config/imports/' + selectedRef.value.identifier)
         } else {
@@ -233,37 +264,6 @@ export default {
         }
       }
     })
-
-    function generateEmptyActionObject (mappingIdentifier, event) {
-      return {
-        internalId: 0,
-        identifier: mappingIdentifier ? mappingIdentifier + '_' + event : null,
-        name: { ru: 'Generated action for ' + mappingIdentifier + ' import configuration' },
-        triggers: [
-          {
-            type: 7,
-            event,
-            mappingIdentifier
-          }],
-        code: '',
-        order: 1000
-      }
-    }
-
-    function getActionForImportConfig (mappingIdentifier, event) {
-      if (mappingIdentifier) {
-        for (let i = 0; i < actions.length; i++) {
-          const action = actions[i]
-          for (let i = 0; i < action.triggers.length; i++) {
-            const trigger = action.triggers[i]
-            if (parseInt(trigger.type) === 7 && parseInt(trigger.event) === event && trigger.mappingIdentifier === mappingIdentifier) {
-              return action
-            }
-          }
-        }
-      }
-      return generateEmptyActionObject(mappingIdentifier, event)
-    }
 
     function identifierValidation (v) {
       if (!v) {
@@ -297,24 +297,6 @@ export default {
     })
 
     function save () {
-      /* if (formRef.value.validate()) {
-        if (!selectedRef.value.beforeUpdateAction.identifier) {
-          const tmpCode = selectedRef.value.beforeUpdateAction.code
-          selectedRef.value.beforeUpdateAction = getActionForImportConfig(selectedRef.value.identifier, 3)
-          selectedRef.value.beforeUpdateAction.code = tmpCode
-        }
-        if (!selectedRef.value.afterUpdateAction.identifier) {
-          const tmpCode = selectedRef.value.afterUpdateAction.code
-          selectedRef.value.afterUpdateAction = getActionForImportConfig(selectedRef.value.identifier, 4)
-          selectedRef.value.afterUpdateAction.code = tmpCode
-        }
-        actions.push(selectedRef.value.beforeUpdateAction)
-        actions.push(selectedRef.value.afterUpdateAction)
-        Promise.all([saveImportConfig(selectedRef.value), saveAction(selectedRef.value.beforeUpdateAction), saveAction(selectedRef.value.afterUpdateAction)]).then(() => {
-          showInfo(i18n.t('Saved'))
-        })
-      } */
-
       if (formRef.value.validate()) {
         Promise.all([saveImportConfig(selectedRef.value)]).then(() => {
           showInfo(i18n.t('Saved'))
@@ -354,7 +336,8 @@ export default {
         v => !!v || i18n.t('Config.ImportConfigs.Error.NameRequired')
       ],
       valid,
-      visible
+      visible,
+      resetModel
     }
   }
 }
