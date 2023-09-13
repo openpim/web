@@ -21,22 +21,21 @@
       :label="$t('Channels.Ext.Mime')"
       required
     ></v-text-field>
-    <v-text-field
-      v-if="channel"
-      v-model="channel.config.template"
-      :readonly="readonly"
-      :label="$t('Channels.Ext.Template')"
-      required
-    ></v-text-field>
 
-    <v-card-title>
+    <v-row v-if="!channel.config.template">
       <v-col cols="8">
         <v-file-input show-size v-model="fileRef" :label="$t('ItemView.NewFile')"></v-file-input>
       </v-col>
       <v-col cols="4">
         <v-btn class="d-inline" :disabled="!fileRef" text @click="upload" v-text="$t('ItemView.Upload')"></v-btn>
       </v-col>
-    </v-card-title>
+    </v-row>
+    <v-row v-if="channel.config.template" class="mt-1 mb-0">
+      <v-col>
+        <a :href="damUrl + 'import-config-xslx-template/' + channel.id + '?token=' + token">{{ channel.config.template ? getFileName(channel.config.template) : 'file.xlsx' }}</a>
+        <v-btn class="ml-3" color="primary" text @click="channel.config.template = null; fileRef.value = null">{{ $t('ImportConfig.SelectAnotherFile') }}</v-btn>
+      </v-col>
+    </v-row>
 
     <XLSTemplMappingConfigCompoment
       v-if="channel"
@@ -66,10 +65,15 @@ export default {
 
     const fileRef = ref(null)
 
+    function getFileName (filePath) {
+      const extNum = filePath?.lastIndexOf('/')
+      const fileName = extNum !== -1 ? filePath?.substring(extNum + 1) : ''
+      return fileName
+    }
+
     function upload () {
       uploadXlsxTemplate(props.channel.id, fileRef.value).then((item) => {
         if (item) {
-          console.log(JSON.stringify(item))
           props.channel.config.template = item.config.template
           fileRef.value = null
         }
@@ -92,7 +96,10 @@ export default {
 
     return {
       upload,
-      fileRef
+      fileRef,
+      getFileName,
+      damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
+      token: localStorage.getItem('token')
     }
   },
   components: { XLSTemplMappingConfigCompoment }
