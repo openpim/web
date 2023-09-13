@@ -63,7 +63,8 @@ export default {
   },
   setup (props, { root }) {
     const {
-      signIn
+      signIn,
+      getServerConfig
     } = userStore.useStore()
 
     const {
@@ -80,7 +81,7 @@ export default {
       }
     }
 
-    onMounted(() => {
+    onMounted(async () => {
       const params = {}
       window.location.href.replace(/[?&]+([^=&]+)=([^&#]*)/gi,
         (m, key, value) => {
@@ -88,6 +89,10 @@ export default {
         })
       if (params.user && params.password) signIn(params.user, params.password, props.pathAfterLogin)
       document.addEventListener('keypress', signInKeyListener)
+
+      await getServerConfig()
+      // const serverConfig = await getServerConfig()
+      // console.log(111, serverConfig)
     })
 
     onUnmounted(() => {
