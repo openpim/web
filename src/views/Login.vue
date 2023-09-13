@@ -37,12 +37,14 @@
                   />
 
                   <v-select prepend-icon="mdi-translate" v-if="languageSelect" v-model="i18n.locale" :items="localeSelection" :label="$t('Login.Language')"></v-select>
-
                 </v-form>
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
-                <v-btn color="primary" @click="signIn(login, password, pathAfterLogin)">{{ $t('Login.Login') }}</v-btn>
+                <v-btn color="primary" :disabled="!login || !password" @click="signIn(login, password, pathAfterLogin)">{{ $t('Login.Login') }}</v-btn>
+                <template v-if="authProvidersRef.length > 0">
+                  <v-btn v-for="(auth, i) in authProvidersRef" :key="i" color="primary" @click="signInThrough(auth)">{{ $t('Login.Through') + auth.name }}</v-btn>
+                </template>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -54,6 +56,8 @@ import { ref, onMounted, onUnmounted } from '@vue/composition-api'
 import * as userStore from '../store/users'
 import * as rolesStore from '../store/roles'
 import i18n from '../i18n'
+
+// import { Issuer } from 'openid-client'
 
 export default {
   props: {
@@ -73,11 +77,20 @@ export default {
 
     const login = ref('')
     const password = ref('')
+    const authProvidersRef = ref([])
 
     async function signInKeyListener (e) {
       if (e.key === 'Enter') {
         await signIn(login.value, password.value, props.pathAfterLogin)
         await loadAllRoles()
+      }
+    }
+
+    async function signInThrough (auth) {
+      if (auth.IssuerURL) {
+        // const issuer = await Issuer.discover(auth.IssuerURL)
+        // console.log(issuer)
+        // const { Client } = issuer
       }
     }
 
@@ -90,9 +103,12 @@ export default {
       if (params.user && params.password) signIn(params.user, params.password, props.pathAfterLogin)
       document.addEventListener('keypress', signInKeyListener)
 
-      await getServerConfig()
-      // const serverConfig = await getServerConfig()
-      // console.log(111, serverConfig)
+      const serverConfig = await getServerConfig()
+      if (serverConfig.auth) {
+        serverConfig.auth.forEach(elem => {
+          authProvidersRef.value.push(elem)
+        })
+      }
     })
 
     onUnmounted(() => {
@@ -102,7 +118,9 @@ export default {
     return {
       login,
       password,
+      authProvidersRef,
       signIn,
+      signInThrough,
       i18n,
       languageSelect: process.env.VUE_APP_I18N_LANGUAGE_SELECT === 'true',
       localeSelection: [
