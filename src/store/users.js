@@ -26,7 +26,31 @@ async function userLogin (token, user, pathAfterLogin) {
 }
 
 let promise
+let serverConfig = null
 const actions = {
+  getServerConfig: async () => {
+    if (!serverConfig) {
+      try {
+        const serverUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_SERVER_URL : window.OPENPIM_SERVER_URL + '/graphql'
+        const resp = await fetch(serverUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          },
+          body: JSON.stringify({ query: 'query { serverConfig }' })
+        })
+        if (resp.ok) {
+          const data = (await resp.json()).data
+          serverConfig = data.serverConfig
+        }
+      } catch (e) {
+        console.error(e)
+        err.store.showError('' + e)
+      }
+    }
+    return serverConfig
+  },
   loadAllUsers: async () => {
     if (!promise) promise = serverFetch('query { getUsers {id internalId login name email roles options props external createdAt createdBy updatedAt updatedBy } }')
     const data = await promise

@@ -21,6 +21,7 @@
   "Submitted": "Подготовлено к отправке",
   "Started": "Запущено",
   "Login.Login": "Вход",
+  "Login.Through": "Вход через ",
   "Login.UserName": "Имя пользователя",
   "Login.Password": "Пароль",
   "Login.Expired": "Ваша сессия истекла, вам необходимо зайти снова",
