@@ -34,7 +34,6 @@
     "xregexp": "^4.3.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@kazupon/vue-i18n-loader": "^0.3.0",
     "@mdi/font": "^5.1.45",
     "@vue/cli-plugin-babel": "~4.2.0",
