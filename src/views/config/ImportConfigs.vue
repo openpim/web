@@ -15,7 +15,7 @@
         <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
         <v-list nav dense>
           <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, i) in importConfigsFiltered" :key="i">
+            <v-list-item v-for="(item, id) in importConfigsFiltered" :key="id">
               <v-list-item-icon><v-icon>mdi-file-code-outline</v-icon></v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
@@ -34,7 +34,7 @@
           <v-select v-model="selectedRef.type" @change="resetModel" :items="types" :readonly="!canEditConfigRef" :label="$t('Config.ImportConfigs.Type')"></v-select>
           <component v-if="importConfigFactory.getConfigCompoment()" :is="importConfigFactory.getConfigCompoment()" :importConfig="selectedRef" :readonly="!canEditConfigRef" ></component>
           <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="!selectedRef.filedata.info.fileName" @click="save">{{ $t('Save') }}</v-btn>
-          <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="!selectedRef.filedata.info.fileName" @click="save">Save and test</v-btn>
+          <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="isTestDisabled()" @click="saveAndTest">{{ $t('ImportConfig.SaveAndTest') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
       </v-col>
@@ -68,7 +68,7 @@ export default {
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const { defaultLanguageIdentifier, currentLanguage } = langStore.useStore()
-    const { importConfigs, loadAllImportConfigs, saveImportConfig, removeImportConfig } = importConfigsStore.useStore()
+    const { importConfigs, loadAllImportConfigs, saveImportConfig, removeImportConfig, testImportConfig } = importConfigsStore.useStore()
     const { showInfo } = errorStore.useStore()
 
     const canEditConfigRef = ref(false)
@@ -182,19 +182,21 @@ export default {
             expression: null
           },
           {
-            attribute: 'type',
+            attribute: 'typeIdentifier',
             column: null,
             expression: null
           },
           {
-            attribute: 'parent',
+            attribute: 'parentIdentifier',
             column: null,
             expression: null
           }
         ],
         config: {
+          selectedTab: null,
+          noHeadersChecked: false,
           headerLineNumber: 1,
-          dataLineNuber: 2,
+          dataLineNumber: 2,
           limit: 0
         },
         filedata: {
@@ -208,6 +210,14 @@ export default {
       return newImportConfig
     }
 
+    function isTestDisabled () {
+      const identifierMapping = selectedRef.value.mappings.find(el => el.attribute === 'identifier')
+      if (selectedRef.value.filedata.info.fileName && identifierMapping && (identifierMapping.column || (identifierMapping.expression && identifierMapping.expression.length))) {
+        return false
+      }
+      return true
+    }
+
     function resetModel () {
       selectedRef.value.filedata = {
         info: {},
@@ -216,7 +226,7 @@ export default {
 
       selectedRef.value.config = {
         headerLineNumber: 1,
-        dataLineNuber: 2,
+        dataLineNumber: 2,
         limit: 0
       }
 
@@ -227,12 +237,12 @@ export default {
           expression: null
         },
         {
-          attribute: 'type',
+          attribute: 'typeIdentifier',
           column: null,
           expression: null
         },
         {
-          attribute: 'parent',
+          attribute: 'parentIdentifier',
           column: null,
           expression: null
         }
@@ -245,13 +255,17 @@ export default {
       eventBus.off('file_updated')
     })
 
+    watch(importConfigs, (selected, previous) => {
+      console.log('importConfigs changed')
+    })
+
     watch(itemRef, (selected, previous) => {
       if (selected == null) {
         selectedRef.value = empty
         return
       }
       if (selected < importConfigsFiltered.value.length) {
-        if (previous && importConfigsFiltered.value[previous].internalId === 0) {
+        if (previous && importConfigsFiltered.value[previous] && importConfigsFiltered.value[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
         selectedRef.value = importConfigsFiltered.value[selected]
@@ -282,6 +296,7 @@ export default {
     }
 
     const importConfigsFiltered = computed(() => {
+      console.log('importConfigsFiltered')
       let arr = importConfigs
       if (searchRef.value) {
         const s = searchRef.value.toLowerCase()
@@ -298,8 +313,18 @@ export default {
 
     function save () {
       if (formRef.value.validate()) {
-        Promise.all([saveImportConfig(selectedRef.value)]).then(() => {
+        saveImportConfig(selectedRef.value).then(() => {
           showInfo(i18n.t('Saved'))
+        })
+      }
+    }
+
+    function saveAndTest () {
+      if (formRef.value.validate()) {
+        saveImportConfig(selectedRef.value).then(() => {
+          testImportConfig(selectedRef.value).then(() => {
+            showInfo(i18n.t('Tested'))
+          })
         })
       }
     }
@@ -325,6 +350,7 @@ export default {
       itemRef,
       remove,
       save,
+      saveAndTest,
       searchRef,
       selectedRef,
       selectedTypeRef,
@@ -337,7 +363,8 @@ export default {
       ],
       valid,
       visible,
-      resetModel
+      resetModel,
+      isTestDisabled
     }
   }
 }

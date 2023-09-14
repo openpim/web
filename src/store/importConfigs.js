@@ -33,6 +33,7 @@ const actions = {
       const data = await serverFetch(query, variables)
       const newId = parseInt(data.createImportConfig)
       importsConfig.internalId = newId
+      importsConfig.id = newId
     } else {
       const query = `
         mutation($config: JSONObject, $mappings: JSON, $filedata: JSONObject) { updateImportConfig(id: "` + importsConfig.internalId + '", name: ' + (importsConfig.name ? '' + objectToGraphgl(importsConfig.name) : '') +
@@ -56,6 +57,15 @@ const actions = {
   getImportConfigTemplateData: async (id) => {
     const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'import-config-data/' + id, {
       method: 'GET',
+      headers: {
+        'x-token': localStorage.getItem('token')
+      }
+    })
+    return resp
+  },
+  testImportConfig: async function (importsConfig) {
+    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'import-config-test/' + importsConfig.id, {
+      method: 'POST',
       headers: {
         'x-token': localStorage.getItem('token')
       }

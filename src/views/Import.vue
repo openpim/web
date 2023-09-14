@@ -15,7 +15,44 @@
               </v-row>
             </v-card-title>
             <v-card-text>
-              <v-expansion-panels multiple focusable>
+
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th class="text-left" style="width: 50%;">{{ $t('ImportConfig.ConfigurationParameter') }}</th>
+                      <th class="text-left">{{ $t('ImportConfig.ConfigurationParameterValue') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{{ $t('ImportConfig.SelectedTemplateFile') }}</td>
+                      <td><a :href="damUrl + 'import-config-template/' + importConfigRef.id + '?token=' + token">{{ importConfigRef.filedata.info.fileName ? importConfigRef.filedata.info.fileName : 'file.xls' }}</a></td>
+                    </tr>
+                    <tr v-if="importConfigRef.type === 2">
+                      <td>{{ $t('ImportConfig.SelectedTab') }}</td>
+                      <td>{{ importConfigRef.config.selectedTab }}</td>
+                    </tr>
+                    <tr>
+                      <td>{{ $t('ImportConfig.HeadersLineNumber') }}</td>
+                      <td>{{ importConfigRef.config.headerLineNumber }}</td>
+                    </tr>
+                    <tr>
+                      <td>{{ $t('ImportConfig.NoHeader') }}</td>
+                      <td>{{ importConfigRef.config.noHeadersChecked ? $t('ImportConfig.Yes') : $t('ImportConfig.No') }}</td>
+                    </tr>
+                    <tr>
+                      <td>{{ $t('ImportConfig.DataLineNumber') }}</td>
+                      <td>{{ importConfigRef.config.dataLineNumber }}</td>
+                    </tr>
+                    <tr>
+                      <td>{{ $t('ImportConfig.Limit') }}</td>
+                      <td>{{ importConfigRef.config.limit ? importConfigRef.config.limit : $t('ImportConfig.ImportAllRows')  }}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+              <v-expansion-panels multiple focusable class="mt-3">
                 <v-expansion-panel key="1">
                   <v-expansion-panel-header>Mappings</v-expansion-panel-header>
                   <v-expansion-panel-content>
@@ -23,14 +60,16 @@
                       <template v-slot:default>
                         <thead>
                           <tr>
-                            <th class="text-left">{{$t('ImportConfig.OptionsTable.Column')}}</th>
                             <th class="text-left">{{$t('ImportConfig.OptionsTable.Attribute')}}</th>
+                            <th class="text-left">{{$t('ImportConfig.OptionsTable.Column')}}</th>
+                            <th class="text-left">{{$t('ImportConfig.OptionsTable.Expression')}}</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr v-for="(elem, j) in importConfigRef.mappings" :key="j">
-                            <td class="pa-1 pr-10">{{ elem.name }}</td>
-                            <td class="pa-1 pr-10">{{ elem.targetName }}</td>
+                            <td class="pa-1 pr-10">{{ elem.attribute }}</td>
+                            <td class="pa-1 pr-10">{{ elem.column }}</td>
+                            <td class="pa-1 pr-10">{{ elem.expression }}</td>
                           </tr>
                         </tbody>
                       </template>
@@ -39,8 +78,11 @@
                 </v-expansion-panel>
               </v-expansion-panels>
             </v-card-text>
+            <v-alert v-if="isUploadDisabled()" border="bottom" colored-border type="error" elevation="2" class="mt-6">
+                Некорректный маппинг. Для импорта и обновления объектов необходимо указать как минимум идентификатор объекта, для создания новых объектов необходимо также указать идентификатор типа и идентификатор родителя.
+            </v-alert>
             <v-card-actions>
-              <v-file-input show-size v-model="fileRef" :label="$t('ImportConfig.SelectFile')"></v-file-input>
+              <v-file-input :disabled="isUploadDisabled()" show-size v-model="fileRef" :label="$t('ImportConfig.SelectFile')"></v-file-input>
               <v-btn class="d-inline" color="primary" :disabled="!fileRef" text @click="upload">{{ $t('ImportConfig.UploadFile') }}</v-btn>
             </v-card-actions>
         </v-card>
@@ -109,6 +151,14 @@ export default {
       })
     })
 
+    function isUploadDisabled () {
+      const identifierMapping = importConfigRef.value.mappings.find(el => el.attribute === 'identifier')
+      if (importConfigRef.value.filedata.info.fileName && identifierMapping && (identifierMapping.column || (identifierMapping.expression && identifierMapping.expression.length))) {
+        return false
+      }
+      return true
+    }
+
     return {
       fileType,
       fileRef,
@@ -116,7 +166,10 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       importConfigSelected,
-      upload
+      upload,
+      damUrl: window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/',
+      token: localStorage.getItem('token'),
+      isUploadDisabled
     }
   }
 }
