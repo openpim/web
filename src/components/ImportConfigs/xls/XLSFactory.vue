@@ -17,7 +17,7 @@
     <v-select v-if="importConfig && importConfig.filedata && importConfig.filedata.info.fileName" v-model="selectedTabRef" @change="selectedTabChanged" :items="availableTabs" :label="$t('ImportConfig.AvailableTabs')"></v-select>
     <v-row v-if="selectedTabRef">
       <v-col cols="6">
-        <v-text-field v-model="headersLineNum" @input="headersLineNumChanged" :disabled="noHeadersRef" :rules="lineNumRules" :label="$t('ImportConfig.HeadersLineNumber')" type="number" :hint="headersHint" persistent-hint/>
+        <v-text-field v-model="headersLineNum" @input="headersLineNumChanged" :disabled="noHeadersRef" :rules="headersNumRules" :label="$t('ImportConfig.HeadersLineNumber')" type="number" :hint="headersHint" persistent-hint/>
       </v-col>
       <v-col cols="6">
         <v-checkbox v-model="noHeadersRef" @change="noHeadersChanged" :label="$t('ImportConfig.NoHeader')"/>
@@ -25,10 +25,10 @@
     </v-row>
     <v-row v-if="selectedTabRef">
       <v-col cols="6" class="py-0">
-        <v-text-field v-model="dataLineNum" @input="dataLineNumChanged" :label="$t('ImportConfig.DataLineNumber')" type="number" :hint="dataHint" persistent-hint/>
+        <v-text-field v-model="dataLineNum" @input="dataLineNumChanged" :rules="dataNumRules" :label="$t('ImportConfig.DataLineNumber')" type="number" :hint="dataHint" persistent-hint/>
       </v-col>
       <v-col cols="6" class="py-0">
-        <v-text-field v-model="limitRef" @input="limitChanged" :label="$t('ImportConfig.Limit')" type="number" :hint="$t('ImportConfig.LimitHint')" persistent-hint/>
+        <v-text-field v-model="limitRef" @input="limitChanged" :rules="limitRules" :label="$t('ImportConfig.Limit')" type="number" :hint="$t('ImportConfig.LimitHint')" persistent-hint/>
       </v-col>
     </v-row>
     <v-simple-table dense class="py-4 my-6" v-if="selectedTabRef">
@@ -44,7 +44,7 @@
                     <span>{{ $t('ImportConfig.ShowUnmappedColumns') }}</span>
                 </v-tooltip>
             </th>
-            <th class="text-left grey lighten-3 py-4">{{$t('ImportConfig.OptionsTable.Expession')}}</th>
+            <th class="text-left grey lighten-3 py-4">{{$t('ImportConfig.OptionsTable.Expression')}}</th>
             <th class="text-left grey lighten-3 py-4 px-0" style="width: 50px;">
               <v-tooltip top>
                   <template v-slot:activator="{ on }">
@@ -198,6 +198,8 @@ export default {
     } = attrStore.useStore()
 
     const {
+      languages,
+      loadAllLanguages,
       currentLanguage,
       defaultLanguageIdentifier
     } = langStore.useStore()
@@ -208,12 +210,12 @@ export default {
         name: i18n.t('ImportConfig.Attribute.identifier')
       },
       {
-        identifier: 'type',
-        name: i18n.t('ImportConfig.Attribute.type')
+        identifier: 'typeIdentifier',
+        name: i18n.t('ImportConfig.Attribute.typeIdentifier')
       },
       {
-        identifier: 'parent',
-        name: i18n.t('ImportConfig.Attribute.parent')
+        identifier: 'parentIdentifier',
+        name: i18n.t('ImportConfig.Attribute.parentIdentifier')
       }
     ]
 
@@ -224,18 +226,18 @@ export default {
         expression: null
       },
       {
-        attribute: 'type',
+        attribute: 'typeIdentifier',
         column: null,
         expression: null
       },
       {
-        attribute: 'parent',
+        attribute: 'parentIdentifier',
         column: null,
         expression: null
       }
     ]
 
-    const lineNumRules = [
+    const headersNumRules = [
       val => val >= 1 || i18n.t('ImportConfig.ValueMustBeGreaterOrEqual1'),
       val => {
         const maxLength = sheetData.value[selectedTabRef.value] ? sheetData.value[selectedTabRef.value].length : 1
@@ -247,6 +249,22 @@ export default {
       }
     ]
 
+    const dataNumRules = [
+      val => val >= 1 || i18n.t('ImportConfig.ValueMustBeGreaterOrEqual1')
+      /* val => {
+        const maxLength = sheetData.value[selectedTabRef.value] ? sheetData.value[selectedTabRef.value].length : 1
+        if (val < maxLength + 1) {
+          return true
+        } else {
+          return i18n.t('ImportConfig.ValueCannotBeGreaterThanTotalAmount')
+        }
+      } */
+    ]
+
+    const limitRules = [
+      val => val >= 0 || i18n.t('ImportConfig.ValueMustBeGreaterOrEqual0')
+    ]
+
     watch(() => props.importConfig, async (newValue, previousValue) => {
       isNew.value = newValue.isNew ? newValue.isNew : false
 
@@ -256,7 +274,7 @@ export default {
       selectedTabRef.value = newValue.config.selectedTab
       noHeadersRef.value = newValue.config.noHeadersChecked
       headersLineNum.value = newValue.config.headerLineNumber
-      dataLineNum.value = newValue.config.dataLineNuber
+      dataLineNum.value = newValue.config.dataLineNumber
       limitRef.value = newValue.config.limit
       mappingRef.value = newValue.mappings
       selectedTabChanged(selectedTabRef.value)
@@ -305,6 +323,7 @@ export default {
     const allAttributesRef = ref([])
     onMounted(async () => {
       await loadAllAttributes()
+      await loadAllLanguages()
       const arr = []
       for (var i = 0; i < groups.length; i++) {
         const group = groups[i]
@@ -313,6 +332,11 @@ export default {
           attr.name = attr.identifier + ' (' + (attr.name[currentLanguage.value.identifier] || attr.name[defaultLanguageIdentifier.value]) + ')'
           arr.push(attr)
         }
+      }
+      for (let i = 0; i < languages.length; i++) {
+        const lang = languages[i]
+        const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
+        extraAttributes.push({ identifier: '$name#' + lang.identifier, name: 'Наименование объекта' + langText })
       }
       allAttributesRef.value = extraAttributes.concat(arr)
     })
@@ -366,9 +390,9 @@ export default {
 
     function noHeadersChanged (selected) {
       if (!selected) {
-        selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+        selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][headersLineNum.value - 1] ? sheetData.value[selectedTabRef.value][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
       } else {
-        selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
+        selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][0] ? sheetData.value[selectedTabRef.value][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
       }
       mappingRef.value = mappingRef.value.map(el => ({ attribute: el.attribute, mapping: null, expression: el.expression }))
       eventBus.emit('config_updated', getConfigObject())
@@ -377,13 +401,13 @@ export default {
 
     function dataLineNumChanged (input) {
       const selected = input !== '' ? input : 1
-      selectedDataRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+      selectedDataRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][selected - 1] ? sheetData.value[selectedTabRef.value][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
       eventBus.emit('config_updated', getConfigObject())
     }
 
     function headersLineNumChanged (input) {
       const selected = input !== '' ? input : 1
-      selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+      selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][selected - 1] ? sheetData.value[selectedTabRef.value][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
       eventBus.emit('config_updated', getConfigObject())
     }
 
@@ -394,11 +418,11 @@ export default {
     function selectedTabChanged (selected) {
       if (selected) {
         if (!noHeadersRef.value) {
-          selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+          selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][headersLineNum.value - 1] ? sheetData.value[selectedTabRef.value][headersLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
         } else {
-          selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
+          selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][0] ? sheetData.value[selectedTabRef.value][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
         }
-        selectedDataRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length ? sheetData.value[selectedTabRef.value][dataLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
+        selectedDataRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][dataLineNum.value - 1] ? sheetData.value[selectedTabRef.value][dataLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
       }
       eventBus.emit('config_updated', getConfigObject())
       updateMappings()
@@ -409,7 +433,7 @@ export default {
         selectedTab: selectedTabRef.value,
         noHeadersChecked: noHeadersRef.value,
         headerLineNumber: headersLineNum.value,
-        dataLineNuber: dataLineNum.value,
+        dataLineNumber: dataLineNum.value,
         limit: limitRef.value
       }
     }
@@ -449,7 +473,9 @@ export default {
       selectedHeadersRef,
       headersLineNum,
       i18n,
-      lineNumRules,
+      headersNumRules,
+      dataNumRules,
+      limitRules,
       noHeadersRef,
       dataLineNum,
       showExpression,
