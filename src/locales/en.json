@@ -21,6 +21,7 @@
   "Submitted": "Submitted successfully",
   "Started": "Started",
   "Login.Login": "Login",
+  "Login.Through": "Login through ",
   "Login.UserName": "User name",
   "Login.Password": "Password",
   "Login.Expired": "Your session expired. Sign in again.",
