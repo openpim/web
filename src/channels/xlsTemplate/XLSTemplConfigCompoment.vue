@@ -32,8 +32,8 @@
     </v-row>
     <v-row v-if="channel.config.template" class="mt-1 mb-0">
       <v-col>
-        <a :href="damUrl + 'import-config-xslx-template/' + channel.id + '?token=' + token">{{ channel.config.template ? getFileName(channel.config.template) : 'file.xlsx' }}</a>
-        <v-btn class="ml-3" color="primary" text @click="channel.config.template = null; fileRef.value = null">{{ $t('ImportConfig.SelectAnotherFile') }}</v-btn>
+        <a :href="damUrl + 'xlsx-template/' + channel.id + '?token=' + token">{{ channel.config.template ? getFileName(channel.config.template) : 'file.xlsx' }}</a>
+        <v-btn class="ml-3" color="primary" text @click="channel.config.template = null; fileRef = null">{{ $t('ImportConfig.SelectAnotherFile') }}</v-btn>
       </v-col>
     </v-row>
 
