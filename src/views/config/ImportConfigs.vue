@@ -125,10 +125,12 @@ export default {
         clearSelection()
         const id = router.currentRoute.params.id
         if (id) {
-          const idx = importConfigs.findIndex((elem) => elem.identifier === id)
+          const idx = importConfigsFiltered.value.findIndex((elem) => elem.identifier === id)
           if (idx !== -1) {
-            selectedRef.value = importConfigs[idx]
+            selectedRef.value = importConfigsFiltered.value[idx]
             itemRef.value = idx
+          } else {
+            router.push('/config/imports')
           }
         }
         const importConfigLicence = channelTypes.find(el => el === 1000)
@@ -269,13 +271,7 @@ export default {
         const s = searchRef.value.toLowerCase()
         arr = importConfigs.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
       }
-      return arr.sort((a, b) => {
-        if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
-          return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
-        } else {
-          return 0
-        }
-      })
+      return arr
     })
 
     function save () {
