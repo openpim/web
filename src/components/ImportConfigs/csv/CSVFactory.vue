@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row v-if="importConfig && importConfig.filedata && importConfig.filedata.info && !importConfig.filedata.info.fileName">
+    <v-row v-if="(importConfig && importConfig.filedata && importConfig.filedata.info && !importConfig.filedata.info.fileName) || importConfig.internalId === 0">
       <v-col cols="10">
         <v-file-input v-model="fileUploadRef" @click:clear="resetFile" clearable @change="fileChanged" :label="$t('ImportConfig.SelectFile')" truncate-length="100"></v-file-input>
       </v-col>
@@ -8,7 +8,7 @@
         <v-btn color="primary" class="mt-6" :disabled="!fileUploadRef" text @click="uploadTemplate">{{ $t('ImportConfig.UploadFile') }}</v-btn>
       </v-col>
     </v-row>
-    <v-row v-if="importConfig && importConfig.filedata && importConfig.filedata.info && importConfig.filedata.info.fileName" class="mt-1 mb-0">
+    <v-row v-if="importConfig && importConfig.filedata && importConfig.filedata.info && importConfig.filedata.info.fileName && importConfig.internalId !== 0" class="mt-1 mb-0">
       <v-col>
         <a :href="damUrl + 'import-config-template/' + importConfig.id + '?token=' + token">{{ importConfig.filedata.info.fileName ? importConfig.filedata.info.fileName : 'file.xls' }}</a>
         <v-btn class="ml-3" color="primary" text @click="importConfig.filedata.info.fileName = null; selectedTabRef = null">{{ $t('ImportConfig.SelectAnotherFile') }}</v-btn>
@@ -43,7 +43,15 @@
                     <span>{{ $t('ImportConfig.ShowUnmappedColumns') }}</span>
                 </v-tooltip>
             </th>
-            <th class="text-left grey lighten-3 py-4">{{$t('ImportConfig.OptionsTable.Expression')}}</th>
+            <th class="text-left grey lighten-3 py-4">
+              {{$t('ImportConfig.OptionsTable.Expression')}}
+              <v-tooltip bottom>
+                <template #activator="{ on: onTooltip }">
+                  <v-btn v-on="{ ...onTooltip }" icon><v-icon>mdi-help-circle-outline</v-icon></v-btn>
+                </template>
+                <span>{{ $t('ImportConfig.ExpessionsHelpText') }}</span>
+              </v-tooltip>
+            </th>
             <th class="text-left grey lighten-3 py-4 px-0" style="width: 50px;">
               <v-tooltip top>
                   <template v-slot:activator="{ on }">
@@ -70,7 +78,7 @@
                   <template v-slot:activator="{ on }">
                     <v-btn v-on="on" class="pa-0" icon @click="deleteRow(j)"><v-icon dark>mdi-delete-outline</v-icon></v-btn>
                   </template>
-                  <span>{{ $t('Delete') }}</span>
+                  <span>{{ $t('Remove') }}</span>
               </v-tooltip>
             </td>
           </tr>
@@ -83,6 +91,7 @@
           <v-card>
             <v-card-text>
               <v-container>
+                <v-alert border="bottom" colored-border type="info" elevation="2" class="mt-6">{{ $t('ImportConfig.ExpessionsHelpText') }}</v-alert>
                 <v-row>
                   <v-col cols="12">
                     <v-textarea :rows="15" v-model="exprAttrRef.expression"></v-textarea>
@@ -158,7 +167,7 @@ import { ref, onMounted, computed, watch } from '@vue/composition-api'
 import * as importConfigStore from '@/store/importConfigs'
 import * as attrStore from '@/store/attributes'
 import * as langStore from '@/store/languages'
-import eventBus from '@/eventBus'
+// import eventBus from '@/eventBus'
 import i18n from '@/i18n'
 
 export default {
@@ -344,7 +353,8 @@ export default {
       sheetData.value = resp.data
       selectedTabRef.value = 'Sheet1'
       selectedTabChanged(selectedTabRef.value)
-      eventBus.emit('file_updated', resp)
+      props.importConfig.filedata = resp
+      // eventBus.emit('file_updated', resp)
     }
 
     function resetFile () {
@@ -394,24 +404,28 @@ export default {
         selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][0] ? sheetData.value[selectedTabRef.value][0].filter(el => el).map((el, ind) => ({ name: 'Column ' + (ind + 1), id: ind })) : []
       }
       mappingRef.value = mappingRef.value.map(el => ({ attribute: el.attribute, mapping: null, expression: el.expression }))
-      eventBus.emit('config_updated', getConfigObject())
+      // eventBus.emit('config_updated', getConfigObject())
+      props.importConfig.config = getConfigObject()
       updateMappings()
     }
 
     function dataLineNumChanged (input) {
       const selected = input !== '' ? input : 1
       selectedDataRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][selected - 1] ? sheetData.value[selectedTabRef.value][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
-      eventBus.emit('config_updated', getConfigObject())
+      props.importConfig.config = getConfigObject()
+      // eventBus.emit('config_updated', getConfigObject())
     }
 
     function headersLineNumChanged (input) {
       const selected = input !== '' ? input : 1
       selectedHeadersRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][selected - 1] ? sheetData.value[selectedTabRef.value][selected - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
-      eventBus.emit('config_updated', getConfigObject())
+      // eventBus.emit('config_updated', getConfigObject())
+      props.importConfig.config = getConfigObject()
     }
 
     function limitChanged (input) {
-      eventBus.emit('config_updated', getConfigObject())
+      props.importConfig.config = getConfigObject()
+      // eventBus.emit('config_updated', getConfigObject())
     }
 
     function selectedTabChanged (selected) {
@@ -423,7 +437,8 @@ export default {
         }
         selectedDataRef.value = sheetData.value[selectedTabRef.value] && sheetData.value[selectedTabRef.value].length && sheetData.value[selectedTabRef.value][dataLineNum.value - 1] ? sheetData.value[selectedTabRef.value][dataLineNum.value - 1].filter(el => el).map((el, ind) => ({ name: el, id: ind })) : []
       }
-      eventBus.emit('config_updated', getConfigObject())
+      // eventBus.emit('config_updated', getConfigObject())
+      props.importConfig.config = getConfigObject()
       updateMappings()
     }
 
@@ -461,7 +476,8 @@ export default {
     }
 
     function updateMappings () {
-      eventBus.emit('mappings_updated', mappingRef.value)
+      // eventBus.emit('mappings_updated', mappingRef.value)
+      props.importConfig.mappings = mappingRef.value
     }
 
     return {

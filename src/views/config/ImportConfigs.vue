@@ -15,7 +15,7 @@
         <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
         <v-list nav dense>
           <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, id) in importConfigsFiltered" :key="id">
+            <v-list-item v-for="(item, i) in importConfigsFiltered" :key="i">
               <v-list-item-icon><v-icon>mdi-file-code-outline</v-icon></v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
@@ -46,9 +46,6 @@
 import { ref, onMounted, onUnmounted, computed, watch } from '@vue/composition-api'
 import * as errorStore from '../../store/error'
 import * as importConfigsStore from '../../store/importConfigs'
-// import * as actionsStore from '../../store/actions'
-import * as attrStore from '../../store/attributes'
-import * as typesStore from '../../store/types'
 import * as langStore from '../../store/languages'
 import * as userStore from '../../store/users'
 import * as channelsStore from '../../store/channels'
@@ -62,7 +59,7 @@ import CSVFactory from '@/components/ImportConfigs/csv/CSVFactory.vue'
 import XLSFactory from '@/components/ImportConfigs/xls/XLSFactory.vue'
 import YandexFactory from '@/components/ImportConfigs/yandex/YandexFactory.vue'
 
-import eventBus from '@/eventBus'
+// import eventBus from '@/eventBus'
 
 export default {
   components: { LanguageDependentField, SystemInformation, CSVFactory, XLSFactory, YandexFactory },
@@ -74,27 +71,13 @@ export default {
 
     const canEditConfigRef = ref(false)
     const canViewConfigRef = ref(false)
-    // const empty = { id: -1, type: 2, afterUpdateAction: generateEmptyActionObject('empty', 3), beforeUpdateAction: generateEmptyActionObject('empty', 4) }
     const empty = { id: -1, type: 2 }
     const formRef = ref(null)
     const itemRef = ref(null)
     const searchRef = ref('')
     const selectedRef = ref(empty)
-    const selectedTypeRef = ref([])
-    const typesLoadedRef = ref(false)
-    const visible = ref([])
 
-    const availableFields = ref([])
     const importConfigLicenceExist = ref(false)
-
-    const {
-      findType,
-      loadAllTypes
-    } = typesStore.useStore()
-
-    const {
-      getAttributesForItem
-    } = attrStore.useStore()
 
     const {
       channelTypes,
@@ -107,8 +90,8 @@ export default {
 
     const types = ref([
       { value: 1, text: i18n.t('ImportConfig.Filetype.CSV') },
-      { value: 2, text: i18n.t('ImportConfig.Filetype.XLS') },
-      { value: 3, text: i18n.t('ImportConfig.Filetype.YML') }
+      { value: 2, text: i18n.t('ImportConfig.Filetype.XLS') }
+      // { value: 3, text: i18n.t('ImportConfig.Filetype.YML') }
     ])
 
     function add () {
@@ -117,29 +100,13 @@ export default {
     }
 
     function clearSelection () {
-      selectedRef.value = null
+      selectedRef.value = empty
       itemRef.value = null
     }
 
-    const valid = computed(() => {
-      if (typesLoadedRef.value && selectedTypeRef.value) {
-        return selectedTypeRef.value.map((id) => findType(id).node)
-      }
-      return []
-    })
-
-    watch(() => selectedTypeRef.value, () => {
-      if (selectedTypeRef.value && visible.value.length) {
-        availableFields.value = getAttributesForItem(selectedTypeRef.value, visible.value[0].path)
-      }
-    })
-
     onMounted(() => {
-      eventBus.on('tab_updated', data => {
-        selectedRef.value.tab = data
-      })
-
-      eventBus.on('mappings_updated', data => {
+      /* temporary changed to direct field mutations
+        eventBus.on('mappings_updated', data => {
         selectedRef.value.mappings = data
       })
 
@@ -149,12 +116,12 @@ export default {
 
       eventBus.on('config_updated', data => {
         selectedRef.value.config = data
-      })
+      }) */
 
       canViewConfigRef.value = canViewConfig('importConfigs')
       canEditConfigRef.value = canEditConfig('importConfigs')
-      Promise.all([loadAllTypes(), loadAllImportConfigs(), loadAllChannelTypes()]).then(() => {
-        typesLoadedRef.value = true
+
+      Promise.all([loadAllImportConfigs(), loadAllChannelTypes()]).then(() => {
         clearSelection()
         const id = router.currentRoute.params.id
         if (id) {
@@ -162,8 +129,6 @@ export default {
           if (idx !== -1) {
             selectedRef.value = importConfigs[idx]
             itemRef.value = idx
-          } else {
-            router.push('/config/imports')
           }
         }
         const importConfigLicence = channelTypes.find(el => el === 1000)
@@ -181,7 +146,7 @@ export default {
         isNew: true,
         language: currentLanguage.value.identifier,
         internalId: 0,
-        name: name,
+        name,
         type: 2,
         mappings: [
           {
@@ -211,8 +176,6 @@ export default {
           info: {},
           data: {}
         }
-        // beforeUpdateAction: generateEmptyActionObject(null, 3),
-        // afterUpdateAction: generateEmptyActionObject(null, 4)
       }
       importConfigs.push(newImportConfig)
       return newImportConfig
@@ -233,6 +196,8 @@ export default {
       }
 
       selectedRef.value.config = {
+        selectedTab: null,
+        noHeadersChecked: false,
         headerLineNumber: 1,
         dataLineNumber: 2,
         limit: 0
@@ -258,9 +223,9 @@ export default {
     }
 
     onUnmounted(() => {
-      eventBus.off('mappings_updated')
+      /* eventBus.off('mappings_updated')
       eventBus.off('config_updated')
-      eventBus.off('file_updated')
+      eventBus.off('file_updated') */
     })
 
     watch(itemRef, (selected, previous) => {
@@ -268,13 +233,12 @@ export default {
         selectedRef.value = empty
         return
       }
+      selectedRef.value = empty
       if (selected < importConfigsFiltered.value.length) {
         if (previous && importConfigsFiltered.value[previous] && importConfigsFiltered.value[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
         selectedRef.value = importConfigsFiltered.value[selected]
-        // selectedRef.value.beforeUpdateAction = getActionForImportConfig(importConfigsFiltered.value[selected].identifier, 3)
-        // selectedRef.value.afterUpdateAction = getActionForImportConfig(importConfigsFiltered.value[selected].identifier, 4)
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
           router.push('/config/imports/' + selectedRef.value.identifier)
         } else {
@@ -341,7 +305,6 @@ export default {
 
     return {
       add,
-      availableFields,
       canEditConfigRef,
       canViewConfigRef,
       importConfigLicenceExist,
@@ -357,7 +320,6 @@ export default {
       saveAndTest,
       searchRef,
       selectedRef,
-      selectedTypeRef,
       types,
       identifierRules: [
         v => identifierValidation(v)
@@ -365,8 +327,6 @@ export default {
       nameRules: [
         v => !!v || i18n.t('ImportConfig.NameRequired')
       ],
-      valid,
-      visible,
       resetModel,
       isTestDisabled
     }
