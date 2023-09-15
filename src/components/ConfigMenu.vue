@@ -24,7 +24,7 @@
           <v-list-item-icon><v-icon>mdi-file-code-outline</v-icon></v-list-item-icon>
           <v-list-item-content><v-list-item-title>{{ $t('Config.Actions') }}</v-list-item-title></v-list-item-content>
         </v-list-item>
-        <v-list-item link to="/config/imports" v-if="canViewConfig('importConfigs')">
+        <v-list-item link to="/config/imports" v-if="canViewConfig('importConfigs') && importConfigLicenceExist">
           <v-list-item-icon><v-icon>mdi-file-cog-outline</v-icon></v-list-item-icon>
           <v-list-item-content><v-list-item-title>{{ $t('Config.ImportConfigs') }}</v-list-item-title></v-list-item-content>
         </v-list-item>
@@ -47,7 +47,9 @@
       </v-list>
 </template>
 <script>
+import { ref, onMounted } from '@vue/composition-api'
 import * as userStore from '../store/users'
+import * as channelsStore from '../store/channels'
 
 export default {
   setup () {
@@ -55,7 +57,23 @@ export default {
       canViewConfig
     } = userStore.useStore()
 
+    const {
+      channelTypes,
+      loadAllChannelTypes
+    } = channelsStore.useStore()
+
+    const importConfigLicenceExist = ref(false)
+    onMounted(() => {
+      loadAllChannelTypes().then(() => {
+        const importConfigLicence = channelTypes.find(el => el === 1000)
+        if (importConfigLicence) {
+          importConfigLicenceExist.value = true
+        }
+      })
+    })
+
     return {
+      importConfigLicenceExist,
       canViewConfig
     }
   }

@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="importConfigRef">
+  <v-container v-if="importConfigRef && importConfigLicenceExist">
     <v-row no-gutters>
       <v-col cols="12">
         <v-card class="mx-auto mb-1" outlined>
@@ -15,7 +15,6 @@
               </v-row>
             </v-card-title>
             <v-card-text>
-
               <v-simple-table>
                 <template v-slot:default>
                   <thead>
@@ -78,9 +77,7 @@
                 </v-expansion-panel>
               </v-expansion-panels>
             </v-card-text>
-            <v-alert v-if="isUploadDisabled()" border="bottom" colored-border type="error" elevation="2" class="mt-6">
-                Некорректный маппинг. Для импорта и обновления объектов необходимо указать как минимум идентификатор объекта, для создания новых объектов необходимо также указать идентификатор типа и идентификатор родителя.
-            </v-alert>
+            <v-alert v-if="isUploadDisabled()" border="bottom" colored-border type="error" elevation="2" class="mt-6">{{ $t('ImportConfig.IncorrectMappingNotification') }}</v-alert>
             <v-card-actions>
               <v-file-input :disabled="isUploadDisabled()" show-size v-model="fileRef" :label="$t('ImportConfig.SelectFile')"></v-file-input>
               <v-btn class="d-inline" color="primary" :disabled="!fileRef" text @click="upload">{{ $t('ImportConfig.UploadFile') }}</v-btn>
@@ -96,8 +93,11 @@
 <script>
 import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import * as langStore from '@/store/languages'
+import * as errorStore from '@/store/error'
 import * as importConfigsStore from '@/store/importConfigs'
+import * as channelsStore from '@/store/channels'
 import { useRouter } from '@/router/useRouter'
+import i18n from '@/i18n'
 import SystemInformation from '@/components/SystemInformation'
 
 export default {
@@ -106,6 +106,15 @@ export default {
     const { route } = useRouter()
     const fileRef = ref(null)
     const { importConfigs, loadAllImportConfigs, uploadImportFile } = importConfigsStore.useStore()
+    const { showInfo } = errorStore.useStore()
+
+    const importConfigLicenceExist = ref(false)
+
+    const {
+      channelTypes,
+      loadAllChannelTypes
+    } = channelsStore.useStore()
+
     const {
       currentLanguage,
       defaultLanguageIdentifier
@@ -131,7 +140,7 @@ export default {
 
     function upload () {
       uploadImportFile(importConfigRef.value.id, fileRef.value).then((item) => {
-        alert('Файл загружен!')
+        showInfo(i18n.t('ImportConfig.ProcessStarted'))
       })
     }
 
@@ -144,9 +153,13 @@ export default {
     })
 
     onMounted(() => {
-      loadAllImportConfigs().then(() => {
+      Promise.all([loadAllImportConfigs(), loadAllChannelTypes()]).then(() => {
         if (route.value && route.value.params && route.value.params.id) {
           importConfigSelected(importConfigs.find(elem => elem.identifier === route.value.params.id))
+        }
+        const importConfigLicence = channelTypes.find(el => el === 1000)
+        if (importConfigLicence) {
+          importConfigLicenceExist.value = true
         }
       })
     })
@@ -163,6 +176,7 @@ export default {
       fileType,
       fileRef,
       importConfigRef,
+      importConfigLicenceExist,
       currentLanguage,
       defaultLanguageIdentifier,
       importConfigSelected,
