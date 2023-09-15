@@ -1,9 +1,9 @@
 <template>
-  <v-container v-if="canViewConfigRef">
+  <v-container v-if="canViewConfigRef && importConfigLicenceExist">
     <v-row no-gutters>
       <v-col cols="3" lg="2" xl="2">
         <v-toolbar dense flat>
-          <v-toolbar-title>{{ $t('Config.ImportConfigs.Title') }}</v-toolbar-title>
+          <v-toolbar-title>{{ $t('ImportConfig.Title') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
             <template v-slot:activator="{ on }">
@@ -27,11 +27,11 @@
       <v-col cols="9" lg="10" xl="10">
         <v-form ref="formRef" lazy-validation class="ml-7" v-if="selectedRef && selectedRef.id != -1">
           <div class="d-inline-flex align-center">
-            <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('Config.ImportConfigs.Identifier')" required></v-text-field>
+            <v-text-field style="min-width: 100%" v-model="selectedRef.identifier"  :disabled="selectedRef.internalId !== 0" :rules="identifierRules" :label="$t('ImportConfig.Identifier')" required></v-text-field>
             <SystemInformation :data="selectedRef"></SystemInformation>
           </div>
-          <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.ImportConfigs.Name')"></LanguageDependentField>
-          <v-select v-model="selectedRef.type" @change="resetModel" :items="types" :readonly="!canEditConfigRef" :label="$t('Config.ImportConfigs.Type')"></v-select>
+          <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ImportConfig.Name')"></LanguageDependentField>
+          <v-select v-model="selectedRef.type" @change="resetModel" :items="types" :readonly="!canEditConfigRef" :label="$t('ImportConfig.Type')"></v-select>
           <component v-if="importConfigFactory.getConfigCompoment()" :is="importConfigFactory.getConfigCompoment()" :importConfig="selectedRef" :readonly="!canEditConfigRef" ></component>
           <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="!selectedRef.filedata.info.fileName" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="isTestDisabled()" @click="saveAndTest">{{ $t('ImportConfig.SaveAndTest') }}</v-btn>
@@ -51,6 +51,7 @@ import * as attrStore from '../../store/attributes'
 import * as typesStore from '../../store/types'
 import * as langStore from '../../store/languages'
 import * as userStore from '../../store/users'
+import * as channelsStore from '../../store/channels'
 import i18n from '../../i18n'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import router from '../../router'
@@ -84,6 +85,7 @@ export default {
     const visible = ref([])
 
     const availableFields = ref([])
+    const importConfigLicenceExist = ref(false)
 
     const {
       findType,
@@ -93,6 +95,11 @@ export default {
     const {
       getAttributesForItem
     } = attrStore.useStore()
+
+    const {
+      channelTypes,
+      loadAllChannelTypes
+    } = channelsStore.useStore()
 
     const importConfigFactory = computed(() => {
       return getImportConfigFactory(selectedRef.value.type)
@@ -133,23 +140,20 @@ export default {
       })
 
       eventBus.on('mappings_updated', data => {
-        console.log(data)
         selectedRef.value.mappings = data
       })
 
       eventBus.on('file_updated', data => {
-        console.log(data)
         selectedRef.value.filedata = data
       })
 
       eventBus.on('config_updated', data => {
-        console.log(data)
         selectedRef.value.config = data
       })
 
       canViewConfigRef.value = canViewConfig('importConfigs')
       canEditConfigRef.value = canEditConfig('importConfigs')
-      Promise.all([loadAllTypes(), loadAllImportConfigs()]).then(() => {
+      Promise.all([loadAllTypes(), loadAllImportConfigs(), loadAllChannelTypes()]).then(() => {
         typesLoadedRef.value = true
         clearSelection()
         const id = router.currentRoute.params.id
@@ -162,12 +166,16 @@ export default {
             router.push('/config/imports')
           }
         }
+        const importConfigLicence = channelTypes.find(el => el === 1000)
+        if (importConfigLicence) {
+          importConfigLicenceExist.value = true
+        }
       })
     })
 
     function addImportConfig () {
       const name = {}
-      name[currentLanguage.value.identifier] = i18n.t('Config.ImportConfigs.NewName')
+      name[currentLanguage.value.identifier] = i18n.t('ImportConfig.NewName')
       const newImportConfig = {
         id: Date.now(),
         isNew: true,
@@ -255,10 +263,6 @@ export default {
       eventBus.off('file_updated')
     })
 
-    watch(importConfigs, (selected, previous) => {
-      console.log('importConfigs changed')
-    })
-
     watch(itemRef, (selected, previous) => {
       if (selected == null) {
         selectedRef.value = empty
@@ -281,7 +285,7 @@ export default {
 
     function identifierValidation (v) {
       if (!v) {
-        return i18n.t('Config.ImportConfigs.Error.IdentifierRequired')
+        return i18n.t('ImportConfig.IdentifierRequired')
       }
       if (!/^[A-Za-z0-9_]*$/.test(v)) {
         return i18n.t('Wrong.Identifier')
@@ -289,14 +293,13 @@ export default {
       if (v && selectedRef.value.internalId === 0) {
         const found = importConfigs.find((lang) => lang.identifier === v)
         if (found && found.internalId !== 0) {
-          return i18n.t('Config.ImportConfigs.Error.IdentifierNotUnique')
+          return i18n.t('ImportConfig.IdentifierNotUnique')
         }
       }
       return true
     }
 
     const importConfigsFiltered = computed(() => {
-      console.log('importConfigsFiltered')
       let arr = importConfigs
       if (searchRef.value) {
         const s = searchRef.value.toLowerCase()
@@ -323,14 +326,14 @@ export default {
       if (formRef.value.validate()) {
         saveImportConfig(selectedRef.value).then(() => {
           testImportConfig(selectedRef.value).then(() => {
-            showInfo(i18n.t('Tested'))
+            showInfo(i18n.t('ImportConfig.SavedAndStartedTest'))
           })
         })
       }
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.ImportConfigs.Confirm.Delete', { name: selectedRef.value.name }))) {
+      if (confirm(i18n.t('ImportConfig.Delete', { name: selectedRef.value.name }))) {
         removeImportConfig(selectedRef.value.id)
         selectedRef.value = empty
       }
@@ -341,6 +344,7 @@ export default {
       availableFields,
       canEditConfigRef,
       canViewConfigRef,
+      importConfigLicenceExist,
       clearSelection,
       currentLanguage,
       defaultLanguageIdentifier,
@@ -359,7 +363,7 @@ export default {
         v => identifierValidation(v)
       ],
       nameRules: [
-        v => !!v || i18n.t('Config.ImportConfigs.Error.NameRequired')
+        v => !!v || i18n.t('ImportConfig.NameRequired')
       ],
       valid,
       visible,

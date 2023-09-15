@@ -21,7 +21,7 @@
             <span>{{ $t('Main.Collections') }}</span>
             <v-icon>mdi-bookmark-outline</v-icon>
         </v-btn>
-        <v-btn to="/imports" v-if="hasImportsAccess">
+        <v-btn to="/imports" v-if="hasImportsAccess && importConfigLicenceExist">
             <span>{{ $t('Main.Imports') }}</span>
             <v-icon>mdi-file-outline</v-icon>
         </v-btn>
@@ -238,6 +238,8 @@ export default {
     } = userStore.useStore()
 
     const {
+      channelTypes,
+      loadAllChannelTypes,
       loadAllChannels
     } = channelsStore.useStore()
 
@@ -264,6 +266,7 @@ export default {
 
     const hasSearchAccess = ref(false)
     const hasImportsAccess = ref(false)
+    const importConfigLicenceExist = ref(false)
     const isUserAdmin = ref(false)
 
     const hasDashboards = ref(false)
@@ -410,6 +413,14 @@ export default {
         isUserAdmin.value = isAdmin()
         hasSearchAccess.value = hasAccess('search') || hasAccess('searchRelations')
         hasImportsAccess.value = hasAccess('imports')
+
+        loadAllChannelTypes().then(() => {
+          const importConfigLicence = channelTypes.find(el => el === 1000)
+          if (importConfigLicence) {
+            importConfigLicenceExist.value = true
+          }
+        })
+
         if (currentUserRef.value.tenantId !== '0') {
           loadAllChannels().then(channels => {
             if (channels && channels.length > 0) hasChannelsRef.value = true
@@ -453,6 +464,7 @@ export default {
       isExportSearch: props.export,
       hasSearchAccess,
       hasImportsAccess,
+      importConfigLicenceExist,
       isUserAdmin,
       hasDashboards,
       activeProcesses,
