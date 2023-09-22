@@ -15,11 +15,12 @@
               'Content-Type': 'application/json',
               Accept: 'application/json'
             },
-            body: JSON.stringify({ query: 'query { callback(id: "google", uri: "' + window.location.href + '", rederectURI: "' + window.location.origin + window.location.pathname + '") { token, user {id internalId login name email roles tenantId options props external} } }' })
+            body: JSON.stringify({ query: 'query { callback(id: "google", uri: "' + window.location.href + '", rederectURI: "' + window.location.origin + window.location.pathname + '") { token, locale, user {id internalId login name email roles tenantId options props external} } }' })
           })
           if (resp.ok) {
             respData = await resp.json()
             const userInfo = respData.data.callback
+            localStorage.setItem('locale', userInfo.locale)
             userLogin(userInfo.token, userInfo.user)
           }
         } catch (e) {
@@ -28,7 +29,6 @@
       })()
 
       function userLogin(token, user) {
-        localStorage.setItem('locale', 'ru')
         localStorage.setItem('token', token)
         localStorage.setItem('user', JSON.stringify(user))
         window.location.href = window.location.origin + '/#/'
