@@ -899,7 +899,7 @@ export default {
                   item.values[attr] = convertValueIfNecessary(attr, cellVal)
                 }
               }
-            } 
+            }
             if (item.identifier) rows.push(item)
             if (rows.length === pageSize) {
               await importRows(rows, log)
