@@ -867,6 +867,7 @@ export default {
                           showError(errors)
                           excelDialogRef.value = false
                         }
+                        continue
                       }
                     } else {
                       const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === val)
@@ -878,6 +879,7 @@ export default {
                           showError(err)
                           excelDialogRef.value = false
                         }
+                        continue
                       }
                     }
                   }
@@ -897,7 +899,7 @@ export default {
                   item.values[attr] = convertValueIfNecessary(attr, cellVal)
                 }
               }
-            }
+            } 
             if (item.identifier) rows.push(item)
             if (rows.length === pageSize) {
               await importRows(rows, log)
