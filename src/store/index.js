@@ -16,6 +16,7 @@ import * as channelsStore from './channels'
 import * as procStore from './processes'
 import * as collectionsStore from './collections'
 import * as importConfigsStore from './importConfigs'
+import * as authStore from './auth'
 
 export default () => {
   errorStore.provideStore()
@@ -36,4 +37,5 @@ export default () => {
   procStore.provideStore()
   collectionsStore.provideStore()
   importConfigsStore.provideStore()
+  authStore.provideStore()
 }

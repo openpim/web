@@ -55,9 +55,8 @@
 import { ref, onMounted, onUnmounted } from '@vue/composition-api'
 import * as userStore from '../store/users'
 import * as rolesStore from '../store/roles'
+import * as authStore from '../store/auth'
 import i18n from '../i18n'
-
-// import { Issuer } from 'openid-client'
 
 export default {
   props: {
@@ -75,6 +74,10 @@ export default {
       loadAllRoles
     } = rolesStore.useStore()
 
+    const {
+      authOpenID
+    } = authStore.useStore()
+
     const login = ref('')
     const password = ref('')
     const authProvidersRef = ref([])
@@ -88,9 +91,8 @@ export default {
 
     async function signInThrough (auth) {
       if (auth.IssuerURL) {
-        // const issuer = await Issuer.discover(auth.IssuerURL)
-        // console.log(issuer)
-        // const { Client } = issuer
+        const resAuth = await authOpenID(auth.id, window.location.origin)
+        window.location.href = resAuth.data.auth
       }
     }
 

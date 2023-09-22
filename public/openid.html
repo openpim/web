@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  </head>
+  <body>
+  </body>
+  <script>
+    (async () => {
+        let respData = null
+        const serverUrl = window.location.href.indexOf('localhost') >= 0 ? 'http://localhost:4000/graphql' : window.location.origin + '/graphql'
+        try {
+          const resp = await fetch(serverUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            },
+            body: JSON.stringify({ query: 'query { callback(id: "google", uri: "' + window.location.href + '", rederectURI: "' + window.location.origin + window.location.pathname + '") { token, user {id internalId login name email roles tenantId options props external} } }' })
+          })
+          if (resp.ok) {
+            respData = await resp.json()
+            const userInfo = respData.data.callback
+            userLogin(userInfo.token, userInfo.user)
+          }
+        } catch (e) {
+          console.error(e)
+        }
+      })()
+
+      function userLogin(token, user) {
+        localStorage.setItem('locale', 'ru')
+        localStorage.setItem('token', token)
+        localStorage.setItem('user', JSON.stringify(user))
+        window.location.href = window.location.origin + '/#/'
+      }
+  </script>
+</html>
