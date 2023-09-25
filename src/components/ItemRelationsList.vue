@@ -348,9 +348,9 @@ export default {
       const offset = (newPage - 1) * pageSize.value
 
       if (props.componentType === 'source') {
-        loadSourcePage(props.item, root, identifier, offset, pageSize.value, Object.getOwnPropertyNames(currentFilter).length !== 0 ? { values: currentFilter } : null)
+        loadSourcePage(props.item, root, identifier, offset, pageSize.value, currentFilter[identifier] && Object.getOwnPropertyNames(currentFilter[identifier]).length !== 0 ? { values: currentFilter[identifier] } : null)
       } else {
-        loadTargetPage(props.item, root, identifier, offset, pageSize.value, Object.getOwnPropertyNames(currentFilter).length !== 0 ? { values: currentFilter } : null)
+        loadTargetPage(props.item, root, identifier, offset, pageSize.value, currentFilter[identifier] && Object.getOwnPropertyNames(currentFilter[identifier]).length !== 0 ? { values: currentFilter[identifier] } : null)
       }
     }
 
@@ -684,14 +684,16 @@ export default {
 
     let currentFilter = {}
     function filterChanged (relationIdentifier, attr) {
-      if (currentFilter[attr.identifier]) {
+      if (currentFilter[relationIdentifier]) {
         if (attr.IRfilter) {
-          currentFilter[attr.identifier] = attr.IRfilter
+          currentFilter[relationIdentifier][attr.identifier] = attr.IRfilter
         } else {
-          delete currentFilter[attr.identifier]
+          if (currentFilter[relationIdentifier][attr.identifier]) delete currentFilter[relationIdentifier][attr.identifier]
         }
       } else {
-        currentFilter[attr.identifier] = attr.IRfilter
+        const tmp = {}
+        tmp[attr.identifier] = attr.IRfilter
+        currentFilter[relationIdentifier] = tmp
       }
       pageChanged(relationIdentifier)
     }
