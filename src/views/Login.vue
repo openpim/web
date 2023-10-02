@@ -20,6 +20,7 @@
               <v-card-text>
                 <v-form>
                   <v-text-field
+                    v-if="!disableWebLogin"
                     :label="$t('Login.UserName')"
                     name="login"
                     prepend-icon="mdi-account"
@@ -28,6 +29,7 @@
                   />
 
                   <v-text-field
+                    v-if="!disableWebLogin"
                     id="password"
                     :label="$t('Login.Password')"
                     name="password"
@@ -41,7 +43,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
-                <v-btn color="primary" :disabled="!login || !password" @click="signIn(login, password, pathAfterLogin)">{{ $t('Login.Login') }}</v-btn>
+                <v-btn v-if="!disableWebLogin" color="primary" :disabled="!login || !password" @click="signIn(login, password, pathAfterLogin)">{{ $t('Login.Login') }}</v-btn>
                 <template v-if="authProvidersRef.length > 0">
                   <v-btn v-for="(auth, i) in authProvidersRef" :key="i" color="primary" @click="signInThrough(auth)">{{ $t('Login.Through') + auth.name }}</v-btn>
                 </template>
@@ -81,6 +83,7 @@ export default {
     const login = ref('')
     const password = ref('')
     const authProvidersRef = ref([])
+    const disableWebLogin = ref(false)
 
     async function signInKeyListener (e) {
       if (e.key === 'Enter') {
@@ -110,6 +113,7 @@ export default {
         serverConfig.auth.forEach(elem => {
           authProvidersRef.value.push(elem)
         })
+        if (serverConfig.disableWebLogin && !params.WebLogin) disableWebLogin.value = true
       }
     })
 
@@ -123,6 +127,7 @@ export default {
       authProvidersRef,
       signIn,
       signInThrough,
+      disableWebLogin,
       i18n,
       languageSelect: process.env.VUE_APP_I18N_LANGUAGE_SELECT === 'true',
       localeSelection: [
