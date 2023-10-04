@@ -299,7 +299,7 @@ export default {
         }
         userDialogRef.value = false
         passwordErrors.value = []
-        currentUserRef.value.props = { cron: currentUserRef.value.cron, daysToSaveDeleted: parseInt(currentUserRef.value.daysToSaveDeleted), startClean: currentUserRef.value.startClean }
+        currentUserRef.value.props = { cron: currentUserRef.value.cron || '', daysToSaveDeleted: currentUserRef.value.daysToSaveDeleted ? parseInt(currentUserRef.value.daysToSaveDeleted) : -1, startClean: currentUserRef.value.startClean || false }
         saveUser(currentUserRef.value).then(() => {
           localStorage.setItem('user', JSON.stringify(currentUserRef.value))
           currentUserRef.value.password1 = ''
