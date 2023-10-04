@@ -554,10 +554,10 @@
       </v-menu>
 
       <!-- LOV -->
-      <select @change="lovChanged" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :disabled="attr.readonly" v-model="values[attr.identifier]">
+      <select @change="lovChanged" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :disabled="attr.readonly" v-model="values[attr.identifier]" style="outline: 1px solid #DCDCDC">
         <option v-for="(elem,i) in lovSelection" :key="i" :value="elem.value">{{elem.text}}</option>
       </select>
-      <select @change="lovChanged" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :disabled="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]">
+      <select @change="lovChanged" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :disabled="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" style="outline: 1px solid #DCDCDC">
         <option v-for="(elem,i) in lovSelection" :key="i" :value="elem.value">{{elem.text}}</option>
       </select>
 
