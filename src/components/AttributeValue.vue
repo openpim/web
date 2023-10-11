@@ -445,10 +445,7 @@
 
       <!-- URL -->
       <template v-if="attr.type === AttributeType.URL && !attr.languageDependent">
-        <v-container v-if="!attr.readonly" class="pa-0">
-          <v-row>
-            <v-col cols="6">
-              <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier]" required>
+              <v-text-field v-if="!attr.readonly" dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier]" required>
                 <template #append>
                   <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
                     <template v-slot:activator="{ on }">
@@ -465,20 +462,11 @@
                   <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
                 </template>
               </v-text-field>
-            </v-col>
-            <v-col cols="6">
-              <v-text-field dense hide-details="true" @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier + '_text']" required></v-text-field>
-            </v-col>
-          </v-row>
-        </v-container>
         <label v-if="attr.readonly" class="theme--light v-input v-label v-text-field v-label--active" style="font-size:12px">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
         <div v-if="attr.readonly" class="mb-5"><a :href="values[attr.identifier]" target="_blank">{{values[attr.identifier + '_text'] || values[attr.identifier]}}</a></div>
       </template>
       <template v-if="attr.type === AttributeType.URL && attr.languageDependent">
-        <v-container v-if="!attr.readonly" class="pa-0">
-          <v-row>
-            <v-col cols="6">
-              <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier][currentLanguage.identifier]" required>
+              <v-text-field v-if="!attr.readonly" dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier][currentLanguage.identifier]" required>
                 <template #append>
                   <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
                     <template v-slot:activator="{ on }">
@@ -495,12 +483,6 @@
                   <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
                 </template>
               </v-text-field>
-            </v-col>
-            <v-col cols="6">
-              <v-text-field hide-details="true" @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier + '_text'][currentLanguage.identifier]" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
-            </v-col>
-          </v-row>
-        </v-container>
         <label v-if="attr.readonly" class="theme--light v-input v-label v-text-field v-label--active" style="font-size:12px">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
         <div v-if="attr.readonly" class="mb-5"><a :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier + '_text'][currentLanguage.identifier] || values[attr.identifier][currentLanguage.identifier]}}</a></div>
       </template>
