@@ -734,5 +734,8 @@
   "ImportConfig.SavedAndStartedTest": "The import configuration saved. <br/> The uploaded file with data will be processed. <br/> You can see results in the Processes section.",
   "ImportConfig.ProcessStarted": "The uploaded file with data will be processed. <br/> You can see results in the Processes section.",
   "ImportConfig.IncorrectMappingNotification": "Incorrect mapping. You need to define at least object identifier to update objects and you need to define parent identifier and type identifier alse to create new ones.",
-  "ImportConfig.ExpessionsHelpText": "There are 'row' (an array with all columns of the current row)  and 'data' (current coulmn data) variables available. Use 'row[index]' or 'data' to access them. For example: data.toString() + row[0]"
+  "ImportConfig.ExpessionsHelpText": "There are 'row' (an array with all columns of the current row)  and 'data' (current coulmn data) variables available. Use 'row[index]' or 'data' to access them. For example: data.toString() + row[0]",
+  "ImportConfig.Actions": "Actions",
+  "ImportConfig.BeforeStartAction": "Before Start Action",
+  "ImportConfig.AfterEndAction": "After End Action"
 }

@@ -33,6 +33,21 @@
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ImportConfig.Name')"></LanguageDependentField>
           <v-select v-model="selectedRef.type" @change="resetModel" :items="types" :readonly="!canEditConfigRef" :label="$t('ImportConfig.Type')"></v-select>
           <component v-if="importConfigFactory.getConfigCompoment()" :is="importConfigFactory.getConfigCompoment()" :importConfig="selectedRef" :readonly="!canEditConfigRef" ></component>
+
+          <v-expansion-panels flat focusable class="mb-5">
+            <v-expansion-panel>
+              <v-expansion-panel-header>{{ $t('ImportConfig.Actions') }}</v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-container class="pa-0">
+                    <v-row no-gutters>
+                      <v-col cols="12"><v-textarea rows="5" :readonly="!canEditConfigRef" v-model="selectedRef.config.beforeStartAction" :label="$t('ImportConfig.BeforeStartAction')" required></v-textarea></v-col>
+                      <v-col cols="12"><v-textarea rows="5" :readonly="!canEditConfigRef" v-model="selectedRef.config.afterEndAction" :label="$t('ImportConfig.AfterEndAction')" required></v-textarea></v-col>
+                    </v-row>
+                  </v-container>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+
           <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="!selectedRef.filedata.info.fileName" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="isTestDisabled()" @click="saveAndTest">{{ $t('ImportConfig.SaveAndTest') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>

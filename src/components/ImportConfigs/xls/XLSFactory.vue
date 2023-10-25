@@ -449,7 +449,9 @@ export default {
         noHeadersChecked: noHeadersRef.value,
         headerLineNumber: headersLineNum.value,
         dataLineNumber: dataLineNum.value,
-        limit: limitRef.value
+        limit: limitRef.value,
+        beforeStartAction: props.importConfig.config.beforeStartAction,
+        afterEndAction: props.importConfig.config.afterEndAction
       }
     }
 
