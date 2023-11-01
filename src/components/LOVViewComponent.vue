@@ -24,7 +24,7 @@
                     <th class="text-left">{{ $t('Config.LOV.Level') }}</th>
                     <th class="text-left">{{ $t('Config.LOV.URL') }}</th>
                     <th class="text-left">
-                      {{ $t('Config.LOV.Filter') }}
+                      {{ $t('Config.LOV.Filter') }}<br>
                       <v-tooltip top v-if="canEditConfig" class="ml-4">
                         <template v-slot:activator="{ on }">
                           <v-btn v-on="on" class="pa-0" icon color="primary" @click="addValue"><v-icon dark>mdi-plus</v-icon></v-btn>
@@ -36,6 +36,12 @@
                           <v-btn v-on="on" class="pa-0" icon color="primary" @click="exportData"><v-icon dark>mdi-export</v-icon></v-btn>
                         </template>
                         <span>{{ $t('Config.LOV.Export') }}</span>
+                      </v-tooltip>
+                      <v-tooltip topclass="ml-4">
+                        <template v-if="canEditConfig" v-slot:activator="{ on }">
+                          <v-btn v-on="on" class="pa-0" icon color="primary" @click="importData"><v-icon dark>mdi-import</v-icon></v-btn>
+                        </template>
+                        <span>{{ $t('Config.LOV.Import') }}</span>
                       </v-tooltip>
                     </th>
                   </tr>
@@ -117,6 +123,31 @@
       </v-row>
     </template>
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="importDialogRef" persistent max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('Config.LOV.Import') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-textarea rows="7" v-model="importDataRef"></v-textarea>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="importDialogRef = false">{{ $t('Cancel') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="processImport">{{ $t('Execute') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
     </div>
 </template>
 <script>
@@ -188,6 +219,9 @@ export default {
 
     const itemSelectionDialogRef = ref(null)
     const visibleSelectedRef = ref(null)
+
+    const importDialogRef = ref(null)
+    const importDataRef = ref('')
 
     function addVisible () {
       itemSelectionDialogRef.value.showDialog()
@@ -267,9 +301,9 @@ export default {
       return true
     }
 
-    function addValue () {
+    function addValue (text) {
       const val = {}
-      val[currentLanguage.value.identifier] = ''
+      val[currentLanguage.value.identifier] = text && typeof text === 'string' ? text : ''
       let max = props.lov.values.reduce((accumulator, currentValue) => Math.max(accumulator, currentValue.id), 0)
       if (!max) max = 0
       const tmp = { id: ++max, value: val, filter: null, level: [] }
@@ -304,6 +338,21 @@ export default {
       saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'data.xlsx')
     }
 
+    function importData () {
+      importDataRef.value = ''
+      importDialogRef.value = true
+    }
+
+    function processImport () {
+      importDialogRef.value = false
+      if (importDataRef.value) {
+        const arr = importDataRef.value.split(/\r\n|\n|\r/)
+        for (const str of arr) {
+          addValue(str)
+        }
+      }
+    }
+
     return {
       itemsSelected,
       addValue,
@@ -324,6 +373,10 @@ export default {
       tabRef,
       AttributeType,
       lovSelection,
+      importDialogRef,
+      importDataRef,
+      importData,
+      processImport,
       currentLanguage,
       defaultLanguageIdentifier,
       identifierRules: [

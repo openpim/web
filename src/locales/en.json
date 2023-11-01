@@ -194,6 +194,7 @@
   "Config.LOV.Level": "Level",
   "Config.LOV.Visible": "Visible from:",
   "Config.LOV.Export": "Export",
+  "Config.LOV.Import": "Import",
   "Config.LOV.URL": "Url",
   "Config.Channels": "Channels",
   "Config.Channels.Channels": "Channels:",
