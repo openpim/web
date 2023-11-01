@@ -402,7 +402,7 @@ export default {
 
     const { groups, findByIdentifier, getAttributesForItem } = attrStore.useStore()
 
-    const { loadAllChannels, getAvailableChannels, submitItem } = channelsStore.useStore()
+    const { loadAllChannels, getAvailableChannels, submitItems } = channelsStore.useStore()
 
     const { submitItemToCollection, removeFromCollection } = collectionsStore.useStore()
 
@@ -1138,10 +1138,7 @@ export default {
           data = await props.loadData({ page: 1, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
         }
         if (!excelDialogRef.value) return // exit if process was canceled
-        for (let i = 0; i < data.rows.length; i++) {
-          const row = data.rows[i]
-          await submitItem(row.id, row.typeId, row.path, arr)
-        }
+        await submitItems(data.rows, arr)
         const tst = page * itemsPerPage * 100 / total
         excelDialogProgressRef.value = tst > 100 ? 100 : tst
       } while (page * itemsPerPage < total)
