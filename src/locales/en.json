@@ -738,5 +738,7 @@
   "ImportConfig.ExpessionsHelpText": "There are 'row' (an array with all columns of the current row)  and 'data' (current coulmn data) variables available. Use 'row[index]' or 'data' to access them. For example: data.toString() + row[0]",
   "ImportConfig.Actions": "Actions",
   "ImportConfig.BeforeStartAction": "Before Start Action",
-  "ImportConfig.AfterEndAction": "After End Action"
+  "ImportConfig.AfterEndAction": "After End Action",
+  "ImportConfig.BeforeEachRow": "Before Each Row"
+
 }

@@ -450,6 +450,7 @@ export default {
         dataLineNumber: dataLineNum.value,
         limit: limitRef.value,
         beforeStartAction: props.importConfig.config.beforeStartAction,
+        beforeEachRow: props.importConfig.config.beforeEachRow,
         afterEndAction: props.importConfig.config.afterEndAction
       }
     }

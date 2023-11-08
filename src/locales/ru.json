@@ -731,5 +731,6 @@
   "ImportConfig.ExpessionsHelpText": "Доступны переменные 'row' (массив со всеми данными текущей строки)  and 'data' (текущее значение). Используйте 'row[index]' или 'data' для доступа к ним. Например: data.toString() + row[0]",
   "ImportConfig.Actions": "Действия",
   "ImportConfig.BeforeStartAction": "Перед началом",
-  "ImportConfig.AfterEndAction": "После окончания"
+  "ImportConfig.AfterEndAction": "После окончания",
+  "ImportConfig.BeforeEachRow": "Перед каждой строкой"
 }

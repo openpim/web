@@ -41,6 +41,7 @@
                   <v-container class="pa-0">
                     <v-row no-gutters>
                       <v-col cols="12"><v-textarea rows="5" :readonly="!canEditConfigRef" v-model="selectedRef.config.beforeStartAction" :label="$t('ImportConfig.BeforeStartAction')" required></v-textarea></v-col>
+                      <v-col cols="12"><v-textarea rows="5" :readonly="!canEditConfigRef" v-model="selectedRef.config.beforeEachRow" :label="$t('ImportConfig.BeforeEachRow')" required></v-textarea></v-col>
                       <v-col cols="12"><v-textarea rows="5" :readonly="!canEditConfigRef" v-model="selectedRef.config.afterEndAction" :label="$t('ImportConfig.AfterEndAction')" required></v-textarea></v-col>
                     </v-row>
                   </v-container>

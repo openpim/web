@@ -1,6 +1,7 @@
 import { reactive, provide, inject } from '@vue/composition-api'
 import i18n from '../i18n'
 import { serverFetch, objectToGraphgl } from './utils'
+import { currentLanguage } from './languages'
 
 const importConfigs = reactive([])
 const actions = {
@@ -64,11 +65,15 @@ const actions = {
     return resp
   },
   testImportConfig: async function (importsConfig) {
+    const data = new FormData()
+    data.append('language', currentLanguage.value.identifier)
+
     const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'import-config-test/' + importsConfig.id, {
       method: 'POST',
       headers: {
         'x-token': localStorage.getItem('token')
-      }
+      },
+      body: data
     })
     return resp
   },
@@ -96,6 +101,7 @@ const actions = {
     const data = new FormData()
     data.append('file', file)
     data.append('mappingId', id)
+    data.append('language', currentLanguage.value.identifier)
 
     const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'import-upload', {
       method: 'POST',
