@@ -107,7 +107,7 @@
               </v-row>
             </v-container>
           </v-card-title>
-          <v-card-actions>
+          <v-card-actions style="max-height: 500px" class="overflow-y-auto">
             <v-btn v-if="canEditSelected" :color="itemChangedRef ? 'primary' : ''" depressed :text="!itemChangedRef" @click="save" v-text="$t('Save')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
             <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
