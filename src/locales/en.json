@@ -490,6 +490,7 @@
   "DataTable.ExcelImport.UPDATE_ONLY" : "Update only (do not create new)",
   "DataTable.ExcelImport.CREATE_UPDATE" : "Create and update",
   "DataTable.ExcelImport.NoLOVValue" : "Value '{val}' not found in list of values for attribute with identifier {attr}",
+  "DataTable.Actions": "Actions",
   "FileUploadDialog.Title" : "File upload",
   "FileUploadDialog.NewFile" : "File to upload",
   "FileUploadDialog.FileType" : "Type",

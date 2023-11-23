@@ -79,8 +79,15 @@
       </v-tooltip>
       <template v-if="headersStorageName === 'item_headers' && buttonActions && buttonActions.length > 0">
         <v-menu offset-y>
-          <template v-slot:activator="{ on }"><v-btn icon v-on="on"><v-icon>mdi-gesture-tap-button</v-icon></v-btn></template>
-            <v-list style="height:500px;overflow-y:auto">
+          <template v-slot:activator="{ on: menu, attrs }">
+            <v-tooltip top>
+              <template v-slot:activator="{ on: tooltip }">
+                <v-btn icon v-bind="attrs" v-on="{ ...tooltip, ...menu }"><v-icon>mdi-gesture-tap-button</v-icon></v-btn>
+              </template>
+              <span>{{ $t('DataTable.Actions') }}</span>
+            </v-tooltip>
+          </template>
+            <v-list style="max-height:500px;overflow-y:auto">
               <v-list-item v-for="(trigger, i) in buttonActions" :key="i" @click="executeAction(trigger)">
                 <v-list-item-title>{{trigger.itemButton}}</v-list-item-title>
                 </v-list-item>
