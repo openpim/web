@@ -322,13 +322,22 @@ export default {
     }
 
     function exportData () {
-      const data = [['identifier', 'name', 'id', 'value']]
+      const cols = ['identifier', 'name', 'id', 'value']
+      const data = [cols]
+      availableChannelsRef.value.forEach(channel => {
+        cols.push(channel.name[defaultLanguageIdentifier.value])
+      })
       props.lov.values.forEach(elem => {
         const row = [props.lov.identifier, props.lov.name[defaultLanguageIdentifier.value]]
         row.push(elem.id)
         for (const prop in elem.value) {
           row.push(elem.value[prop])
         }
+        availableChannelsRef.value.forEach(channel => {
+          for (const prop in elem[channel.identifier]) {
+            row.push(elem[channel.identifier]?.[prop])
+          }
+        })
         data.push(row)
       })
       const ws = XLSX.utils.aoa_to_sheet(data)
