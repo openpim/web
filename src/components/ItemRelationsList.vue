@@ -649,7 +649,7 @@ export default {
       const arr = getAttributesForRelationId(rel.id)
       const attrLovs = arr.filter(attr => attr.lov)
       loadLOVs(attrLovs).then((loaded) => {
-        if (loaded) relationsRefreshKeys[identifier] = relationsRefreshKeys[identifier] + 1
+        if (loaded && relationsRefreshKeys[identifier] === 0) relationsRefreshKeys[identifier] = relationsRefreshKeys[identifier] + 1
       })
       return arr
     }

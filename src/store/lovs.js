@@ -5,13 +5,29 @@ import { currentLanguage } from './languages'
 
 const lovs = reactive([])
 let lovsPromise
+const lovCache = {}
+const lovCachePromise = {}
+
+async function loadLOV (key, id) {
+  const data = await serverFetch('query { getLOV(id: "' + id + '") { values } }')
+  if (data.getLOV) {
+    const lovData = data.getLOV.values
+    lovCache[key] = lovData
+    return lovData
+  } else {
+    return []
+  }
+}
+
 const actions = {
   getLOVData: async (id) => {
-    const data = await serverFetch('query { getLOV(id: "' + id + '") { values } }')
-    if (data.getLOV) {
-      return data.getLOV.values
+    const key = 'lov' + id
+    const lovData = lovCache[key]
+    if (!lovData) {
+      if (!lovCachePromise[key]) lovCachePromise[key] = loadLOV(key, id)
+      return await lovCachePromise[key]
     } else {
-      return []
+      return lovData
     }
   },
   getLOVsForSelect: async () => {
