@@ -22,6 +22,7 @@
       </v-treeview>
   </v-col>
   <ItemCreationDialog ref="itemCreationDialogRef" @created="itemCreated"/>
+  <CustomCreationDialog ref="itemCustomCreationDialogRef" @created="itemCreated"/>
   </v-row>
 </template>
 <script>
@@ -31,12 +32,14 @@ import * as typesStore from '../store/types'
 import * as langStore from '../store/languages'
 import * as userStore from '../store/users'
 import { useRouter } from '../router/useRouter'
+import customCreationDialog from '../_customizations/item/customCreationDialog.js'
 
 import ItemCreationDialog from '../components/ItemCreationDialog'
+import CustomCreationDialog from '../_customizations/item/customCreationDialog.vue'
 import eventBus from '../eventBus'
 
 export default {
-  components: { ItemCreationDialog },
+  components: { ItemCreationDialog, CustomCreationDialog },
   setup (props, context) {
     const { router } = useRouter()
 
@@ -66,6 +69,7 @@ export default {
     const activeRef = ref([])
     const openRef = ref([])
     const itemCreationDialogRef = ref(null)
+    const itemCustomCreationDialogRef = ref(null)
 
     const canEditSelected = computed(() => {
       if (selectedRef.value.id !== -1) {
@@ -103,12 +107,18 @@ export default {
       await loadItemRelationsChildren(item.id, item.internalId)
     }
 
-    function add () {
-      itemCreationDialogRef.value.showDialog(selectedRef.value)
+    async function add () {
+      const obj = await customCreationDialog(selectedRef.value)
+      if (obj) {
+        itemCustomCreationDialogRef.value.showDialog(selectedRef.value)
+      } else {
+        itemCreationDialogRef.value.showDialog(selectedRef.value)
+      }
     }
 
     function itemCreated (item) {
       itemCreationDialogRef.value.closeDialog()
+      if (itemCustomCreationDialogRef.value.closeDialog) itemCustomCreationDialogRef.value.closeDialog()
 
       if (selectedRef.value.children && selectedRef.value.children.length === 0) {
         loadChildren(selectedRef.value).then(() => {
@@ -178,6 +188,7 @@ export default {
       add,
       activeChanged,
       itemCreationDialogRef,
+      itemCustomCreationDialogRef,
       itemCreated,
       loadChildren,
       currentLanguage,
