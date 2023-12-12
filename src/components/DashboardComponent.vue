@@ -10,6 +10,7 @@
 import { ref, onMounted } from '@vue/composition-api'
 import * as dashStore from '../store/dashboards'
 import * as searchStore from '../store/search'
+import * as langStore from '../store/languages'
 import BarChart from './BarChart'
 import HorizontalBarChart from './HorizontalBarChart'
 import CircleChart from './CircleChart'
@@ -35,6 +36,10 @@ export default {
       searchEntityRef,
       searchToOpenRef
     } = searchStore.useStore()
+
+    const {
+      defaultLanguageIdentifier
+    } = langStore.useStore()
 
     const loadedRef = ref(false)
     const dataRef = ref(null)
@@ -71,7 +76,7 @@ export default {
           const idx = groupBy.indexOf('#', 5)
 
           if (dataRef.value.lovValues) {
-            const tst = dataRef.value.lovValues.find(lovItem => lovItem.value.ru === data)
+            const tst = dataRef.value.lovValues.find(lovItem => lovItem.value[defaultLanguageIdentifier.value] === data)
             if (tst) data = tst.id
           }
 
