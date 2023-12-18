@@ -273,6 +273,17 @@ const actions = {
     item.values = itemData.values
     item.channels = itemData.channels
   },
+  reloadItem: async (item) => {
+    const data = await serverFetch('query { getItem(id: ' + item.internalId + `) { 
+      name, values, channels 
+    } }`)
+    if (data.getItem) {
+      const itemData = data.getItem
+      item.name = itemData.name
+      item.values = itemData.values
+      item.channels = itemData.channels
+    }
+  },
   moveItem: async (item, parentId) => {
     const query = `
       mutation { moveItem(id: "` + item.internalId + '", parentId: "' + parentId + `") { 

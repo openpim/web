@@ -275,7 +275,8 @@ export default {
     const {
       loadItemsByIds,
       loadItemByIdentifier,
-      nextId
+      nextId,
+      reloadItem
     } = itemStore.useStore()
 
     const {
@@ -463,36 +464,44 @@ export default {
     }
 
     async function saveAll () {
+      let reloadItem = false
       const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
       for (const prop in itemRels) {
         const rels = itemRels[prop]
         for (let i = 0; i < rels.length; i++) {
           const rel = rels[i]
+          if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem = true
           if (changedRelations.value.includes(rel.id)) {
             await save(prop, rel.id, true)
           }
         }
       }
+      if (reloadItem) reloadItem(props.item)
     }
 
     async function saveAllTab (identifier) {
+      let reloadItem = false
       const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
       const rels = itemRels[identifier]
       for (let i = 0; i < rels.length; i++) {
         const rel = rels[i]
+        if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem = true
         if (changedRelations.value.includes(rel.id)) {
           await save(identifier, rel.id, true)
         }
       }
+      if (reloadItem) reloadItem(props.item)
     }
 
-    function removeAllTab (identifier) {
+    async function removeAllTab (identifier) {
       if (confirm(i18n.t('ItemRelationsList.Confirm.DeleteAllItemRelations'))) {
+        let reloadItem = false
         const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
         const rels = itemRels[identifier]
         for (let i = 0; i < rels.length; i++) {
           const rel = rels[i]
-          removeItemRelation(props.componentType, identifier, rel.id)
+          if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem = true
+          await removeItemRelation(props.componentType, identifier, rel.id)
         }
         if (props.componentType === 'source') {
           sourceRelations[identifier] = []
@@ -501,6 +510,7 @@ export default {
           targetRelations[identifier] = []
           targetRelationsTotal[identifier] = 0
         }
+        if (reloadItem) reloadItem(props.item)
       }
     }
 
@@ -540,6 +550,8 @@ export default {
           await saveItemRelation(itemRel)
           router.clearDataChanged(itemRel.identifier)
           changedRelations.value.splice(changedIdx, 1)
+          const rel = relations.find(rel => rel.identifier === identifier)
+          if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem(props.item)
           if (!skipMsg) showInfo(i18n.t('Saved'))
         }
       } else {
@@ -547,13 +559,17 @@ export default {
         await saveItemRelation(itemRel)
         router.clearDataChanged(itemRel.identifier)
         changedRelations.value.splice(changedIdx, 1)
+        const rel = relations.find(rel => rel.identifier === identifier)
+        if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem(props.item)
         if (!skipMsg) showInfo(i18n.t('Saved'))
       }
     }
 
-    function remove (identifier, id) {
+    async function remove (identifier, id) {
       if (confirm(i18n.t('ItemRelationsList.Confirm.Delete'))) {
-        removeItemRelation(props.componentType, identifier, id)
+        await removeItemRelation(props.componentType, identifier, id)
+        const rel = relations.find(rel => rel.identifier === identifier)
+        if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem(props.item)
       }
     }
 
