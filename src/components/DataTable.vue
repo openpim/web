@@ -807,7 +807,8 @@ export default {
           let rows = []
           const totalRows = range.e.r
           let currentRow = 0
-          await loadLOVs2(headers)
+          const multivalueMap = {}
+          await loadLOVs2(headers, multivalueMap)
 
           let firstRow = true
           for (let rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
@@ -857,7 +858,7 @@ export default {
                   const lovValues = lovsMap[lov]
                   if (lovValues) {
                     const val = cell ? '' + cell.v : ''
-                    if (val.includes(',')) { // multivalue lov
+                    if (multivalueMap[attr]) { // multivalue lov
                       let errors = ''
                       cellVal = val.split(',').reduce((accumulator, currentValue) => {
                         const tmp = currentValue.trim()
@@ -964,11 +965,15 @@ export default {
       saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'log.xlsx')
     }
 
-    async function loadLOVs2 (importHeaders) {
+    async function loadLOVs2 (importHeaders, multivalueMap) {
       for (let i = 0; i < importHeaders.length; i++) {
         const header = importHeaders[i]
         if (header.startsWith('attr') && header.indexOf('#') !== -1) {
           const tst = header.indexOf('#')
+          const attr = header.substring(5, tst)
+          const attrNode = findByIdentifier(attr)
+          multivalueMap[attr] = attrNode.item.options && Array.isArray(attrNode.item.options) && attrNode.item.options.some(option => option.name === 'multivalue' && option.value === 'true')
+
           const lov = parseInt(header.substring(tst + 1))
           const lovValues = lovsMap[lov]
           if (!lovValues) {
