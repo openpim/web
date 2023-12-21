@@ -169,6 +169,11 @@ export default {
       eventBus.on('item_selected', item => {
         activeRef.value = [item.id]
       })
+      eventBus.on('item_changed', item => {
+        if (activeRef.value.length > 0 && activeRef.value[0] === item.id) {
+          selectedRef.value.name[currentLanguage.value.identifier] = item.name[currentLanguage.value.identifier]
+        }
+      })
 
       loadAllTypes().then(() => {
         if (itemsTree.length === 0) loadItems()
@@ -176,6 +181,7 @@ export default {
     })
 
     onUnmounted(() => {
+      eventBus.off('item_changed')
       eventBus.off('item_selected')
       eventBus.off('show_in_navigation_tree')
     })

@@ -922,6 +922,7 @@ export default {
       childrenLoaded(data.rows, data.count)
       // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
       if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
+      eventBus.emit('item_changed', itemRef.value)
       showInfo(i18n.t('Saved'))
     }
 
