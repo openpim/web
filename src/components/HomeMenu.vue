@@ -104,7 +104,7 @@ export default {
 
     async function loadChildren (item) {
       await loadItems(item.id, item.internalId, item.typeId)
-      await loadItemRelationsChildren(item.id, item.internalId)
+      await loadItemRelationsChildren(item.id, item.internalId, item.typeId)
     }
 
     async function add () {

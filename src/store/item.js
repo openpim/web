@@ -166,8 +166,14 @@ const actions = {
       return arr
     }
   },
-  loadItemRelationsChildren: async (id, parentId) => {
-    const data = await serverFetch('query { getItemRelationsChildren(itemId: "' + (parentId || '') + `", offset: 0, limit: 500) { 
+  loadItemRelationsChildren: async (id, parentId, typeId) => {
+    let sort = ''
+    if (typeId) {
+      const type = findType(typeId).node
+      const tst = type.options.find(elem => elem.name === 'relChildrenSort')
+      if (tst) sort = tst.value
+    }
+    const data = await serverFetch('query { getItemRelationsChildren(itemId: "' + (parentId || '') + '", offset: 0, limit: 500 ' + (sort ? 'sort:"' + sort + '"' : '') + `) { 
       rows 
       { 
         id 
