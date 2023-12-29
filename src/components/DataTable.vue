@@ -1130,31 +1130,14 @@ export default {
     }
 
     async function channelsSelected (arr) {
+      const where = filterWhere || props.loadData().where
       chanSelectionDialogRef.value.closeDialog()
       if (arr.length === 0) return
       excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleSubmit')
       excelDialogRef.value = true
-      const itemsPerPage = 1000
-      let total = -1
-      let page = 0
       excelDialogProgressRef.value = 0
-
-      do {
-        page++
-        let data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
-        if (total === -1) total = data.count
-        if (page !== 1 && data.rows.length === 0) {
-          // if we are iterating through channel status itself (for example the query is select all items that has status OK)
-          // them when we set status we are changing the result of query, so we can not iterate through pages, we need to always ask for 1 page until data will not be finished
-          // so try to load first page in this case
-          data = await props.loadData({ page: 1, itemsPerPage: itemsPerPage, sortBy: ['id'], sortDesc: [false] })
-        }
-        if (!excelDialogRef.value) return // exit if process was canceled
-        await submitItems(data.rows, arr)
-        const tst = page * itemsPerPage * 100 / total
-        excelDialogProgressRef.value = tst > 100 ? 100 : tst
-      } while (page * itemsPerPage < total)
-
+      await submitItems(where, arr)
+      excelDialogProgressRef.value = 100
       excelDialogRef.value = false
       showInfo(i18n.t('Submitted'))
     }

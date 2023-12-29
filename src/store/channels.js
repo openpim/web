@@ -129,6 +129,12 @@ const actions = {
     }
     channels.splice(idx, 1)
   },
+  bulkUpdate: async () => {
+    const query = `
+        mutation { bulkUpdate(id: "")
+      }`
+    await serverFetch(query)
+  },
   getChannelStatus: async (channelId) => {
     const data = await serverFetch('query { getChannelStatus(id: "' + channelId + '") {status count} }')
     return data.getChannelStatus
@@ -186,43 +192,20 @@ const actions = {
       }
     }
   },
-  submitItems: async (items, channelIds) => {
+  submitItems: async (where, channelIds) => {
     if (channelIds.length === 0) return
-    const itemsData = []
-    for (const item of items) {
-      const channelsData = {}
-      const pathArr = item.path.split('.')
-
-      let wasData = false
-      channels.forEach(channel => {
-        if (channelIds.includes(channel.internalId)) {
-          const tst = channel.valid.includes(item.typeId) && channel.visible.find(elem => pathArr.includes(elem))
-          if (tst) {
-            channelsData[channel.identifier] = { status: 1 }
-            wasData = true
-          }
-        }
-      })
-      if (wasData) itemsData.push({ identifier: item.identifier, channels: channelsData })
-    }
-    if (itemsData.length > 0) {
-      const query = `
-      mutation($items: [ItemImportRequest]) { import(
-        config: {
-            mode: CREATE_UPDATE
-            errors: PROCESS_WARN
-        },
-        items: $items
-        ) {
-        items {
-        identifier
-        result
-        id
-        errors { code message }
-        warnings { code message }
-      }}}`
-      await serverFetch(query, { items: itemsData })
-    }
+    const channelIdentifiers = channels
+      .filter((channel) => channelIds.includes(channel.id))
+      .map((channel) => channel.identifier)
+    const query = `
+    mutation { bulkUpdateChannel(
+        identifiers: ${JSON.stringify(channelIdentifiers)},
+        status:  1,
+        message: "",
+        where: """${JSON.stringify(where)}"""
+      )
+    }`
+    await serverFetch(query)
   },
   triggerChannel: async (id, data) => {
     const query = `

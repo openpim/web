@@ -110,6 +110,10 @@
                         {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
                         {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
                       </div>
+                      <div v-if="trigger.type === 7">
+                        {{ $t('Config.Actions.Triggers.Type.BulkUpdateChannels') }}
+                        ({{ displayEvent(trigger.event) }})
+                      </div>
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -257,6 +261,10 @@ export default {
         return i18n.t('Config.Actions.Triggers.Event.BeforeShow')
       } else if (event === 8) {
         return i18n.t('Config.Actions.Triggers.Event.ChangedOnClient')
+      } else if (event === 9) {
+        return i18n.t('Config.Actions.Triggers.Event.BeforeBulkUpdateChannels')
+      } else if (event === 10) {
+        return i18n.t('Config.Actions.Triggers.Event.AfterBulkUpdateChannels')
       } else {
         return '???'
       }
