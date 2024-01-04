@@ -99,7 +99,6 @@ import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import * as channelsStore from '../store/channels'
 import * as langStore from '../store/languages'
 import * as searchStore from '../store/search'
-import * as itemStore from '../store/item'
 import { useRouter } from '../router/useRouter'
 import SystemInformation from '../components/SystemInformation'
 import PieChart from '../components/PieChart'
@@ -122,7 +121,7 @@ export default {
       getChannelStatusByCategories,
       hasChannelAccess,
       triggerChannel,
-      updateItemChannels
+      submitItemsStatus
     } = channelsStore.useStore()
 
     const {
@@ -133,10 +132,6 @@ export default {
     const {
       searchToOpenRef
     } = searchStore.useStore()
-
-    const {
-      searchItems
-    } = itemStore.useStore()
 
     const channelRef = ref(null)
     const tabRef = ref(null)
@@ -262,16 +257,10 @@ export default {
       if (confirm(i18n.t('ChannelView.ConfirmReset'))) {
         const where = { channels: {} }
         where.channels[channelRef.value.identifier] = { status: 1 }
-        // let's use only one page with 10000 items for now to make it simple
-        const res = await searchItems(where, { page: 1, itemsPerPage: 10000, sortBy: ['id'], sortDesc: [false] })
         progressDialogRef.value = true
-        for (let i = 0; i < res.rows.length; i++) {
-          const item = res.rows[i]
-          const channels = {}
-          channels[channelRef.value.identifier] = { is_deleted: true }
-          await updateItemChannels(item, channels)
-          progressDialogValueRef.value = i * 100 / res.rows.length
-        }
+        progressDialogValueRef.value = 0
+        await submitItemsStatus(0, where, [channelRef.value.id])
+        progressDialogValueRef.value = 100
         progressDialogRef.value = false
         channelSelected(channelRef.value)
       }

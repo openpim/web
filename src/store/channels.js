@@ -193,14 +193,17 @@ const actions = {
     }
   },
   submitItems: async (where, channelIds) => {
+    actions.submitItemsStatus(1, where, channelIds)
+  },
+  submitItemsStatus: async (status, where, channelIds) => {
     if (channelIds.length === 0) return
     const channelIdentifiers = channels
       .filter((channel) => channelIds.includes(channel.id))
       .map((channel) => channel.identifier)
     const query = `
-    mutation { bulkUpdateChannel(
+    mutation { bulkUpdateChannels(
         identifiers: ${JSON.stringify(channelIdentifiers)},
-        status:  1,
+        status:  ${status},
         message: "",
         where: """${JSON.stringify(where)}"""
       )
