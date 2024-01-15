@@ -100,7 +100,7 @@
         </template>
         <span>{{ $t('Collections.DeleteFromCollection') }}</span>
       </v-tooltip>
-      <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData" :processButtonAction="processButtonAction"></AfterButtonsComponent>
+      <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData" :processButtonAction="processButtonAction" :whereFunc="getTableWhere"></AfterButtonsComponent>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
       :options="optionsRef"
@@ -1443,7 +1443,7 @@ export default {
 
     async function processButtonAction (button, data) {
       buttonActionStatusDialog.value.showDialog()
-      const where = filterWhere || props.loadData().where
+      const where = getTableWhere()
       await executeTableButtonAction(props.item ? props.item.internalId : null, button, where || {}, data).then((result) => {
         optionsUpdate(optionsRef.value)
         if (result.data) {
@@ -1553,6 +1553,10 @@ export default {
       return lovValues.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
     }
 
+    function getTableWhere () {
+      return filterWhere || props.loadData().where
+    }
+
     return {
       columnsSelectionDialogRef,
       columnsSaveDialogRef,
@@ -1636,6 +1640,7 @@ export default {
       buttonActions,
       executeAction,
       processButtonAction,
+      getTableWhere,
       buttonActionStatusDialog,
       filterChanged,
       getLOVItems,
