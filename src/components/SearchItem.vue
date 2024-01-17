@@ -117,6 +117,7 @@ export default {
     const {
       loadByIdentifier,
       currentWhereRef,
+      currentFilterRef,
       searchEntityRef,
       searchToOpenRef,
       selectedRef,
@@ -215,6 +216,7 @@ export default {
           searchEntityRef.value = 'ITEM'
           selectedRef.value.entity = searchEntityRef.value
           currentWhereRef.value = selectedRef.value.whereClause
+          currentFilterRef.value = null
         } catch (err) {
           console.error(err)
           showError(i18n.t('Search.Extended.Error') + err.message)
@@ -223,6 +225,7 @@ export default {
         const orAndOperation = selectedRef.value.orAnd === 1 ? 'OP_and' : 'OP_or'
         const where = {}
         where[orAndOperation] = []
+        currentFilterRef.value = selectedRef.value.filters
         selectedRef.value.filters.forEach(filter => {
           if (filter.attr) {
             const data = {}

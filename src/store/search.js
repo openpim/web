@@ -2,6 +2,7 @@ import { ref, provide, inject } from '@vue/composition-api'
 import { serverFetch, objectToGraphgl } from './utils'
 
 const currentWhereRef = ref(null)
+const currentFilterRef = ref(null)
 const searchEntityRef = ref('ITEM')
 const searchToOpenRef = ref(null)
 const savedColumnsRef = ref(null)
@@ -95,6 +96,7 @@ const actions = {
 // eslint-disable-next-line no-unused-vars
 const store = {
   currentWhereRef,
+  currentFilterRef,
   searchEntityRef,
   selectedRef,
   lovsMapRef,
