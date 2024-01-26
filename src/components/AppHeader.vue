@@ -7,7 +7,7 @@
     <v-spacer />
     <AppHeaderSearch :export="isExportSearch" v-if="drawer" />
     <AfterSearchComponent></AfterSearchComponent>
-    <v-menu offset-y v-if="languages.length > 1">
+    <v-menu ref="menuRef" offset-y v-if="languages.length > 1">
       <template v-slot:activator="{ on }">
         <v-btn class="mr-2" dark text v-on="on">
           {{ currentLanguage ? currentLanguage.identifier : '' }}
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { onMounted } from '@vue/composition-api'
+import { onMounted, ref } from '@vue/composition-api'
 
 import * as langStore from '../store/languages'
 import * as userStore from '../store/users'
@@ -63,9 +63,12 @@ export default {
       loadAllLanguages
     } = langStore.useStore()
 
-    onMounted(() => {
-      if (!props.drawer) return
-      loadAllLanguages()
+    const menuRef = ref(null)
+
+    onMounted(async () => {
+      await loadAllLanguages()
+      const tst = localStorage.getItem('lang')
+      if (tst) languageSelected(tst)
     })
 
     function triggerDrawer () {
@@ -82,6 +85,7 @@ export default {
 
     function languageSelected (identifier) {
       currentLanguage.value = languages.find(lang => lang.identifier === identifier)
+      localStorage.setItem('lang', identifier)
     }
 
     return {
@@ -93,6 +97,7 @@ export default {
       triggerDrawer,
       triggerDrawerRight,
       triggerUserDialog,
+      menuRef,
       isExportSearch: props.export
     }
   }
