@@ -627,7 +627,8 @@ export default {
         (itemRef.value.mimeType === 'image/png') ||
         (itemRef.value.mimeType === 'image/bmp') ||
         (itemRef.value.mimeType === 'image/tiff') ||
-        (itemRef.value.mimeType === 'image/gif'))
+        (itemRef.value.mimeType === 'image/gif') ||
+        (itemRef.value.mimeType === 'image/webp'))
     })
 
     const isFile = computed(() => {
@@ -636,7 +637,8 @@ export default {
         (itemRef.value.mimeType === 'image/png') ||
         (itemRef.value.mimeType === 'image/bmp') ||
         (itemRef.value.mimeType === 'image/tiff') ||
-        (itemRef.value.mimeType === 'image/gif'))
+        (itemRef.value.mimeType === 'image/gif') ||
+        (itemRef.value.mimeType === 'image/webp'))
     })
 
     const hasFileUpload = computed(() => {
