@@ -146,6 +146,7 @@
                       </template>
                       <span>{{ $t('ItemView.Tab.Audit') }}</span>
                     </v-tooltip>
+                    <AfterButtonsComponentForItemRelation :itemRel="itemRel" :item="item" :componentType="componentType" :relationIdentifier="identifier"></AfterButtonsComponentForItemRelation>
                   </td>
                 </tr>
               </tbody>
@@ -219,9 +220,10 @@ import dateFormat from 'dateformat'
 import router from '../router'
 
 import AfterButtonsComponent from '../_customizations/relations/list/afterButtons/AfterButtonsComponent'
+import AfterButtonsComponentForItemRelation from '../_customizations/relations/list/afterButtons/AfterButtonsComponentForItemRelation'
 
 export default {
-  components: { ItemsSelectionDialog, AttributeValue, SystemInformation, HistoryTable, AfterButtonsComponent },
+  components: { ItemsSelectionDialog, AttributeValue, SystemInformation, HistoryTable, AfterButtonsComponent, AfterButtonsComponentForItemRelation },
   props: {
     item: {
       required: true
