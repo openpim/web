@@ -51,6 +51,13 @@
               <div class="text-end"><v-btn @click="assign(grpId)"> {{ $t('Config.Attributes.Connect') }}</v-btn></div>
             </v-card>
           </v-menu>
+          <v-menu :close-on-content-click="false" offset-y v-if="canEditConfigRef">
+            <template v-slot:activator="{ on }"><v-btn class="mr-4" v-on="on"> {{ $t('Move') }}</v-btn></template>
+            <v-card class="pa-4">
+              <v-autocomplete v-model="grpId" item-value="id" :items="connectGroups" :item-text="'name.' + currentLanguage.identifier || 'name.' + defaultLanguageIdentifier" clearable clear-icon="mdi-close-circle-outline"></v-autocomplete>
+              <div class="text-end"><v-btn @click="move(grpId)"> {{ $t('Move') }}</v-btn></div>
+            </v-card>
+          </v-menu>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
 
@@ -363,6 +370,37 @@ export default {
       groupFiltered.children.push(attr.item)
     }
 
+    function move (grpId) {
+      const attr = findByIdentifier(selectedRef.value.identifier)
+      const grp = findById(grpId)
+      if (attr.item.internalId === 0 || grp.item.internalId === 0) {
+        showError(i18n.t('Config.NotSaved'))
+        return
+      }
+      assignData(attr.item, grp.item).then(() => {
+        openRef.value.push(grp.item.id)
+        showInfo(i18n.t('Saved'))
+      })
+      const groupFiltered = groupsFiltered.value.find((el) => el.id === grpId)
+      groupFiltered.children.push(attr.item)
+      const data = findById(selectedRef.value.id)
+      if (data.groups.length) {
+        const grpId = data.groups[0].id
+        const group = groupsFiltered.value.find((el) => el.id === grpId)
+        const indxToRemove = group.children.findIndex((el) => el.id === selectedRef.value.id)
+        if (indxToRemove > -1) {
+          group.children.splice(indxToRemove, 1)
+        }
+      }
+      removeAttribute(selectedRef.value.id, attrDeletionRef.value !== 'link').then(() => {
+        showInfo(i18n.t('Saved'))
+      })
+      selectedRef.value = empty
+      if (!props.item) {
+        router.push('/config/attributes')
+      }
+    }
+
     onMounted(() => {
       loadAllLanguages()
       loadAllAttributes().then(() => {
@@ -464,6 +502,7 @@ export default {
       connectGroups,
       groupsFiltered,
       assign,
+      move,
       dialogRef,
       attrDeletionRef,
       currentLanguage,
