@@ -370,17 +370,17 @@ export default {
       groupFiltered.children.push(attr.item)
     }
 
-    function move (grpId) {
+    async function move (grpId) {
       const attr = findByIdentifier(selectedRef.value.identifier)
       const grp = findById(grpId)
       if (attr.item.internalId === 0 || grp.item.internalId === 0) {
         showError(i18n.t('Config.NotSaved'))
         return
       }
-      assignData(attr.item, grp.item).then(() => {
-        openRef.value.push(grp.item.id)
-        showInfo(i18n.t('Saved'))
-      })
+
+      await assignData(attr.item, grp.item)
+      openRef.value.push(grp.item.id)
+
       const groupFiltered = groupsFiltered.value.find((el) => el.id === grpId)
       groupFiltered.children.push(attr.item)
       const data = findById(selectedRef.value.id)
@@ -392,13 +392,8 @@ export default {
           group.children.splice(indxToRemove, 1)
         }
       }
-      removeAttribute(selectedRef.value.id, attrDeletionRef.value !== 'link').then(() => {
-        showInfo(i18n.t('Saved'))
-      })
-      selectedRef.value = empty
-      if (!props.item) {
-        router.push('/config/attributes')
-      }
+      await removeAttribute(selectedRef.value.id, false)
+      showInfo(i18n.t('Saved'))
     }
 
     onMounted(() => {
