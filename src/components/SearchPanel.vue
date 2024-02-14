@@ -4,6 +4,9 @@
       <v-select v-model="searchEntityRef" :items="items" @change="onSearchEntityChange" dense hide-details class="mx-4 mb-0 py-0" />
       <SearchItem v-if="searchEntityRef === 'ITEM'" />
       <SearchItemRelation v-if="searchEntityRef === 'ITEM_RELATION'" />
+      <template v-if="searchEntityRef !== 'ITEM' && searchEntityRef !== 'ITEM_RELATION'">
+        <CustomSearchComponent  v-for="(elem, i) in customSearch()" :key="i" searchEntity="searchEntityRef"/>
+      </template>
     </v-col>
   </v-row>
 </template>
@@ -15,9 +18,11 @@ import * as userStore from '../store/users'
 import i18n from '../i18n'
 import SearchItem from './SearchItem.vue'
 import SearchItemRelation from './SearchItemRelation.vue'
+import customSearch from '../_customizations/search/customSearch.js'
+import CustomSearchComponent from '../_customizations/search/customSearchComponent.vue'
 
 export default {
-  components: { SearchItem, SearchItemRelation },
+  components: { SearchItem, SearchItemRelation, CustomSearchComponent },
   setup (props, context) {
     const { currentWhereRef, searchEntityRef, selectedRef } = searchStore.useStore()
     const { hasAccess } = userStore.useStore()
@@ -35,7 +40,13 @@ export default {
       searchEntityRef,
       currentWhereRef,
       onSearchEntityChange,
-      items: [{ text: i18n.t('Search.Title.Items'), value: 'ITEM', disabled: !hasAccess('search') }, { text: i18n.t('Search.Title.ItemRelations'), value: 'ITEM_RELATION', disabled: !hasAccess('searchRelations') }]
+      customSearch,
+      CustomSearchComponent,
+      items: [
+        { text: i18n.t('Search.Title.Items'), value: 'ITEM', disabled: !hasAccess('search') },
+        { text: i18n.t('Search.Title.ItemRelations'), value: 'ITEM_RELATION', disabled: !hasAccess('searchRelations') },
+        ...customSearch()
+      ]
     }
   }
 }
