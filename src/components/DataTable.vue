@@ -22,7 +22,7 @@
         </template>
         <span>{{ $t('DataTable.ImportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip top  v-if="talendExportSelection || (searchEntityRef === 'ITEM' && hasAccess('exportCSV'))">
+      <v-tooltip top  v-if="talendExportSelection || (searchEntityRef !== 'ITEM_RELATION' && hasAccess('exportCSV'))">
         <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
         </template>
@@ -157,11 +157,11 @@
             <v-checkbox v-model="item.selected" required></v-checkbox>
           </template>
 
-          <router-link v-if="header.identifier === 'identifier' && searchEntityRef === 'ITEM'" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
-          <router-link v-if="header.identifier === 'parentIdentifier' && searchEntityRef === 'ITEM'" :to="'/item/' + item.parentIdentifier">{{ item.parentIdentifier }}</router-link>
+          <router-link v-if="header.identifier === 'identifier' && searchEntityRef !== 'ITEM_RELATION'" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
+          <router-link v-if="header.identifier === 'parentIdentifier' && searchEntityRef !== 'ITEM_RELATION'" :to="'/item/' + item.parentIdentifier">{{ item.parentIdentifier }}</router-link>
           <router-link v-if="header.identifier === 'itemIdentifier'" :to="'/item/' + item.itemIdentifier">{{ item.itemIdentifier }}</router-link>
           <router-link v-if="header.identifier === 'targetIdentifier'" :to="'/item/' + item.targetIdentifier">{{ item.targetIdentifier }}</router-link>
-          <template v-if="header.identifier === 'identifier' && searchEntityRef !== 'ITEM' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
+          <template v-if="header.identifier === 'identifier' && searchEntityRef === 'ITEM_RELATION' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
             <span v-else>{{ getValue(item, header) }}</span>
           </template>
@@ -1320,7 +1320,7 @@ export default {
       // if (props.headersStorageName !== 'item_headers') return parents // if not item search
 
       if (itemsRef.value.length > 0) {
-        if (headersRef.value.some(elem => elem.identifier === '#parentName#') && searchEntityRef.value === 'ITEM') {
+        if (headersRef.value.some(elem => elem.identifier === '#parentName#') && searchEntityRef.value !== 'ITEM_RELATION') {
           parents = itemsRef.value.map(item => {
             const arr = item.path.split('.')
             return arr[arr.length - 2]

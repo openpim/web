@@ -2,7 +2,7 @@
   <v-container ref="searchDivRef">
     <v-row no-gutters>
       <v-col cols="12">
-        <ItemsDataTable v-if="searchEntityRef === 'ITEM'" :export="isExportSearch" :marginTop="dataTableMarginTop"/>
+        <ItemsDataTable v-if="searchEntityRef !== 'ITEM_RELATION'" :export="isExportSearch" :marginTop="dataTableMarginTop"/>
         <ItemRelationsDataTable v-if="searchEntityRef === 'ITEM_RELATION'" :export="isExportSearch" :marginTop="dataTableMarginTop"/>
       </v-col>
     </v-row>
