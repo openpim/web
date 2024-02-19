@@ -31,6 +31,7 @@
 import { ref } from '@vue/composition-api'
 import * as langStore from '../store/languages'
 import * as collectionsStore from '../store/collections'
+import * as itemStore from '../store/item'
 import i18n from '../i18n'
 
 export default {
@@ -46,16 +47,20 @@ export default {
       saveCollection
     } = collectionsStore.useStore()
 
+    const {
+      nextId
+    } = itemStore.useStore()
+
     const dialogRef = ref(false)
     const formRef = ref(null)
     const newCollectionRef = ref(null)
     const identifierErrors = ref([])
 
-    function showDialog () {
+    async function showDialog () {
       dialogRef.value = true
       const name = {}
       name[currentLanguage.value.identifier] = ''
-      newCollectionRef.value = { id: Date.now(), internalId: 0, public: false, name: name, identifier: '' }
+      newCollectionRef.value = { id: Date.now(), internalId: 0, public: false, name: name, identifier: 'collection' + (await nextId()) }
     }
 
     function closeDialog () {
