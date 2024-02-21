@@ -203,6 +203,7 @@ export default {
     }
 
     function search () {
+      localStorage.setItem('last_itemRelation_search', JSON.stringify(selectedRef.value))
       if (selectedRef.value.extended) {
         try {
           selectedRef.value.whereClause = JSON.parse(extendedSearchRef.value)
@@ -470,6 +471,9 @@ export default {
           if (tst) {
             localStorage.removeItem('search_to_open')
             searchToOpenRef.value = JSON.parse(tst)
+          } else {
+            const tst2 = localStorage.getItem('last_itemRelation_search')
+            if (tst2) searchSelected(JSON.parse(tst2))
           }
           if (searchToOpenRef.value) {
             searchToOpenRef.value.user = ''
