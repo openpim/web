@@ -3,7 +3,7 @@ import { serverFetch, objectToGraphgl } from './utils'
 
 const currentWhereRef = ref(null)
 const currentFilterRef = ref(null)
-const searchEntityRef = ref('ITEM')
+const searchEntityRef = ref(localStorage.getItem('last_search_entity') || 'ITEM')
 const searchToOpenRef = ref(null)
 const savedColumnsRef = ref(null)
 const selectedRef = ref(null)

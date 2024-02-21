@@ -29,6 +29,7 @@ export default {
     const { currentLanguage } = langStore.useStore()
 
     function onSearchEntityChange (val) {
+      localStorage.setItem('last_search_entity', val)
       const name = {}
       name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
       currentWhereRef.value = null
