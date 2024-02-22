@@ -168,11 +168,11 @@
           </v-container>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="blue darken-1" text @click="logout">{{ $t('Config.Users.Exit') }}</v-btn>
-          <v-btn v-if="isUserAdmin" color="blue darken-1" text @click="reload">{{ $t('Config.Users.ReloadModel') }}</v-btn>
+          <v-btn color="primary darken-1" text @click="logout">{{ $t('Config.Users.Exit') }}</v-btn>
+          <v-btn v-if="isUserAdmin" color="primary darken-1" text @click="reload">{{ $t('Config.Users.ReloadModel') }}</v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="userDialogRef = false">{{ $t('Close') }}</v-btn>
-          <v-btn color="blue darken-1" text @click="save" v-if="currentUserRef.login !== 'demo'">{{ $t('Save') }}</v-btn>
+          <v-btn color="primary darken-1" text @click="userDialogRef = false">{{ $t('Close') }}</v-btn>
+          <v-btn color="primary darken-1" text @click="save" v-if="currentUserRef.login !== 'demo'">{{ $t('Save') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -189,7 +189,7 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="logDialogRef = false">{{ $t('Close') }}</v-btn>
+              <v-btn color="primary darken-1" text @click="logDialogRef = false">{{ $t('Close') }}</v-btn>
             </v-card-actions>
           </v-card>
     </v-dialog>
