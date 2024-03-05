@@ -109,7 +109,7 @@ import router from '../router'
 
 export default {
   components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, RelationsSelectionDialog, DatePickerDialog },
-  setup (props, context) {
+  setup (props, { root }) {
     const { showError } = errorStore.useStore()
 
     const {
@@ -194,6 +194,7 @@ export default {
 
     function add (num) {
       if (num === 1) {
+        if (!selectedRef.value.filters) root.$set(selectedRef.value, 'filters', [])
         selectedRef.value.filters.push({ type: 'attr', attr: null, operation: 1, value: '' })
       }
     }
