@@ -90,6 +90,7 @@
   "Config.Attribute.Type.Time": "Time",
   "Config.Attribute.Type.LOV": "List of values",
   "Config.Attribute.Type.URL": "URL",
+  "Config.Attribute.Type.Relation": "Relation",
   "Config.Attribute.URL.Text": "URL text",
   "Config.Attribute.Type": "Attribute type",
   "Config.Attribute.Pattern": "Regex pattern",

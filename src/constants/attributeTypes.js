@@ -8,7 +8,8 @@ const attrTypes = {
   Date: 5,
   Time: 6,
   LOV: 7,
-  URL: 8
+  URL: 8,
+  Relation: 9
 }
 
 if (additionalAttrTypesList) {

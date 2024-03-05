@@ -251,6 +251,11 @@
         <div v-if="attr.readonly" class="mb-5"><a :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier + '_text'][currentLanguage.identifier] || values[attr.identifier][currentLanguage.identifier]}}</a></div>
       </template>
 
+      <!-- Relation -->
+      <template v-if="attr.type === AttributeType.Relation">
+        <v-text-field @input="attrInput" @blur="attrBlur" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors" />
+      </template>
+
       <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
 
     </div>
@@ -487,6 +492,10 @@
         <div v-if="attr.readonly" class="mb-5"><a :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier + '_text'][currentLanguage.identifier] || values[attr.identifier][currentLanguage.identifier]}}</a></div>
       </template>
 
+      <template v-if="attr.type === AttributeType.Relation">
+        <v-text-field @input="attrInput" @blur="attrBlur" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors" />
+      </template>
+
       <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
 
     </div>
@@ -558,7 +567,13 @@
         </div>
         <a v-if="attr.readonly" :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier][currentLanguage.identifier]}}</a>
       </template>
+
+      <template v-if="attr.type === AttributeType.Relation">
+        <v-text-field @input="attrInput" @blur="attrBlur" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors" />
+      </template>
+
       <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
+
     </div>
 </div>
 </template>

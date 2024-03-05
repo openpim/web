@@ -83,6 +83,7 @@
 	"Config.Attribute.Type.Time": "时间",
 	"Config.Attribute.Type.LOV": "值列表",
 	"Config.Attribute.Type.URL": "链接",
+	"Config.Attribute.Type.Relation": "关系",
 	"Config.Attribute.URL.Text": "链接文字",
 	"Config.Attribute.Type": "属性类别",
 	"Config.Attribute.Pattern": "Regex 模板",

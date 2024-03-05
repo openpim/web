@@ -87,6 +87,7 @@
   "Config.Attribute.Type.Time": "Время",
   "Config.Attribute.Type.LOV": "Список значений",
   "Config.Attribute.Type.URL": "Ссылка",
+  "Config.Attribute.Type.Relation": "Зависимость",
   "Config.Attribute.URL.Text": "Текст для ссылки",
   "Config.Attribute.Type": "Тип атрибута",
   "Config.Attribute.Pattern": "Шаблон Regex",
