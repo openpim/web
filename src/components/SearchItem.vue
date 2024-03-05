@@ -550,15 +550,14 @@ export default {
           if (tst) {
             localStorage.removeItem('search_to_open')
             searchToOpenRef.value = JSON.parse(tst)
-          } else {
-            const tst2 = localStorage.getItem('last_item_search')
-            if (tst2) searchSelected(JSON.parse(tst2))
-          }
-          if (searchToOpenRef.value) {
+          } else if (searchToOpenRef.value) {
             searchToOpenRef.value.user = ''
             await searchSelected(searchToOpenRef.value)
             searchToOpenRef.value = null
             search()
+          } else {
+            const tst2 = localStorage.getItem('last_item_search')
+            if (tst2) searchSelected(JSON.parse(tst2))
           }
         }
       })
