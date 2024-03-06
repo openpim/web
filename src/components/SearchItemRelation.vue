@@ -204,7 +204,6 @@ export default {
     }
 
     function search () {
-      localStorage.setItem('last_itemRelation_search', JSON.stringify(selectedRef.value))
       if (selectedRef.value.extended) {
         try {
           selectedRef.value.whereClause = JSON.parse(extendedSearchRef.value)
@@ -217,6 +216,7 @@ export default {
           showError(i18n.t('Search.Extended.Error') + err.message)
         }
       } else {
+        localStorage.setItem('last_itemRelation_search', JSON.stringify(selectedRef.value))
         const orAndOperation = selectedRef.value.orAnd === 1 ? 'OP_and' : 'OP_or'
         const where = {}
         where[orAndOperation] = []
@@ -472,7 +472,8 @@ export default {
           if (tst) {
             localStorage.removeItem('search_to_open')
             searchToOpenRef.value = JSON.parse(tst)
-          } else if (searchToOpenRef.value) {
+          }
+          if (searchToOpenRef.value) {
             searchToOpenRef.value.user = ''
             searchSelected(searchToOpenRef.value)
             searchToOpenRef.value = null
