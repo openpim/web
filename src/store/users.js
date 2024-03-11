@@ -10,6 +10,9 @@ const currentUserRef = ref(null)
 const currentRoles = reactive([])
 
 async function userLogin (token, user, pathAfterLogin) {
+  if (user.props?.startClean) user.startClean = user.props.startClean
+  if (user.props?.cron) user.cron = user.props.cron
+  if (user.props?.daysToSaveDeleted) user.daysToSaveDeleted = user.props.daysToSaveDeleted
   currentUserRef.value = user
   localStorage.setItem('token', token)
   localStorage.setItem('user', JSON.stringify(user))
