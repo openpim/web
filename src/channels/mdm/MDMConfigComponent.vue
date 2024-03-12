@@ -98,6 +98,12 @@
           </template>
           <span>{{ $t('Remove') }}</span>
         </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn icon :disabled="!categoryIdRef" v-on="on" @click="addAttributes(categoryRef)"><v-icon>mdi-content-paste</v-icon></v-btn>
+          </template>
+          <span>{{ 'Добавить атрибуты из группы Важное' }}</span>
+        </v-tooltip>
       </v-col>
     </v-row>
 
@@ -129,7 +135,6 @@
         </v-dialog>
       </v-row>
     </template>
-
     <v-row>
       <v-col cols="12">
         <MappingAttributesCompoment class="mt-5" v-if="masterAttributesRef.length && !categoryRef.deleted" :readonly="readonly" :category="categoryRef" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="masterAttributesRef" :channelAttributes="channelAttributesRef" />
@@ -229,6 +234,193 @@ export default {
     const categoriesTreeRef = ref(null)
     const treeSearchRef = ref('')
     const treeActiveRef = ref([])
+
+    const attributePairs = [
+      {
+        supplierId: 'mat_id',
+        masterId: 'm_mat_id'
+      },
+      {
+        supplierId: 'mmk_name',
+        masterId: 'm_mmk_name'
+      },
+      {
+        supplierId: 'mct_uid',
+        masterId: 'm_mct_uid'
+      },
+      {
+        supplierId: 'us_response',
+        masterId: 'm_us_response'
+      },
+      {
+        supplierId: 'mat_uid',
+        masterId: 'm_mat_uid'
+      },
+      {
+        supplierId: 'quality',
+        masterId: 'm_quality'
+      },
+      {
+        supplierId: 'mat_prev_uid',
+        masterId: 'm_mat_prev_uid'
+      },
+      {
+        supplierId: 'a10163_attention',
+        masterId: 'm_a10163_attention'
+      },
+      {
+        supplierId: 'mat_no',
+        masterId: 'm_mat_no'
+      },
+      {
+        supplierId: 'mat_shortname',
+        masterId: 'm_mat_shortname'
+      },
+      {
+        supplierId: 'mat_characteristics',
+        masterId: 'm_mat_characteristics'
+      },
+      {
+        supplierId: 'mat_model',
+        masterId: 'm_mat_model'
+      },
+      {
+        supplierId: 'mu_id',
+        masterId: 'm_mu_id'
+      },
+      {
+        supplierId: 'mat_barcode',
+        masterId: 'm_mat_barcode'
+      },
+      {
+        supplierId: 'mat_tnved',
+        masterId: 'm_mat_tnved'
+      },
+      {
+        supplierId: 'mat_packqty',
+        masterId: 'm_mat_packqty'
+      },
+      {
+        supplierId: 'mat_weight',
+        masterId: 'm_mat_weight'
+      },
+      {
+        supplierId: 'mat_height',
+        masterId: 'm_mat_height'
+      },
+      {
+        supplierId: 'mat_width',
+        masterId: 'm_mat_width'
+      },
+      {
+        supplierId: 'mat_length',
+        masterId: 'm_mat_length'
+      },
+      {
+        supplierId: 'a2978_brutto',
+        masterId: 'm_a2978_brutto'
+      },
+      {
+        supplierId: 'a5189_logist',
+        masterId: 'm_a5189_logist'
+      },
+      {
+        supplierId: 'a186_custom',
+        masterId: 'm_a186_custom'
+      },
+      {
+        supplierId: 'a3262_width',
+        masterId: 'm_a3262_width'
+      },
+      {
+        supplierId: 'a3263_height',
+        masterId: 'm_a3263_height'
+      },
+      {
+        supplierId: 'a3261_length',
+        masterId: 'm_a3261_length'
+      },
+      {
+        supplierId: 'mat_warranty',
+        masterId: 'm_mat_warranty'
+      },
+      {
+        supplierId: 'mat_islabor',
+        masterId: 'm_mat_islabor'
+      },
+      {
+        supplierId: 'a3467_manufacturer',
+        masterId: 'm_a3467_manufacturer'
+      },
+      {
+        supplierId: 'mat_muchqty',
+        masterId: 'm_mat_muchqty'
+      },
+      {
+        supplierId: 'mat_isold',
+        masterId: 'm_mat_isold'
+      },
+      {
+        supplierId: 'mat_isinpricelist',
+        masterId: 'm_mat_isinpricelist'
+      },
+      {
+        supplierId: 'pl_isb2b',
+        masterId: 'm_pl_isb2b'
+      },
+      {
+        supplierId: 'pl_ispromotion',
+        masterId: 'm_pl_ispromotion'
+      },
+      {
+        supplierId: 'pl_state',
+        masterId: 'm_pl_state'
+      },
+      {
+        supplierId: 'chapter_uid',
+        masterId: 'm_chapter_uid'
+      },
+      {
+        supplierId: 'name_for_print',
+        masterId: 'm_name_for_print'
+      },
+      {
+        supplierId: 'accessory_type',
+        masterId: 'm_accessory_type'
+      },
+      {
+        supplierId: 'a193_description',
+        masterId: 'm_a193_description'
+      },
+      {
+        supplierId: 'certificate_uid',
+        masterId: 'm_certificate_uid'
+      },
+      {
+        supplierId: 'nds',
+        masterId: 'm_nds'
+      },
+      {
+        supplierId: 'danger',
+        masterId: 'm_danger'
+      },
+      {
+        supplierId: 'a3940',
+        masterId: 'm3940'
+      },
+      {
+        supplierId: 'product_line',
+        masterId: 'm_product_line'
+      },
+      {
+        supplierId: 'partnumber_vendor',
+        masterId: 'm_partnumber_vendor'
+      },
+      {
+        supplierId: 'store_type',
+        masterId: 'm_store_type'
+      }
+    ]
 
     const mappedCategories = computed(() => {
       if (props.channel && props.channel.mappings) {
@@ -404,6 +596,19 @@ export default {
         masterAttributesRef.value = []
         categoryIdRef.value = null
       }
+    }
+
+    function addAttributes (categoryRef_) {
+      const mappingObject = {}
+      attributePairs.forEach(item => {
+        mappingObject[item.supplierId] = item.masterId
+      })
+
+      categoryRef_.attributes.forEach(item => {
+        if (item.value in mappingObject) {
+          this.$set(item, 'attrIdent', mappingObject[item.value])
+        }
+      })
     }
 
     function categoryChanged () {
@@ -600,7 +805,10 @@ export default {
       defaultLanguageIdentifier,
       currentLanguage,
       channelFactory: getChannelFactory(props.channel.type),
-      canEditConfig
+      canEditConfig,
+
+      attributePairs,
+      addAttributes
     }
   }
 }
