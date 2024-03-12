@@ -436,6 +436,9 @@ router.beforeEach(async (to, from, next) => {
     if (token) {
       if (!userStore.store.currentUserRef.value) {
         const user = JSON.parse(localStorage.getItem('user'))
+        if (user.props?.startClean) user.startClean = user.props.startClean
+        if (user.props?.cron) user.cron = user.props.cron
+        if (user.props?.daysToSaveDeleted) user.daysToSaveDeleted = user.props.daysToSaveDeleted
         userStore.store.currentUserRef.value = user
         if (user.tenantId !== '0') {
           await rolesStore.store.loadAllRoles()
