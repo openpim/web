@@ -1120,6 +1120,8 @@ export default {
             const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
             if (val && Array.isArray(val) && val.length) {
               item.values[attr.identifier] = val[0]
+            } else if (typeof val === 'string' || val instanceof String) {
+              item.values[attr.identifier] = parseInt(val)
             }
           }
         })
