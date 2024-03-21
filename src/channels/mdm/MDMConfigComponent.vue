@@ -417,8 +417,28 @@ export default {
         masterId: 'm_partnumber_vendor'
       },
       {
-        supplierId: 'store_type',
+        supplierId: 'mat_iszakaz',
         masterId: 'm_store_type'
+      },
+      {
+        supplierId: 'a12523_voltage',
+        masterId: 'm_a12523_voltage'
+      },
+      {
+        supplierId: 'a12524_amperage',
+        masterId: 'm_a12524_amperage'
+      },
+      {
+        supplierId: 'a12525_power',
+        masterId: 'm_a12525_power'
+      },
+      {
+        supplierId: 'mat_volume',
+        masterId: 'm_mat_volume'
+      },
+      {
+        supplierId: 'a11980_product_line',
+        masterId: 'm_a11980_product_line'
       }
     ]
 
