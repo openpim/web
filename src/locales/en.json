@@ -245,6 +245,7 @@
   "Config.Actions.Triggers.Type.Attribute": "Attribute",
   "Config.Actions.Triggers.Type.TableButton": "Button in table view",
   "Config.Actions.Triggers.Type.BulkUpdateChannels": "Updating the status of the channels",
+  "Config.Actions.Triggers.Type.LOV": "List of values",
   "Config.Actions.Triggers.Event.BeforeCreate": "before create",
   "Config.Actions.Triggers.Event.AfterCreate": "after create",
   "Config.Actions.Triggers.Event.BeforeUpdate": "before update",

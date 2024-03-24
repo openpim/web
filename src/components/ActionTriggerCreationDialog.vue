@@ -138,6 +138,16 @@
                       <v-radio :label="$t('Config.Actions.Triggers.Event.AfterUpdate')" value="10"></v-radio>
                     </v-radio-group>
                   </template>
+                  <template v-if="triggerRef.type === 8"> <!-- LOV -->
+                    <v-radio-group v-model="triggerRef.event">
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.BeforeCreate')" value="1"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterCreate')" value="2"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.BeforeUpdate')" value="3"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterUpdate')" value="4"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.BeforeDelete')" value="5"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterDelete')" value="6"></v-radio>
+                    </v-radio-group>
+                  </template>
                 </v-form>
               </v-col>
             </v-row>
@@ -275,6 +285,8 @@ export default {
         return triggerRef.value.itemButton && ((!triggerRef.value.itemType && !triggerRef.value.itemFrom) || (triggerRef.value.itemType && triggerRef.value.itemFrom))
       } else if (typeRef.value === 7) {
         return triggerRef.value.event
+      } else if (typeRef.value === 8) {
+        return triggerRef.value.event
       } else {
         return false
       }
@@ -346,7 +358,8 @@ export default {
         { text: i18n.t('Config.Actions.Triggers.Type.AttrGroup'), value: 4 },
         { text: i18n.t('Config.Actions.Triggers.Type.Attribute'), value: 5 },
         { text: i18n.t('Config.Actions.Triggers.Type.TableButton'), value: 6 },
-        { text: i18n.t('Config.Actions.Triggers.Type.BulkUpdateChannels'), value: 7 }
+        { text: i18n.t('Config.Actions.Triggers.Type.BulkUpdateChannels'), value: 7 },
+        { text: i18n.t('Config.Actions.Triggers.Type.LOV'), value: 8 }
       ]
     }
   }
