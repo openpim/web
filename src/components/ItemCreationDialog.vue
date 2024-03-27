@@ -68,7 +68,7 @@ export default {
     watch(typeSelectedRef, async (val) => {
       if (val) {
         const type = findType(val).node
-        const obj = await newItemGenerator(newId, type, newItemRef.value, selectedItemRef.value)
+        const obj = await newItemGenerator(nextId, newId, type, newItemRef.value, selectedItemRef.value)
         if (obj) {
           newItemRef.value.identifier = obj.identifier
           if (obj.name) newItemRef.value.name = obj.name
