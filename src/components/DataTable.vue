@@ -1216,6 +1216,7 @@ export default {
         search.filters.push({ type: 'attr', attr: 'typeIdentifier', operation: 2, value: type.identifier })
       })
 
+      localStorage.setItem('last_search_entity', 'ITEM')
       localStorage.setItem('search_to_open', JSON.stringify(search))
       window.open('/#/search', '_blank')
     }

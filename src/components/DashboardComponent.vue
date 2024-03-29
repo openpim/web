@@ -62,6 +62,7 @@ export default {
         if (event.ctrlKey) {
           router.push('/search/')
         } else {
+          localStorage.setItem('last_search_entity', 'ITEM')
           localStorage.setItem('search_to_open', JSON.stringify(searchToOpenRef.value))
           window.open('/#/search', '_blank')
         }
@@ -115,6 +116,7 @@ export default {
         if (event.ctrlKey) {
           router.push('/search/')
         } else {
+          localStorage.setItem('last_search_entity', 'ITEM')
           localStorage.setItem('search_to_open', JSON.stringify(searchToOpenRef.value))
           window.open('/#/search', '_blank')
         }

@@ -739,6 +739,7 @@ export default {
       const where = { include: [{ as: oppositeType + 'Relation', required: true, where: { relationIdentifier: relIdent }, include: [{ as: type + 'Item', required: true, where: { path: { OP_regexp: lquery } } }] }] }
 
       const search = { user: '', filters: [], whereClause: where, extended: true }
+      localStorage.setItem('last_search_entity', 'ITEM')
       localStorage.setItem('search_to_open', JSON.stringify(search))
       window.open('/#/search', '_blank')
     }
