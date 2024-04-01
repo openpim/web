@@ -159,6 +159,7 @@ export default {
 
     function getAvailableColumns (onlyAttributes) {
       const arr = [
+        { identifier: 'id', text: 'ID', align: 'start', sortable: true, filterable: false, value: 'id' },
         { identifier: 'identifier', text: i18n.t('Item.identifier'), align: 'start', sortable: true, filterable: false, value: 'identifier' },
         { identifier: 'parentIdentifier', text: i18n.t('Item.parentIdentifier'), align: 'start', sortable: true, filterable: false, value: 'parentIdentifier' },
         { identifier: 'typeIdentifier', text: i18n.t('Item.typeIdentifier'), align: 'start', sortable: true, filterable: false, value: 'typeIdentifier' },
