@@ -4,7 +4,8 @@ import customSearch from '../_customizations/search/customSearch.js'
 
 const currentWhereRef = ref(null)
 const currentFilterRef = ref(null)
-const searchEntityRef = ref(localStorage.getItem('last_search_entity') || (customSearch().length > 0 ? customSearch()[0].value : 'ITEM'))
+const cs = customSearch()
+const searchEntityRef = ref(localStorage.getItem('last_search_entity') || (cs.length > 0 ? cs[0].value : 'ITEM'))
 const searchToOpenRef = ref(null)
 const savedColumnsRef = ref(null)
 const selectedRef = ref(null)
