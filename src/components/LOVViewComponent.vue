@@ -62,7 +62,7 @@
                       <v-chip @click="editLevels(elem)"><v-icon left>mdi-form-select</v-icon>{{ elem.level && elem.level.length > 0 ? '...' : '' }}</v-chip>
                     </td>
                     <td class="pa-1">
-                      <v-chip @click="editAttributes(elem)"><v-icon left>mdi-form-select</v-icon>{{ elem.level && elem.level.length > 0 ? '...' : '' }}</v-chip>
+                      <v-chip @click="editAttributes(elem)"><v-icon left>mdi-form-select</v-icon>{{ elem.attrs && elem.attrs.length > 0 ? '...' : '' }}</v-chip>
                     </td>
                     <td class="pa-1">
                       <input v-model="elem.url" size="5" :placeholder="$t('Config.LOV.URL')"/>
