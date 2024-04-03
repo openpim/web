@@ -40,6 +40,9 @@ const actions = {
   findById: (id) => {
     return findByComparator(id, (id, item) => item.id === id)
   },
+  findByInternalId: (internalId) => {
+    return findByComparator(internalId, (internalId, item) => item.internalId === internalId)
+  },
   findByIdentifier: (identifier, onlyFirst) => {
     return findByComparator(identifier, (identifier, item) => item.identifier === identifier, onlyFirst)
   },

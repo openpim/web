@@ -193,6 +193,7 @@
   "Config.LOV.Export": "Выгрузить",
   "Config.LOV.Import": "Загрузить",
   "Config.LOV.URL": "Url",
+  "Config.LOV.ForAttributes": "Для атрибутов",
   "Config.Channels": "Каналы",
   "Config.Channels.Channels": "Каналы:",
   "Config.Channels.Identifier": "Идентификатор",

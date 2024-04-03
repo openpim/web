@@ -615,6 +615,11 @@ export default {
 
     const lovSelection = computed(() => {
       let values = lovData.value
+
+      if (props.attr && values) {
+        values = values.filter(val => !val.attrs || val.attrs.length === 0 || val.attrs.includes(props.attr.internalId))
+      }
+
       if (lovFilterRef.value) {
         values = values.filter(elem => elem.filter === lovFilterRef.value)
       }
