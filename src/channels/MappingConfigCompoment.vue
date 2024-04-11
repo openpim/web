@@ -386,11 +386,11 @@ export default {
               const lang = languages[i]
               const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
               const val = attr.identifier + '#' + lang.identifier
-              arr.push({ value: val, text: nameText + langText })
+              arr.push({ value: val, text: attr.identifier + ' - ' + nameText + langText })
             }
           } else {
             const val = attr.identifier
-            arr.push({ value: val, text: nameText })
+            arr.push({ value: val, text: attr.identifier + ' - ' + nameText })
           }
         }
 
