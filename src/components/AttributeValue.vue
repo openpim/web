@@ -776,8 +776,10 @@ export default {
 
       const tst = props.attr.options.find(opt => opt.name === 'lovFilter')
       const lovFilter = tst ? parseInt(tst.value) : null
+      const tst2 = props.attr.options.find(opt => opt.name === 'lovFilterAttr')
+      const lovFilterAttr = tst2 ? tst2.value : null
       eventBus.on('lov_value_changed', evt => {
-        if (lovFilter && evt.lov === lovFilter) {
+        if (lovFilter && evt.lov === lovFilter && (!lovFilterAttr || evt.attr === lovFilterAttr)) {
           lovFilterRef.value = evt.value
         }
       })
