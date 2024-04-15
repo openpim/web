@@ -621,7 +621,14 @@ export default {
       }
 
       if (lovFilterRef.value) {
-        values = values.filter(elem => elem.filter === lovFilterRef.value)
+        values = values.filter(elem => {
+          if (typeof elem.filter === 'string') {
+            const arr = elem.filter.split(',').map(elem => parseInt(elem))
+            return arr.includes(lovFilterRef.value)
+          } else {
+            return elem.filter === lovFilterRef.value
+          }
+        })
       }
       if (props.item) {
         values = values.filter(elem => !elem.level || elem.level.length === 0 || elem.level === '[]' || elem.level.find(path => props.item.path.startsWith(path)))
