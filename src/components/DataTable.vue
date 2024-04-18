@@ -125,8 +125,9 @@
             </v-btn>
             <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" class="resizer"></div>
             <div v-if="header.identifier !== '#thumbnail#' && header.identifier !== '#parentName#' &&  header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#'">
-              <input v-if="!header.lov" type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="header.filter" @input="filterChanged(header)"/>
-              <v-autocomplete v-if="header.lov" v-model="header.filter" :items="getLOVItems(header.lov)" dense clearable class="ml-2 mr-2" @input="filterChanged(header)"></v-autocomplete>
+              <input v-if="!header.lov && header.type !== AttributeType.Relation" type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="header.filter" @input="filterChanged(header)"/>
+              <v-autocomplete v-if="header.lov && header.type !== AttributeType.Relation " v-model="header.filter" :items="getLOVItems(header.lov)" dense clearable class="ml-2 mr-2" @input="filterChanged(header)"></v-autocomplete>
+              <RelationAttributeSearchComponent v-if="header.type === AttributeType.Relation" :attrIdentifier="header.identifier.substring(5)" v-model="header.filter" @input="filterChanged(header)" />
             </div>
         </th>
       </tr>
@@ -169,12 +170,15 @@
           <span v-if="header.identifier === '#parentName#'">{{ getParentName(item) }}</span>
           <span v-if="header.identifier === '#sourceParentName#'">{{ getParentNameByItemId(item.itemId) }}</span>
           <span v-if="header.identifier === '#targetParentName#'">{{ getParentNameByItemId(item.targetId) }}</span>
-
           <a v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :href="damUrl + 'asset/' + getThumbnail(item.id).id + '?inline=true&token=' + token" target="_blank"><v-img :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="50" max-height="50"></v-img></a>
 
-          <template v-if="typeof (header.identifier) !== 'undefined' && !header.identifier.startsWith('#channel_') && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' && header.identifier != 'itemIdentifier' && header.identifier != 'targetIdentifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
+          <template v-if="typeof (header.identifier) !== 'undefined' && !header.identifier.startsWith('#channel_') && header.type !== 9 && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' && header.identifier != 'itemIdentifier' && header.identifier != 'targetIdentifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
-            <span v-else>{{ getValue(item, header) }}</span>
+            <span v-else> {{ getValue(item, header) }}</span>
+          </template>
+
+          <template v-if="typeof (header.identifier) !== 'undefined' && !header.identifier.startsWith('#channel_') && header.type === AttributeType.Relation && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' && header.identifier != 'itemIdentifier' && header.identifier != 'targetIdentifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
+            <v-chip v-for="(val, i) in getValueForRelationAttribute(header, item, relationAttributesItemsRef)" class="ma-2" @click.stop="goto('#/item/' + val.identifier)" text-color="black" :key="i">{{ val.text }}</v-chip>
           </template>
 
           <template v-if="typeof (header.identifier) !== 'undefined' && header.identifier.startsWith('#channel_')">
@@ -343,9 +347,10 @@ import dateFormat from 'dateformat'
 import router from '../router'
 
 import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterButtonsComponent'
+import RelationAttributeSearchComponent from '../components/RelationAttributeSearch.vue'
 
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent, ActionStatusDialog, CollectionsSelectionDialog },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent, ActionStatusDialog, CollectionsSelectionDialog, RelationAttributeSearchComponent },
   props: {
     loadData: {
       required: true
@@ -427,7 +432,9 @@ export default {
 
     const {
       loadThumbnails,
-      loadItemsByIds
+      loadItemsByIds,
+      loadItemsByIdsForImport,
+      getItemsForRelationAttributeImport
     } = itemStore.useStore()
 
     const {
@@ -504,6 +511,7 @@ export default {
 
     function cellClicked (item, header) {
       if (!canEditItem(item.typeId, item.path)) return
+      if (header.type === AttributeType.Relation) return
 
       if (typeof header.value === 'object') { // name or values
         if (header.value.path[0] === 'values') {
@@ -519,6 +527,10 @@ export default {
         inplaceMultivalue.value = inplaceAttribute.value && inplaceAttribute.value.options.some(opt => opt.name === 'multivalue' && opt.value === 'true')
         inplaceValueSave = inplaceValue.value
       }
+    }
+
+    function goto (url) {
+      window.open(url)
     }
 
     function inplaceBlur () {
@@ -638,17 +650,44 @@ export default {
       optionsUpdate(optionsRef.value)
     }
 
+    async function getRelationAttributesItems (data) {
+      let relationAttributesItemsIds = []
+      for (let i = 0; i < headersRef.value.length; i++) {
+        const header = headersRef.value[i]
+        if (header.type === AttributeType.Relation) {
+          const attrIdentifier = header.identifier.substring(5)
+          data.rows.forEach(row => {
+            if (row.values[attrIdentifier]) {
+              if (Array.isArray(row.values[attrIdentifier])) {
+                relationAttributesItemsIds = relationAttributesItemsIds.concat(row.values[attrIdentifier])
+              } else {
+                relationAttributesItemsIds.push(row.values[attrIdentifier])
+              }
+            }
+          })
+        }
+      }
+
+      let relationAttributesItems = []
+      if (relationAttributesItemsIds.length) {
+        relationAttributesItems = await loadItemsByIdsForImport(relationAttributesItemsIds, true)
+      }
+
+      return relationAttributesItems
+    }
+
+    const relationAttributesItemsRef = ref([])
     function optionsUpdate (options) {
       loadingRef.value = true
       totalItemsRef.value = 0
-      props.loadData(options).then(data => {
+      props.loadData(options).then(async data => {
         itemsRef.value = data.rows
         totalItemsRef.value = data.count
         loadingRef.value = false
-
         const ids = data.rows.map(elem => elem.id)
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
         loadParentsIfNecessary()
+        relationAttributesItemsRef.value = await getRelationAttributesItems(data)
       })
     }
 
@@ -709,6 +748,8 @@ export default {
       do {
         page++
         const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: sortBy, sortDesc: sortDesc })
+        const relationAttributesItems = await getRelationAttributesItems(data)
+
         total = data.count
         if (!excelDialogRef.value) return // exit if process was canceled
         data.rows.forEach(row => {
@@ -718,7 +759,11 @@ export default {
           rowData.push(row.identifier)
           headersRef.value.forEach(header => {
             if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' && header.identifier !== 'typeIdentifier') {
-              rowData.push(getValueWithChannels(header, row, false))
+              if (header.type === AttributeType.Relation && relationAttributesItems.length) {
+                rowData.push(getValueForRelationAttribute(header, row, relationAttributesItems).map(el => el.text).join(','))
+              } else {
+                rowData.push(getValueWithChannels(header, row, false))
+              }
             }
           })
           XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: -1 })
@@ -735,6 +780,34 @@ export default {
       saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'results.xlsx')
 
       excelDialogRef.value = false
+    }
+
+    function getValueForRelationAttribute (header, row, items) {
+      if (!items.length) return []
+      const value = getValue(row, header)
+      const attrName = header.identifier.substring(5)
+      const attrNode = findByIdentifier(attrName)
+      const displayValue = attrNode.item.options ? attrNode.item.options.find(el => el.name === 'displayvalue') : null
+      const displayAttr = displayValue ? findByIdentifier(displayValue.value) : null
+      const langDependent = displayAttr?.item?.languageDependent
+
+      let data = []
+      if (value && Array.isArray(value)) {
+        data = value.map(val => items.find(el => parseInt(el.id) === parseInt(val)))
+      } else if (value) {
+        data = [items.find(el => parseInt(el.id) === parseInt(value))]
+      }
+
+      if (displayValue) {
+        if (langDependent) {
+          data = data.map(el => ({ identifier: el.identifier, text: el.values[displayValue.value] ? el.values[displayValue.value][currentLanguage.value.identifier] : null }))
+        } else {
+          data = data.map(el => ({ identifier: el.identifier, text: el.values[displayValue.value] }))
+        }
+      } else {
+        data = data.map(el => ({ identifier: el.identifier, text: el.name[currentLanguage.value.identifier || defaultLanguageIdentifier.value] }))
+      }
+      return data
     }
 
     function getValueWithChannels (header, row, formatDate) {
@@ -910,18 +983,20 @@ export default {
             }
             if (item.identifier) rows.push(item)
             if (rows.length === pageSize) {
-              await importRows(rows, log)
+              await importRows(rows, headers, log)
               rows = []
             }
             excelDialogProgressRef.value = currentRow++ * 100 / totalRows
           }
-          if (rows.length > 0) await importRows(rows, log)
+          if (rows.length > 0) {
+            await importRows(rows, headers, log)
+          }
           excelDialogProgressRef.value = 100
           setTimeout(() => {
             importFinishedDialogRef.value = true
             importFinishedLogRef.value = log
             DataChanged()
-          }, 500)
+          }, 2500)
           excelDialogRef.value = false
         } catch (err) {
           console.error('Error opening file', err)
@@ -942,7 +1017,8 @@ export default {
       }
     }
 
-    async function importRows (rows, log) {
+    async function importRows (rows, headers, log) {
+      await replaceRelAttrDataForImport(rows, headers)
       const returnRows = await props.importEntities(rows, importModeRef.value)
       let errors = ''
       returnRows.forEach(row => {
@@ -979,6 +1055,74 @@ export default {
           if (!lovValues) {
             const values = await getLOVData(lov)
             lovsMap[lov] = values
+          }
+        }
+      }
+    }
+
+    async function replaceRelAttrDataForImport (rows, importHeaders) {
+      for (let i = 0; i < importHeaders.length; i++) {
+        const header = importHeaders[i]
+        if (header.substring(0, 5) === 'attr_') {
+          const attr = header.substring(5)
+          const attrNode = findByIdentifier(attr)
+
+          if (attrNode && attrNode.item && attrNode.item.type === AttributeType.Relation) {
+            const langDependent = attrNode.item.langDependent
+            const displayValue = attrNode.item.options ? attrNode.item.options.find(el => el.name === 'displayvalue') : null
+            const multivalue = attrNode.item.options ? attrNode.item.options.find(el => el.name === 'multivalue' && el.value === 'true') : null
+
+            let searchArr = []
+            for (let rowIndx = 0; rowIndx < rows.length; rowIndx++) {
+              const row = rows[rowIndx]
+              if (row.values[attrNode.item.identifier] && multivalue) {
+                searchArr = searchArr.concat(row.values[attrNode.item.identifier].split(','))
+              } else if (typeof row.values[attrNode.item.identifier] !== 'undefined' && row.values[attrNode.item.identifier] !== null) {
+                searchArr.push(row.values[attrNode.item.identifier])
+              }
+            }
+
+            const attrAvailableItems = await getItemsForRelationAttributeImport(attrNode.item, searchArr, currentLanguage.value.identifier, 10000, 0, 'ASC')
+
+            for (let k = 0; k < rows.length; k++) {
+              const row = rows[k]
+              if (row.values[attrNode.item.identifier]) {
+                if (multivalue) {
+                  const arr = row.values[attrNode.item.identifier].split(',')
+                  const mappedArr = []
+                  for (let arrIndx = 0; arrIndx < arr.length; arrIndx++) {
+                    let tst
+                    if (displayValue && !langDependent) {
+                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] === arr[arrIndx])
+                    } else if (displayValue && langDependent) {
+                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value][currentLanguage.value.identifier] === arr[arrIndx])
+                    } else {
+                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.name[currentLanguage.value.identifier] === arr[arrIndx])
+                    }
+                    if (tst) {
+                      mappedArr.push(tst.id)
+                    } else {
+                      throw new Error('Can not find item for name ' + row.values[attrNode.item.identifier])
+                    }
+                  }
+                  row.values[attrNode.item.identifier] = mappedArr
+                } else {
+                  let tst
+                  if (displayValue && !langDependent) {
+                    tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] === row.values[attrNode.item.identifier])
+                  } else if (displayValue && langDependent) {
+                    tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value][currentLanguage.value.identifier] === row.values[attrNode.item.identifier])
+                  } else {
+                    tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.name[currentLanguage.value.identifier] === row.values[attrNode.item.identifier])
+                  }
+                  if (tst) {
+                    row.values[attrNode.item.identifier] = tst.id
+                  } else {
+                    throw new Error('Can not find item for name ' + row.values[attrNode.item.identifier])
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1259,12 +1403,12 @@ export default {
               for (let i = 0; i < languages.length; i++) {
                 const lang = languages[i]
                 const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
-                const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameShort + langText, textLong: nameText + langText, textShort: nameShort + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
+                const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameShort + langText, type: attr.type, textLong: nameText + langText, textShort: nameShort + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
                 if (attr.lov) data.lov = attr.lov
                 if (!headersRef.value.some(elem => elem.identifier === data.identifier)) headersRef.value.push(data)
               }
             } else {
-              const data = { identifier: 'attr_' + attr.identifier, text: nameShort, textLong: nameText, textShort: nameShort, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
+              const data = { identifier: 'attr_' + attr.identifier, text: nameShort, type: attr.type, textLong: nameText, textShort: nameShort, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
               if (attr.lov) data.lov = attr.lov
               if (!headersRef.value.some(elem => elem.identifier === data.identifier)) headersRef.value.push(data)
             }
@@ -1641,7 +1785,10 @@ export default {
       getLOVItems,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
-      pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive')
+      pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive'),
+      getValueForRelationAttribute,
+      relationAttributesItemsRef,
+      goto
     }
   },
   methods: {

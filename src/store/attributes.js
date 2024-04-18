@@ -122,7 +122,7 @@ const actions = {
 
     const query = `
     mutation { assignAttribute(id: "` + attr.internalId + '", groupId: "' + group.internalId +
-    `")
+      `")
     }`
     await serverFetch(query)
   },
@@ -145,7 +145,7 @@ const actions = {
       if (!full && fullData.groups.length > 1) {
         const query = `
         mutation { unassignAttribute(id: "` + data.item.internalId + '", groupId: "' + data.groups[0].internalId +
-        `")
+          `")
         }`
         await serverFetch(query)
       } else {
@@ -290,6 +290,21 @@ const actions = {
     `
     const data = await serverFetch(query)
     return data.import.attributes
+  },
+  getAvailableItemsForRelationAttr: async (attr, val, searchStr, langIdentifier, limit, offset, order) => {
+    let ids = []
+    if (Array.isArray(val)) {
+      ids = ids.concat(val)
+    } else if (val && val !== '') {
+      ids.push(val)
+    }
+    let data
+    if (searchStr) {
+      data = await serverFetch(`query { getItemsForRelationAttribute (attrIdentifier: "${attr.identifier}", value: [ ${ids} ], searchStr: "${searchStr}", langIdentifier: "${langIdentifier}", limit: ${limit}, offset: ${offset}, order: "${order}") { id, identifier, name, values } }`)
+    } else {
+      data = await serverFetch(`query { getItemsForRelationAttribute (attrIdentifier: "${attr.identifier}", value: [ ${ids} ], langIdentifier: "${langIdentifier}", limit: ${limit}, offset: ${offset}, order: "${order}") { id, identifier, name, values } }`)
+    }
+    return data
   }
 }
 

@@ -120,6 +120,28 @@ const actions = {
       return items.map(item => enrichItem(item))
     }
   },
+  loadItemsByIdsForImport: async (arr, enrich) => {
+    const res = await serverFetch('query { getItemsByIds(ids: [' + arr + `]) { 
+      id 
+      path 
+      identifier
+      name
+      typeId
+      values
+    } }`)
+    const items = res.getItemsByIds
+    if (!items) {
+      err.store.showError(i18n.t('Item.byIdentifier.NotFound', { identifier: arr }))
+    }
+    if (!enrich) {
+      return items.map(item => {
+        item.id = parseInt(item.id)
+        return item
+      })
+    } else {
+      return items.map(item => enrichItem(item))
+    }
+  },
   loadItems: async (id, parentId, typeId) => {
     let order = ''
     if (typeId) {
@@ -442,6 +464,9 @@ const actions = {
       return row
     })
     return data.search.responses[0]
+  },
+  getItemsForRelationAttributeImport: async (attr, searchArr, langIdentifier, limit, offset, order) => {
+    return await serverFetch(`query { getItemsForRelationAttributeImport (attrIdentifier: "${attr.identifier}", searchArr: ${objectToGraphgl(searchArr)}, langIdentifier: "${langIdentifier}", limit: ${limit}, offset: ${offset}, order: "${order}") { id, identifier, name, values } }`)
   },
   searchItems: async (where, options) => {
     if (!where) return []

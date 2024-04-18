@@ -253,7 +253,23 @@
 
       <!-- Relation -->
       <template v-if="attr.type === AttributeType.Relation">
-        <v-text-field @input="attrInput" @blur="attrBlur" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors" />
+        <v-autocomplete
+          :chips="true"
+          :deletable-chips="true"
+          :multiple="multivalueRef"
+          v-model="values[attr.identifier]"
+          :readonly="attr.readonly"
+          :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'"
+          :items="availableItemsForRelationAttr"
+          :search-input.sync="searchRef"
+          :loading="loadingRef"
+          @input="attrInput"
+          clearable
+        >
+          <template #selection="selection">
+            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
+          </template>
+        </v-autocomplete>
       </template>
 
       <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
@@ -492,8 +508,26 @@
         <div v-if="attr.readonly" class="mb-5"><a :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier + '_text'][currentLanguage.identifier] || values[attr.identifier][currentLanguage.identifier]}}</a></div>
       </template>
 
+        <!-- Relation -->
       <template v-if="attr.type === AttributeType.Relation">
-        <v-text-field @input="attrInput" @blur="attrBlur" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors" />
+        <v-autocomplete
+          dense
+          hide-details="true"
+          :chips="true"
+          :deletable-chips="true"
+          :multiple="multivalueRef"
+          v-model="values[attr.identifier]"
+          :readonly="attr.readonly"
+          :items="availableItemsForRelationAttr"
+          :search-input.sync="searchRef"
+          :loading="loadingRef"
+          @input="attrInput"
+          clearable
+        >
+          <template #selection="selection">
+            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="true" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
+          </template>
+        </v-autocomplete>
       </template>
 
       <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
@@ -569,7 +603,24 @@
       </template>
 
       <template v-if="attr.type === AttributeType.Relation">
-        <v-text-field @input="attrInput" @blur="attrBlur" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors" />
+        <v-autocomplete
+          dense
+          hide-details="true"
+          :chips="true"
+          :deletable-chips="true"
+          :multiple="multivalueRef"
+          v-model="values[attr.identifier]"
+          :readonly="attr.readonly"
+          :items="availableItemsForRelationAttr"
+          :search-input.sync="searchRef"
+          :loading="loadingRef"
+          @input="attrInput"
+          clearable
+        >
+          <template #selection="selection">
+            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="true" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
+          </template>
+        </v-autocomplete>
       </template>
 
       <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
@@ -580,6 +631,7 @@
 <script>
 import * as langStore from '../store/languages'
 import * as lovStore from '../store/lovs'
+import * as attrStore from '../store/attributes'
 import { ref, computed, onMounted, onUnmounted, onBeforeUpdate, watch } from '@vue/composition-api'
 import LanguageDependentField from './LanguageDependentField'
 import AttributeType from '../constants/attributeTypes'
@@ -628,6 +680,11 @@ export default {
       getLOVData
     } = lovStore.useStore()
 
+    const {
+      findByIdentifier,
+      getAvailableItemsForRelationAttr
+    } = attrStore.useStore()
+
     const lovSelection = computed(() => {
       let values = lovData.value
       if (lovFilterRef.value) {
@@ -654,6 +711,47 @@ export default {
       }
     })
 
+    const searchRef = ref(null)
+    const loadingRef = ref(false)
+
+    if (props.attr.type === AttributeType.Relation) {
+      let awaitingSearch = null
+      watch(searchRef, (val) => {
+        loadingRef.value = true
+        if (awaitingSearch) {
+          clearTimeout(awaitingSearch)
+          awaitingSearch = null
+        }
+        if (!awaitingSearch) {
+          awaitingSearch = setTimeout(async () => {
+            await updateAvailableItemsForRelationAttr(val)
+          }, 1000)
+        }
+      })
+    }
+
+    const updateAvailableItemsForRelationAttr = async (searchStr) => {
+      loadingRef.value = true
+      const displayValue = props.attr.options.find(el => el.name === 'displayvalue')
+      const displayAttr = displayValue ? findByIdentifier(displayValue.value) : null
+      const langDependent = displayAttr?.item?.languageDependent
+      const data = await getAvailableItemsForRelationAttr(props.attr, props.values[props.attr.identifier], searchStr, currentLanguage.value.identifier || defaultLanguageIdentifier.value, 100, 0, 'ASC')
+      availableItemsForRelationAttr.value = data.getItemsForRelationAttribute.map(el => {
+        let text
+        if (displayValue && displayValue.value) {
+          if (langDependent) {
+            text = el.values[displayValue.value] ? el.values[displayValue.value][currentLanguage.value.identifier] || el.values[displayValue.value][defaultLanguageIdentifier.value] : null
+          } else {
+            text = el.values[displayValue.value]
+          }
+        } else {
+          text = el.name[currentLanguage.value.identifier] || el.name[defaultLanguageIdentifier.value]
+        }
+        return { identifier: el.identifier, value: el.id, text }
+      })
+      loadingRef.value = false
+    }
+
     const dateMenu = ref(false)
     const timeMenu = ref(false)
     const timeMenuRef = ref(null)
@@ -662,6 +760,8 @@ export default {
     const validRef = ref(true)
     const lovFilterRef = ref(null)
     const multivalueRef = ref(false)
+
+    const availableItemsForRelationAttr = ref([])
 
     const joditRef = ref(null)
 
@@ -803,6 +903,10 @@ export default {
         // TODO change to nextTick after moving to real Vue 3. Now nextTick is not available
         setTimeout(() => { lovChanged(true) }, 500)
       }
+
+      if (props.attr.type === AttributeType.Relation) {
+        multivalueRef.value = getOption('multivalue', false)
+      }
     })
 
     onUnmounted(() => {
@@ -868,6 +972,10 @@ export default {
 
     return {
       multivalueRef,
+      availableItemsForRelationAttr,
+      updateAvailableItemsForRelationAttr,
+      searchRef,
+      loadingRef,
       attrBlur,
       attrInput,
       errors,

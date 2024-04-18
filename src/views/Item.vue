@@ -1104,7 +1104,7 @@ export default {
                 item.values[attr.identifier] = ''
               }
             }
-          } else if (attr.type === AttributeType.LOV && isMultivalue) {
+          } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && isMultivalue) {
             const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
             if (val !== null && val !== undefined) {
               if (!Array.isArray(val)) {
@@ -1114,7 +1114,7 @@ export default {
                 if (val.includes(null)) item.values[attr.identifier] = val.filter(elem => elem !== null)
               }
             }
-          } else if (attr.type === AttributeType.LOV && !isMultivalue) {
+          } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && !isMultivalue) {
             const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
             if (val && Array.isArray(val) && val.length) {
               item.values[attr.identifier] = val[0]

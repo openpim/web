@@ -213,6 +213,7 @@ import ItemsSelectionDialog from './ItemsSelectionDialog'
 import i18n from '../i18n'
 import * as userStore from '../store/users'
 import AttributeValue from './AttributeValue'
+import AttributeType from '../constants/attributeTypes'
 import SystemInformation from './SystemInformation'
 import HistoryTable from '../components/HistoryTable'
 import dateFormat from 'dateformat'
@@ -667,7 +668,7 @@ export default {
       loadLOVs(attrLovs).then((loaded) => {
         if (loaded && relationsRefreshKeys[identifier] === 0) relationsRefreshKeys[identifier] = relationsRefreshKeys[identifier] + 1
       })
-      return arr
+      return arr.filter(attr => attr.type !== AttributeType.Relation)
     }
 
     function getOption (identifier, name, defaultValue) {
