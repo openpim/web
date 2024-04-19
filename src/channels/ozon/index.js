@@ -86,6 +86,12 @@ function getStandardAttributes () {
       name: 'Цена для клиентов с подпиской Ozon Premium (строка)',
       required: false,
       dictionary: false
+    },
+    {
+      id: '#color_image',
+      name: 'Маркетинговый цвет (ссылка)',
+      required: false,
+      dictionary: false
     }
   ]
 }
