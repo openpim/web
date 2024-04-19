@@ -101,6 +101,8 @@
             </v-tab-item>
           </v-tabs-items>
 
+          <OptionsTable v-if="selectedRef.config.options" :options="selectedRef.config.options" @changed="optionsChanged" />
+
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
@@ -129,10 +131,11 @@ import YMConfigCompoment from '../../channels/ym/YMConfigCompoment'
 import ExtMapConfigCompoment from '../../channels/extmap/ExtMapConfigCompoment'
 import MDMConfigCompoment from '../../channels/mdm/MDMConfigComponent'
 import XLSTemplConfigCompoment from '../../channels/xlsTemplate/XLSTemplConfigCompoment.vue'
+import OptionsTable from '../../components/OptionsTable'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment, YMConfigCompoment, ExtMapConfigCompoment, MDMConfigCompoment, XLSTemplConfigCompoment },
-  setup () {
+  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment, YMConfigCompoment, ExtMapConfigCompoment, MDMConfigCompoment, XLSTemplConfigCompoment, OptionsTable },
+  setup (props, { root }) {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
       showInfo
@@ -197,7 +200,9 @@ export default {
         if (previous && chanFiltered.value[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
-        selectedRef.value = chanFiltered.value[selected]
+        const val = chanFiltered.value[selected]
+        if (!val.config.options) root.$set(val.config, 'options', [])
+        selectedRef.value = val
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
           router.push('/config/channels/' + selectedRef.value.identifier)
         } else {
@@ -240,6 +245,10 @@ export default {
       { value: 7, text: i18n.t('Channels.Type.ExcelTemplate') }
     ])
 
+    function optionsChanged (val) {
+      selectedRef.value.config.options = val
+    }
+
     onMounted(() => {
       canViewConfigRef.value = canViewConfig('channels')
       canEditConfigRef.value = canEditConfig('channels')
@@ -251,7 +260,9 @@ export default {
         if (id) {
           const idx = channels.findIndex((elem) => elem.identifier === id)
           if (idx !== -1) {
-            selectedRef.value = channels[idx]
+            const val = channels[idx]
+            if (!val.config.options) root.$set(val.config, 'options', [])
+            selectedRef.value = val
             itemRef.value = idx
           } else {
             router.push('/config/channels')
@@ -298,6 +309,7 @@ export default {
       searchRef,
       chanFiltered,
       clearSelection,
+      optionsChanged,
       identifierRules: [
         v => identifierValidation(v)
       ],

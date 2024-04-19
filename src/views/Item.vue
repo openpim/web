@@ -627,7 +627,8 @@ export default {
         (itemRef.value.mimeType === 'image/png') ||
         (itemRef.value.mimeType === 'image/bmp') ||
         (itemRef.value.mimeType === 'image/tiff') ||
-        (itemRef.value.mimeType === 'image/gif'))
+        (itemRef.value.mimeType === 'image/gif') ||
+        (itemRef.value.mimeType === 'image/webp'))
     })
 
     const isFile = computed(() => {
@@ -636,7 +637,8 @@ export default {
         (itemRef.value.mimeType === 'image/png') ||
         (itemRef.value.mimeType === 'image/bmp') ||
         (itemRef.value.mimeType === 'image/tiff') ||
-        (itemRef.value.mimeType === 'image/gif'))
+        (itemRef.value.mimeType === 'image/gif') ||
+        (itemRef.value.mimeType === 'image/webp'))
     })
 
     const hasFileUpload = computed(() => {
@@ -737,6 +739,7 @@ export default {
       const where = { include: [{ as: oppositeType + 'Relation', required: true, where: { relationIdentifier: relIdent }, include: [{ as: type + 'Item', required: true, where: { path: { OP_regexp: lquery } } }] }] }
 
       const search = { user: '', filters: [], whereClause: where, extended: true }
+      localStorage.setItem('last_search_entity', 'ITEM')
       localStorage.setItem('search_to_open', JSON.stringify(search))
       window.open('/#/search', '_blank')
     }
@@ -1118,6 +1121,8 @@ export default {
             const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
             if (val && Array.isArray(val) && val.length) {
               item.values[attr.identifier] = val[0]
+            } else if (typeof val === 'string' || val instanceof String) {
+              item.values[attr.identifier] = parseInt(val)
             }
           }
         })

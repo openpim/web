@@ -22,6 +22,7 @@
                     <th class="text-left">{{ $t('Config.LOV.Value') }}</th>
                     <th class="text-left" v-for="(channel, i) in availableChannelsRef" :key="i">{{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}</th>
                     <th class="text-left">{{ $t('Config.LOV.Level') }}</th>
+                    <th class="text-left">{{ $t('Config.LOV.ForAttributes') }}</th>
                     <th class="text-left">{{ $t('Config.LOV.URL') }}</th>
                     <th class="text-left">
                       {{ $t('Config.LOV.Filter') }}<br>
@@ -59,6 +60,9 @@
                     </td>
                     <td class="pa-1">
                       <v-chip @click="editLevels(elem)"><v-icon left>mdi-form-select</v-icon>{{ elem.level && elem.level.length > 0 ? '...' : '' }}</v-chip>
+                    </td>
+                    <td class="pa-1">
+                      <v-chip @click="editAttributes(elem)"><v-icon left>mdi-form-select</v-icon>{{ elem.attrs && elem.attrs.length > 0 ? '...' : '' }}</v-chip>
                     </td>
                     <td class="pa-1">
                       <input v-model="elem.url" size="5" :placeholder="$t('Config.LOV.URL')"/>
@@ -121,8 +125,57 @@
           </v-card>
         </v-dialog>
       </v-row>
+      <v-row justify="center">
+        <v-dialog v-model="dialogAttrRef" persistent max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('Config.LOV.ForAttributes') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-card class="mb-5">
+                      <v-card-title class="subtitle-2 font-weight-bold" >
+                        <div style="width:80%">{{ $t('Config.LOV.ForAttributes') }}</div>
+                        <v-tooltip bottom v-if="canEditConfig">
+                          <template v-slot:activator="{ on }">
+                            <v-btn icon v-on="on" @click="addAttr"><v-icon>mdi-plus</v-icon></v-btn>
+                          </template>
+                          <span>{{ $t('Add') }}</span>
+                        </v-tooltip>
+                        <v-tooltip bottom v-if="canEditConfig">
+                          <template v-slot:activator="{ on }">
+                            <v-btn icon v-on="on" @click="removeAttr" :disabled="attrSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
+                          </template>
+                          <span>{{ $t('Remove') }}</span>
+                        </v-tooltip>
+                      </v-card-title>
+                      <v-divider></v-divider>
+                      <v-list dense class="pt-0 pb-0">
+                        <v-list-item-group v-model="attrSelectedRef" color="primary">
+                          <v-list-item dense class="pt-0 pb-0"  v-for="(attr, i) in attrs" :key="i">
+                            <v-list-item-content class="pt-0 pb-0" style="display: inline">
+                            <router-link :to="'/config/attributes/' + attr.identifier">{{ attr.identifier }}</router-link><span class="ml-2">- {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</span>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="dialogAttrClose">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
     </template>
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
+    <AttributeSelectionDialog ref="attrSelectionDialogRef" @selected="attrSelected"/>
     <template>
       <v-row justify="center">
         <v-dialog v-model="importDialogRef" persistent max-width="600px">
@@ -167,9 +220,10 @@ import { saveAs } from 'file-saver'
 import SystemInformation from '../components/SystemInformation'
 import LanguageDependentField from '../components/LanguageDependentField'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
+import AttributeSelectionDialog from '../components/AttributeSelectionDialog'
 
 export default {
-  components: { SystemInformation, LanguageDependentField, ItemsSelectionDialog },
+  components: { SystemInformation, LanguageDependentField, ItemsSelectionDialog, AttributeSelectionDialog },
   props: {
     lov: {
       required: true
@@ -186,7 +240,8 @@ export default {
     } = langStore.useStore()
 
     const {
-      checkIdentifier
+      checkIdentifier,
+      findByInternalId
     } = attrStore.useStore()
 
     const {
@@ -213,12 +268,17 @@ export default {
     const rels = ref([])
 
     const dialogRef = ref(false)
+    const dialogAttrRef = ref(false)
     const visible = ref([])
+    const attrs = ref([])
     const availableChannelsRef = ref([])
     let dialogElem = null
+    let dialogAttrElem = null
 
     const itemSelectionDialogRef = ref(null)
+    const attrSelectionDialogRef = ref(null)
     const visibleSelectedRef = ref(null)
+    const attrSelectedRef = ref(null)
 
     const importDialogRef = ref(null)
     const importDataRef = ref('')
@@ -262,6 +322,35 @@ export default {
 
     function removeValue (idx) {
       props.lov.values.splice(idx, 1)
+    }
+
+    function editAttributes (elem) {
+      dialogAttrElem = elem
+      if (!elem.attrs || elem.attrs.length === 0) {
+        attrs.value = []
+      } else {
+        attrs.value = elem.attrs.map(attrId => findByInternalId(attrId)?.item)
+      }
+      dialogAttrRef.value = true
+    }
+
+    function dialogAttrClose () {
+      dialogAttrRef.value = false
+      dialogAttrElem.attrs = attrs.value.map(attr => attr.internalId)
+    }
+
+    function addAttr () {
+      attrSelectionDialogRef.value.showDialog()
+    }
+
+    function attrSelected (attr) {
+      attrSelectionDialogRef.value.closeDialog()
+      attrs.value.push(attr)
+    }
+
+    function removeAttr () {
+      attrs.value.splice(attrSelectedRef.value, 1)
+      attrSelectedRef.value = null
     }
 
     onMounted(() => {
@@ -371,6 +460,15 @@ export default {
       editLevels,
       removeVisible,
       addVisible,
+      editAttributes,
+      dialogAttrRef,
+      attrs,
+      dialogAttrClose,
+      removeAttr,
+      attrSelectedRef,
+      addAttr,
+      attrSelectionDialogRef,
+      attrSelected,
       itemSelectionDialogRef,
       visibleSelectedRef,
       visible,

@@ -59,7 +59,13 @@ export default {
         const where = props.component.queries[item[0]._index].where
         searchToOpenRef.value = { whereClause: JSON.parse(where), extended: true }
         searchEntityRef.value = 'ITEM'
-        router.push('/search/')
+        if (event.ctrlKey) {
+          router.push('/search/')
+        } else {
+          localStorage.setItem('last_search_entity', 'ITEM')
+          localStorage.setItem('search_to_open', JSON.stringify(searchToOpenRef.value))
+          window.open('/#/search', '_blank')
+        }
       } else {
         // group by
         let data = dataRef.value.labels[item[0]._index]
@@ -107,7 +113,13 @@ export default {
         }
         searchToOpenRef.value = { whereClause: where, extended: true }
         searchEntityRef.value = 'ITEM'
-        router.push('/search/')
+        if (event.ctrlKey) {
+          router.push('/search/')
+        } else {
+          localStorage.setItem('last_search_entity', 'ITEM')
+          localStorage.setItem('search_to_open', JSON.stringify(searchToOpenRef.value))
+          window.open('/#/search', '_blank')
+        }
       }
     }
 

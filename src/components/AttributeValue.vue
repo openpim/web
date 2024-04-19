@@ -687,8 +687,20 @@ export default {
 
     const lovSelection = computed(() => {
       let values = lovData.value
+
+      if (props.attr && values) {
+        values = values.filter(val => !val.attrs || val.attrs.length === 0 || val.attrs.includes(props.attr.internalId))
+      }
+
       if (lovFilterRef.value) {
-        values = values.filter(elem => elem.filter === lovFilterRef.value)
+        values = values.filter(elem => {
+          if (typeof elem.filter === 'string') {
+            const arr = elem.filter.split(',').map(elem => parseInt(elem))
+            return arr.includes(lovFilterRef.value)
+          } else {
+            return elem.filter === lovFilterRef.value
+          }
+        })
       }
       if (props.item) {
         values = values.filter(elem => !elem.level || elem.level.length === 0 || elem.level === '[]' || elem.level.find(path => props.item.path.startsWith(path)))
@@ -884,10 +896,10 @@ export default {
         // joditRef.value.editor.events.on('change', handler)
       }
 
-      const tst = props.attr.options.find(opt => opt.name === 'lovFilter')
-      const lovFilter = tst ? parseInt(tst.value) : null
+      const tst = props.attr.options.find(opt => opt.name === 'lovFilterAttr')
+      const lovFilterAttr = tst ? tst.value : null
       eventBus.on('lov_value_changed', evt => {
-        if (lovFilter && evt.lov === lovFilter) {
+        if (lovFilterAttr && evt.attr === lovFilterAttr) {
           lovFilterRef.value = evt.value
         }
       })

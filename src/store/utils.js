@@ -144,7 +144,12 @@ function objectToGraphgl (value) {
       } else {
         const attr = attrStore.store.findByIdentifier(prop, true)
         const noEmpty = !obj && attr ? attr.item.options.some(elem => elem.name === 'noEmptyValue' && elem.value === 'true') : false
-        if (!noEmpty) result += prop + ':' + obj + ','
+        if (attr && attr.item.type === 7) { // LOV
+          // LOV can be NaN here is it was wrong value as string for example, so system converted it to NaN and we should send null to server
+          if (!noEmpty) result += prop + ':' + (isNaN(obj) ? null : obj) + ','
+        } else {
+          if (!noEmpty) result += prop + ':' + obj + ','
+        }
       }
     }
     result += '}'

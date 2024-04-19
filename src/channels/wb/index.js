@@ -20,6 +20,24 @@ function getStandardAttributes () {
       dictionary: false
     },
     {
+      id: '#length',
+      name: 'Длина (см.)',
+      required: false,
+      dictionary: false
+    },
+    {
+      id: '#width',
+      name: 'Ширина (см.)',
+      required: false,
+      dictionary: false
+    },
+    {
+      id: '#height',
+      name: 'Высота (см.)',
+      required: false,
+      dictionary: false
+    },
+    {
       id: '#techSize',
       name: 'Размер поставщика (пример S, M, L, XL, 42, 42-43)',
       required: false,

@@ -1,8 +1,11 @@
 import { ref, provide, inject } from '@vue/composition-api'
 import { serverFetch, objectToGraphgl } from './utils'
+import customSearch from '../_customizations/search/customSearch.js'
 
 const currentWhereRef = ref(null)
-const searchEntityRef = ref('ITEM')
+const currentFilterRef = ref(null)
+const cs = customSearch()
+const searchEntityRef = ref(localStorage.getItem('last_search_entity') || (cs.length > 0 ? cs[0].value : 'ITEM'))
 const searchToOpenRef = ref(null)
 const savedColumnsRef = ref(null)
 const selectedRef = ref(null)
@@ -95,6 +98,7 @@ const actions = {
 // eslint-disable-next-line no-unused-vars
 const store = {
   currentWhereRef,
+  currentFilterRef,
   searchEntityRef,
   selectedRef,
   lovsMapRef,

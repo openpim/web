@@ -109,7 +109,7 @@ import router from '../router'
 
 export default {
   components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, RelationsSelectionDialog, DatePickerDialog },
-  setup (props, context) {
+  setup (props, { root }) {
     const { showError } = errorStore.useStore()
 
     const {
@@ -123,6 +123,7 @@ export default {
     const {
       loadByIdentifier,
       currentWhereRef,
+      currentFilterRef,
       searchEntityRef,
       searchToOpenRef,
       selectedRef
@@ -193,6 +194,7 @@ export default {
 
     function add (num) {
       if (num === 1) {
+        if (!selectedRef.value.filters) root.$set(selectedRef.value, 'filters', [])
         selectedRef.value.filters.push({ type: 'attr', attr: null, operation: 1, value: '' })
       }
     }
@@ -208,15 +210,17 @@ export default {
           searchEntityRef.value = 'ITEM_RELATION'
           selectedRef.value.entity = searchEntityRef.value
           currentWhereRef.value = selectedRef.value.whereClause
+          currentFilterRef.value = null
         } catch (err) {
           console.error(err)
           showError(i18n.t('Search.Extended.Error') + err.message)
         }
       } else {
+        localStorage.setItem('last_itemRelation_search', JSON.stringify(selectedRef.value))
         const orAndOperation = selectedRef.value.orAnd === 1 ? 'OP_and' : 'OP_or'
         const where = {}
         where[orAndOperation] = []
-
+        currentFilterRef.value = selectedRef.value.filters
         selectedRef.value.filters.forEach(filter => {
           if (filter.attr) {
             const data = {}
@@ -474,6 +478,9 @@ export default {
             searchSelected(searchToOpenRef.value)
             searchToOpenRef.value = null
             search()
+          } else {
+            const tst2 = localStorage.getItem('last_itemRelation_search')
+            if (tst2) searchSelected(JSON.parse(tst2))
           }
         }
       })

@@ -193,7 +193,7 @@ const actions = {
     }
   },
   submitItems: async (where, channelIds) => {
-    actions.submitItemsStatus(1, where, channelIds)
+    await actions.submitItemsStatus(1, where, channelIds)
   },
   submitItemsStatus: async (status, where, channelIds) => {
     if (channelIds.length === 0) return

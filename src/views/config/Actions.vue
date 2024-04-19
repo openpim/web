@@ -114,6 +114,10 @@
                         {{ $t('Config.Actions.Triggers.Type.BulkUpdateChannels') }}
                         ({{ displayEvent(trigger.event) }})
                       </div>
+                      <div v-if="trigger.type === 8">
+                        {{ $t('Config.Actions.Triggers.Type.LOV') }}
+                        ({{ displayEvent(trigger.event) }})
+                      </div>
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -361,7 +365,7 @@ export default {
       let arr = actions
       if (searchRef.value) {
         const s = searchRef.value.toLowerCase()
-        arr = actions.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
+        arr = actions.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)) || (item.code && item.code.includes(searchRef.value)))
       }
       return arr.sort((a, b) => {
         if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {

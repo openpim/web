@@ -22,7 +22,7 @@
         </template>
         <span>{{ $t('DataTable.ImportExcel') }}</span>
       </v-tooltip>
-      <v-tooltip top  v-if="talendExportSelection || (searchEntityRef === 'ITEM' && hasAccess('exportCSV'))">
+      <v-tooltip top  v-if="talendExportSelection || (searchEntityRef !== 'ITEM_RELATION' && hasAccess('exportCSV'))">
         <template v-slot:activator="{ on }">
           <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
         </template>
@@ -100,7 +100,7 @@
         </template>
         <span>{{ $t('Collections.DeleteFromCollection') }}</span>
       </v-tooltip>
-      <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData" :processButtonAction="processButtonAction"></AfterButtonsComponent>
+      <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData" :processButtonAction="processButtonAction" :whereFunc="getTableWhere"></AfterButtonsComponent>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
       :options="optionsRef"
@@ -119,7 +119,7 @@
     <template v-slot:header="{ props }">
       <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
         <th v-for="header in props.headers" :key="header.identifier" class="dataTableHeader">
-            <span class="ml-1 mr-1 subtitle-2">{{header.text}}</span>
+            <span class="ml-1 mr-1 subtitle-2" style="white-space:normal">{{header.text}}</span>
             <v-btn small v-if="header.sortable" icon @click="headerSort(header)">
               <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
             </v-btn>
@@ -158,11 +158,11 @@
             <v-checkbox v-model="item.selected" required></v-checkbox>
           </template>
 
-          <router-link v-if="header.identifier === 'identifier' && searchEntityRef === 'ITEM'" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
-          <router-link v-if="header.identifier === 'parentIdentifier' && searchEntityRef === 'ITEM'" :to="'/item/' + item.parentIdentifier">{{ item.parentIdentifier }}</router-link>
+          <router-link v-if="header.identifier === 'identifier' && searchEntityRef !== 'ITEM_RELATION'" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
+          <router-link v-if="header.identifier === 'parentIdentifier' && searchEntityRef !== 'ITEM_RELATION'" :to="'/item/' + item.parentIdentifier">{{ item.parentIdentifier }}</router-link>
           <router-link v-if="header.identifier === 'itemIdentifier'" :to="'/item/' + item.itemIdentifier">{{ item.itemIdentifier }}</router-link>
           <router-link v-if="header.identifier === 'targetIdentifier'" :to="'/item/' + item.targetIdentifier">{{ item.targetIdentifier }}</router-link>
-          <template v-if="header.identifier === 'identifier' && searchEntityRef !== 'ITEM' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
+          <template v-if="header.identifier === 'identifier' && searchEntityRef === 'ITEM_RELATION' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
             <span v-else>{{ getValue(item, header) }}</span>
           </template>
@@ -170,7 +170,8 @@
           <span v-if="header.identifier === '#parentName#'">{{ getParentName(item) }}</span>
           <span v-if="header.identifier === '#sourceParentName#'">{{ getParentNameByItemId(item.itemId) }}</span>
           <span v-if="header.identifier === '#targetParentName#'">{{ getParentNameByItemId(item.targetId) }}</span>
-          <a v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :href="damUrl + 'asset/' + getThumbnail(item.id).id + '?inline=true&token=' + token" target="_blank"><v-img :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="50" max-height="50"></v-img></a>
+
+          <a v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :href="damUrl + 'asset/' + getThumbnail(item.id).id + '?inline=true&token=' + token" target="_blank"><v-img :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="300" max-height="300"></v-img></a>
 
           <template v-if="typeof (header.identifier) !== 'undefined' && !header.identifier.startsWith('#channel_') && header.type !== 9 && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' && header.identifier != 'itemIdentifier' && header.identifier != 'targetIdentifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
@@ -1360,6 +1361,7 @@ export default {
         search.filters.push({ type: 'attr', attr: 'typeIdentifier', operation: 2, value: type.identifier })
       })
 
+      localStorage.setItem('last_search_entity', 'ITEM')
       localStorage.setItem('search_to_open', JSON.stringify(search))
       window.open('/#/search', '_blank')
     }
@@ -1464,7 +1466,7 @@ export default {
       // if (props.headersStorageName !== 'item_headers') return parents // if not item search
 
       if (itemsRef.value.length > 0) {
-        if (headersRef.value.some(elem => elem.identifier === '#parentName#') && searchEntityRef.value === 'ITEM') {
+        if (headersRef.value.some(elem => elem.identifier === '#parentName#') && searchEntityRef.value !== 'ITEM_RELATION') {
           parents = itemsRef.value.map(item => {
             const arr = item.path.split('.')
             return arr[arr.length - 2]
@@ -1587,7 +1589,7 @@ export default {
 
     async function processButtonAction (button, data) {
       buttonActionStatusDialog.value.showDialog()
-      const where = filterWhere || props.loadData().where
+      const where = getTableWhere()
       await executeTableButtonAction(props.item ? props.item.internalId : null, button, where || {}, data).then((result) => {
         optionsUpdate(optionsRef.value)
         if (result.data) {
@@ -1697,6 +1699,10 @@ export default {
       return lovValues.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
     }
 
+    function getTableWhere () {
+      return filterWhere || props.loadData().where
+    }
+
     return {
       columnsSelectionDialogRef,
       columnsSaveDialogRef,
@@ -1780,6 +1786,7 @@ export default {
       buttonActions,
       executeAction,
       processButtonAction,
+      getTableWhere,
       buttonActionStatusDialog,
       filterChanged,
       getLOVItems,

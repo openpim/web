@@ -24,7 +24,7 @@ function getStandardAttributes () {
     {
       id: '#barcode',
       name: 'Баркод (строка)',
-      required: true,
+      required: false,
       dictionary: false
     },
     {

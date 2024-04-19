@@ -4,12 +4,12 @@ import * as userStore from './users'
 
 const groups = reactive([])
 
-function findByComparator (id, comparator, onlyFirst) {
+function findByComparator (id, comparator, onlyFirst, skipGroups) {
   const arr = []
   let item = null
   for (var i = 0; i < groups.length; i++) {
     const group = groups[i]
-    if (comparator(id, group)) {
+    if (!skipGroups && comparator(id, group)) {
       return { item: group, itemIdx: i }
     }
     for (var j = 0; j < group.attributes.length; j++) {
@@ -39,6 +39,9 @@ const actions = {
   },
   findById: (id) => {
     return findByComparator(id, (id, item) => item.id === id)
+  },
+  findByInternalId: (internalId) => {
+    return findByComparator(internalId, (internalId, item) => item.internalId === internalId, true, true)
   },
   findByIdentifier: (identifier, onlyFirst) => {
     return findByComparator(identifier, (identifier, item) => item.identifier === identifier, onlyFirst)

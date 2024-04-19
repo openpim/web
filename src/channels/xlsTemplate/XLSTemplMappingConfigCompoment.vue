@@ -363,6 +363,7 @@ export default {
       loadAllRelations().then(() => { relationsLoadedRef.value = true })
       loadAllAttributes().then(() => {
         const arr = []
+        arr.push({ value: '#name#', text: i18n.t('Item.name') })
         for (var i = 0; i < groups.length; i++) {
           const group = groups[i]
           for (var j = 0; j < group.attributes.length; j++) {
