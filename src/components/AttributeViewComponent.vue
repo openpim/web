@@ -97,6 +97,7 @@ import * as relStore from '../store/relations'
 import * as lovStore from '../store/lovs'
 import * as errorStore from '../store/error'
 import * as itemsStore from '../store/item'
+import * as channelsStore from '../store/channels'
 
 import OptionsTable from '../components/OptionsTable'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
@@ -126,6 +127,11 @@ export default {
     } = langStore.useStore()
 
     const {
+      channelTypes,
+      loadAllChannelTypes
+    } = channelsStore.useStore()
+
+    const {
       showInfo
     } = errorStore.useStore()
 
@@ -140,7 +146,7 @@ export default {
 
     const { nextId } = itemsStore.useStore()
 
-    let typeSelection = [
+    const typeSelection = ref([
       { text: i18n.t('Config.Attribute.Type.Text'), value: AttributeType.Text },
       { text: i18n.t('Config.Attribute.Type.Boolean'), value: AttributeType.Boolean },
       { text: i18n.t('Config.Attribute.Type.Integer'), value: AttributeType.Integer },
@@ -148,13 +154,12 @@ export default {
       { text: i18n.t('Config.Attribute.Type.Date'), value: AttributeType.Date },
       { text: i18n.t('Config.Attribute.Type.Time'), value: AttributeType.Time },
       { text: i18n.t('Config.Attribute.Type.LOV'), value: AttributeType.LOV },
-      { text: i18n.t('Config.Attribute.Type.URL'), value: AttributeType.URL },
-      { text: i18n.t('Config.Attribute.Type.Relation'), value: AttributeType.Relation }
-    ]
+      { text: i18n.t('Config.Attribute.Type.URL'), value: AttributeType.URL }
+    ])
 
     if (additionalAttrTypesList) {
       const mappedAddAttrTypeList = additionalAttrTypesList.map(el => ({ text: el.text, value: el.value }))
-      typeSelection = [...typeSelection, ...mappedAddAttrTypeList]
+      typeSelection.value = [...typeSelection.value, ...mappedAddAttrTypeList]
     }
 
     const { lovs, loadAllLOVs, saveLOV, getLOVsForSelect, addLOV } = lovStore.useStore()
@@ -232,6 +237,12 @@ export default {
         })
       )
       Promise.all([loadAllLOVs()])
+      loadAllChannelTypes().then(() => {
+        const relatonAttributesLicence = channelTypes.find(el => el === 2000)
+        if (relatonAttributesLicence) {
+          typeSelection.value.push({ text: i18n.t('Config.Attribute.Type.Relation'), value: AttributeType.Relation })
+        }
+      })
     })
 
     function optionsChanged (val) {
