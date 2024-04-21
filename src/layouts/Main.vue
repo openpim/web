@@ -115,7 +115,7 @@
     <AppHeader :export="isExportSearch" :drawer="drawer" :drawerRight="drawerRight"/>
 
     <v-content>
-      <v-container class="fill-height" fluid>
+      <v-container class="fill-height pa-2 ma-0 width:100%" fluid>
         <router-view :export="isExportSearch"></router-view>
       </v-container>
     </v-content>
@@ -534,5 +534,9 @@ export default {
 .v-bottom-navigation {
   overflow-y: hidden;
   overflow-x: auto;
+}
+.container {
+   margin: 0!important;
+   max-width: 99%!important;
 }
 </style>
