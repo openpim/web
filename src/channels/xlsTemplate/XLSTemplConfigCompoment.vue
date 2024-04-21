@@ -32,7 +32,7 @@
     </v-row>
     <v-row v-if="channel.config.template" class="mt-1 mb-0">
       <v-col>
-        <a :href="damUrl + 'xlsx-template/' + channel.id + '?token=' + token">{{ channel.config.template ? getFileName(channel.config.template) : 'file.xlsx' }}</a>
+        <a :href="damUrl + 'xlsx-template/' + channel.id + '?token=' + token">{{ channel.config.template ? getFileName(channel.config) : 'file.xlsx' }}</a>
         <v-btn class="ml-3" color="primary" text @click="channel.config.template = null; fileRef = null">{{ $t('ImportConfig.SelectAnotherFile') }}</v-btn>
       </v-col>
     </v-row>
@@ -65,9 +65,11 @@ export default {
 
     const fileRef = ref(null)
 
-    function getFileName (filePath) {
-      const extNum = filePath?.lastIndexOf('/')
-      const fileName = extNum !== -1 ? filePath?.substring(extNum + 1) : ''
+    function getFileName (config) {
+      console.log(111, config)
+      if (config.originalFilename) return config.originalFilename
+      const extNum = config.template?.lastIndexOf('/')
+      const fileName = extNum !== -1 ? config.template?.substring(extNum + 1) : ''
       return fileName
     }
 
@@ -75,6 +77,7 @@ export default {
       uploadXlsxTemplate(props.channel.id, fileRef.value).then((item) => {
         if (item) {
           props.channel.config.template = item.config.template
+          props.channel.config.originalFilename = item.config.originalFilename
           fileRef.value = null
         }
       })
