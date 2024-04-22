@@ -21,12 +21,12 @@
               </v-list>
             </v-col>
             <v-col cols="1" align="center">
-              <v-btn class="mt-10" @click="moveFromLeft" :disabled="selectedLeftRef.length===0"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
-              <v-btn class="mt-3" @click="moveFromRight" :disabled="selectedRightRef.length===0"><v-icon>mdi-arrow-left-bold-circle-outline</v-icon></v-btn>
-              <v-btn class="mt-10" @click="moveUp" :disabled="selectedRightRef.length!==1"><v-icon>mdi-arrow-up-bold-circle-outline</v-icon></v-btn>
-              <v-btn class="mt-3" @click="moveDown" :disabled="selectedRightRef.length!==1"><v-icon>mdi-arrow-down-bold-circle-outline</v-icon></v-btn>
-              <v-btn class="mt-10" @click="moveFromLeftAll"><v-icon>mdi-arrow-right-bold-circle</v-icon></v-btn>
-              <v-btn class="mt-3" @click="moveFromRightAll"><v-icon>mdi-arrow-left-bold-circle</v-icon></v-btn>
+              <v-btn style="display: block" class="mt-10" @click="moveFromLeft" :disabled="selectedLeftRef.length===0"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
+              <v-btn style="display: block" class="mt-3" @click="moveFromRight" :disabled="selectedRightRef.length===0"><v-icon>mdi-arrow-left-bold-circle-outline</v-icon></v-btn>
+              <v-btn style="display: block" class="mt-10" @click="moveUp" :disabled="selectedRightRef.length!==1"><v-icon>mdi-arrow-up-bold-circle-outline</v-icon></v-btn>
+              <v-btn style="display: block" class="mt-3" @click="moveDown" :disabled="selectedRightRef.length!==1"><v-icon>mdi-arrow-down-bold-circle-outline</v-icon></v-btn>
+              <v-btn style="display: block" class="mt-10" @click="moveFromLeftAll"><v-icon>mdi-arrow-right-bold-circle</v-icon></v-btn>
+              <v-btn style="display: block" class="mt-3" @click="moveFromRightAll"><v-icon>mdi-arrow-left-bold-circle</v-icon></v-btn>
             </v-col>
             <v-col cols="4" class="pt-0">
               <v-text-field v-model="rightFilterRef" :label="$t('Filter')" required></v-text-field>
