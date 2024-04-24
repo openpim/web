@@ -66,7 +66,6 @@ export default {
     const fileRef = ref(null)
 
     function getFileName (config) {
-      console.log(111, config)
       if (config.originalFilename) return config.originalFilename
       const extNum = config.template?.lastIndexOf('/')
       const fileName = extNum !== -1 ? config.template?.substring(extNum + 1) : ''
