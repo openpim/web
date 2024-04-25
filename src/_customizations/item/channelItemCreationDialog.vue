@@ -28,7 +28,6 @@
 import { ref } from '@vue/composition-api'
 import * as itemsStore from '../../store/item'
 import * as typesStore from '../../store/types'
-import * as langStore from '../../store/languages'
 import * as channelsStore from '../../store/channels'
 import { findNode } from '../../store/utils'
 
@@ -37,11 +36,6 @@ export default {
   setup (props, { emit }) {
     const { findTypeByIdentifier, findType } = typesStore.useStore()
     const { loadChildren } = itemsStore.useStore()
-
-    const {
-      currentLanguage,
-      defaultLanguageIdentifier
-    } = langStore.useStore()
 
     const {
       getChannelCategories
@@ -104,8 +98,6 @@ export default {
       closeDialog,
       identifierSelectedRef,
       newItemRef,
-      currentLanguage,
-      defaultLanguageIdentifier,
       categoriesRef,
       selectRef
     }
