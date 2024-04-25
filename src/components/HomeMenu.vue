@@ -23,6 +23,7 @@
   </v-col>
   <ItemCreationDialog ref="itemCreationDialogRef" @created="itemCreated"/>
   <CustomCreationDialog ref="itemCustomCreationDialogRef" @created="itemCreated"/>
+  <ChannelItemCreationDialog ref="channelItemCreationDialogRef" @created="itemCreated"/>
   </v-row>
 </template>
 <script>
@@ -33,17 +34,21 @@ import * as langStore from '../store/languages'
 import * as userStore from '../store/users'
 import { useRouter } from '../router/useRouter'
 import customCreationDialog from '../_customizations/item/customCreationDialog.js'
+import ChannelItemCreationDialog from '../_customizations/item/channelItemCreationDialog.vue'
 
 import ItemCreationDialog from '../components/ItemCreationDialog'
 import CustomCreationDialog from '../_customizations/item/customCreationDialog.vue'
 import eventBus from '../eventBus'
 
 export default {
-  components: { ItemCreationDialog, CustomCreationDialog },
+  components: { ItemCreationDialog, CustomCreationDialog, ChannelItemCreationDialog },
   setup (props, context) {
     const { router } = useRouter()
 
-    const { canEditItem } = userStore.useStore()
+    const {
+      canEditItem,
+      getServerConfig
+    } = userStore.useStore()
 
     const {
       currentLanguage,
@@ -68,6 +73,7 @@ export default {
     const selectedRef = ref(empty)
     const activeRef = ref([])
     const openRef = ref([])
+    const channelItemCreationDialogRef = ref(null)
     const itemCreationDialogRef = ref(null)
     const itemCustomCreationDialogRef = ref(null)
 
@@ -108,17 +114,33 @@ export default {
     }
 
     async function add () {
+      const serverConfig = await getServerConfig()
       const obj = await customCreationDialog(selectedRef.value)
       if (obj) {
         itemCustomCreationDialogRef.value.showDialog(selectedRef.value)
       } else {
-        itemCreationDialogRef.value.showDialog(selectedRef.value)
+        if (serverConfig && serverConfig.channelCategories) {
+          let isChannelDialog = false
+          for (const channel of serverConfig.channelCategories) {
+            if (channel.rootType === selectedRef.value.typeIdentifier || channel.childType === selectedRef.value.typeIdentifier) {
+              channelItemCreationDialogRef.value.showDialog(selectedRef.value, channel.channelId, channel.childType)
+              isChannelDialog = true
+              break
+            }
+          }
+          if (!isChannelDialog) {
+            itemCreationDialogRef.value.showDialog(selectedRef.value)
+          }
+        } else {
+          itemCreationDialogRef.value.showDialog(selectedRef.value)
+        }
       }
     }
 
     function itemCreated (item) {
       itemCreationDialogRef.value.closeDialog()
       if (itemCustomCreationDialogRef.value.closeDialog) itemCustomCreationDialogRef.value.closeDialog()
+      if (channelItemCreationDialogRef.value.closeDialog) channelItemCreationDialogRef.value.closeDialog()
 
       if (selectedRef.value.children && selectedRef.value.children.length === 0) {
         loadChildren(selectedRef.value).then(() => {
@@ -199,7 +221,8 @@ export default {
       loadChildren,
       currentLanguage,
       defaultLanguageIdentifier,
-      canEditSelected
+      canEditSelected,
+      channelItemCreationDialogRef
     }
   }
 }
