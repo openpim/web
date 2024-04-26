@@ -26,10 +26,10 @@
 
 <script>
 import { ref } from '@vue/composition-api'
-import * as itemsStore from '../store/item'
-import * as typesStore from '../store/types'
-import * as channelsStore from '../store/channels'
-import { findNode } from '../store/utils'
+import * as itemsStore from '../../store/item'
+import * as typesStore from '../../store/types'
+import * as channelsStore from '../../store/channels'
+import { findNode } from '../../store/utils'
 
 export default {
   name: 'ChannelItemCreation',
