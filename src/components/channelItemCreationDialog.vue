@@ -26,10 +26,10 @@
 
 <script>
 import { ref } from '@vue/composition-api'
-import * as itemsStore from '../../store/item'
-import * as typesStore from '../../store/types'
-import * as channelsStore from '../../store/channels'
-import { findNode } from '../../store/utils'
+import * as itemsStore from '../store/item'
+import * as typesStore from '../store/types'
+import * as channelsStore from '../store/channels'
+import { findNode } from '../store/utils'
 
 export default {
   name: 'ChannelItemCreation',
@@ -44,15 +44,15 @@ export default {
     const dialogRef = ref(false)
     const identifierSelectedRef = ref(null)
     const newItemRef = ref(null)
-    const categoriesRef = ref(null)
-    const selectRef = ref(null)
+    const selectRef = ref([])
     const typeRef = ref(null)
+    let categories
 
     function showDialog (itemSelected, channelId, typeIdentifier) {
       const name = {}
       newItemRef.value = { id: Date.now(), internalId: 0, children: [], name: name, identifier: '' }
       getChannelCategories(channelId).then(async (value) => {
-        categoriesRef.value = value
+        categories = value
         const node = findNode(itemSelected.identifier, value.tree.children)
         let childrens
         if (node) {
@@ -64,6 +64,7 @@ export default {
           emit('created', null)
           return
         }
+        dialogRef.value = true
         for (const child of childrens) {
           child.text = child.id + ' - ' + child.name
         }
@@ -72,7 +73,6 @@ export default {
       })
       identifierSelectedRef.value = null
       typeRef.value = typeIdentifier
-      dialogRef.value = true
     }
 
     function closeDialog () {
@@ -80,7 +80,7 @@ export default {
     }
 
     function create () {
-      const node = findNode(identifierSelectedRef.value, categoriesRef.value.tree.children)
+      const node = findNode(identifierSelectedRef.value, categories.tree.children)
       const newItem = newItemRef.value
       newItem.identifier = node.id
       newItem.name.ru = node.name
@@ -102,7 +102,6 @@ export default {
       closeDialog,
       identifierSelectedRef,
       newItemRef,
-      categoriesRef,
       selectRef
     }
   }

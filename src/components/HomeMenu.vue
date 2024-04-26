@@ -11,7 +11,7 @@
           <span>{{ $t('Add') }}</span>
         </v-tooltip -->
       </v-toolbar>
-      <v-btn small icon fab absolute top right @click="add" class="mt-7 mr-1"><v-icon>mdi-plus</v-icon></v-btn>
+      <v-btn small icon fab absolute top right @click="add(false)" class="mt-7 mr-1"><v-icon>mdi-plus</v-icon></v-btn>
       <v-treeview dense activatable hoverable transition :items="itemsTree" :load-children="loadChildren" @update:active="activeChanged" :active.sync="activeRef" :open.sync="openRef">
         <template v-slot:prepend="{ item }">
           <v-icon v-if="item.typeIcon" :color="item.typeIconColor">mdi-{{ item.typeIcon }}</v-icon>
@@ -34,7 +34,7 @@ import * as langStore from '../store/languages'
 import * as userStore from '../store/users'
 import { useRouter } from '../router/useRouter'
 import customCreationDialog from '../_customizations/item/customCreationDialog.js'
-import ChannelItemCreationDialog from '../_customizations/item/channelItemCreationDialog.vue'
+import ChannelItemCreationDialog from './channelItemCreationDialog.vue'
 
 import ItemCreationDialog from '../components/ItemCreationDialog'
 import CustomCreationDialog from '../_customizations/item/customCreationDialog.vue'
