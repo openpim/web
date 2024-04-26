@@ -60,6 +60,10 @@ export default {
         } else {
           childrens = value.tree.children
         }
+        if (childrens.length === 0) {
+          emit('created', null)
+          return
+        }
         for (const child of childrens) {
           child.text = child.id + ' - ' + child.name
         }

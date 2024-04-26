@@ -113,13 +113,13 @@ export default {
       await loadItemRelationsChildren(item.id, item.internalId, item.typeId)
     }
 
-    async function add () {
+    async function add (notShowChannelDialog) {
       const serverConfig = await getServerConfig()
       const obj = await customCreationDialog(selectedRef.value)
       if (obj) {
         itemCustomCreationDialogRef.value.showDialog(selectedRef.value)
       } else {
-        if (serverConfig && serverConfig.channelCategories) {
+        if (!notShowChannelDialog && serverConfig && serverConfig.channelCategories) {
           let isChannelDialog = false
           for (const channel of serverConfig.channelCategories) {
             if (channel.rootType === selectedRef.value.typeIdentifier || channel.childType === selectedRef.value.typeIdentifier) {
@@ -138,6 +138,10 @@ export default {
     }
 
     function itemCreated (item) {
+      if (!item) {
+        add(true)
+        return
+      }
       itemCreationDialogRef.value.closeDialog()
       if (itemCustomCreationDialogRef.value.closeDialog) itemCustomCreationDialogRef.value.closeDialog()
       if (channelItemCreationDialogRef.value.closeDialog) channelItemCreationDialogRef.value.closeDialog()
