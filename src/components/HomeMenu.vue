@@ -34,7 +34,7 @@ import * as langStore from '../store/languages'
 import * as userStore from '../store/users'
 import { useRouter } from '../router/useRouter'
 import customCreationDialog from '../_customizations/item/customCreationDialog.js'
-import ChannelItemCreationDialog from './channelItemCreationDialog.vue'
+import ChannelItemCreationDialog from 'ChannelItemCreationDialog.vue'
 
 import ItemCreationDialog from '../components/ItemCreationDialog'
 import CustomCreationDialog from '../_customizations/item/customCreationDialog.vue'
