@@ -25,13 +25,6 @@
                       <span>{{$t('MappingConfigComponent.CopyMapping')}}</span>
                     </v-tooltip>
 
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <v-btn icon v-on="on" @click="addAttribute"><v-icon>mdi-plus</v-icon></v-btn>
-                      </template>
-                      <span>{{$t('MappingConfigComponent.AddAttribute')}}</span>
-                    </v-tooltip>
-
                   </v-col>
                 </v-row>
                 <v-row>
@@ -318,7 +311,9 @@ export default {
 
     function removeSheet () {
       if (confirm(i18n.t('MappingConfigComponent.Remove.Confirm'))) {
-        props.channel.mappings[sheetIdRef.value] = { deleted: true }
+        const cat = props.channel.mappings[categoryIdRef.value]
+        const idx = cat.sheets.findIndex(elem => elem.id === sheetIdRef.value)
+        cat.sheets.splice(idx, 1)
         sheetIdRef.value = null
       }
     }

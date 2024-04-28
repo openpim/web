@@ -171,7 +171,7 @@
           <span v-if="header.identifier === '#sourceParentName#'">{{ getParentNameByItemId(item.itemId) }}</span>
           <span v-if="header.identifier === '#targetParentName#'">{{ getParentNameByItemId(item.targetId) }}</span>
 
-          <a v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :href="damUrl + 'asset/' + getThumbnail(item.id).id + '?inline=true&token=' + token" target="_blank"><v-img :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="300" max-height="300"></v-img></a>
+          <a v-if="header.identifier === '#thumbnail#' && getThumbnail(item.id)" :href="damUrl + 'asset/' + getThumbnail(item.id).id + '?inline=true&token=' + token" target="_blank"><img style="max-width: 100%; height: auto;" :src="damUrl + 'asset/' + getThumbnail(item.id).id + '/thumb?token=' + token" contain max-width="300" max-height="300"/></a>
 
           <template v-if="typeof (header.identifier) !== 'undefined' && !header.identifier.startsWith('#channel_') && header.type !== 9 && header.identifier !== 'identifier' && header.identifier !== 'parentIdentifier' && header.identifier != 'itemIdentifier' && header.identifier != 'targetIdentifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' &&  header.identifier !== '#thumbnail#' && (!inplaceItem || (item.identifier != inplaceItem.identifier || header.identifier != inplaceHeader.identifier))">
             <v-icon v-if="getValue(item, header) === true">mdi-check</v-icon>
