@@ -41,7 +41,8 @@ export default {
     } = attrStore.useStore()
 
     const {
-      currentUserRef
+      currentUserRef,
+      getServerConfig
     } = userStore.useStore()
 
     const {
@@ -64,6 +65,7 @@ export default {
     const searchLoadingRef = ref(false)
     const searchAttributesRef = ref([])
     let awaitingSearch = null
+    let serverConfig = null
 
     watch(searchRef, (val) => {
       if (val && val.length > 1) {
@@ -91,6 +93,9 @@ export default {
       }
     }
     onMounted(() => {
+      getServerConfig().then((config) => {
+        serverConfig = config
+      })
       loadAllTypes().then(() => {
         typesTree.forEach(type => {
           processTypeFilter(type)
@@ -107,6 +112,7 @@ export default {
     })
 
     function performSearch (val) {
+      if (serverConfig && serverConfig.trimSearch && val) val = val.trim()
       searchLoadingRef.value = true
       const typesExpr = searchTypesFilter.length > 0 ? '{typeId: {OP_notIn: ' + JSON.stringify(searchTypesFilter) + '}}' : null
       searchItem(val, typesExpr).then(data => {
