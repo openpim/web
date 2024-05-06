@@ -1590,7 +1590,7 @@ export default {
     async function processButtonAction (button, data) {
       buttonActionStatusDialog.value.showDialog()
       const where = getTableWhere()
-      await executeTableButtonAction(props.item ? props.item.internalId : null, button, where || {}, data).then((result) => {
+      await executeTableButtonAction(props.item ? props.item.internalId : null, button, where || {}, headersRef.value || [], data).then((result) => {
         optionsUpdate(optionsRef.value)
         if (result.data) {
           if (result.data.router) {

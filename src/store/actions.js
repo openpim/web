@@ -71,8 +71,8 @@ const actionList = {
     const response = await serverFetch(query)
     return response.executeAction
   },
-  executeTableButtonAction: async (itemId, buttonText, where, data) => {
-    const query = 'mutation { executeTableButtonAction(' + (itemId ? 'itemId: "' + itemId + '",' : '') + ' buttonText: "' + buttonText + '" where: """' + JSON.stringify(where) + '""" ' + (data ? ',data: """' + data + '"""' : '') + ') { error, compileError, message, data }}'
+  executeTableButtonAction: async (itemId, buttonText, where, headers, data) => {
+    const query = 'mutation { executeTableButtonAction(' + (itemId ? 'itemId: "' + itemId + '",' : '') + ' buttonText: "' + buttonText + '" where: """' + JSON.stringify(where) + '""" headers: """' + JSON.stringify(headers) + '""" ' + (data ? ',data: """' + data + '"""' : '') + ') { error, compileError, message, data }}'
     const response = await serverFetch(query)
     return response.executeTableButtonAction
   },
