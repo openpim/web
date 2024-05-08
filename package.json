@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "demo": "vue-cli-service serve --port 8080 --host demo.openpim.org",
-    "serve_v21": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
-    "serve": "vue-cli-service serve",
-    "build": "node generate-buildno.js && vue-cli-service build",
+    "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+    "build": "set NODE_OPTIONS=--openssl-legacy-provider && node generate-buildno.js && vue-cli-service build",
     "docker": "docker build --tag openpim:web -f docker/Dockerfile .",
     "lint": "vue-cli-service lint",
     "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'"
