@@ -307,6 +307,7 @@ const actions = {
     } else {
       data = await serverFetch(`query { getItemsForRelationAttribute (attrIdentifier: "${attr.identifier}", value: [ ${ids} ], langIdentifier: "${langIdentifier}", limit: ${limit}, offset: ${offset}, order: "${order}") { id, identifier, name, values } }`)
     }
+    data.getItemsForRelationAttribute = data.getItemsForRelationAttribute.map(el => ({ id: parseInt(el.id), identifier: el.identifier, name: el.name, values: el.values }))
     return data
   }
 }
