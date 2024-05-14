@@ -728,7 +728,9 @@ export default {
 
     if (props.attr.type === AttributeType.Relation) {
       let awaitingSearch = null
-      watch(searchRef, (val) => {
+      watch(searchRef, (val, prevVal) => {
+        // eslint-disable-next-line eqeqeq
+        if (val == prevVal) return
         loadingRef.value = true
         if (awaitingSearch) {
           clearTimeout(awaitingSearch)
@@ -918,6 +920,7 @@ export default {
 
       if (props.attr.type === AttributeType.Relation) {
         multivalueRef.value = getOption('multivalue', false)
+        updateAvailableItemsForRelationAttr('')
       }
     })
 
@@ -931,6 +934,10 @@ export default {
         getLOVData(props.attr.lov).then((data) => {
           lovData.value = data
         })
+      }
+      if (props.attr.type === AttributeType.Relation) {
+        multivalueRef.value = getOption('multivalue', false)
+        updateAvailableItemsForRelationAttr('')
       }
     })
 
