@@ -1201,7 +1201,7 @@ export default {
         const ids = data.rows.map(elem => elem.id)
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
         loadParentsIfNecessary()
-        relationAttributesItemsRef.value = await getRelationAttributesItems(data)
+        relationAttributesItemsRef.value = await getRelationAttributesItems(data.rows)
       })
     }
 

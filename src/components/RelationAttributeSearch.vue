@@ -5,6 +5,7 @@
       :search-input.sync="searchRef"
       :loading="loadingRef"
       clearable
+      dense
     >
     </v-autocomplete>
 </template>
