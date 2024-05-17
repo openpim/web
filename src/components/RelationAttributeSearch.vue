@@ -58,6 +58,12 @@ export default {
       }
     })
 
+    watch(() => props.attrIdentifier, (val) => {
+      setTimeout(async () => {
+        await updateAvailableItemsForRelationAttr(props.value)
+      }, 500)
+    })
+
     const updateAvailableItemsForRelationAttr = async (searchStr) => {
       loadingRef.value = true
       const attrNode = findByIdentifier(props.attrIdentifier)

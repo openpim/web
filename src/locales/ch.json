@@ -523,6 +523,7 @@
 	"Channels.Type.YM": "Yandex Market",
 	"Channels.Type.ExternalWithMapping": "外部（带设置)",
 	"Channels.Type.MDM": "主数据",
+	"Channels.Type.MDM.External": "主数据 (外部)",
 	"Channels.SelectionDialog.Title": "选择通道",
 	"ChannelView.Dashboard": "仪表板",
 	"ChannelView.Executions": "运行",

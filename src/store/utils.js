@@ -37,6 +37,36 @@ export async function serverFetch (query, variables) {
   }
 }
 
+export async function serverFetchCustomUrl (url, token, query, variables) {
+  const req = { query: query }
+  if (variables) req.variables = variables
+  const serverUrl = url
+  const headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json'
+  }
+  if (token) {
+    headers['x-token'] = token
+  }
+  const resp = await fetch(serverUrl, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(req)
+  })
+  if (resp.ok) {
+    const json = await resp.json()
+    if (json.errors && json.errors.length > 0) {
+      throw new Error(json.errors[0].message)
+    }
+    const data = json.data
+    return data
+  } else {
+    const data = await resp.json()
+    err.store.showError(data.errors[0].message)
+    throw new Error(data.errors[0].message)
+  }
+}
+
 function findNode (id, children, path) {
   return findNodeByComparator(id, children, path, (id, item) => item.id === id)
 }

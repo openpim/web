@@ -17,6 +17,7 @@ import * as procStore from './processes'
 import * as collectionsStore from './collections'
 import * as importConfigsStore from './importConfigs'
 import * as authStore from './auth'
+import * as remotePIMInstanceStore from './remotePIMInstance'
 
 export default () => {
   errorStore.provideStore()
@@ -38,4 +39,5 @@ export default () => {
   collectionsStore.provideStore()
   importConfigsStore.provideStore()
   authStore.provideStore()
+  remotePIMInstanceStore.provideStore()
 }

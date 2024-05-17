@@ -806,7 +806,7 @@ export default {
           data = data.map(el => ({ identifier: el.identifier, text: el.values[displayValue.value] }))
         }
       } else {
-        data = data.map(el => ({ identifier: el.identifier, text: el.name[currentLanguage.value.identifier || defaultLanguageIdentifier.value] }))
+        data = data.map(el => ({ identifier: el.identifier, text: el.name[currentLanguage.value.identifier] || el.name[defaultLanguageIdentifier.value] }))
       }
       return data
     }
@@ -1189,7 +1189,7 @@ export default {
       optionsRef.value.page = 1
       loadingRef.value = true
       totalItemsRef.value = 0
-      props.loadData(optionsRef.value).then(data => {
+      props.loadData(optionsRef.value).then(async data => {
         itemsRef.value = data.rows
         totalItemsRef.value = data.count
         loadingRef.value = false
@@ -1199,6 +1199,7 @@ export default {
         const ids = data.rows.map(elem => elem.id)
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
         loadParentsIfNecessary()
+        relationAttributesItemsRef.value = await getRelationAttributesItems(data)
       })
     }
 

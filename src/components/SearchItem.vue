@@ -44,8 +44,9 @@
                     <template v-if="filter.attr === 'collectionId'">
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="collSelectionDialogRef.showDialog(false, filter)"></v-text-field>
                     </template>
+                    <RelationAttributeSearchComponent v-if="filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && getAttrType(filter) === AttributeType.Relation" :attrIdentifier="getAttrIdentifier(filter)" v-model="filter.value" />
                     <v-autocomplete v-if="filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && lovsMapRef[filter.attr]" dense v-model="filter.value" :items="getLovItems(filter)" :label="$t('Search.Filter.Attribute.Value')"></v-autocomplete>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMapRef[filter.attr] && getAttrType(filter) !== AttributeType.Relation" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
                     <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)"></v-text-field>
                     <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && getDateType(filter) && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)"></v-text-field>
                     <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
@@ -98,10 +99,11 @@ import CollectionsSelectionDialog from '../components/CollectionsSelectionDialog
 import TypeSelectionDialog from '../components/TypeSelectionDialog'
 import DatePickerDialog from '../components/DatePickerDialog'
 import AttributeType from '../constants/attributeTypes'
+import RelationAttributeSearchComponent from '../components/RelationAttributeSearch.vue'
 import router from '../router'
 
 export default {
-  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, CollectionsSelectionDialog, TypeSelectionDialog, DatePickerDialog },
+  components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, CollectionsSelectionDialog, TypeSelectionDialog, DatePickerDialog, RelationAttributeSearchComponent },
   setup (props, { root }) {
     const { showError } = errorStore.useStore()
 
@@ -158,6 +160,10 @@ export default {
     // const selectedRef = ref(null)
     const fieldsSelection = ref([])
     const extendedSearchRef = ref('{ "identifier": "???", ... }')
+
+    const getAttrIdentifier = (filter) => {
+      return filter.attr.substring(5)
+    }
 
     async function searchSelected (selected) {
       if (!selected.extended && selected.whereClause && selected.whereClause.orAnd) selected.orAnd = selected.whereClause.orAnd
@@ -442,6 +448,11 @@ export default {
       return arrattr ? arrattr.type : null
     }
 
+    function getAttrType (filter) {
+      const arrattr = fieldsSelection.value.find(elem => elem.value === filter.attr)
+      return arrattr ? arrattr.typeId : null
+    }
+
     function datePicker (id, filter) {
       datePickerDialogRef.value.closeDialog()
       filter.value = id
@@ -527,7 +538,7 @@ export default {
             }
           } else {
             const val = 'attr#' + attr.identifier
-            const data = { value: val, text: attr.identifier + ' - ' + nameText, lov: attr.lov }
+            const data = { value: val, text: attr.identifier + ' - ' + nameText, lov: attr.lov, typeId: attr.type }
             if (attr.type === AttributeType.Date) {
               data.type = 'date'
             } else if (attr.type === AttributeType.Time) {
@@ -570,6 +581,9 @@ export default {
     })
 
     return {
+      getAttrIdentifier,
+      getAttrType,
+      AttributeType,
       getLovItems,
       getDateType,
       datePicker,
@@ -625,7 +639,6 @@ export default {
         { text: i18n.t('Search.Filter.Operation.NotEmpty'), value: 17 },
         { text: i18n.t('Search.Filter.Operation.Contains'), value: 18 }
       ]
-
     }
   }
 }
