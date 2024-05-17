@@ -601,7 +601,7 @@ export default {
       columnsSelectionDialogRef.value.showDialog([...headersRef.value], onlyAttributes)
     }
 
-    function columnsSelected (arr) {
+    async function columnsSelected (arr) {
       savedColumnsSelectionRef.value = null
       localStorage.removeItem('savedColumnsSelection')
       columnsSelectionDialogRef.value.closeDialog()
@@ -609,6 +609,7 @@ export default {
       loadLOVs()
       loadParentsIfNecessary()
       localStorage.setItem(props.headersStorageName, JSON.stringify(arr))
+      relationAttributesItemsRef.value = await getRelationAttributesItems(itemsRef.value)
     }
 
     async function loadLOVs () {
@@ -651,13 +652,13 @@ export default {
       optionsUpdate(optionsRef.value)
     }
 
-    async function getRelationAttributesItems (data) {
+    async function getRelationAttributesItems (rows) {
       let relationAttributesItemsIds = []
       for (let i = 0; i < headersRef.value.length; i++) {
         const header = headersRef.value[i]
         if (header.type === AttributeType.Relation) {
           const attrIdentifier = header.identifier.substring(5)
-          data.rows.forEach(row => {
+          rows.forEach(row => {
             if (row.values[attrIdentifier]) {
               if (Array.isArray(row.values[attrIdentifier])) {
                 relationAttributesItemsIds = relationAttributesItemsIds.concat(row.values[attrIdentifier])
@@ -688,7 +689,7 @@ export default {
         const ids = data.rows.map(elem => elem.id)
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
         loadParentsIfNecessary()
-        relationAttributesItemsRef.value = await getRelationAttributesItems(data)
+        relationAttributesItemsRef.value = await getRelationAttributesItems(data.rows)
       })
     }
 
@@ -749,7 +750,7 @@ export default {
       do {
         page++
         const data = await props.loadData({ page: page, itemsPerPage: itemsPerPage, sortBy: sortBy, sortDesc: sortDesc })
-        const relationAttributesItems = await getRelationAttributesItems(data)
+        const relationAttributesItems = await getRelationAttributesItems(data.rows)
 
         total = data.count
         if (!excelDialogRef.value) return // exit if process was canceled
@@ -796,7 +797,8 @@ export default {
       if (value && Array.isArray(value)) {
         data = value.map(val => items.find(el => parseInt(el.id) === parseInt(val)))
       } else if (value) {
-        data = [items.find(el => parseInt(el.id) === parseInt(value))]
+        const tmp = items.find(el => parseInt(el.id) === parseInt(value))
+        if (tmp) data = [tmp]
       }
 
       if (displayValue) {
