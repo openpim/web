@@ -168,7 +168,7 @@
       <v-col cols="12">
         <v-container ref="tabsContainerRef" class="ma-0 pa-0">
           <v-tabs v-model="tabRef">
-          <FirstTabsComponent></FirstTabsComponent>
+          <FirstTabsComponent :item="itemRef"></FirstTabsComponent>
           <v-tab v-text="$t('ItemView.Tab.Attributes')"></v-tab>
           <v-tab v-if="itemRef.typeFile" v-text="$t('ItemView.Tab.File')"></v-tab>
           <v-tab v-if="!itemRef.typeFile && filesRef.length > 0" v-text="$t('ItemView.Tab.MediaFiles')"></v-tab>
@@ -177,11 +177,11 @@
           <v-tab v-if="totalChildrenRef === -1 || totalChildrenRef > 0">{{$t('ItemView.Tab.Children') + (totalChildrenRef > 0 ? ' (' + totalChildrenRef + ')' : '')}}</v-tab>
           <v-tab v-if="hasChannels" v-text="$t('ItemView.Tab.Channels')"></v-tab>
           <v-tab v-if="hasAccess('audit') && auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
-          <LastTabsComponent></LastTabsComponent>
+          <LastTabsComponent :item="itemRef"></LastTabsComponent>
         </v-tabs>
         </v-container>
         <v-tabs-items v-model="tabRef">
-          <FirstTabsItemComponent></FirstTabsItemComponent>
+          <FirstTabsItemComponent :item="itemRef"></FirstTabsItemComponent>
           <v-tab-item> <!-- Attributes -->
             <div class="mt-3"></div>
             <v-text-field v-if="!getOption(itemType, 'hideIdentifier', false)" class="pb-0 pr-5 pl-5" v-model="itemRef.identifier" readonly :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
@@ -406,7 +406,7 @@
           <v-tab-item v-if="hasAccess('audit') && auditEnabled">  <!-- History -->
             <HistoryTable ref="historyTableRef" :item="itemRef" componentType="item"></HistoryTable>
           </v-tab-item>
-          <LastTabsItemComponent></LastTabsItemComponent>
+          <LastTabsItemComponent :item="itemRef"></LastTabsItemComponent>
         </v-tabs-items>
       </v-col>
     </v-row>
