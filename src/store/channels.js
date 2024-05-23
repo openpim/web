@@ -60,10 +60,18 @@ const actions = {
       chanPromiseAll = serverFetch('query { getChannels {id identifier name active type valid visible config mappings runtime createdAt createdBy updatedAt updatedBy} }')
     }
     const data = await chanPromiseAll
+    const readingTime = new Date().toISOString()
     if (channelsMappingLoaded) return channels
     if (data.getChannels) {
       channels.splice(0)
       data.getChannels.forEach(element => {
+        if (element.mappings) {
+          Object.keys(element.mappings).forEach(mapping => {
+            if (mapping !== '_default') {
+              element.mappings[mapping].readingTime = readingTime
+            }
+          })
+        }
         element.internalId = element.id
         channels.push(element)
       })

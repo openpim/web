@@ -172,6 +172,7 @@ export default {
     const timeMenuRef = ref(null)
     const time = ref(null)
 
+    const oldChannel = ref(null)
     const searchRef = ref('')
     const chanFiltered = computed(() => {
       let arr = channels
@@ -203,6 +204,7 @@ export default {
         }
         const val = chanFiltered.value[selected]
         if (!val.config.options) root.$set(val.config, 'options', [])
+        oldChannel.value = JSON.parse(JSON.stringify(val))
         selectedRef.value = val
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
           router.push('/config/channels/' + selectedRef.value.identifier)
@@ -219,13 +221,49 @@ export default {
     function add () {
       selectedRef.value = addChannel()
       itemRef.value = channels.length - 1
+      oldChannel.value = JSON.parse(JSON.stringify(selectedRef.value))
+    }
+
+    function findChanges (oldChannel, changesChannel) {
+      Object.keys(oldChannel.mappings).forEach(mapping => {
+        if (Object.prototype.hasOwnProperty.call(changesChannel.mappings, mapping)) {
+          if (JSON.stringify(oldChannel.mappings[mapping]) !== JSON.stringify(changesChannel.mappings[mapping])) {
+            // changed
+            changesChannel.mappings[mapping].changed = true
+          }
+        } else {
+          // removed
+          changesChannel.mappings[mapping].changed = true
+        }
+      })
+
+      Object.keys(oldChannel.mappings).forEach(mapping => {
+        if (!Object.prototype.hasOwnProperty.call(oldChannel.mappings, mapping)) {
+          // added
+          changesChannel.mappings[mapping].changed = true
+        }
+      })
+    }
+
+    function updateCategories (channel, readingTime) {
+      Object.keys(channel.mappings).forEach(mapping => {
+        const category = channel.mappings[mapping]
+        if (Object.prototype.hasOwnProperty.call(category, 'changed')) {
+          delete category.changed
+          category.readingTime = readingTime
+        }
+      })
     }
 
     function save () {
       if (formRef.value.validate()) {
+        findChanges(oldChannel.value, selectedRef.value)
         saveChannel(selectedRef.value).then(() => {
           showInfo(i18n.t('Saved'))
+          const readingTime = new Date().toISOString()
+          updateCategories(selectedRef.value, readingTime)
         })
+        oldChannel.value = JSON.parse(JSON.stringify(selectedRef.value))
       }
     }
 
@@ -265,6 +303,7 @@ export default {
             const val = channels[idx]
             if (!val.config.options) root.$set(val.config, 'options', [])
             selectedRef.value = val
+            oldChannel.value = JSON.parse(JSON.stringify(val))
             itemRef.value = idx
           } else {
             router.push('/config/channels')
@@ -309,6 +348,9 @@ export default {
       tabRef,
       languages,
       searchRef,
+      oldChannel,
+      findChanges,
+      updateCategories,
       chanFiltered,
       clearSelection,
       optionsChanged,
