@@ -1,82 +1,86 @@
 <template>
-    <div v-if="lov">
-      <v-form ref="formRef" lazy-validation class="ml-7" v-if="lov.id != -1">
-            <div class="d-inline-flex align-center">
-              <v-text-field style="min-width: 100%" v-model="lov.identifier"  :disabled="lov.internalId !== 0" :rules="identifierRules" :label="$t('Config.Languages.Identifier')" required></v-text-field>
-              <SystemInformation :data="lov"></SystemInformation>
+  <div v-if="lov">
+    <v-form ref="formRef" lazy-validation class="ml-7" v-if="lov.id != -1">
+      <div class="d-inline-flex align-center">
+        <v-text-field style="min-width: 100%" v-model="lov.identifier" :disabled="lov.internalId !== 0"
+          :rules="identifierRules" :label="$t('Config.Languages.Identifier')" required></v-text-field>
+        <SystemInformation :data="lov"></SystemInformation>
+      </div>
+      <LanguageDependentField :values="lov.name" v-model="lov.name[currentLanguage.identifier]" :rules="nameRules"
+        :label="$t('Config.Languages.Name')"></LanguageDependentField>
+      <v-data-table :headers="headers" :items="filteredValues" dense fixed-header height="60vh" :page.sync="currentPage"
+        :items-per-page="itemsPerPage">
+        <template v-slot:top>
+          <div class="d-flex align-items-center justify-content-between">
+            <v-text-field type="text" class="pa-0" v-model="search" append-icon="mdi-magnify" :label="$t('Search')"
+              single-line></v-text-field>
+            <div class="d-flex align-items-center">
+              <v-tooltip top v-if="canEditConfig" class="ml-4">
+                <template v-slot:activator="{ on }">
+                  <v-btn v-on="on" class="pa-0" icon color="primary" @click="addValue">
+                    <v-icon dark>mdi-plus</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ $t('Add') }}</span>
+              </v-tooltip>
+
+              <v-tooltip top class="ml-4">
+                <template v-slot:activator="{ on }">
+                  <v-btn v-on="on" class="pa-0" icon color="primary" @click="exportData">
+                    <v-icon dark>mdi-export</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ $t('Config.LOV.Export') }}</span>
+              </v-tooltip>
+
+              <v-tooltip top class="ml-4">
+                <template v-if="canEditConfig" v-slot:activator="{ on }">
+                  <v-btn v-on="on" class="pa-0" icon color="primary" @click="importData">
+                    <v-icon dark>mdi-import</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ $t('Config.LOV.Import') }}</span>
+              </v-tooltip>
             </div>
-            <LanguageDependentField :values="lov.name" v-model="lov.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Languages.Name')"></LanguageDependentField>
-          <v-simple-table dense  fixed-header height="60vh"  class="mb-4">
-              <template v-slot:default>
-                <thead>
-                  <tr>
-                    <th class="text-left">
-                      <v-tooltip top v-if="canEditConfig" class="ml-4">
-                        <template v-slot:activator="{ on }">
-                          <v-btn v-on="on" class="pa-0" icon color="primary" @click="addValue"><v-icon dark>mdi-plus</v-icon></v-btn>
-                        </template>
-                        <span>{{ $t('Add') }}</span>
-                      </v-tooltip>
-                      {{ $t('Config.LOV.ID') }}
-                    </th>
-                    <th class="text-left">{{ $t('Config.LOV.Value') }}</th>
-                    <th class="text-left" v-for="(channel, i) in availableChannelsRef" :key="i">{{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}</th>
-                    <th class="text-left">{{ $t('Config.LOV.Level') }}</th>
-                    <th class="text-left">{{ $t('Config.LOV.ForAttributes') }}</th>
-                    <th class="text-left">{{ $t('Config.LOV.URL') }}</th>
-                    <th class="text-left">
-                      {{ $t('Config.LOV.Filter') }}<br>
-                      <v-tooltip top v-if="canEditConfig" class="ml-4">
-                        <template v-slot:activator="{ on }">
-                          <v-btn v-on="on" class="pa-0" icon color="primary" @click="addValue"><v-icon dark>mdi-plus</v-icon></v-btn>
-                        </template>
-                        <span>{{ $t('Add') }}</span>
-                      </v-tooltip>
-                      <v-tooltip topclass="ml-4">
-                        <template v-slot:activator="{ on }">
-                          <v-btn v-on="on" class="pa-0" icon color="primary" @click="exportData"><v-icon dark>mdi-export</v-icon></v-btn>
-                        </template>
-                        <span>{{ $t('Config.LOV.Export') }}</span>
-                      </v-tooltip>
-                      <v-tooltip topclass="ml-4">
-                        <template v-if="canEditConfig" v-slot:activator="{ on }">
-                          <v-btn v-on="on" class="pa-0" icon color="primary" @click="importData"><v-icon dark>mdi-import</v-icon></v-btn>
-                        </template>
-                        <span>{{ $t('Config.LOV.Import') }}</span>
-                      </v-tooltip>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(elem, j) in lov.values" :key="j">
-                    <td class="pa-1">
-                      <input v-model="elem.id" type="number" size="5" maxlength="5" :placeholder="$t('Config.LOV.ID')"/>
-                    </td>
-                    <td class="pa-1">
-                      <input v-model="elem.value[currentLanguage.identifier]" size="50" :placeholder="$t('Config.LOV.Value')"/>
-                    </td>
-                    <td class="pa-1" v-for="(channel, i) in availableChannelsRef" :key="i">
-                      <input v-model="elem[channel.identifier][currentLanguage.identifier]"/>
-                    </td>
-                    <td class="pa-1">
-                      <v-chip @click="editLevels(elem)"><v-icon left>mdi-form-select</v-icon>{{ elem.level && elem.level.length > 0 ? '...' : '' }}</v-chip>
-                    </td>
-                    <td class="pa-1">
-                      <v-chip @click="editAttributes(elem)"><v-icon left>mdi-form-select</v-icon>{{ elem.attrs && elem.attrs.length > 0 ? '...' : '' }}</v-chip>
-                    </td>
-                    <td class="pa-1">
-                      <input v-model="elem.url" size="5" :placeholder="$t('Config.LOV.URL')"/>
-                    </td>
-                    <td class="pa-1">
-                      <input v-model="elem.filter" type="number" :placeholder="$t('Config.LOV.Filter')"/>
-                      <v-btn class="pa-0" icon color="primary" @click="removeValue(j)"><v-icon dark>mdi-close-circle-outline</v-icon></v-btn>
-                    </td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
-            </v-form>
-          <template>
+          </div>
+        </template>
+
+        <template v-slot:item="{ item, index }">
+          <tr>
+            <td class="pa-1">
+              <input v-model="item.id" type="number" size="5" maxlength="5" :placeholder="$t('Config.LOV.ID')" />
+            </td>
+            <td class="pa-1">
+              <input v-model="item.value[currentLanguage.identifier]" size="50" :placeholder="$t('Config.LOV.Value')" />
+            </td>
+            <td class="pa-1" v-for="(channel, i) in availableChannelsRef" :key="i">
+              <input v-model="item[channel.identifier][currentLanguage.identifier]" />
+            </td>
+            <td class="pa-1">
+              <v-chip @click="editLevels(item)">
+                <v-icon left>mdi-form-select</v-icon>{{ item.level && item.level.length > 0 ? '...' : '' }}
+              </v-chip>
+            </td>
+            <td class="pa-1">
+              <v-chip @click="editAttributes(item)">
+                <v-icon left>mdi-form-select</v-icon>{{ item.attrs && item.attrs.length > 0 ? '...' : '' }}
+              </v-chip>
+            </td>
+            <td class="pa-1">
+              <input v-model="item.url" size="5" :placeholder="$t('Config.LOV.URL')" />
+            </td>
+            <td class="pa-1">
+              <input v-model="item.filter" :placeholder="$t('Config.LOV.Filter')" />
+              <v-btn class="pa-0" icon color="primary" @click="removeValue(index)">
+                <v-icon dark>mdi-close-circle-outline</v-icon>
+              </v-btn>
+            </td>
+          </tr>
+        </template>
+      </v-data-table>
+      <br />
+    </v-form>
+    <template>
       <v-row justify="center">
         <v-dialog v-model="dialogRef" persistent max-width="600px">
           <v-card>
@@ -201,10 +205,10 @@
         </v-dialog>
       </v-row>
     </template>
-    </div>
+  </div>
 </template>
 <script>
-import { onMounted, ref } from '@vue/composition-api'
+import { onMounted, ref, computed } from '@vue/composition-api'
 import i18n from '../i18n'
 import AttributeType from '../constants/attributeTypes'
 import * as attrStore from '../store/attributes'
@@ -282,6 +286,56 @@ export default {
 
     const importDialogRef = ref(null)
     const importDataRef = ref('')
+
+    const itemsPerPage = ref(10)
+    const currentPage = ref(1)
+    const search = ref('')
+
+    const headers = computed(() => {
+      if (!props.lov.values || !availableChannelsRef.value.length || !currentLanguage.value) return []
+
+      const dynamicHeaders = availableChannelsRef.value.map(channel => ({
+        text: channel.name[currentLanguage.value.identifier] || `[${channel.name[defaultLanguageIdentifier]}]`,
+        value: channel.identifier
+      }))
+
+      return [
+        { text: i18n.t('Config.LOV.ID'), value: 'id' },
+        { text: i18n.t('Config.LOV.Value'), value: 'value' },
+        ...dynamicHeaders,
+        { text: i18n.t('Config.LOV.Level'), value: 'level' },
+        { text: i18n.t('Config.LOV.ForAttributes'), value: 'attrs' },
+        { text: i18n.t('Config.LOV.URL'), value: 'url' },
+        { text: i18n.t('Config.LOV.Filter'), value: 'filter' }
+      ]
+    })
+
+    const filteredValues = computed(() => {
+      if (!props.lov.values) return []
+      if (!search.value) return props.lov.values
+
+      const searchTerm = search.value.toLowerCase()
+
+      return props.lov.values.filter(item => {
+        if (
+          item.id.toString().includes(searchTerm) ||
+          item.value[currentLanguage.value.identifier]?.toLowerCase().includes(searchTerm) ||
+          (item.url && item.url.toLowerCase().includes(searchTerm)) ||
+          (item.filter && item.filter.toString().includes(searchTerm))
+        ) {
+          return true
+        }
+
+        return availableChannelsRef.value.some(channel => {
+          const channelData = item[channel.identifier][currentLanguage.value.identifier]
+          return channelData && channelData.toLowerCase().includes(searchTerm)
+        })
+      })
+    })
+
+    function goToLastPage () {
+      currentPage.value = Math.ceil(props.lov.values.length / itemsPerPage.value)
+    }
 
     function addVisible () {
       itemSelectionDialogRef.value.showDialog()
@@ -400,6 +454,7 @@ export default {
         tmp[channel.identifier] = {}
       })
       props.lov.values.push(tmp)
+      goToLastPage()
     }
 
     /* generate a download */
@@ -452,6 +507,11 @@ export default {
     }
 
     return {
+      search,
+      headers,
+      filteredValues,
+      currentPage,
+      itemsPerPage,
       itemsSelected,
       addValue,
       removeValue,
