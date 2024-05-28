@@ -6,7 +6,7 @@ const server = ref('')
 
 const actions = {
   loginRemotePIMInstance: async (url, user, password) => {
-    server.value = url
+    server.value = url + '/graphql'
     const query = 'mutation {signIn(login: "' + user + '", password: "' + password + '") { token }}'
     const data = await serverFetchCustomUrl(server.value, null, query)
     token.value = data.signIn.token
