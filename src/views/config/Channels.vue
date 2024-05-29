@@ -237,7 +237,7 @@ export default {
         }
       })
 
-      Object.keys(oldChannel.mappings).forEach(mapping => {
+      Object.keys(changesChannel.mappings).forEach(mapping => {
         if (!Object.prototype.hasOwnProperty.call(oldChannel.mappings, mapping)) {
           // added
           changesChannel.mappings[mapping].changed = true
