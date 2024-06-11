@@ -439,6 +439,10 @@ export default {
       {
         supplierId: 'a11980_product_line',
         masterId: 'm_a11980_product_line'
+      },
+      {
+        supplierId: 'barcode_list',
+        masterId: 'm_barcode_list'
       }
     ]
 
