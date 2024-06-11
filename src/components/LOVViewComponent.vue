@@ -8,6 +8,7 @@
       </div>
       <LanguageDependentField :values="lov.name" v-model="lov.name[currentLanguage.identifier]" :rules="nameRules"
         :label="$t('Config.Languages.Name')"></LanguageDependentField>
+      <v-alert v-if="loadingRef" type="info">{{$t('Config.LOV.Loading')}}</v-alert>
       <v-data-table :headers="headers" :items="filteredValues" dense fixed-header height="60vh" :page.sync="currentPage"
         :items-per-page="itemsPerPage">
         <template v-slot:top>
@@ -208,7 +209,7 @@
   </div>
 </template>
 <script>
-import { onMounted, ref, computed } from '@vue/composition-api'
+import { onMounted, ref, computed, watch } from '@vue/composition-api'
 import i18n from '../i18n'
 import AttributeType from '../constants/attributeTypes'
 import * as attrStore from '../store/attributes'
@@ -258,7 +259,8 @@ export default {
     } = errorStore.useStore()
 
     const {
-      getLOVsForSelect
+      getLOVsForSelect,
+      getLOVData
     } = lovStore.useStore()
 
     const { loadItemsByIds } = itemStore.useStore()
@@ -290,6 +292,7 @@ export default {
     const itemsPerPage = ref(10)
     const currentPage = ref(1)
     const search = ref('')
+    const loadingRef = ref(false)
 
     const headers = computed(() => {
       if (!props.lov.values || !availableChannelsRef.value.length || !currentLanguage.value) return []
@@ -406,6 +409,22 @@ export default {
       attrs.value.splice(attrSelectedRef.value, 1)
       attrSelectedRef.value = null
     }
+
+    watch(() => props.lov, async (val, prevValue) => {
+      if (val && val.id !== prevValue?.id && props.lov.values.length === 0) {
+        loadingRef.value = true
+        const data = await getLOVData(props.lov.id)
+        loadingRef.value = false
+        for (const row of data) props.lov.values.push(row)
+        props.lov.values.forEach(elem => {
+          if (!elem.filter) root.$set(elem, 'filter', null)
+          if (!elem.level) root.$set(elem, 'level', [])
+          availableChannelsRef.value.forEach(channel => {
+            if (!elem[channel.identifier]) root.$set(elem, channel.identifier, {})
+          })
+        })
+      }
+    })
 
     onMounted(() => {
       loadAllRelations().then(() => {
@@ -546,6 +565,7 @@ export default {
       processImport,
       currentLanguage,
       defaultLanguageIdentifier,
+      loadingRef,
       identifierRules: [
         v => identifierValidation(v)
       ],
