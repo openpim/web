@@ -120,7 +120,9 @@ const actions = {
       return items.map(item => enrichItem(item))
     }
   },
-  loadItemsByIdsForImport: async (arr, enrich) => {
+  loadItemsByIdsForImport: async (arr, loadMainImages, enrich) => {
+    if (!arr || arr.length === 0) return []
+
     const res = await serverFetch('query { getItemsByIds(ids: [' + arr + `]) { 
       id 
       path 
@@ -129,10 +131,28 @@ const actions = {
       typeId
       values
     } }`)
+
     const items = res.getItemsByIds
     if (!items) {
       err.store.showError(i18n.t('Item.byIdentifier.NotFound', { identifier: arr }))
     }
+
+    if (loadMainImages) {
+      const mainImages = await serverFetch('query { getMainImages(ids: [' + arr + `]) {
+        itemId
+        id
+        identifier
+      }}`)
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i]
+        const mainImage = mainImages.getMainImages.find(img => parseInt(item.id) === parseInt(img.itemId))
+        if (mainImage) {
+          item.values.__imagedata = mainImage
+        }
+      }
+    }
+
     if (!enrich) {
       return items.map(item => {
         item.id = parseInt(item.id)

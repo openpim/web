@@ -2,11 +2,17 @@
     <v-autocomplete
       v-model="inputVal"
       :items="availableItemsForRelationAttr"
-      :search-input.sync="searchRef"
+      :search-input="searchRef"
       :loading="loadingRef"
       clearable
       dense
     >
+        <template v-slot:item="data" v-if="showThumbnail">
+          <v-list-item-avatar tile>
+            <img :src="data.item.imageUrl" v-if="data.item.imageUrl">
+          </v-list-item-avatar>
+          <v-list-item-content v-text="data.item.text" />
+        </template>
     </v-autocomplete>
 </template>
 <script>
@@ -18,6 +24,9 @@ export default {
   components: {},
   props: {
     attrIdentifier: {
+      required: true
+    },
+    value: {
       required: true
     }
   },
@@ -34,6 +43,7 @@ export default {
 
     const searchRef = ref(null)
     const loadingRef = ref(false)
+    const showThumbnail = ref(false)
     const availableItemsForRelationAttr = ref([])
 
     const inputVal = computed({
@@ -65,26 +75,38 @@ export default {
       }, 500)
     })
 
+    const getDiplayValue = (item, displayValueOption) => {
+      let result
+      if (displayValueOption && displayValueOption.value && displayValueOption.value.startsWith('#')) {
+        const fieldName = displayValueOption.value.substr(1)
+        result = item[fieldName]
+      } else if (displayValueOption && displayValueOption.value) {
+        const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
+        const langDependent = displayAttr && displayAttr.item && displayAttr.item.languageDependent
+        if (langDependent) {
+          result = item.values[displayValueOption.value] ? item.values[displayValueOption.value][currentLanguage.value.identifier] || item.values[displayValueOption.value][defaultLanguageIdentifier.value] : null
+        } else {
+          result = item.values[displayValueOption.value]
+        }
+      } else {
+        result = item.name[currentLanguage.value.identifier] || item.name[defaultLanguageIdentifier.value]
+      }
+      return result
+    }
+
     const updateAvailableItemsForRelationAttr = async (searchStr) => {
       loadingRef.value = true
       const attrNode = findByIdentifier(props.attrIdentifier)
-      const displayValue = attrNode.item.options ? attrNode.item.options.find(el => el.name === 'displayvalue') : null
-      const displayAttr = displayValue ? findByIdentifier(displayValue.value) : null
-      const langDependent = displayAttr?.item?.languageDependent
+      const displayValueOption = attrNode.item.options.find(el => el.name === 'displayValue')
       const data = await getAvailableItemsForRelationAttr(attrNode.item, [], searchStr, currentLanguage.value.identifier || defaultLanguageIdentifier.value, 100, 0, 'ASC')
       availableItemsForRelationAttr.value = data.getItemsForRelationAttribute.map(el => {
-        let text
-        if (displayValue && displayValue.value) {
-          if (langDependent) {
-            text = el.values[displayValue.value] ? el.values[displayValue.value][currentLanguage.value.identifier] : null
-          } else {
-            text = el.values[displayValue.value]
-          }
-        } else {
-          text = el.name[currentLanguage.value.identifier] || el.name[defaultLanguageIdentifier.value]
-        }
-        return { identifier: el.identifier, value: el.id, text }
+        const text = getDiplayValue(el, displayValueOption)
+        const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
+        const imageUrl = el.values.__imagedata && el.values.__imagedata.id ? damUrl + 'asset/' + el.values.__imagedata.id + '?inline=true&token=' + localStorage.getItem('token') : null
+        return { identifier: el.identifier, value: el.id, text, imageUrl }
       })
+      const showThumbnailOption = attrNode.item.options ? attrNode.item.options.find(el => el.name === 'showThumbnail') : null
+      showThumbnail.value = showThumbnailOption && showThumbnailOption.value === 'true'
       loadingRef.value = false
     }
 
@@ -93,7 +115,8 @@ export default {
       availableItemsForRelationAttr,
       searchRef,
       loadingRef,
-      inputVal
+      inputVal,
+      showThumbnail
     }
   }
 }

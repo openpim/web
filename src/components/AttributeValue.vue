@@ -267,13 +267,22 @@
           clearable
         >
           <template #selection="selection">
-            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
+            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">
+              <v-avatar left tile v-if="getOption('showThumbnail', false) === true && selection.item.imageUrl">
+                <v-img :src="selection.item.imageUrl"></v-img>
+              </v-avatar>
+              {{selection.item.text}}
+            </v-chip>
+          </template>
+          <template v-slot:item="data" v-if="getOption('showThumbnail', false) === true">
+            <v-list-item-avatar tile>
+              <img :src="data.item.imageUrl" v-if="data.item.imageUrl">
+            </v-list-item-avatar>
+            <v-list-item-content v-text="data.item.text" />
           </template>
         </v-autocomplete>
       </template>
-
       <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
-
     </div>
     <div v-else-if="inTableView" :set="desc = getTextOption('description', '')">
       <!-- Text -->
@@ -525,7 +534,18 @@
           clearable
         >
           <template #selection="selection">
-            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="true" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
+            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="true" @click:close="removeValue(attr.identifier,selection.item.value)">
+              <v-avatar left tile v-if="getOption('showThumbnail', false) === true && selection.item.imageUrl">
+                <v-img :src="selection.item.imageUrl"></v-img>
+              </v-avatar>
+              {{selection.item.text}}
+            </v-chip>
+          </template>
+          <template v-slot:item="data" v-if="getOption('showThumbnail', false) === true">
+            <v-list-item-avatar tile>
+              <img :src="data.item.imageUrl" v-if="data.item.imageUrl">
+            </v-list-item-avatar>
+            <v-list-item-content v-text="data.item.text" />
           </template>
         </v-autocomplete>
       </template>
@@ -618,7 +638,18 @@
           clearable
         >
           <template #selection="selection">
-            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="true" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
+            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="true" @click:close="removeValue(attr.identifier,selection.item.value)">
+              <v-avatar left tile v-if="getOption('showThumbnail', false) === true && selection.item.imageUrl">
+                <v-img :src="selection.item.imageUrl"></v-img>
+              </v-avatar>
+              {{selection.item.text}}
+            </v-chip>
+          </template>
+          <template v-slot:item="data" v-if="getOption('showThumbnail', false) === true">
+            <v-list-item-avatar tile>
+              <img :src="data.item.imageUrl" v-if="data.item.imageUrl">
+            </v-list-item-avatar>
+            <v-list-item-content v-text="data.item.text" />
           </template>
         </v-autocomplete>
       </template>
@@ -744,24 +775,34 @@ export default {
       })
     }
 
+    const getDisplayValue = (item, displayValueOption) => {
+      let result
+      if (displayValueOption && displayValueOption.value && displayValueOption.value.startsWith('#')) {
+        const fieldName = displayValueOption.value.substr(1)
+        result = item[fieldName]
+      } else if (displayValueOption && displayValueOption.value) {
+        const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
+        const langDependent = displayAttr && displayAttr.item && displayAttr.item.languageDependent
+        if (langDependent) {
+          result = item.values[displayValueOption.value] ? item.values[displayValueOption.value][currentLanguage.value.identifier] || item.values[displayValueOption.value][defaultLanguageIdentifier.value] : null
+        } else {
+          result = item.values[displayValueOption.value]
+        }
+      } else {
+        result = item.name[currentLanguage.value.identifier] || item.name[defaultLanguageIdentifier.value]
+      }
+      return result
+    }
+
     const updateAvailableItemsForRelationAttr = async (searchStr) => {
       loadingRef.value = true
-      const displayValue = props.attr.options.find(el => el.name === 'displayvalue')
-      const displayAttr = displayValue ? findByIdentifier(displayValue.value) : null
-      const langDependent = displayAttr?.item?.languageDependent
+      const displayValueOption = props.attr.options.find(el => el.name === 'displayValue')
       const data = await getAvailableItemsForRelationAttr(props.attr, props.values[props.attr.identifier], searchStr, currentLanguage.value.identifier || defaultLanguageIdentifier.value, 100, 0, 'ASC')
       availableItemsForRelationAttr.value = data.getItemsForRelationAttribute.map(el => {
-        let text
-        if (displayValue && displayValue.value) {
-          if (langDependent) {
-            text = el.values[displayValue.value] ? el.values[displayValue.value][currentLanguage.value.identifier] || el.values[displayValue.value][defaultLanguageIdentifier.value] : null
-          } else {
-            text = el.values[displayValue.value]
-          }
-        } else {
-          text = el.name[currentLanguage.value.identifier] || el.name[defaultLanguageIdentifier.value]
-        }
-        return { identifier: el.identifier, value: el.id, text }
+        const text = getDisplayValue(el, displayValueOption)
+        const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
+        const imageUrl = el.values.__imagedata && el.values.__imagedata.id ? damUrl + 'asset/' + el.values.__imagedata.id + '/thumb?token=' + localStorage.getItem('token') : null
+        return { identifier: el.identifier, value: el.id, text, imageUrl }
       })
       loadingRef.value = false
     }
@@ -1013,6 +1054,7 @@ export default {
       joditConfig: { readonly: props.attr.readonly, toolbarAdaptive: false, toolbarButtonSize: 'small' },
       getTextOption,
       getNumberOption,
+      getOption,
       formatedDate,
       dateModal,
       dateDialog,
