@@ -40,12 +40,13 @@ const actions = {
     }
   },
   loadAllLOVs: async () => {
-    if (!lovsPromise) lovsPromise = serverFetch('query { getLOVs {id identifier name values createdBy createdAt updatedBy updatedAt } }')
+    if (!lovsPromise) lovsPromise = serverFetch('query { getLOVs {id identifier name createdBy createdAt updatedBy updatedAt } }')
     const data = await lovsPromise
     if (lovs.length > 0) return
     if (data.getLOVs) {
       data.getLOVs.forEach(element => {
         element.internalId = element.id
+        element.values = [] // we are not  loading values yet to reduce request size, we will load then when necessary
         lovs.push(element)
       })
     }

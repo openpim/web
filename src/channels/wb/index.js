@@ -8,6 +8,25 @@ function getStandardAttributes () {
       dictionary: false
     },
     {
+      id: '#title',
+      name: 'Наименование товара',
+      required: false,
+      dictionary: false
+    },
+    {
+      id: '#description',
+      name: 'Описание товара',
+      required: false,
+      dictionary: false,
+      description: 'Описание товара. Максимальное количество символов зависит от категории товара. Стандарт — 2000, минимум — 1000, максимум — 5000.'
+    },
+    {
+      id: '#brand',
+      name: 'Бренд',
+      required: false,
+      dictionary: false
+    },
+    {
       id: '#price',
       name: 'Цена',
       required: true,

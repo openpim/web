@@ -198,6 +198,7 @@
   "Config.LOV.Import": "Import",
   "Config.LOV.URL": "Url",
   "Config.LOV.ForAttributes": "For attributes",
+  "Config.LOV.Loading": "Loading...",
   "Config.Channels": "Channels",
   "Config.Channels.Channels": "Channels:",
   "Config.Channels.Identifier": "Identifier",

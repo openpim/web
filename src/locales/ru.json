@@ -195,6 +195,7 @@
   "Config.LOV.Import": "Загрузить",
   "Config.LOV.URL": "Url",
   "Config.LOV.ForAttributes": "Для атрибутов",
+  "Config.LOV.Loading": "Идет загрузка данных...",
   "Config.Channels": "Каналы",
   "Config.Channels.Channels": "Каналы:",
   "Config.Channels.Identifier": "Идентификатор",
