@@ -154,8 +154,7 @@ export default {
     const { canEditConfig } = userStore.useStore()
 
     const {
-      lovs,
-      loadAllLOVs
+      getLOVData
     } = lovsStore.useStore()
 
     const {
@@ -330,13 +329,12 @@ export default {
 
     const categoryLovValues = ref([])
     const lovAttributes = ref([])
-    function lovChanged (val) {
+    async function lovChanged (val) {
       if (!val) {
         categoryLovValues.value = []
       } else {
-        const lovId = '' + lovAttributes.value.find(attr => attr.identifier === val).lov
-        const lov = lovs.find(lov => lov.id === lovId)
-        categoryLovValues.value = lov.values
+        const lovId = lovAttributes.value.find(attr => attr.identifier === val).lov
+        categoryLovValues.value = await getLOVData(lovId)
       }
     }
 
@@ -355,7 +353,6 @@ export default {
     }
 
     onMounted(() => {
-      loadAllLOVs()
       loadAllRelations().then(() => { relationsLoadedRef.value = true })
       loadAllAttributes().then(() => {
         const lovArr = []
