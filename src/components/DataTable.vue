@@ -1137,7 +1137,7 @@ export default {
                       tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.name[currentLanguage.value.identifier] === arr[arrIndx])
                     }
                     if (tst) {
-                      mappedArr.push(tst.id)
+                      mappedArr.push(parseInt(tst.id))
                     } else {
                       throw new Error('Can not find item for name ' + row.values[attrNode.item.identifier])
                     }
@@ -1156,7 +1156,7 @@ export default {
                     tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.name[currentLanguage.value.identifier] === row.values[attrNode.item.identifier])
                   }
                   if (tst) {
-                    row.values[attrNode.item.identifier] = tst.id
+                    row.values[attrNode.item.identifier] = parseInt(tst.id)
                   } else {
                     throw new Error('Can not find item for name ' + row.values[attrNode.item.identifier])
                   }
