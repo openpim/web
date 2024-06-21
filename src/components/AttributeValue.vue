@@ -282,7 +282,7 @@
           </template>
         </v-autocomplete>
       </template>
-      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
+      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" :item="item"/>
     </div>
     <div v-else-if="inTableView" :set="desc = getTextOption('description', '')">
       <!-- Text -->
@@ -550,7 +550,7 @@
         </v-autocomplete>
       </template>
 
-      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
+      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" :item="item"/>
 
     </div>
     <div v-else>
@@ -654,7 +654,7 @@
         </v-autocomplete>
       </template>
 
-      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" />
+      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" :item="item"/>
 
     </div>
 </div>
