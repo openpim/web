@@ -127,7 +127,7 @@ export default {
       }
     }
 
-    function showDialog (init, typesToFilter) {
+    function showDialog (init, typesToFilter, searchTabActive) {
       typesFilter.value = typesToFilter
       selectedItemsRef.value = []
       initiator = init
@@ -139,6 +139,9 @@ export default {
       } else {
         treeRef.value = itemsTreeFiltered.value
         selectionDialogRef.value = true
+      }
+      if (searchTabActive) {
+        tabRef.value = 1
       }
     }
 
