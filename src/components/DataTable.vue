@@ -1109,9 +1109,9 @@ export default {
             let searchArr = []
             for (let rowIndx = 0; rowIndx < rows.length; rowIndx++) {
               const row = rows[rowIndx]
-              if (row.values[attrNode.item.identifier] && multivalue) {
+              if (row.values && row.values[attrNode.item.identifier] && multivalue) {
                 searchArr = searchArr.concat((row.values[attrNode.item.identifier] + '').split(','))
-              } else if (typeof row.values[attrNode.item.identifier] !== 'undefined' && row.values[attrNode.item.identifier] !== null) {
+              } else if (row.values && typeof row.values[attrNode.item.identifier] !== 'undefined' && row.values[attrNode.item.identifier] !== null) {
                 searchArr.push(row.values[attrNode.item.identifier])
               }
             }
@@ -1120,7 +1120,7 @@ export default {
 
             for (let k = 0; k < rows.length; k++) {
               const row = rows[k]
-              if (row.values[attrNode.item.identifier]) {
+              if (row.values && row.values[attrNode.item.identifier]) {
                 if (multivalue) {
                   const arr = (row.values[attrNode.item.identifier] + '').split(',')
                   const mappedArr = []
