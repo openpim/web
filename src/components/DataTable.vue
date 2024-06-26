@@ -614,6 +614,7 @@ export default {
       loadLOVs()
       loadParentsIfNecessary()
       localStorage.setItem(props.headersStorageName, JSON.stringify(arr))
+      await loadLOVsForRelationAttrs()
       relationAttributesItemsRef.value = await getRelationAttributesItems(itemsRef.value, false)
     }
 
@@ -625,6 +626,26 @@ export default {
           const values = await getLOVData(elem.lov)
           lovsMap[elem.lov] = values
           refresh = true
+        }
+      }
+      if (refresh) DataChanged()
+    }
+
+    async function loadLOVsForRelationAttrs () {
+      let refresh = false
+      for (let i = 0; i < headersRef.value.length; i++) {
+        const header = headersRef.value[i]
+        if (header.type === AttributeType.Relation) {
+          const attrIdentifier = header.identifier.substring(5)
+          const attrNode = findByIdentifier(attrIdentifier)
+          const displayValueOption = attrNode.item.options.find(el => el.name === 'displayValue')
+          const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
+          const lov = displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
+          if (lov) {
+            const values = await getLOVData(displayAttr.item.lov)
+            lovsMap[displayAttr.item.lov] = values
+            refresh = true
+          }
         }
       }
       if (refresh) DataChanged()
@@ -795,16 +816,18 @@ export default {
       excelDialogRef.value = false
     }
 
-    const getDisplayValue = (item, displayValueOption) => {
+    const getDisplayValue = (item, displayValueOption, displayAttr, lovData) => {
       let result
       if (displayValueOption && displayValueOption.value && displayValueOption.value.startsWith('#')) {
         const fieldName = displayValueOption.value.substr(1)
         result = item[fieldName]
       } else if (displayValueOption && displayValueOption.value) {
-        const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
         const langDependent = displayAttr && displayAttr.item && displayAttr.item.languageDependent
         if (langDependent) {
           result = item.values[displayValueOption.value] ? item.values[displayValueOption.value][currentLanguage.value.identifier] || item.values[displayValueOption.value][defaultLanguageIdentifier.value] : null
+        } else if (lovData) {
+          const found = lovData.find(el => parseInt(el.id) === parseInt(item.values[displayValueOption.value]))
+          result = found ? found.value[currentLanguage.value.identifier] || item.name[defaultLanguageIdentifier.value] : ''
         } else {
           result = item.values[displayValueOption.value]
         }
@@ -819,8 +842,11 @@ export default {
       const value = getValue(row, header)
       const attrIdentifier = header.identifier.substring(5)
       const attrNode = findByIdentifier(attrIdentifier)
+      const displayValueOption = attrNode.item.options.find(el => el.name === 'displayValue')
       const displayValue = attrNode.item.options ? attrNode.item.options.find(el => el.name === 'displayValue') : null
-
+      const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
+      const lov = displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
+      const lovData = lov ? lovsMap[displayAttr.item.lov] : null
       let data = []
       if (value && Array.isArray(value)) {
         for (let i = 0; i < value.length; i++) {
@@ -828,7 +854,6 @@ export default {
           const found = items.find(el => parseInt(el.id) === parseInt(val))
           if (found) data.push(found)
         }
-        // data = value.map(val => items.find(el => parseInt(el.id) === parseInt(val)))
       } else if (value) {
         const tmp = items.find(el => parseInt(el.id) === parseInt(value))
         if (tmp) data = [tmp]
@@ -837,7 +862,7 @@ export default {
       data = data.map(el => ({
         identifier: el.identifier,
         imageUrl: el.values.__imagedata && el.values.__imagedata.id ? damUrl + 'asset/' + el.values.__imagedata.id + '/thumb?token=' + localStorage.getItem('token') : null,
-        text: getDisplayValue(el, displayValue)
+        text: getDisplayValue(el, displayValue, displayAttr, lovData)
       }))
       return data
     }
@@ -1458,6 +1483,7 @@ export default {
         }
       })
       loadLOVs()
+      loadLOVsForRelationAttrs()
     }
 
     onMounted(async () => {
@@ -1496,6 +1522,7 @@ export default {
         }
       }
       loadLOVs()
+      await loadLOVsForRelationAttrs()
       DataChanged()
     })
 
