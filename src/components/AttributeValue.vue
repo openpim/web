@@ -775,16 +775,19 @@ export default {
       })
     }
 
-    const getDisplayValue = (item, displayValueOption) => {
+    const getDisplayValue = (item, displayValueOption, displayAttr, lovData) => {
       let result
       if (displayValueOption && displayValueOption.value && displayValueOption.value.startsWith('#')) {
         const fieldName = displayValueOption.value.substr(1)
         result = item[fieldName]
       } else if (displayValueOption && displayValueOption.value) {
-        const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
+        // const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
         const langDependent = displayAttr && displayAttr.item && displayAttr.item.languageDependent
         if (langDependent) {
           result = item.values[displayValueOption.value] ? item.values[displayValueOption.value][currentLanguage.value.identifier] || item.values[displayValueOption.value][defaultLanguageIdentifier.value] : null
+        } else if (lovData) {
+          const found = lovData.find(el => parseInt(el.id) === parseInt(item.values[displayValueOption.value]))
+          result = found ? found.value[currentLanguage.value.identifier] || item.name[defaultLanguageIdentifier.value] : ''
         } else {
           result = item.values[displayValueOption.value]
         }
@@ -797,9 +800,12 @@ export default {
     const updateAvailableItemsForRelationAttr = async (searchStr) => {
       loadingRef.value = true
       const displayValueOption = props.attr.options.find(el => el.name === 'displayValue')
+      const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
+      const lov = displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
+      const lovData = lov ? await getLOVData(displayAttr.item.lov) : null
       const data = await getAvailableItemsForRelationAttr(props.attr, props.values[props.attr.identifier], searchStr, currentLanguage.value.identifier || defaultLanguageIdentifier.value, 100, 0, 'ASC')
       availableItemsForRelationAttr.value = data.getItemsForRelationAttribute.map(el => {
-        const text = getDisplayValue(el, displayValueOption)
+        const text = getDisplayValue(el, displayValueOption, displayAttr, lovData)
         const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
         const imageUrl = el.values.__imagedata && el.values.__imagedata.id ? damUrl + 'asset/' + el.values.__imagedata.id + '/thumb?token=' + localStorage.getItem('token') : null
         return { identifier: el.identifier, value: el.id, text, imageUrl }
