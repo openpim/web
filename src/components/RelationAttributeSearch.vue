@@ -2,7 +2,7 @@
     <v-autocomplete
       v-model="inputVal"
       :items="availableItemsForRelationAttr"
-      :search-input="searchRef"
+      :search-input.sync="searchRef"
       :loading="loadingRef"
       clearable
       dense
