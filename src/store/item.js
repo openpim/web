@@ -486,7 +486,11 @@ const actions = {
     return data.search.responses[0]
   },
   getItemsForRelationAttributeImport: async (attr, searchArr, langIdentifier, limit, offset, order) => {
-    return await serverFetch(`query { getItemsForRelationAttributeImport (attrIdentifier: "${attr.identifier}", searchArr: ${objectToGraphgl(searchArr)}, langIdentifier: "${langIdentifier}", limit: ${limit}, offset: ${offset}, order: "${order}") { id, identifier, name, values } }`)
+    const query = `query($searchArr: [String]!) { getItemsForRelationAttributeImport (attrIdentifier: "${attr.identifier}", searchArr: $searchArr, langIdentifier: "${langIdentifier}", limit: ${limit}, offset: ${offset}, order: "${order}") { id, identifier, name, values } }`
+    const variables = {
+      searchArr
+    }
+    return await serverFetch(query, variables)
   },
   searchItems: async (where, options) => {
     if (!where) return []

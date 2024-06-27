@@ -614,7 +614,6 @@ export default {
       loadLOVs()
       loadParentsIfNecessary()
       localStorage.setItem(props.headersStorageName, JSON.stringify(arr))
-      await loadLOVsForRelationAttrs()
       relationAttributesItemsRef.value = await getRelationAttributesItems(itemsRef.value, false)
     }
 
@@ -632,7 +631,6 @@ export default {
     }
 
     async function loadLOVsForRelationAttrs () {
-      let refresh = false
       for (let i = 0; i < headersRef.value.length; i++) {
         const header = headersRef.value[i]
         if (header.type === AttributeType.Relation) {
@@ -641,14 +639,12 @@ export default {
           const displayValueOption = attrNode.item.options.find(el => el.name === 'displayValue')
           const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
           const lov = displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
-          if (lov) {
+          if (lov && !lovsMap[displayAttr.item.lov]) {
             const values = await getLOVData(displayAttr.item.lov)
             lovsMap[displayAttr.item.lov] = values
-            refresh = true
           }
         }
       }
-      if (refresh) DataChanged()
     }
 
     function headerSort (header) {
@@ -679,6 +675,7 @@ export default {
     }
 
     async function getRelationAttributesItems (rows, isExport) {
+      await loadLOVsForRelationAttrs()
       let relationAttributesItemsIds = []
       let loadMainImages = false
       for (let i = 0; i < headersRef.value.length; i++) {
@@ -1129,6 +1126,7 @@ export default {
           if (attrNode && attrNode.item && attrNode.item.type === AttributeType.Relation) {
             const langDependent = attrNode.item.langDependent
             const displayValue = attrNode.item.options ? attrNode.item.options.find(el => el.name === 'displayValue') : null
+            const displayAttr = displayValue ? findByIdentifier(displayValue.value) : null
             const multivalue = attrNode.item.options ? attrNode.item.options.find(el => el.name === 'multivalue' && el.value === 'true') : null
 
             let searchArr = []
@@ -1154,6 +1152,12 @@ export default {
                     if (displayValue && displayValue.value && displayValue.value.startsWith('#')) {
                       const fieldName = displayValue.value.substr(1)
                       tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el[fieldName] === arr[arrIndx])
+                    } else if (displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7) {
+                      if (!lovsMap[displayAttr.item.lov]) {
+                        lovsMap[displayAttr.item.lov] = await getLOVData(displayAttr.item.lov)
+                      }
+                      const lovData = lovsMap[displayAttr.item.lov].find(el => el.value[currentLanguage.value.identifier] === arr[arrIndx])
+                      tst = lovData ? attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] === lovData.id) : null
                     } else if (displayValue && !langDependent) {
                       tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] === arr[arrIndx])
                     } else if (displayValue && langDependent) {
@@ -1173,6 +1177,12 @@ export default {
                   if (displayValue && displayValue.value && displayValue.value.startsWith('#')) {
                     const fieldName = displayValue.value.substr(1)
                     tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el[fieldName] === row.values[attrNode.item.identifier])
+                  } else if (displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7) {
+                    if (!lovsMap[displayAttr.item.lov]) {
+                      lovsMap[displayAttr.item.lov] = await getLOVData(displayAttr.item.lov)
+                    }
+                    const lovData = lovsMap[displayAttr.item.lov].find(el => el.value[currentLanguage.value.identifier] === row.values[attrNode.item.identifier])
+                    tst = lovData ? attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] === lovData.id) : null
                   } else if (displayValue && !langDependent) {
                     tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] === row.values[attrNode.item.identifier])
                   } else if (displayValue && langDependent) {
@@ -1483,7 +1493,7 @@ export default {
         }
       })
       loadLOVs()
-      loadLOVsForRelationAttrs()
+      // loadLOVsForRelationAttrs()
     }
 
     onMounted(async () => {
@@ -1522,7 +1532,6 @@ export default {
         }
       }
       loadLOVs()
-      await loadLOVsForRelationAttrs()
       DataChanged()
     })
 
