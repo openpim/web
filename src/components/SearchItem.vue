@@ -44,7 +44,7 @@
                     <template v-if="filter.attr === 'collectionId'">
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="collSelectionDialogRef.showDialog(false, filter)"></v-text-field>
                     </template>
-                    <RelationAttributeSearchComponent v-if="filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && getAttrType(filter) === AttributeType.Relation" :attrIdentifier="getAttrIdentifier(filter)" v-model="filter.value" />
+                    <RelationAttributeSearchComponent v-if="filter.operation !== 10 && filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && getAttrType(filter) === AttributeType.Relation" :operation="filter.operation" :attrIdentifier="getAttrIdentifier(filter)" v-model="filter.value" />
                     <v-autocomplete v-if="filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && lovsMapRef[filter.attr]" dense v-model="filter.value" :items="getLovItems(filter)" :label="$t('Search.Filter.Attribute.Value')"></v-autocomplete>
                     <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr !== 'collectionId' && filter.attr !== 'typeIdentifier' && !getDateType(filter) && !lovsMapRef[filter.attr] && getAttrType(filter) !== AttributeType.Relation" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
                     <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'typeIdentifier' && !lovsMapRef[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="typeSelectionDialogRef.showDialog(filter)"></v-text-field>
@@ -57,7 +57,6 @@
                     <v-select dense v-model="filter.value" :items="statusSelection" :label="$t('ColumnsSelection.ChannelStatus')"></v-select>
                   </v-col>
                 </v-row>
-
               </v-container>
             </v-list-item-content>
           </v-list-item>
@@ -113,7 +112,8 @@ export default {
     } = typesStore.useStore()
 
     const {
-      loadItemsByIds
+      loadItemsByIds,
+      getItemsForRelationAttributeImport
     } = itemStore.useStore()
 
     const {
@@ -216,7 +216,7 @@ export default {
       selectedRef.value.filters.splice(selectedFilterRef.value, 1)
     }
 
-    function search () {
+    async function search () {
       if (selectedRef.value.extended) {
         try {
           selectedRef.value.whereClause = JSON.parse(extendedSearchRef.value)
@@ -234,7 +234,9 @@ export default {
         const where = {}
         where[orAndOperation] = []
         currentFilterRef.value = selectedRef.value.filters
-        selectedRef.value.filters.forEach(filter => {
+        // selectedRef.value.filters.forEach(filter => {
+        for (let i = 0; i < selectedRef.value.filters.length; i++) {
+          const filter = selectedRef.value.filters[i]
           if (filter.attr) {
             const data = {}
 
@@ -302,7 +304,7 @@ export default {
               data.channels = {}
               data.channels[channelIdentifier] = {}
               data.channels[channelIdentifier][field] = {}
-              data.channels[channelIdentifier][field][operation] = parseValue(null, filter.attr, filter.value, filter)
+              data.channels[channelIdentifier][field][operation] = await parseValue(null, filter.attr, filter.value, filter)
             } else if (filter.attr === '#level#') {
               data.path = {}
               data.path.OP_regexp = filter.path + '.*'
@@ -318,7 +320,7 @@ export default {
                 const attrObj = findByIdentifier(attr)
                 data.values = {}
                 data.values[attr] = {}
-                data.values[attr][operation] = parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
+                data.values[attr][operation] = await parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
               } else {
                 const attr = filter.attr.substring(5, idx)
                 const lang = filter.attr.substring(idx + 1)
@@ -326,15 +328,16 @@ export default {
                 data.values = {}
                 data.values[attr] = {}
                 data.values[attr][lang] = {}
-                data.values[attr][lang][operation] = parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
+                data.values[attr][lang][operation] = await parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
               }
             } else {
               data[filter.attr] = {}
-              data[filter.attr][operation] = parseValue(null, filter.attr, filter.value, filter, filter.date)
+              data[filter.attr][operation] = await parseValue(null, filter.attr, filter.value, filter, filter.date)
             }
             where[orAndOperation].push(data)
           }
-        })
+        }
+        // })
         searchEntityRef.value = 'ITEM'
         selectedRef.value.entity = searchEntityRef.value
         if (searchForKey(where, 'collectionId')) {
@@ -369,17 +372,22 @@ export default {
       return false
     }
 
-    function parseValue (attrObj, attr, value, filter) {
+    async function parseValue (attrObj, attr, value, filter) {
       if (filter.operation === 16) return [{ OP_eq: '' }, { OP_eq: null }]
       if (filter.operation === 17) return [{ OP_ne: '' }, { OP_ne: null }]
       if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
       else if (filter.operation === 10) {
-        const arr = []
         const split = ('' + value).split(/\r\n|\n|\r/)
-        split.forEach(str => {
-          arr.push(parseSimpleValue(attrObj, attr, str))
-        })
-        return arr
+        if (getAttrType(filter) !== AttributeType.Relation) {
+          const arr = []
+          split.forEach(str => {
+            arr.push(parseSimpleValue(attrObj, attr, str))
+          })
+          return arr
+        } else {
+          const items = await getItemsForRelationAttributeImport(attrObj, split, currentLanguage.value.identifier, 10000, 0, 'ASC')
+          return items.getItemsForRelationAttributeImport.map(el => el.id)
+        }
       } else {
         return parseSimpleValue(attrObj, attr, value)
       }
@@ -437,9 +445,9 @@ export default {
       filter.value = findType(parseInt(id)).node.identifier
     }
 
-    function enterKeyListener (e) {
+    async function enterKeyListener (e) {
       if (e.ctrlKey && e.key === 'Enter') {
-        search()
+        await search()
       }
     }
 
@@ -567,7 +575,7 @@ export default {
             searchToOpenRef.value.user = ''
             await searchSelected(searchToOpenRef.value)
             searchToOpenRef.value = null
-            search()
+            await search()
           } else {
             const tst2 = localStorage.getItem('last_item_search')
             if (tst2) searchSelected(JSON.parse(tst2))
