@@ -1909,6 +1909,7 @@ export default {
     background-color: rgb(240, 240, 240);
     position: sticky;
     top: 0;
+    z-index: 1;
   }
 
   div.resizer {
