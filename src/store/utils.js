@@ -159,7 +159,7 @@ function objectToGraphgl (value) {
             result += prop + ':' + (isNaN(parseFloat(obj)) ? null : parseFloat(obj)) + ','
           } else {
             let tmp = obj
-            if (tmp.endsWith('"')) tmp += ' '
+            if (tmp.endsWith('"') || tmp.endsWith('\\')) tmp += ' '
             tmp = tmp.replaceAll('"""', '\\"""')
             result += prop + ':"""' + tmp + '""",'
           }
