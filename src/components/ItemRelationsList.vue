@@ -119,7 +119,7 @@
                     </span>
                   </td>
                   <td class="text-left pa-0" v-for="(attr, idx) in getAttributesForRelation(identifier)" :key="'attr'+idx">
-                    <AttributeValue @input="attrChange(itemRel, attr)" :item="item" :attr="attr" :values="itemRel.values" :dense="true" :inTableView="false"></AttributeValue>
+                    <AttributeValue @input="attrChange(itemRel, attr, identifier)" :item="item" :attr="attr" :values="itemRel.values" :dense="true" :inTableView="false"></AttributeValue>
                   </td>
                   <td class="pa-1">
                     <v-tooltip top v-if="canEditItemRelation">
@@ -602,7 +602,7 @@ export default {
                 } else {
                   router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
                 }
-                executeClientAction(itemRel, { type: props.componentType })
+                executeClientAction(itemRel, { type: props.componentType }, itemRels[parameters.identifier])
                 changedRelations.value.push(itemRel.id)
               }
             })
@@ -617,7 +617,7 @@ export default {
       type = source|target|attribute
       attr
     } */
-    function executeClientAction (itemRel, change) {
+    function executeClientAction (itemRel, change, rels) {
       const relationChangedActions = filterRelationChangedActions(itemRel)
       for (let i = 0; i < relationChangedActions.length; i++) {
         const action = relationChangedActions[i]
@@ -630,8 +630,8 @@ export default {
           // for feature usage
           const relStore = {}
           // eslint-disable-next-line no-new-func
-          const func = new Function('itemRel', 'itemStore', 'relStore', 'change', '"use strict"; ' + action.code)
-          func(itemRel, itemStore, relStore, change)
+          const func = new Function('itemRel', 'itemStore', 'relStore', 'change', 'relations', '"use strict"; ' + action.code)
+          func(itemRel, itemStore, relStore, change, rels)
         } catch (err) {
           console.error('Failed to evaluate expression: "' + action.code + '" for action: ' + action.identifier, err)
         }
@@ -657,8 +657,9 @@ export default {
       return relationChangedActions
     }
 
-    function attrChange (itemRel, attr) {
-      executeClientAction(itemRel, { type: 'attribute', attr })
+    function attrChange (itemRel, attr, relationIdentifier) {
+      const relations = props.componentType === 'source' ? sourceRelations : targetRelations
+      executeClientAction(itemRel, { type: 'attribute', attr }, relations[relationIdentifier])
       router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
       changedRelations.value.push(itemRel.id)
     }
