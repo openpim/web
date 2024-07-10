@@ -1080,6 +1080,11 @@ export default {
         })
       })
 
+      if (tabAttrGroups.value.length > 0) {
+        const firstGroup = tabAttrGroups.value[0]
+        firstGroup.groups = firstGroup.groups.filter(group => !getOption(group, 'itemTabName', null))
+      }
+
       if (!item.values) item.values = {}
       let grpIdx = 0
       attrGroups.value.forEach(group => {
