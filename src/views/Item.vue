@@ -169,7 +169,7 @@
         <v-container ref="tabsContainerRef" class="ma-0 pa-0">
           <v-tabs v-model="tabRef">
           <FirstTabsComponent :item="itemRef"></FirstTabsComponent>
-          <v-tab v-text="$t('ItemView.Tab.Attributes')"></v-tab>
+          <v-tab v-for="attrGroups in tabAttrGroups" :key="attrGroups.identifier" v-text="attrGroups.identifier"></v-tab>
           <v-tab v-if="itemRef.typeFile" v-text="$t('ItemView.Tab.File')"></v-tab>
           <v-tab v-if="!itemRef.typeFile && filesRef.length > 0" v-text="$t('ItemView.Tab.MediaFiles')"></v-tab>
           <v-tab v-if="hasSources" v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
@@ -182,7 +182,7 @@
         </v-container>
         <v-tabs-items v-model="tabRef">
           <FirstTabsItemComponent :item="itemRef"></FirstTabsItemComponent>
-          <v-tab-item> <!-- Attributes -->
+          <v-tab-item v-for="attrGroups in tabAttrGroups" :key="attrGroups.identifier"> <!-- Attributes -->
             <div class="mt-3"></div>
             <v-text-field v-if="!getOption(itemType, 'hideIdentifier', false)" class="pb-0 pr-5 pl-5" v-model="itemRef.identifier" readonly :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
             <div :class="getOption(itemType, 'name_class', '')" :style="getOption(itemType, 'name_style', '')"><LanguageDependentField class="pb-0 pr-5 pl-5" @input="nameInput" :values="itemRef.name" v-model="itemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')"></LanguageDependentField></div>
@@ -191,7 +191,7 @@
               <v-card-text class="pt-2 pl-0 pr-0">
                 <BeforeAttributesComponent></BeforeAttributesComponent>
                 <v-expansion-panels popout multiple focusable v-model="groupPanels">
-                  <v-expansion-panel v-for="(group,i) in attrGroups" :key="i">
+                  <v-expansion-panel v-for="(group,i) in attrGroups.groups" :key="i">
                     <v-expansion-panel-header>{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
                        <v-container class="pa-0">
@@ -238,13 +238,13 @@
               </v-card-text>
             </v-card>
             <v-container class="pa-3" v-if="tabsMode">
-              <v-card elevation="2" class="m-1" v-if="attrGroups.length">
+              <v-card elevation="2" class="m-1" v-if="attrGroups.groups.length">
                 <v-card-text>
                   <v-tabs v-model="attrTabRef" class="pb-5">
-                    <v-tab v-for="(group,i) in attrGroups" :key="i">{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-tab>
+                    <v-tab v-for="(group,i) in attrGroups.groups" :key="i">{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-tab>
                   </v-tabs>
                   <v-tabs-items v-model="attrTabRef">
-                    <v-tab-item v-for="(group,i) in attrGroups" :key="i">
+                    <v-tab-item v-for="(group,i) in attrGroups.groups" :key="i">
                       <v-container class="pa-0">
                         <v-row no-gutters v-if="!tableMode || getOption(group, 'noTableView')">
                           <template v-for="(attr,i) in group.itemAttributes">
@@ -1009,6 +1009,8 @@ export default {
       if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
     }
 
+    const tabAttrGroups = ref([])
+
     function enrichItem (item) {
       const arr = getAttributesForItem(item.typeId, item.path)
 
@@ -1051,6 +1053,31 @@ export default {
         } else {
           return true
         }
+      })
+
+      tabAttrGroups.value = [
+        {
+          identifier: i18n.t('ItemView.Tab.Attributes'),
+          groups: attrGroups.value
+        }
+      ]
+
+      const groupedByItemTabName = attrGroups.value.reduce((acc, group) => {
+        const itemTabName = getOption(group, 'itemTabName', null)
+        if (itemTabName) {
+          if (!acc[itemTabName]) {
+            acc[itemTabName] = []
+          }
+          acc[itemTabName].push(group)
+        }
+        return acc
+      }, {})
+
+      Object.entries(groupedByItemTabName).forEach(([key, groups]) => {
+        tabAttrGroups.value.push({
+          identifier: key,
+          groups
+        })
       })
 
       if (!item.values) item.values = {}
@@ -1405,6 +1432,7 @@ export default {
       parents,
       tabRef,
       attrGroups,
+      tabAttrGroups,
       nameInput,
       attrInput,
       save,
