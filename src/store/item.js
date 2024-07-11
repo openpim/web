@@ -77,6 +77,7 @@ const actions = {
       id 
       path 
       identifier
+      parentIdentifier
       name
       typeId
       values
@@ -103,6 +104,7 @@ const actions = {
     const res = await serverFetch('query { getItemsByIds(ids: [' + arr + `]) { 
       id 
       path 
+      parentIdentifier
       identifier
       name
       typeId

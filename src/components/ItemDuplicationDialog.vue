@@ -43,12 +43,13 @@ import * as typesStore from '../store/types'
 import * as attrStore from '../store/attributes'
 import TypeSelectionDialog from './TypeSelectionDialog'
 import i18n from '../i18n'
+import newItemGenerator from '../_customizations/item/newItemGenerator'
 
 export default {
   name: 'ItemCreation',
   components: { TypeSelectionDialog },
   setup (props, { emit }) {
-    const { identifierExists, nextId } = itemsStore.useStore()
+    const { identifierExists, nextId, loadItemByIdentifier } = itemsStore.useStore()
 
     const {
       currentLanguage,
@@ -101,10 +102,17 @@ export default {
       }
     }
 
-    function showDialog (itemSelected) {
+    async function showDialog (itemSelected) {
       selectedType.value = null
-      nextId().then(id => {
+      nextId().then(async id => {
         newItemRef.value = { id: Date.now(), identifier: itemSelected.typeIdentifier + id, internalId: 0, children: [], name: itemSelected.name, values: itemSelected.values }
+        const parent = itemSelected.parentIdentifier ? await loadItemByIdentifier(itemSelected.parentIdentifier) : null
+        const type = findType(itemSelected.typeId).node
+        const obj = await newItemGenerator(nextId, id, type, newItemRef.value, parent)
+        if (obj) {
+          newItemRef.value.identifier = obj.identifier
+          if (obj.name) newItemRef.value.name = obj.name
+        }
 
         const attrs = getAllItemsAttributes()
         const attrsToFilter = attrs.filter(attr => attr.options.some(elem => elem.name === 'skipOnCopy' && elem.value === 'true'))
