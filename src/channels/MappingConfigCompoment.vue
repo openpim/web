@@ -21,6 +21,48 @@
               </v-card>
       </v-col>
     </v-row>
+    <v-row v-if="videoRelations">
+      <v-col cols="11">
+              <v-card class="mb-5 mt-2">
+                <v-card-title class="subtitle-2 font-weight-bold" >
+                  <div style="width:90%">Зависимости для видео</div>
+                  <v-tooltip bottom v-if="!readonly">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon v-on="on" @click="editVideoRelations"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Edit') }}</span>
+                  </v-tooltip>
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-list dense class="pt-0 pb-0">
+                  <v-list-item v-for="(item, i) in vidRelations" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                    <router-link :to="'/config/relations/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
+                  </v-list-item-content></v-list-item>
+                </v-list>
+              </v-card>
+      </v-col>
+    </v-row>
+    <v-row v-if="videoCoverRelations">
+      <v-col cols="11">
+              <v-card class="mb-5 mt-2">
+                <v-card-title class="subtitle-2 font-weight-bold" >
+                  <div style="width:90%">Зависимости для видеообложек</div>
+                  <v-tooltip bottom v-if="!readonly">
+                    <template v-slot:activator="{ on }">
+                      <v-btn icon v-on="on" @click="editVideoCoverRelations"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Edit') }}</span>
+                  </v-tooltip>
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-list dense class="pt-0 pb-0">
+                  <v-list-item v-for="(item, i) in vidCoverRelations" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                    <router-link :to="'/config/relations/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
+                  </v-list-item-content></v-list-item>
+                </v-list>
+              </v-card>
+      </v-col>
+    </v-row>
     <v-row v-if="variants">
       <v-col cols="11">
         <v-checkbox v-model="channel.config.variantsSupport" label="Поддержка вариантов" required></v-checkbox>
@@ -105,6 +147,8 @@
       </v-row>
     </template>
     <RelationsSelectionDialog ref="relSelectionDialogRef" :multiselect="true" @selected="relationsSelected"/>
+    <RelationsSelectionDialog ref="relVideoSelectionDialogRef" :multiselect="true" @selected="videoRelationsSelected"/>
+    <RelationsSelectionDialog ref="relVideoCoverSelectionDialogRef" :multiselect="true" @selected="videoCoverRelationsSelected"/>
     <ChannelsCategorySelectionDialog ref="relCategoryDialogRef" :channelType="channel.type" @selected="categoryToCopySelected"/>
   </div>
 </template>
@@ -143,6 +187,16 @@ export default {
       type: Boolean,
       required: false,
       default: true
+    },
+    videoRelations: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    videoCoverRelations: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   components: { ValidVisibleComponent, RelationsSelectionDialog, MappingAttributesCompoment, ChannelsCategorySelectionDialog },
@@ -204,6 +258,8 @@ export default {
     const exprDialogRef = ref(null)
     const exprAttrRef = ref(null)
     const relSelectionDialogRef = ref(null)
+    const relVideoSelectionDialogRef = ref(null)
+    const relVideoCoverSelectionDialogRef = ref(null)
     const relationsLoadedRef = ref(false)
     const relCategoryDialogRef = ref(null)
 
@@ -327,6 +383,40 @@ export default {
       props.channel.config.imgRelations = arr
     }
 
+    const vidRelations = computed(() => {
+      if (relationsLoadedRef.value && props.channel && props.channel.config.vidRelations) {
+        return props.channel.config.vidRelations.map(id => relations.find(rel => rel.id === id))
+      } else {
+        return []
+      }
+    })
+
+    function editVideoRelations () {
+      relVideoSelectionDialogRef.value.showDialog('', props.channel.config.vidRelations)
+    }
+
+    function videoRelationsSelected (arr) {
+      relVideoSelectionDialogRef.value.closeDialog()
+      props.channel.config.vidRelations = arr
+    }
+
+    const vidCoverRelations = computed(() => {
+      if (relationsLoadedRef.value && props.channel && props.channel.config.vidCoverRelations) {
+        return props.channel.config.vidCoverRelations.map(id => relations.find(rel => rel.id === id))
+      } else {
+        return []
+      }
+    })
+
+    function editVideoCoverRelations () {
+      relVideoCoverSelectionDialogRef.value.showDialog('', props.channel.config.vidCoverRelations)
+    }
+
+    function videoCoverRelationsSelected (arr) {
+      relVideoCoverSelectionDialogRef.value.closeDialog()
+      props.channel.config.vidCoverRelations = arr
+    }
+
     const categoryLovValues = ref([])
     const lovAttributes = ref([])
     async function lovChanged (val) {
@@ -414,9 +504,17 @@ export default {
       exprDialogRef,
       exprAttrRef,
       imgRelations,
+      vidRelations,
+      vidCoverRelations,
       relSelectionDialogRef,
+      relVideoSelectionDialogRef,
+      relVideoCoverSelectionDialogRef,
       relationsSelected,
+      videoRelationsSelected,
+      videoCoverRelationsSelected,
       editRelations,
+      editVideoRelations,
+      editVideoCoverRelations,
       currentLanguage,
       defaultLanguageIdentifier,
       lovAttributes,

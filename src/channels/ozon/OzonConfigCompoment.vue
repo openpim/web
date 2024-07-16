@@ -6,11 +6,12 @@
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить product ID" clearable/>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonFBOIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить FBO ID" clearable/>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonFBSIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить FBS ID" clearable/>
-    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonImageAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит URL изображения" clearable/>
     <v-checkbox :readonly="readonly" v-model="channel.config.ozonGetContentRating" label="Получать контент рейтинг" required></v-checkbox>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonAttrContentRating" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит контент рейтинг" clearable  v-if="channel.config.ozonGetContentRating"/>
-
-    <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :variants="false"></MappingConfigCompoment>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonImageAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит URL изображения" clearable/>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonVideoAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит URL видео" clearable/>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonVideoCoverAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит URL видеообложки" clearable/>
+    <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :videoRelations="true" :videoCoverRelations="true" :variants="false"></MappingConfigCompoment>
 
     <v-checkbox :readonly="readonly" v-model="channel.config.saveVideos" label="Сохранять видео из личного кабинета" required></v-checkbox>
     <v-checkbox :readonly="readonly" v-model="channel.config.sendPriceUpdate" label="Посылать цены при обновлении товара" required></v-checkbox>
