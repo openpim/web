@@ -498,7 +498,7 @@ export default {
     const importModeRef = ref('UPDATE_ONLY')
     const importStopOnErrorRef = ref(false)
     const importEmptyValuesRef = ref(false)
-    const importPageSizeRef = ref(100)
+    const importPageSizeRef = ref(process.env.VUE_APP_IMPORT_PAGE || 100)
     const importModes = [
       { text: i18n.t('DataTable.ExcelImport.CREATE_ONLY'), value: 'CREATE_ONLY' },
       { text: i18n.t('DataTable.ExcelImport.UPDATE_ONLY'), value: 'UPDATE_ONLY' },
