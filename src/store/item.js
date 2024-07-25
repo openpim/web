@@ -72,7 +72,7 @@ const actions = {
       return false
     }
   },
-  loadItemByIdentifier: async (identifier) => {
+  loadItemByIdentifier: async (identifier, skipError) => {
     const item = await serverFetch('query { getItemByIdentifier(identifier: "' + identifier + `") { 
       id 
       path 
@@ -90,6 +90,7 @@ const actions = {
       updatedAt
     } }`)
     if (!item.getItemByIdentifier) {
+      if (skipError) return null
       err.store.showError(i18n.t('Item.byIdentifier.NotFound', { identifier: identifier }))
     }
     return enrichItem(item.getItemByIdentifier)
