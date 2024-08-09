@@ -348,10 +348,10 @@
             </v-carousel>
           </v-tab-item>
           <v-tab-item v-if="hasSources" eager>  <!-- Links from -->
-            <ItemRelationsList :item="itemRef" componentType="source" @dataLoaded="sourcesLoaded" ref="sourceRelationsListRef" class="mb-12"></ItemRelationsList>
+            <ItemRelationsList :item="itemRef" componentType="source" :itemRefreshFunction="refresh" @dataLoaded="sourcesLoaded" ref="sourceRelationsListRef" class="mb-12"></ItemRelationsList>
           </v-tab-item>
           <v-tab-item v-if="hasTargets" eager>  <!-- Links to -->
-            <ItemRelationsList :item="itemRef" componentType="target" @dataLoaded="targetsLoaded" ref="targetRelationsListRef" class="mb-12"></ItemRelationsList>
+            <ItemRelationsList :item="itemRef" componentType="target" :itemRefreshFunction="refresh" @dataLoaded="targetsLoaded" ref="targetRelationsListRef" class="mb-12"></ItemRelationsList>
           </v-tab-item>
           <v-tab-item v-if="totalChildrenRef === -1 || totalChildrenRef > 0" eager>  <!-- Children -->
 

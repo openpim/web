@@ -231,6 +231,9 @@ export default {
     },
     componentType: { // source or target
       required: true
+    },
+    itemRefreshFunction: {
+      required: true
     }
   },
   setup (props, { emit, root }) {
@@ -278,8 +281,7 @@ export default {
     const {
       loadItemsByIds,
       loadItemByIdentifier,
-      nextId,
-      reloadItem
+      nextId
     } = itemStore.useStore()
 
     const {
@@ -513,7 +515,7 @@ export default {
           targetRelations[identifier] = []
           targetRelationsTotal[identifier] = 0
         }
-        if (reloadItem) reloadItem(props.item)
+        if (reloadItem) props.itemRefreshFunction()
       }
     }
 
@@ -554,7 +556,7 @@ export default {
           router.clearDataChanged(itemRel.identifier)
           changedRelations.value.splice(changedIdx, 1)
           const rel = relations.find(rel => rel.identifier === identifier)
-          if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem(props.item)
+          if (getOption2(rel, 'reloadItemOnUpdate', false)) props.itemRefreshFunction()
           if (!skipMsg) showInfo(i18n.t('Saved'))
         }
       } else {
@@ -563,7 +565,10 @@ export default {
         router.clearDataChanged(itemRel.identifier)
         changedRelations.value.splice(changedIdx, 1)
         const rel = relations.find(rel => rel.identifier === identifier)
-        if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem(props.item)
+        if (getOption2(rel, 'reloadItemOnUpdate', false)) {
+          console.log(111, props.itemRefreshFunction)
+          props.itemRefreshFunction()
+        }
         if (!skipMsg) showInfo(i18n.t('Saved'))
       }
     }
@@ -572,7 +577,7 @@ export default {
       if (confirm(i18n.t('ItemRelationsList.Confirm.Delete'))) {
         await removeItemRelation(props.componentType, identifier, id)
         const rel = relations.find(rel => rel.identifier === identifier)
-        if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem(props.item)
+        if (getOption2(rel, 'reloadItemOnUpdate', false)) props.itemRefreshFunction()
       }
     }
 
