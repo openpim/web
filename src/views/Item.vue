@@ -1187,6 +1187,9 @@ export default {
           if (result.data.removeItem) {
             removeItemFromTree(result.data.removeItem)
           }
+          if (result.data.reloadItem) {
+            refresh()
+          }
           if (result.data.createItem) {
             createItemInTree(result.data.createItem.item, result.data.createItem.parent)
             eventBus.emit('item_selected', result.data.createItem.item)
