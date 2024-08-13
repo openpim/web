@@ -254,6 +254,8 @@
   "Config.Actions.Triggers.Event.AfterDelete": "после удаления",
   "Config.Actions.Triggers.Event.ChangedOnClient": "после изменения на клиенте",
   "Config.Actions.Triggers.Event.BeforeShow": "перед показом",
+  "Config.Actions.Triggers.Event.AttributeChanged": "при изменении атрибута",
+  "Config.Actions.Triggers.Event.AttributeBeforeShow": "перед показом атрибута",
   "Config.Actions.Triggers.Event.BeforeBulkUpdateChannels": "перед изменением",
   "Config.Actions.Triggers.Event.AfterBulkUpdateChannels": "после изменения",
   "Config.Actions.Triggers.SelectType.Button": "Выбрать тип объекта",

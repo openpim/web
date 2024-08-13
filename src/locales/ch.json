@@ -239,6 +239,8 @@
 	"Config.Actions.Triggers.Event.AfterDelete": "删掉后",
 	"Config.Actions.Triggers.Event.ChangedOnClient": "客户端更改后",
 	"Config.Actions.Triggers.Event.BeforeShow": "显示前",
+	"Config.Actions.Triggers.Event.AttributeChanged": "更改属性时",
+	"Config.Actions.Triggers.Event.AttributeBeforeShow": "显示前的属性",
 	"Config.Actions.Triggers.SelectType.Button": "选择对象类型",
 	"Config.Actions.Triggers.SelectItem.Button": "选择对象",
 	"Config.Actions.Triggers.SelectRel.Button": "选择依赖",

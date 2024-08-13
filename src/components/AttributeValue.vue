@@ -1,8 +1,8 @@
 <template>
-<div>
+<div ref="componentRoot">
     <div v-if="!dense && !inTableView" :set="desc = getTextOption('description', '')">
       <!-- Text -->
-      <v-text-field :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+      <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -10,12 +10,12 @@
             </template>
             <div v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
-      <LanguageDependentField :attr="attr" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && attr.languageDependent" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :errors="errors"></LanguageDependentField>
+      <LanguageDependentField :attr="attr" @input="attrInput($event)" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && attr.languageDependent" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :errors="errors"></LanguageDependentField>
 
-      <v-textarea :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && !attr.languageDependent" :rows="getNumberOption('textareaRows', 3)" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+      <v-textarea :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && !attr.languageDependent" :rows="getNumberOption('textareaRows', 3)" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -23,10 +23,10 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-textarea>
-      <v-textarea :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="getNumberOption('textareaRows', 3)" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :error-messages="errors">
+      <v-textarea :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="getNumberOption('textareaRows', 3)" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -34,7 +34,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-textarea>
 
@@ -44,7 +44,7 @@
       <br v-if="attr.type === AttributeType.Text && attr.richText"/>
 
       <!-- Boolean -->
-      <v-checkbox @change="attrInput" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier] === null" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+      <v-checkbox @change="attrInput($event)" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier] === null" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
         <template #append>
           <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
@@ -53,10 +53,10 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-checkbox>
-      <v-checkbox @change="attrInput" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier][currentLanguage.identifier] === null" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+      <v-checkbox @change="attrInput($event)" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier][currentLanguage.identifier] === null" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
         <template #append>
           <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
@@ -65,12 +65,12 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-checkbox>
 
       <!-- Integer -->
-      <v-text-field :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+      <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -78,10 +78,10 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
-      <v-text-field :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+      <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -89,12 +89,12 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
 
       <!-- Float -->
-      <v-text-field :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+      <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -102,10 +102,10 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
-      <v-text-field :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+      <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -113,34 +113,34 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
 
       <!-- Date -->
         <v-dialog ref="dateDialog" v-if="attr.type === AttributeType.Date && !attr.languageDependent" :disabled="attr.readonly" v-model="dateModal" :return-value.sync="date" persistent width="290px" @input="dateDialogChanged">
           <template v-slot:activator="{ on }">
-            <v-text-field clearable @input="attrInput" @click:clear="values[attr.identifier] = ''" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+            <v-text-field clearable @input="attrInput($event)" @click:clear="values[attr.identifier] = ''" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
           </template>
           <v-date-picker v-model="values[attr.identifier]">
             <v-spacer></v-spacer>
             <div style="flex-wrap: wrap;">
             <v-text-field dense @blur="attrBlur" v-model="date" :label="$t('AttributeValue.Date.Input')" required style="flex-basis: 100%;" @input="dateValidation" hint="DD/MM/YYYY" :error-messages="dateError" @keydown.enter.prevent="dateEnterPressed"></v-text-field>
-            <v-btn text color="primary" @click="values[attr.identifier] = dateSaveValue;dateModal = false">{{ $t('Cancel') }}</v-btn>
-            <v-btn text color="primary" @click="dateDialog.save(date)">{{ $t('Save') }}</v-btn>
+            <v-btn text color="primary" @click="values[attr.identifier] = dateSaveValue; dateModal = false;">{{ $t('Cancel') }}</v-btn>
+            <v-btn text color="primary" @click="attrInput(values[attr.identifier]); dateDialog.save(date)">{{ $t('Save') }}</v-btn>
             </div>
           </v-date-picker>
         </v-dialog>
         <v-dialog ref="dateDialog" v-if="attr.type === AttributeType.Date && attr.languageDependent" :disabled="attr.readonly" v-model="dateModal" :return-value.sync="date" persistent width="290px" @input="dateDialogChanged">
           <template v-slot:activator="{ on }">
-            <v-text-field clearable @input="attrInput" @click:clear="values[attr.identifier][currentLanguage.identifier] = ''" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+            <v-text-field clearable @input="attrInput($event)" @click:clear="values[attr.identifier][currentLanguage.identifier] = ''" :value="formatedDate" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
           </template>
           <v-date-picker v-model="values[attr.identifier][currentLanguage.identifier]">
             <v-spacer></v-spacer>
             <div style="flex-wrap: wrap;">
             <v-text-field dense @blur="attrBlur" v-model="date" :label="$t('AttributeValue.Date.Input')" required style="flex-basis: 100%;" @input="dateValidation" hint="DD/MM/YYYY" :error-messages="dateError" @keydown.enter.prevent="dateEnterPressed"></v-text-field>
-            <v-btn text color="primary" @click="values[attr.identifier][currentLanguage.identifier] = dateSaveValue;dateModal = false">{{ $t('Cancel') }}</v-btn>
-            <v-btn text color="primary" @click="dateDialog.save(date)">{{ $t('Save') }}</v-btn>
+            <v-btn text color="primary" @click="values[attr.identifier][currentLanguage.identifier] = dateSaveValue; dateModal = false;">{{ $t('Cancel') }}</v-btn>
+            <v-btn text color="primary" @click="attrInput(values[attr.identifier][currentLanguage.identifier]); dateDialog.save(date)">{{ $t('Save') }}</v-btn>
             </div>
           </v-date-picker>
         </v-dialog>
@@ -148,19 +148,19 @@
       <!-- Time -->
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && !attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field clearable @input="attrInput" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
+          <v-text-field clearable @input="attrInput($event)" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
         </template>
-        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
+        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier]" format="24hr" full-width @click:minute="attrInput(values[attr.identifier]); timeMenuRef.save(time)"></v-time-picker>
       </v-menu>
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field clearable @input="attrInput" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
+          <v-text-field clearable @input="attrInput($event)" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
         </template>
-        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier][currentLanguage.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
+        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier][currentLanguage.identifier]" format="24hr" full-width @click:minute="attrInput(values[attr.identifier][currentLanguage.identifier]); timeMenuRef.save(time)"></v-time-picker>
       </v-menu>
 
       <!-- LOV -->
-      <v-autocomplete :chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
+      <v-autocomplete :chips="multivalueRef" :multiple="multivalueRef" @input="attrInput($event)" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
         <template #selection="selection">
           <v-chip @click.stop="if (selection.item.url) goto(selection.item.url)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
         </template>
@@ -171,10 +171,10 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values" :lov="lovSelection"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values" :lov="lovSelection"/>
         </template>
       </v-autocomplete>
-      <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
+      <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput($event)" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
         <template #selection="selection">
           <v-chip @click.stop="showAlert('test')" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value, currentLanguage.identifier)">{{selection.item.text}}</v-chip>
         </template>
@@ -185,7 +185,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values" :lov="lovSelection"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values" :lov="lovSelection"/>
         </template>
       </v-autocomplete>
 
@@ -194,7 +194,7 @@
         <v-container v-if="!attr.readonly" class="pa-0">
           <v-row>
             <v-col cols="6">
-              <v-text-field :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+              <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
                 <template #append>
                   <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
                     <template v-slot:activator="{ on }">
@@ -208,12 +208,12 @@
                     </template>
                     <p v-html="desc.replaceAll('\n', '<br>')"/>
                   </v-tooltip>
-                  <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+                  <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
                 </template>
               </v-text-field>
             </v-col>
             <v-col cols="6">
-              <v-text-field @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier + '_text']" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
+              <v-text-field @input="attrInput($event)" @blur="attrBlur" v-model="values[attr.identifier + '_text']" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
             </v-col>
           </v-row>
         </v-container>
@@ -224,7 +224,7 @@
         <v-container v-if="!attr.readonly" class="pa-0">
           <v-row>
             <v-col cols="6">
-              <v-text-field :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
+              <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required>
                 <template #append>
                   <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
                     <template v-slot:activator="{ on }">
@@ -238,12 +238,12 @@
                     </template>
                     <p v-html="desc.replaceAll('\n', '<br>')"/>
                   </v-tooltip>
-                  <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+                  <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
                 </template>
               </v-text-field>
             </v-col>
             <v-col cols="6">
-              <v-text-field @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier + '_text'][currentLanguage.identifier]" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
+              <v-text-field @input="attrInput($event)" @blur="attrBlur" v-model="values[attr.identifier + '_text'][currentLanguage.identifier]" :label="$t('Config.Attribute.URL.Text')" required></v-text-field>
             </v-col>
           </v-row>
         </v-container>
@@ -263,7 +263,7 @@
           :items="availableItemsForRelationAttr"
           :search-input.sync="searchRef"
           :loading="loadingRef"
-          @input="attrInput"
+          @input="attrInput($event)"
           clearable
         >
           <template #selection="selection">
@@ -282,11 +282,11 @@
           </template>
         </v-autocomplete>
       </template>
-      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" :item="item"/>
+      <CustomAttributeValueComponent @change="attrInput($event)" :attr="attr" :values="values" :item="item"/>
     </div>
     <div v-else-if="inTableView" :set="desc = getTextOption('description', '')">
       <!-- Text -->
-      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
+      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -294,12 +294,12 @@
             </template>
             <div v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
-      <LanguageDependentField :attr="attr" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && attr.languageDependent" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :errors="errors"></LanguageDependentField>
+      <LanguageDependentField :attr="attr" @input="attrInput($event)" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && attr.languageDependent" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :errors="errors"></LanguageDependentField>
 
-      <v-textarea :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && !attr.languageDependent" :rows="getNumberOption('textareaRows', 3)" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
+      <v-textarea :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && !attr.languageDependent" :rows="getNumberOption('textareaRows', 3)" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -307,10 +307,10 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-textarea>
-      <v-textarea :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="getNumberOption('textareaRows', 3)" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :error-messages="errors">
+      <v-textarea :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-if="attr.type === AttributeType.Text && attr.multiLine && attr.languageDependent" :rows="getNumberOption('textareaRows', 3)" :readonly="attr.readonly" :values="values[attr.identifier]" v-model="values[attr.identifier][currentLanguage.identifier]" :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -318,7 +318,7 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-textarea>
 
@@ -328,7 +328,7 @@
       <br v-if="attr.type === AttributeType.Text && attr.richText"/>
 
       <!-- Boolean -->
-      <v-checkbox dense hide-details="true" @change="attrInput" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier] === null" v-model="values[attr.identifier]" required>
+      <v-checkbox dense hide-details="true" @change="attrInput($event)" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier] === null" v-model="values[attr.identifier]" required>
         <template #append>
           <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
@@ -337,10 +337,10 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-checkbox>
-      <v-checkbox dense hide-details="true" @change="attrInput" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier][currentLanguage.identifier] === null" v-model="values[attr.identifier][currentLanguage.identifier]" required>
+      <v-checkbox dense hide-details="true" @change="attrInput($event)" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" :indeterminate="values[attr.identifier][currentLanguage.identifier] === null" v-model="values[attr.identifier][currentLanguage.identifier]" required>
         <template #append>
           <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
@@ -349,12 +349,12 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-checkbox>
 
       <!-- Integer -->
-      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
+      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -362,10 +362,10 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
-      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" required :error-messages="errors">
+      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -373,12 +373,12 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
 
       <!-- Float -->
-      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
+      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -386,10 +386,10 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
-      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" required :error-messages="errors">
+      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -397,34 +397,34 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
 
       <!-- Date -->
         <v-dialog ref="dateDialog" v-if="attr.type === AttributeType.Date && !attr.languageDependent" :disabled="attr.readonly" v-model="dateModal" :return-value.sync="date" persistent width="290px" @input="dateDialogChanged">
           <template v-slot:activator="{ on }">
-            <v-text-field dense hide-details="true" clearable @input="attrInput" @click:clear="values[attr.identifier] = ''" :value="formatedDate" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+            <v-text-field dense hide-details="true" clearable @input="attrInput($event)" @click:clear="values[attr.identifier] = ''" :value="formatedDate" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
           </template>
           <v-date-picker v-model="values[attr.identifier]">
             <v-spacer></v-spacer>
             <div style="flex-wrap: wrap;">
             <v-text-field dense @blur="attrBlur" v-model="date" :label="$t('AttributeValue.Date.Input')" required style="flex-basis: 100%;" @input="dateValidation" hint="DD/MM/YYYY" :error-messages="dateError" @keydown.enter.prevent="dateEnterPressed"></v-text-field>
             <v-btn text color="primary" @click="values[attr.identifier] = dateSaveValue;dateModal = false">{{ $t('Cancel') }}</v-btn>
-            <v-btn text color="primary" @click="dateDialog.save(date)">{{ $t('Save') }}</v-btn>
+            <v-btn text color="primary" @click="attrInput(values[attr.identifier]); dateDialog.save(date)">{{ $t('Save') }}</v-btn>
             </div>
           </v-date-picker>
         </v-dialog>
         <v-dialog ref="dateDialog" v-if="attr.type === AttributeType.Date && attr.languageDependent" :disabled="attr.readonly" v-model="dateModal" :return-value.sync="date" persistent width="290px" @input="dateDialogChanged">
           <template v-slot:activator="{ on }">
-            <v-text-field dense hide-details="true" clearable @input="attrInput" @click:clear="values[attr.identifier][currentLanguage.identifier] = ''" :value="formatedDate" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
+            <v-text-field dense hide-details="true" clearable @input="attrInput($event)" @click:clear="values[attr.identifier][currentLanguage.identifier] = ''" :value="formatedDate" prepend-icon="mdi-calendar" readonly v-on="on" :error-messages="errors"></v-text-field>
           </template>
           <v-date-picker v-model="values[attr.identifier][currentLanguage.identifier]">
             <v-spacer></v-spacer>
             <div style="flex-wrap: wrap;">
             <v-text-field dense @blur="attrBlur" v-model="date" :label="$t('AttributeValue.Date.Input')" required style="flex-basis: 100%;" @input="dateValidation" hint="DD/MM/YYYY" :error-messages="dateError" @keydown.enter.prevent="dateEnterPressed"></v-text-field>
             <v-btn text color="primary" @click="values[attr.identifier][currentLanguage.identifier] = dateSaveValue;dateModal = false">{{ $t('Cancel') }}</v-btn>
-            <v-btn text color="primary" @click="dateDialog.save(date)">{{ $t('Save') }}</v-btn>
+            <v-btn text color="primary" @click="attrInput(values[attr.identifier][currentLanguage.identifier]); dateDialog.save(date)">{{ $t('Save') }}</v-btn>
             </div>
           </v-date-picker>
         </v-dialog>
@@ -432,19 +432,19 @@
       <!-- Time -->
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && !attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field dense hide-details="true" clearable @input="attrInput" v-model="values[attr.identifier]" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
+          <v-text-field dense hide-details="true" clearable @input="attrInput($event)" v-model="values[attr.identifier]" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
         </template>
-        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
+        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier]" format="24hr" full-width @click:minute="attrInput(values[attr.identifier]); timeMenuRef.save(time)"></v-time-picker>
       </v-menu>
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
         <template v-slot:activator="{ on }">
-          <v-text-field dense hide-details="true" clearable @input="attrInput" v-model="values[attr.identifier][currentLanguage.identifier]" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
+          <v-text-field dense hide-details="true" clearable @input="attrInput($event)" v-model="values[attr.identifier][currentLanguage.identifier]" prepend-icon="mdi-clock-outline" readonly v-on="on"></v-text-field>
         </template>
-        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier][currentLanguage.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
+        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier][currentLanguage.identifier]" format="24hr" full-width @click:minute="attrInput(values[attr.identifier][currentLanguage.identifier]); timeMenuRef.save(time)"></v-time-picker>
       </v-menu>
 
       <!-- LOV -->
-      <v-autocomplete dense hide-details="true" :chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" clearable>
+      <v-autocomplete dense hide-details="true" :chips="multivalueRef" :multiple="multivalueRef" @input="attrInput($event)" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" clearable>
         <template #selection="selection">
           <v-chip @click.stop="if (selection.item.url) goto(selection.item.url)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
         </template>
@@ -455,10 +455,10 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values" :lov="lovSelection"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values" :lov="lovSelection"/>
         </template>
       </v-autocomplete>
-      <v-autocomplete dense hide-details="true" :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" clearable>
+      <v-autocomplete dense hide-details="true" :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput($event)" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" clearable>
         <template #selection="selection">
           <v-chip @click.stop="showAlert('test')" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value, currentLanguage.identifier)">{{selection.item.text}}</v-chip>
         </template>
@@ -469,13 +469,13 @@
             </template>
             <p v-html="desc.replaceAll('\n', '<br>')"/>
           </v-tooltip>
-          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values" :lov="lovSelection"/>
+          <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values" :lov="lovSelection"/>
         </template>
       </v-autocomplete>
 
       <!-- URL -->
       <template v-if="attr.type === AttributeType.URL && !attr.languageDependent">
-              <v-text-field v-if="!attr.readonly" dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier]" required>
+              <v-text-field v-if="!attr.readonly" dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-model="values[attr.identifier]" required>
                 <template #append>
                   <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
                     <template v-slot:activator="{ on }">
@@ -489,14 +489,14 @@
                     </template>
                     <p v-html="desc.replaceAll('\n', '<br>')"/>
                   </v-tooltip>
-                  <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+                  <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
                 </template>
               </v-text-field>
         <label v-if="attr.readonly" class="theme--light v-input v-label v-text-field v-label--active" style="font-size:12px">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
         <div v-if="attr.readonly" class="mb-5"><a :href="values[attr.identifier]" target="_blank">{{values[attr.identifier + '_text'] || values[attr.identifier]}}</a></div>
       </template>
       <template v-if="attr.type === AttributeType.URL && attr.languageDependent">
-              <v-text-field v-if="!attr.readonly" dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput" @blur="attrBlur" v-model="values[attr.identifier][currentLanguage.identifier]" required>
+              <v-text-field v-if="!attr.readonly" dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-model="values[attr.identifier][currentLanguage.identifier]" required>
                 <template #append>
                   <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
                     <template v-slot:activator="{ on }">
@@ -510,7 +510,7 @@
                     </template>
                     <p v-html="desc.replaceAll('\n', '<br>')"/>
                   </v-tooltip>
-                  <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput" :values="values"/>
+                  <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
                 </template>
               </v-text-field>
         <label v-if="attr.readonly" class="theme--light v-input v-label v-text-field v-label--active" style="font-size:12px">{{attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'}}</label>
@@ -530,7 +530,7 @@
           :items="availableItemsForRelationAttr"
           :search-input.sync="searchRef"
           :loading="loadingRef"
-          @input="attrInput"
+          @input="attrInput($event)"
           clearable
         >
           <template #selection="selection">
@@ -550,52 +550,52 @@
         </v-autocomplete>
       </template>
 
-      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" :item="item"/>
+      <CustomAttributeValueComponent @change="attrInput($event)" :attr="attr" :values="values" :item="item"/>
 
     </div>
     <div v-else>
       <!-- Text -->
-      <input @change="attrInput" @blur="attrBlur" style="box-sizing: border-box;width:100%" v-if="attr.type === AttributeType.Text && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
-      <input @change="attrInput" @blur="attrBlur" style="box-sizing: border-box;width:100%" v-if="attr.type === AttributeType.Text && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput($event)" @blur="attrBlur" style="box-sizing: border-box;width:100%" v-if="attr.type === AttributeType.Text && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput($event)" @blur="attrBlur" style="box-sizing: border-box;width:100%" v-if="attr.type === AttributeType.Text && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
 
       <!-- Boolean -->
-      <input @change="attrInput" type="checkbox" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
-      <input @change="attrInput" type="checkbox" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput($event)" type="checkbox" v-if="attr.type === AttributeType.Boolean && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput($event)" type="checkbox" v-if="attr.type === AttributeType.Boolean && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
 
       <!-- Integer -->
-      <input @change="attrInput" type="number" step="1" pattern="\d+" @blur="attrBlur"  v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
-      <input @change="attrInput" type="number" step="1" pattern="\d+" @blur="attrBlur"  v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput($event)" type="number" step="1" pattern="\d+" @blur="attrBlur"  v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput($event)" type="number" step="1" pattern="\d+" @blur="attrBlur"  v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
 
       <!-- Float -->
-      <input @change="attrInput" type="number" @blur="attrBlur"  v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
-      <input @change="attrInput" type="number" @blur="attrBlur"  v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput($event)" type="number" @blur="attrBlur"  v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+      <input @change="attrInput($event)" type="number" @blur="attrBlur"  v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
 
       <!-- Date -->
       <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && !attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
         <template v-slot:activator="{ on }">
-          <input @change="attrInput" v-model="values[attr.identifier]" readonly v-on="on">
+          <input @change="attrInput($event)" v-model="values[attr.identifier]" readonly v-on="on">
         </template>
-        <v-date-picker v-model="values[attr.identifier]" @input="dateMenu = false"></v-date-picker>
+        <v-date-picker v-model="values[attr.identifier]" @input="attrInput(values[attr.identifier]); dateMenu = false"></v-date-picker>
       </v-menu>
       <v-menu v-model="dateMenu" v-if="attr.type === AttributeType.Date && attr.languageDependent" :disabled="attr.readonly" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
         <template v-slot:activator="{ on }">
-          <input @change="attrInput" v-model="values[attr.identifier][currentLanguage.identifier]" readonly v-on="on">
+          <input @change="attrInput($event)" v-model="values[attr.identifier][currentLanguage.identifier]" readonly v-on="on">
         </template>
-        <v-date-picker v-model="values[attr.identifier][currentLanguage.identifier]" @input="dateMenu = false"></v-date-picker>
+        <v-date-picker v-model="values[attr.identifier][currentLanguage.identifier]" @input="attrInput(values[attr.identifier][currentLanguage.identifier]); dateMenu = false"></v-date-picker>
       </v-menu>
 
       <!-- Time -->
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && !attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
         <template v-slot:activator="{ on }">
-          <input @change="attrInput" v-model="values[attr.identifier]" readonly v-on="on">
+          <input @change="attrInput($event)" v-model="values[attr.identifier]" readonly v-on="on">
         </template>
-        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
+        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier]" format="24hr" full-width @click:minute="attrInput(values[attr.identifier]); timeMenuRef.save(time)"></v-time-picker>
       </v-menu>
       <v-menu ref="timeMenuRef" v-if="attr.type === AttributeType.Time && attr.languageDependent" :disabled="attr.readonly" v-model="timeMenu" :close-on-content-click="false" :nudge-right="40" :return-value.sync="time" transition="scale-transition" offset-y max-width="290px" min-width="290px">
         <template v-slot:activator="{ on }">
-          <input @change="attrInput" v-model="values[attr.identifier][currentLanguage.identifier]" readonly v-on="on">
+          <input @change="attrInput($event)" v-model="values[attr.identifier][currentLanguage.identifier]" readonly v-on="on">
         </template>
-        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier][currentLanguage.identifier]" format="24hr" full-width @click:minute="timeMenuRef.save(time)"></v-time-picker>
+        <v-time-picker v-if="timeMenu" v-model="values[attr.identifier][currentLanguage.identifier]" format="24hr" full-width @click:minute="attrInput(values[attr.identifier][currentLanguage.identifier]); timeMenuRef.save(time)"></v-time-picker>
       </v-menu>
 
       <!-- LOV -->
@@ -609,14 +609,14 @@
       <!-- URL -->
       <template v-if="attr.type === AttributeType.URL && !attr.languageDependent">
         <div style="display: flex;">
-          <input @change="attrInput" @blur="attrBlur" type="url" v-if="!attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+          <input @change="attrInput($event)" @blur="attrBlur" type="url" v-if="!attr.readonly" v-model="values[attr.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
           <a :href="values[attr.identifier]" target="_blank">...</a>
         </div>
         <a v-if="attr.readonly" :href="values[attr.identifier]" target="_blank">{{values[attr.identifier]}}</a>
       </template>
       <template v-if="attr.type === AttributeType.URL && attr.languageDependent">
         <div style="display: flex;">
-          <input @change="attrInput" @blur="attrBlur" type="url" v-if="!attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
+          <input @change="attrInput($event)" @blur="attrBlur" type="url" v-if="!attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :placeholder="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
           <a :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">...</a>
         </div>
         <a v-if="attr.readonly" :href="values[attr.identifier][currentLanguage.identifier]" target="_blank">{{values[attr.identifier][currentLanguage.identifier]}}</a>
@@ -634,7 +634,7 @@
           :items="availableItemsForRelationAttr"
           :search-input.sync="searchRef"
           :loading="loadingRef"
-          @input="attrInput"
+          @input="attrInput($event)"
           clearable
         >
           <template #selection="selection">
@@ -654,7 +654,7 @@
         </v-autocomplete>
       </template>
 
-      <CustomAttributeValueComponent @change="attrInput" :attr="attr" :values="values" :item="item"/>
+      <CustomAttributeValueComponent @change="attrInput($event)" :attr="attr" :values="values" :item="item"/>
 
     </div>
 </div>
@@ -663,6 +663,8 @@
 import * as langStore from '../store/languages'
 import * as lovStore from '../store/lovs'
 import * as attrStore from '../store/attributes'
+import * as actionsStore from '../store/actions'
+import * as userStore from '../store/users'
 import { ref, computed, onMounted, onUnmounted, onBeforeUpdate, watch } from '@vue/composition-api'
 import LanguageDependentField from './LanguageDependentField'
 import AttributeType from '../constants/attributeTypes'
@@ -702,6 +704,8 @@ export default {
     }
   },
   setup (props, { emit, root }) {
+    const componentRoot = ref(null)
+
     const {
       currentLanguage,
       defaultLanguageIdentifier
@@ -715,6 +719,8 @@ export default {
       findByIdentifier,
       getAvailableItemsForRelationAttr
     } = attrStore.useStore()
+
+    const { currentUserRef, currentRoles, canEditItem } = userStore.useStore()
 
     const lovSelection = computed(() => {
       let values = lovData.value
@@ -741,6 +747,51 @@ export default {
       const sort = getOption('lovNameSort', false)
       if (sort) arr.sort((a, b) => a.text.localeCompare(b.text))
       return arr
+    })
+
+    const {
+      loadAllActions,
+      actions
+    } = actionsStore.useStore()
+
+    const attributeChangedActions = computed(() => {
+      if (props.item) {
+        const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
+        const arr = []
+        actions.forEach(action => {
+          for (let i = 0; i < action.triggers.length; i++) {
+            const trigger = action.triggers[i]
+            const result = parseInt(trigger.type) === 1 && parseInt(trigger.event) === 11 && parseInt(props.item.typeId) === parseInt(trigger.itemType) && pathArr.includes(parseInt(trigger.itemFrom))
+            if (result) {
+              arr.push(action)
+            }
+          }
+        })
+        arr.sort((a, b) => a.order - b.order)
+        return arr
+      } else {
+        return []
+      }
+    })
+
+    const attributeBeforeShowActions = computed(() => {
+      if (props.item) {
+        const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
+        const arr = []
+        actions.forEach(action => {
+          for (let i = 0; i < action.triggers.length; i++) {
+            const trigger = action.triggers[i]
+            const result = parseInt(trigger.type) === 1 && parseInt(trigger.event) === 12 && parseInt(props.item.typeId) === parseInt(trigger.itemType) && pathArr.includes(parseInt(trigger.itemFrom))
+            if (result) {
+              arr.push(action)
+            }
+          }
+        })
+        arr.sort((a, b) => a.order - b.order)
+        return arr
+      } else {
+        return []
+      }
     })
 
     const itemId = computed(() => {
@@ -839,6 +890,21 @@ export default {
     }
 
     function attrInput (val) {
+      for (let i = 0; i < attributeChangedActions.value.length; i++) {
+        const action = attributeChangedActions.value[i]
+        try {
+          const utils = {
+            canEditItem: () => {
+              return canEditItem(props.item.typeId, props.$slotsitem.path)
+            }
+          }
+          // eslint-disable-next-line no-new-func
+          const func = new Function('item', 'values', 'attr', 'dense', 'inTableView', 'value', 'domElement', 'user', 'roles', 'utils', '"use strict"; ' + action.code)
+          func(props.item, props.values, props.attr, props.dense, props.inTableView, val, componentRoot.value, currentUserRef.value, currentRoles, utils)
+        } catch (err) {
+          console.error('Failed to evaluate expression: "' + action.code + '" for action: ' + action.identifier, err)
+        }
+      }
       emit('input', val)
     }
 
@@ -939,36 +1005,39 @@ export default {
     })
 
     onMounted(() => {
-      if (joditRef.value) {
-        joditRef.value.editor.events.on('keyup', handler)
-        joditRef.value.editor.events.on('afterPaste', handler)
-        // joditRef.value.editor.events.on('change', handler)
-      }
-
-      const tst = props.attr.options.find(opt => opt.name === 'lovFilterAttr')
-      const lovFilterAttr = tst ? tst.value : null
-      eventBus.on('lov_value_changed', evt => {
-        if (lovFilterAttr && evt.attr === lovFilterAttr) {
-          lovFilterRef.value = evt.value
+      loadAllActions().then(() => {
+        if (joditRef.value) {
+          joditRef.value.editor.events.on('keyup', handler)
+          joditRef.value.editor.events.on('afterPaste', handler)
+          // joditRef.value.editor.events.on('change', handler)
         }
-      })
 
-      if (props.attr.type === AttributeType.LOV && props.attr.lov) {
-        multivalueRef.value = getOption('multivalue', false)
-        getLOVData(props.attr.lov).then((data) => {
-          lovData.value = data
+        const tst = props.attr.options.find(opt => opt.name === 'lovFilterAttr')
+        const lovFilterAttr = tst ? tst.value : null
+        eventBus.on('lov_value_changed', evt => {
+          if (lovFilterAttr && evt.attr === lovFilterAttr) {
+            lovFilterRef.value = evt.value
+          }
         })
-      }
 
-      if (props.attr.lov) {
-        // TODO change to nextTick after moving to real Vue 3. Now nextTick is not available
-        setTimeout(() => { lovChanged(true) }, 500)
-      }
+        if (props.attr.type === AttributeType.LOV && props.attr.lov) {
+          multivalueRef.value = getOption('multivalue', false)
+          getLOVData(props.attr.lov).then((data) => {
+            lovData.value = data
+          })
+        }
 
-      if (props.attr.type === AttributeType.Relation) {
-        multivalueRef.value = getOption('multivalue', false)
-        updateAvailableItemsForRelationAttr('')
-      }
+        if (props.attr.lov) {
+          // TODO change to nextTick after moving to real Vue 3. Now nextTick is not available
+          setTimeout(() => { lovChanged(true) }, 500)
+        }
+
+        if (props.attr.type === AttributeType.Relation) {
+          multivalueRef.value = getOption('multivalue', false)
+          updateAvailableItemsForRelationAttr('')
+        }
+        runBeforeShowActions()
+      })
     })
 
     onUnmounted(() => {
@@ -986,7 +1055,29 @@ export default {
         multivalueRef.value = getOption('multivalue', false)
         updateAvailableItemsForRelationAttr('')
       }
+      runBeforeShowActions()
     })
+
+    function runBeforeShowActions () {
+      if (componentRoot.value) {
+        for (let i = 0; i < attributeBeforeShowActions.value.length; i++) {
+          const action = attributeBeforeShowActions.value[i]
+          try {
+            const utils = {
+              canEditItem: () => {
+                return canEditItem(props.item.typeId, props.$slotsitem.path)
+              }
+            }
+            const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
+            // eslint-disable-next-line no-new-func
+            const func = new Function('item', 'values', 'attr', 'dense', 'inTableView', 'value', 'domElement', 'user', 'roles', 'utils', '"use strict"; ' + action.code)
+            func(props.item, props.values, props.attr, props.dense, props.inTableView, val, componentRoot.value, currentUserRef.value, currentRoles, utils)
+          } catch (err) {
+            console.error('Failed to evaluate expression: "' + action.code + '" for action: ' + action.identifier, err)
+          }
+        }
+      }
+    }
 
     function getNumberOption (name, defaultValue) {
       if (props.attr && props.attr.options) {
@@ -1072,7 +1163,8 @@ export default {
       dateEnterPressed,
       showAlert,
       removeValue,
-      clearValue
+      clearValue,
+      componentRoot
     }
   }
 }
