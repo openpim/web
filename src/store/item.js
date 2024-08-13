@@ -72,11 +72,12 @@ const actions = {
       return false
     }
   },
-  loadItemByIdentifier: async (identifier) => {
+  loadItemByIdentifier: async (identifier, skipError) => {
     const item = await serverFetch('query { getItemByIdentifier(identifier: "' + identifier + `") { 
       id 
       path 
       identifier
+      parentIdentifier
       name
       typeId
       values
@@ -89,6 +90,7 @@ const actions = {
       updatedAt
     } }`)
     if (!item.getItemByIdentifier) {
+      if (skipError) return null
       err.store.showError(i18n.t('Item.byIdentifier.NotFound', { identifier: identifier }))
     }
     return enrichItem(item.getItemByIdentifier)
@@ -103,6 +105,7 @@ const actions = {
     const res = await serverFetch('query { getItemsByIds(ids: [' + arr + `]) { 
       id 
       path 
+      parentIdentifier
       identifier
       name
       typeId
