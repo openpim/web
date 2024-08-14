@@ -257,6 +257,8 @@
   "Config.Actions.Triggers.Event.AfterDelete": "after delete",
   "Config.Actions.Triggers.Event.ChangedOnClient": "after change on client",
   "Config.Actions.Triggers.Event.BeforeShow": "before show",
+  "Config.Actions.Triggers.Event.AttributeChanged": "attribute changed",
+  "Config.Actions.Triggers.Event.AttributeBeforeShow": "attribute before show",
   "Config.Actions.Triggers.Event.BeforeBulkUpdateChannels": "before update",
   "Config.Actions.Triggers.Event.AfterBulkUpdateChannels": "after update",
   "Config.Actions.Triggers.SelectType.Button": "Select item type",

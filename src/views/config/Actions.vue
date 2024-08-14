@@ -269,6 +269,10 @@ export default {
         return i18n.t('Config.Actions.Triggers.Event.BeforeBulkUpdateChannels')
       } else if (event === 10) {
         return i18n.t('Config.Actions.Triggers.Event.AfterBulkUpdateChannels')
+      } else if (event === 11) {
+        return i18n.t('Config.Actions.Triggers.Event.AttributeChanged')
+      } else if (event === 12) {
+        return i18n.t('Config.Actions.Triggers.Event.AttributeBeforeShow')
       } else {
         return '???'
       }
