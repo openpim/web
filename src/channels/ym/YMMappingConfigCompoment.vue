@@ -176,7 +176,8 @@ export default {
       { id: 'table_of_contents', name: 'table_of_contents', required: false, description: 'Оглавление.' },
       { id: 'binding', name: 'binding', required: false, description: 'Формат.' },
       { id: 'page_extent', name: 'page_extent', required: false, description: 'Количество страниц в книге, должно быть целым положительным числом.' },
-      { id: 'age', name: 'age', required: true, description: 'Возрастная категория товара. Годы задаются с помощью атрибута unit со значением year. Допустимые значения параметра age при unit="year": 0, 6, 12, 16, 18. Месяцы задаются с помощью атрибута unit со значением month. Допустимые значения параметра age при unit="month": 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12.' }
+      { id: 'age', name: 'age', required: true, description: 'Возрастная категория товара. Годы задаются с помощью атрибута unit со значением year. Допустимые значения параметра age при unit="year": 0, 6, 12, 16, 18. Месяцы задаются с помощью атрибута unit со значением month. Допустимые значения параметра age при unit="month": 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12.' },
+      { id: 'typePrefix', name: 'typePrefix', required: false, description: 'Тип / категория товара.' }
     ]
 
     const ymStandardAttributes = [
