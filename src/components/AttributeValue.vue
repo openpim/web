@@ -665,6 +665,8 @@ import * as lovStore from '../store/lovs'
 import * as attrStore from '../store/attributes'
 import * as actionsStore from '../store/actions'
 import * as userStore from '../store/users'
+import * as itemStore from '../store/item'
+import * as itemRelationStore from '../store/itemRelations'
 import { ref, computed, onMounted, onUnmounted, onBeforeUpdate, watch } from '@vue/composition-api'
 import LanguageDependentField from './LanguageDependentField'
 import AttributeType from '../constants/attributeTypes'
@@ -719,6 +721,9 @@ export default {
       findByIdentifier,
       getAvailableItemsForRelationAttr
     } = attrStore.useStore()
+
+    const itemStoreForAction = itemStore.useStore()
+    const itemRelationStoreForAction = itemRelationStore.useStore()
 
     const { currentUserRef, currentRoles, canEditItem } = userStore.useStore()
 
@@ -801,7 +806,7 @@ export default {
     watch(() => props.item, (newValue, prevValue) => {
       if (props.attr.lov) {
         // TODO change to nextTick after moving to real Vue 3. Now nextTick is not available
-        setTimeout(() => { lovChanged(true) }, 500)
+        setTimeout(async () => { await lovChanged(true) }, 500)
       }
     })
 
@@ -889,7 +894,7 @@ export default {
       return validRef.value
     }
 
-    function attrInput (val) {
+    async function attrInput (val) {
       for (let i = 0; i < attributeChangedActions.value.length; i++) {
         const action = attributeChangedActions.value[i]
         try {
@@ -899,8 +904,9 @@ export default {
             }
           }
           // eslint-disable-next-line no-new-func
-          const func = new Function('item', 'values', 'attr', 'dense', 'inTableView', 'value', 'domElement', 'user', 'roles', 'utils', '"use strict"; ' + action.code)
-          func(props.item, props.values, props.attr, props.dense, props.inTableView, val, componentRoot.value, currentUserRef.value, currentRoles, utils)
+          const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor
+          const func = new AsyncFunction('item', 'values', 'attr', 'dense', 'inTableView', 'value', 'domElement', 'itemStore', 'itemRelationStore', 'user', 'roles', 'utils', '"use strict"; ' + action.code)
+          await func.call(this, props.item, props.values, props.attr, props.dense, props.inTableView, val, componentRoot.value, itemStoreForAction, itemRelationStoreForAction, currentUserRef.value, currentRoles, utils)
         } catch (err) {
           console.error('Failed to evaluate expression: "' + action.code + '" for action: ' + action.identifier, err)
         }
@@ -951,11 +957,11 @@ export default {
       window.open(url + noCache)
     }
 
-    function lovChanged (skipInput) {
+    async function lovChanged (skipInput) {
       const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier]
       const data = { attr: props.attr.identifier, lov: props.attr.lov, value: val }
       eventBus.emit('lov_value_changed', data)
-      if (!skipInput) attrInput(val)
+      if (!skipInput) await attrInput(val)
     }
 
     const formatedDate = computed(() => {
@@ -993,9 +999,9 @@ export default {
       }
     }
 
-    const handler = () => {
+    const handler = async () => {
       const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.value.identifier] : props.values[props.attr.identifier]
-      attrInput(val)
+      await attrInput(val)
     }
     onBeforeUpdate(() => {
       if (joditRef.value) {
@@ -1029,7 +1035,7 @@ export default {
 
         if (props.attr.lov) {
           // TODO change to nextTick after moving to real Vue 3. Now nextTick is not available
-          setTimeout(() => { lovChanged(true) }, 500)
+          setTimeout(async () => { await lovChanged(true) }, 500)
         }
 
         if (props.attr.type === AttributeType.Relation) {
@@ -1058,7 +1064,7 @@ export default {
       runBeforeShowActions()
     })
 
-    function runBeforeShowActions () {
+    async function runBeforeShowActions () {
       if (componentRoot.value) {
         for (let i = 0; i < attributeBeforeShowActions.value.length; i++) {
           const action = attributeBeforeShowActions.value[i]
@@ -1070,8 +1076,9 @@ export default {
             }
             const val = props.attr.languageDependent ? props.values[props.attr.identifier][currentLanguage.identifier] : props.values[props.attr.identifier]
             // eslint-disable-next-line no-new-func
-            const func = new Function('item', 'values', 'attr', 'dense', 'inTableView', 'value', 'domElement', 'user', 'roles', 'utils', '"use strict"; ' + action.code)
-            func(props.item, props.values, props.attr, props.dense, props.inTableView, val, componentRoot.value, currentUserRef.value, currentRoles, utils)
+            const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor
+            const func = new AsyncFunction('item', 'values', 'attr', 'dense', 'inTableView', 'value', 'domElement', 'itemStore', 'itemRelationStore', 'user', 'roles', 'utils', '"use strict"; ' + action.code)
+            await func.call(componentRoot.value, props.item, props.values, props.attr, props.dense, props.inTableView, val, componentRoot.value, itemStoreForAction, itemRelationStoreForAction, currentUserRef.value, currentRoles, utils)
           } catch (err) {
             console.error('Failed to evaluate expression: "' + action.code + '" for action: ' + action.identifier, err)
           }
@@ -1119,12 +1126,13 @@ export default {
       }
     }
 
-    function clearValue () {
+    async function clearValue () {
       if (props.attr.languageDependent) {
         props.values[props.attr.identifier][currentLanguage.value.identifier] = null
       } else {
         props.values[props.attr.identifier] = null
       }
+      await attrInput(null)
     }
 
     return {
