@@ -347,7 +347,7 @@ export default {
     })
 
     function add (group) {
-      const parentId = selectedRef.value && selectedRef.value.group ? selectedRef.value.id : 0
+      const parentId = selectedRef.value && selectedRef.value.group ? (selectedRef.value.internalId === 0 ? selectedRef.value.id : selectedRef.value.internalId) : 0
       group === 'group' ? selectedRef.value = addChannel(true) : selectedRef.value = addChannel(false, parentId)
       itemRef.value = selectedRef.value.id
       oldChannel.value = JSON.parse(JSON.stringify(selectedRef.value))
@@ -409,12 +409,20 @@ export default {
     }
 
     function save () {
+      selectedRef.value.parentId = selectedRef.value.parentId ? selectedRef.value.parentId : 0
       if (formRef.value.validate()) {
         findChanges(oldChannel.value, selectedRef.value)
         saveChannel(selectedRef.value).then(() => {
           showInfo(i18n.t('Saved'))
           const readingTime = new Date().toISOString()
           updateCategories(selectedRef.value, readingTime)
+          const selectedChannel = channelsRef.value.find(chan => chan.id === selectedRef.value.id)
+          if (selectedChannel) {
+            selectedChannel.identifier = selectedRef.value.identifier
+            selectedChannel.id = selectedRef.value.internalId
+            selectedChannel.internalId = selectedRef.value.internalId
+            selectedChannel.order = selectedRef.value.order
+          }
         })
         oldChannel.value = JSON.parse(JSON.stringify(selectedRef.value))
       }

@@ -109,7 +109,7 @@ const actions = {
       }
 
       const data = await serverFetch(query, variables)
-      const newId = parseInt(data.createLanguage)
+      const newId = parseInt(data.createChannel)
       channel.internalId = newId
     } else {
       const query = `
