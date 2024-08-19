@@ -8,17 +8,49 @@
         <v-container>
           <v-row>
             <v-col cols="12">
-            <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-            <v-list nav dense>
-              <v-list-item-group v-model="selectedChannelsRef" color="primary" :multiple="multiselect">
-                <v-list-item v-for="(item, i) in chanFiltered" :key="i">
-                  <v-list-item-icon><v-icon>mdi-access-point</v-icon></v-list-item-icon>
+              <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details
+                clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
+              <v-list nav dense>
+                <v-list-group v-for="group in groupedChannels" :key="group.id" prepend-icon="mdi-folder">
+                  <template v-slot:activator>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        {{ group.name[currentLanguage.identifier] || `[${group.name[defaultLanguage]}]` }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </template>
+                  <v-row>
+                    <v-col cols="1"></v-col>
+                    <v-col>
+                      <v-list-item v-for="child in group.children" :key="child.id" @click="toggleSelection(child.id)"
+                        :class="{ 'v-item--active': isSelected(child.id), 'v-list-item--active': isSelected(child.id) }"
+                        :multiple="multiselect">
+                        <v-list-item-icon>
+                          <v-icon>mdi-access-point</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            {{ child.name[currentLanguage.identifier] || `[${child.name[defaultLanguage]}]` }}
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-col>
+                  </v-row>
+                </v-list-group>
+
+                <v-list-item v-for="chan in singleChannels" :key="chan.id" @click="toggleSelection(chan.id)"
+                  :class="{ 'v-item--active': isSelected(chan.id), 'v-list-item--active': isSelected(chan.id), 'primary--text': isSelected(chan.id) }"
+                  :multiple="multiselect">
+                  <v-list-item-icon>
+                    <v-icon>mdi-access-point</v-icon>
+                  </v-list-item-icon>
                   <v-list-item-content>
-                    <v-list-item-title v-text="item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']'"></v-list-item-title>
+                    <v-list-item-title>
+                      {{ chan.name[currentLanguage.identifier] || `[${chan.name[defaultLanguage]}]` }}
+                    </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
-              </v-list-item-group>
-            </v-list>
+              </v-list>
             </v-col>
           </v-row>
         </v-container>
@@ -31,6 +63,7 @@
     </v-card>
   </v-dialog>
 </template>
+
 <script>
 import { ref, computed } from '@vue/composition-api'
 import * as channelsStore from '../store/channels'
@@ -66,31 +99,56 @@ export default {
     let initiator
 
     function selected () {
-      let arr
-      if (props.multiselect) {
-        arr = selectedChannelsRef.value.filter(idx => idx !== -1).map(idx => chanFiltered.value[idx].internalId)
-      } else {
-        arr = [chanFiltered.value[selectedChannelsRef.value].internalId]
-      }
+      const arr = selectedChannelsRef.value.map(id => channelsListRef.value.find(chan => chan.id === id).internalId)
       emit('selected', arr, initiator)
     }
 
     const searchRef = ref('')
-    const chanFiltered = computed(() => {
+    function filteredChannels () {
       let arr = channelsListRef.value
-      if (!arr) return []
+      const result = []
+      const chanMap = {}
+
       if (searchRef.value) {
-        const s = searchRef.value.toLowerCase()
-        arr = channelsListRef.value.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
+        const searchTerm = searchRef.value.toLowerCase()
+        arr = arr.filter(item => {
+          const identifierMatch = item.identifier.toLowerCase().includes(searchTerm)
+          const nameMatch = item.name && Object.values(item.name).some(val => val.toLowerCase().includes(searchTerm))
+          return identifierMatch || nameMatch
+        })
       }
-      return arr.sort((a, b) => {
-        if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
-          return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
-        } else {
-          return 0
+
+      arr.forEach(chan => {
+        chanMap[chan.id] = { ...chan, children: [] }
+      })
+
+      arr.forEach(chan => {
+        if (chan.parentId) {
+          const parent = chanMap[chan.parentId]
+          if (parent) {
+            parent.children.push(chanMap[chan.id])
+          }
+        } else if (chan.group || (chan.parentId === 0 && !chan.group)) {
+          result.push(chanMap[chan.id])
         }
       })
+
+      result.forEach(group => {
+        if (group.children.length > 0) {
+          group.children.sort((a, b) => a.order - b.order)
+        }
+      })
+      return result
+    }
+
+    const groupedChannels = computed(() => {
+      return filteredChannels().filter(item => item.group).sort((a, b) => a.order - b.order)
     })
+
+    const singleChannels = computed(() => {
+      return filteredChannels().filter(item => !item.group).sort((a, b) => a.order - b.order)
+    })
+
     function clearSelection () {
       selectedChannelsRef.value = []
     }
@@ -117,7 +175,23 @@ export default {
       selectionDialogRef.value = false
     }
 
+    function toggleSelection (id) {
+      const index = selectedChannelsRef.value.indexOf(id)
+      if (index === -1) {
+        selectedChannelsRef.value.push(id)
+      } else {
+        selectedChannelsRef.value.splice(index, 1)
+      }
+    }
+
+    function isSelected (id) {
+      return selectedChannelsRef.value.includes(id)
+    }
+
     return {
+      singleChannels,
+      groupedChannels,
+      filteredChannels,
       channelsListRef,
       selectionDialogRef,
       selected,
@@ -126,7 +200,8 @@ export default {
       closeDialog,
       searchRef,
       clearSelection,
-      chanFiltered,
+      toggleSelection,
+      isSelected,
       currentLanguage,
       defaultLanguageIdentifier
     }
