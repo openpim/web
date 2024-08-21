@@ -111,10 +111,17 @@ export default {
 
       if (searchRef.value) {
         const searchTerm = searchRef.value.toLowerCase()
-        arr = arr.filter(item => {
-          const identifierMatch = item.identifier.toLowerCase().includes(searchTerm)
-          const nameMatch = item.name && Object.values(item.name).some(val => val.toLowerCase().includes(searchTerm))
-          return identifierMatch || nameMatch
+        arr = arr.filter(chan => {
+          const identifierMatch = chan.identifier.toLowerCase().includes(searchTerm)
+          const nameMatch = chan.name && Object.values(chan.name).some(val => val.toLowerCase().includes(searchTerm))
+          return identifierMatch || nameMatch || chan.group
+        })
+        arr = arr.filter(chan => {
+          if (chan.group) {
+            const hasParent = arr.some(item => item.parentId === parseInt(chan.id))
+            return hasParent
+          }
+          return true
         })
       }
 
