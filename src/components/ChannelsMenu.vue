@@ -2,9 +2,10 @@
   <div>
     <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable
       clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-    <v-list nav dense>
+    <v-list :expand="!!searchRef" nav dense>
       <v-list-group v-for="group in groupedChannels" :key="group.id" prepend-icon="mdi-folder"
-        @click="itemRef = group.id" :value="group.children.some(child => itemRef === child.id) || itemRef === group.id">
+        @click="itemRef = group.id"
+        :value="group.children.some(child => itemRef === child.id) || itemRef === group.id || !!searchRef">
         <template v-slot:activator>
           <v-list-item-content>
             <v-list-item-title>
@@ -86,7 +87,9 @@ export default {
         arr = arr.filter(chan => {
           if (chan.group) {
             const hasParent = arr.some(item => item.parentId === parseInt(chan.id))
-            return hasParent
+            const identifierMatch = chan.identifier.toLowerCase().includes(searchTerm)
+            const nameMatch = chan.name && Object.values(chan.name).some(val => val.toLowerCase().includes(searchTerm))
+            return identifierMatch || nameMatch || hasParent
           }
           return true
         })
@@ -153,8 +156,6 @@ export default {
         const selectedChannel = val
         if (selectedChannel.internalId !== 0 && selectedChannel.identifier && !selectedChannel.group) {
           router.push('/channels/' + selectedChannel.identifier)
-        } else {
-          router.push('/channels')
         }
       }
     })
@@ -164,7 +165,7 @@ export default {
         clearSelection()
         channelsRef.value = getAvailableChannels()
         if (route.value && route.value.params && route.value.params.id) {
-          itemRef.value = channelsRef.value.findIndex(elem => elem.identifier === route.value.params.id)
+          itemRef.value = channelsRef.value.find(elem => elem.identifier === route.value.params.id).id
         }
       })
     })
