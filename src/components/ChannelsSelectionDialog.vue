@@ -10,7 +10,7 @@
             <v-col cols="12">
               <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details
                 clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-              <v-list :expand="searchRef" nav dense>
+              <v-list :expand="true" nav dense>
                 <v-list-group v-for="group in groupedChannels" :key="group.id" prepend-icon="mdi-folder"
                   :value="!!searchRef">
                   <template v-slot:activator>
