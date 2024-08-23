@@ -57,6 +57,9 @@
             <td class="pa-1" v-for="(channel, i) in availableChannelsRef" :key="i">
               <input v-model="item[channel.identifier][currentLanguage.identifier]" />
             </td>
+            <td class="pa-1" v-for="(customField, i) in lovCustomFields(lov.identifier)" :key="'cf_'+i">
+              <input v-model="item[customField.identifier][currentLanguage.identifier]" :readonly="customField.readonly"/>
+            </td>
             <td class="pa-1">
               <v-chip @click="editLevels(item)">
                 <v-icon left>mdi-form-select</v-icon>{{ item.level && item.level.length > 0 ? '...' : '' }}
@@ -226,6 +229,7 @@ import SystemInformation from '../components/SystemInformation'
 import LanguageDependentField from '../components/LanguageDependentField'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import AttributeSelectionDialog from '../components/AttributeSelectionDialog'
+import lovCustomFields from '../_customizations/lovs/lovCustomFields.js'
 
 export default {
   components: { SystemInformation, LanguageDependentField, ItemsSelectionDialog, AttributeSelectionDialog },
@@ -302,10 +306,13 @@ export default {
         value: channel.identifier
       }))
 
+      const customFields = lovCustomFields(props.lov.identifier).map(field => ({ text: field.name, value: field.name }))
+
       return [
         { text: i18n.t('Config.LOV.ID'), value: 'id' },
         { text: i18n.t('Config.LOV.Value'), value: 'value' },
         ...dynamicHeaders,
+        ...customFields,
         { text: i18n.t('Config.LOV.Level'), value: 'level' },
         { text: i18n.t('Config.LOV.ForAttributes'), value: 'attrs' },
         { text: i18n.t('Config.LOV.URL'), value: 'url' },
@@ -421,6 +428,9 @@ export default {
           if (!elem.level) root.$set(elem, 'level', [])
           availableChannelsRef.value.forEach(channel => {
             if (!elem[channel.identifier]) root.$set(elem, channel.identifier, {})
+          })
+          lovCustomFields(props.lov.identifier).forEach(customField => {
+            if (!elem[customField.identifier]) root.$set(elem, customField.identifier, {})
           })
         })
       }
@@ -566,6 +576,7 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       loadingRef,
+      lovCustomFields,
       identifierRules: [
         v => identifierValidation(v)
       ],
