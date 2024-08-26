@@ -106,27 +106,10 @@ export default {
 
     const searchRef = ref('')
     function filteredChannels () {
-      let arr = channelsListRef.value
+      if (!channelsListRef.value) return []
+      const arr = channelsListRef.value
       const result = []
       const chanMap = {}
-
-      if (searchRef.value) {
-        const searchTerm = searchRef.value.toLowerCase()
-        arr = arr.filter(chan => {
-          const identifierMatch = chan.identifier.toLowerCase().includes(searchTerm)
-          const nameMatch = chan.name && Object.values(chan.name).some(val => val.toLowerCase().includes(searchTerm))
-          return identifierMatch || nameMatch || chan.group
-        })
-        arr = arr.filter(chan => {
-          if (chan.group) {
-            const hasParent = arr.some(item => item.parentId === parseInt(chan.id))
-            const identifierMatch = chan.identifier.toLowerCase().includes(searchTerm)
-            const nameMatch = chan.name && Object.values(chan.name).some(val => val.toLowerCase().includes(searchTerm))
-            return identifierMatch || nameMatch || hasParent
-          }
-          return true
-        })
-      }
 
       arr.forEach(chan => {
         chanMap[chan.id] = { ...chan, children: [] }
@@ -148,6 +131,36 @@ export default {
           group.children.sort((a, b) => a.order - b.order)
         }
       })
+
+      if (searchRef.value) {
+        const searchTerm = searchRef.value.toLowerCase()
+        const filteredResult = []
+
+        result.forEach(group => {
+          const identifierMatch = group.identifier.toLowerCase().includes(searchTerm)
+          const nameMatch = group.name && Object.values(group.name).some(val => val.toLowerCase().includes(searchTerm))
+
+          if (identifierMatch || nameMatch) {
+            filteredResult.push(group)
+          } else {
+            const filteredChildren = group.children.filter(child => {
+              const childIdentifierMatch = child.identifier.toLowerCase().includes(searchTerm)
+              const childNameMatch = child.name && Object.values(child.name).some(val => val.toLowerCase().includes(searchTerm))
+              return childIdentifierMatch || childNameMatch
+            })
+
+            if (filteredChildren.length > 0) {
+              filteredResult.push({
+                ...group,
+                children: filteredChildren
+              })
+            }
+          }
+        })
+
+        return filteredResult
+      }
+
       return result
     }
 
