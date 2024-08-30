@@ -1066,7 +1066,7 @@ export default {
 
     function convertValueIfNecessary (attr, cellVal) {
       const attrNode = findByIdentifier(attr)
-      if (!cellVal) {
+      if (cellVal === null) {
         return attrNode && attrNode.item.type === AttributeType.Text ? '' : null
       } else {
         return attrNode && attrNode.item.type === AttributeType.Text ? '' + cellVal : cellVal
