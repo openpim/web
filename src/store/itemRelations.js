@@ -442,7 +442,7 @@ const actions = {
     const query = `
     mutation { updateItemRelation(id: "` + itemRel.internalId +
       '", values: ' + objectToGraphgl(itemRel.values) +
-      `)
+      `) { id }
     }`
     await serverFetch(query)
   },

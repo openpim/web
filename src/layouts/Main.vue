@@ -137,8 +137,8 @@
                     {{$t('Config.Users.External')}}
                   </template>
                   <template v-else>
-                    <v-text-field v-if="currentUserRef.login !== 'demo'" type="password" :error-messages="passwordErrors" v-model="currentUserRef.password1" :label="$t('Config.Users.Password1')" required></v-text-field>
-                    <v-text-field v-if="currentUserRef.login !== 'demo'" type="password" :error-messages="passwordErrors" v-model="currentUserRef.password2" :label="$t('Config.Users.Password2')" required></v-text-field>
+                    <v-text-field v-if="currentUserRef.login !== 'demo'" type="password" :disabled="!getUserOption('passwordChange', true)" :error-messages="passwordErrors" v-model="currentUserRef.password1" :label="$t('Config.Users.Password1')" required></v-text-field>
+                    <v-text-field v-if="currentUserRef.login !== 'demo'" type="password" :disabled="!getUserOption('passwordChange', true)" :error-messages="passwordErrors" v-model="currentUserRef.password2" :label="$t('Config.Users.Password2')" required></v-text-field>
                   </template>
                   <v-row>
                     <v-col cols="12" class="pa-0" v-if="isUserAdmin">
@@ -446,6 +446,14 @@ export default {
       clearInterval(timer)
     })
 
+    function getUserOption (name, defaultValue) {
+      if (currentUserRef.value && currentUserRef.value.options) {
+        const tst = currentUserRef.value.options.find(elem => elem.name === name)
+        if (tst) return tst.value === 'true'
+      }
+      return defaultValue
+    }
+
     return {
       logout,
       reload,
@@ -471,6 +479,7 @@ export default {
       activeOptionsRef,
       activeLoadingRef,
       activeOptionsUpdate,
+      getUserOption,
       activeHeaders: [
         { text: i18n.t('Process.Header.Title'), value: 'title', width: '40%' },
         { text: i18n.t('Process.Header.Status'), value: 'status', width: '15%' },

@@ -217,7 +217,8 @@ export default {
       { id: 'age', name: 'age', required: false, description: 'Возрастная категория товара. Годы задаются с помощью атрибута unit со значением year. Допустимые значения параметра age при unit="year": 0, 6, 12, 16, 18. Месяцы задаются с помощью атрибута unit со значением month. Допустимые значения параметра age при unit="month": 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12.' },
       { id: 'cpa', name: 'cpa', required: false, description: 'Возможность заказать товар на Маркете: 1 — товар можно заказать на Маркете. 0 — товар можно заказать только на сайте магазина. Значение по умолчанию: 1.' },
       { id: 'group_id', name: 'group_id', required: false, description: 'Элемент объединяет все предложения, которые являются вариациями одной модели и должен иметь одинаковое значение. Значение должно быть целым числом, максимум 9 знаков.' },
-      { id: 'offerType', name: 'offerType', required: false, description: 'Значение из этого атрибута пойдет в offer type, соответственно можно "переписать" стандартный тип. Это не стандартный атрибут YML.' }
+      { id: 'offerType', name: 'offerType', required: false, description: 'Значение из этого атрибута пойдет в offer type, соответственно можно "переписать" стандартный тип. Это не стандартный атрибут YML.' },
+      { id: 'vat', name: 'vat', required: false, description: 'НДС. Это не стандартный атрибут YML.' }
     ]
 
     const categoryAttributes = computed(() => {
@@ -307,7 +308,7 @@ export default {
         const attrs = getAllItemsAttributes()
         for (let i = 0; i < attrs.length; i++) {
           const attr = attrs[i]
-          const nameText = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
+          const nameText = attr.identifier + ' - ' + (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
           if (attr.languageDependent) {
             for (let i = 0; i < languages.length; i++) {
               const lang = languages[i]

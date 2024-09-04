@@ -1075,7 +1075,7 @@ export default {
 
     function convertValueIfNecessary (attr, cellVal) {
       const attrNode = findByIdentifier(attr)
-      if (!cellVal) {
+      if (cellVal === null) {
         return attrNode && attrNode.item.type === AttributeType.Text ? '' : null
       } else {
         return attrNode && attrNode.item.type === AttributeType.Text ? '' + cellVal : cellVal
@@ -1511,12 +1511,12 @@ export default {
                 const lang = languages[i]
                 const langText = ' (' + (lang.name[currentLanguage.value.identifier] || '[' + lang.name[defaultLanguageIdentifier.value] + ']') + ')'
                 const data = { identifier: 'attr_' + attr.identifier + '_' + lang.identifier, text: nameShort + langText, type: attr.type, textLong: nameText + langText, textShort: nameShort + langText, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier, lang.identifier] } }
-                if (attr.lov) data.lov = attr.lov
+                if (attr.type === 7 && attr.lov) data.lov = attr.lov
                 if (!headersRef.value.some(elem => elem.identifier === data.identifier)) headersRef.value.push(data)
               }
             } else {
               const data = { identifier: 'attr_' + attr.identifier, text: nameShort, type: attr.type, textLong: nameText, textShort: nameShort, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
-              if (attr.lov) data.lov = attr.lov
+              if (attr.type === 7 && attr.lov) data.lov = attr.lov
               if (!headersRef.value.some(elem => elem.identifier === data.identifier)) headersRef.value.push(data)
             }
           })

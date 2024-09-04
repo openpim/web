@@ -194,7 +194,7 @@ export default {
         const attrs = getAllItemsAttributes()
         for (let i = 0; i < attrs.length; i++) {
           const attr = attrs[i]
-          const nameText = (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
+          const nameText = attr.identifier + ' - ' + (attr.name[currentLanguage.value.identifier] || '[' + attr.name[defaultLanguageIdentifier.value] + ']')
           if (attr.languageDependent) {
             for (let i = 0; i < languages.length; i++) {
               const lang = languages[i]

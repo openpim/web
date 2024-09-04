@@ -43,7 +43,7 @@ const actions = {
     return channels
   },
   loadAllChannels: async () => {
-    if (!chanPromise) chanPromise = serverFetch('query { getChannels {id identifier name active type valid visible config runtime createdAt createdBy updatedAt updatedBy} }')
+    if (!chanPromise) chanPromise = serverFetch('query { getChannels {id identifier name order group active type valid visible config runtime parentId createdAt createdBy updatedAt updatedBy} }')
     const data = await chanPromise
     if (channels.length > 0) return channels
     if (data.getChannels) {
@@ -57,7 +57,7 @@ const actions = {
   },
   loadAllChannelsWithMapping: async () => {
     if (!chanPromiseAll) {
-      chanPromiseAll = serverFetch('query { getChannels {id identifier name active type valid visible config mappings runtime createdAt createdBy updatedAt updatedBy} }')
+      chanPromiseAll = serverFetch('query { getChannels {id identifier name order group active type valid visible config mappings runtime parentId createdAt createdBy updatedAt updatedBy} }')
     }
     const data = await chanPromiseAll
     const readingTime = new Date().toISOString()
@@ -80,10 +80,11 @@ const actions = {
 
     return channels
   },
-  addChannel: () => {
+  addChannel: (group, parentId) => {
     const name = {}
-    name[currentLanguage.value.identifier] = i18n.t('Config.Channels.NewName')
-    const newChan = { id: Date.now(), language: currentLanguage.value.identifier, internalId: 0, name: name, active: false, type: 0, valid: [], visible: [], config: { start: 1 }, mappings: {}, runtime: {} }
+    const id = Date.now()
+    name[currentLanguage.value.identifier] = group ? i18n.t('Config.Channels.NewGroupName') : i18n.t('Config.Channels.NewName')
+    const newChan = { id, language: currentLanguage.value.identifier, internalId: 0, name, order: 0, group, active: false, type: 0, valid: [], visible: [], config: { start: 1 }, mappings: {}, runtime: {}, parentId }
     channels.push(newChan)
     return newChan
   },
@@ -91,6 +92,9 @@ const actions = {
     if (channel.internalId === 0) {
       const query = `
         mutation($config: JSONObject, $mappings: JSONObject) { createChannel(identifier: "` + channel.identifier + '", name: ' + objectToGraphgl(channel.name) +
+        ', order: ' + channel.order +
+        ', group: ' + channel.group +
+        ', parentId: ' + channel.parentId +
         ', active: ' + channel.active +
         ', type: ' + channel.type +
         ', valid: [' + (channel.valid || []) +
@@ -105,11 +109,14 @@ const actions = {
       }
 
       const data = await serverFetch(query, variables)
-      const newId = parseInt(data.createLanguage)
+      const newId = parseInt(data.createChannel)
       channel.internalId = newId
     } else {
       const query = `
         mutation($config: JSONObject, $mappings: JSONObject) { updateChannel(id: "` + channel.internalId + '", name: ' + (channel.name ? '' + objectToGraphgl(channel.name) : '') +
+        ', order: ' + channel.order +
+        ', group: ' + channel.group +
+        ', parentId: ' + channel.parentId +
         ', active: ' + channel.active +
         ', type: ' + channel.type +
         ', valid: [' + (channel.valid || []) +

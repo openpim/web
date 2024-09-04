@@ -1140,7 +1140,7 @@ export default {
               }
             }
           } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && isMultivalue) {
-            const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
+            const val = item.values[attr.identifier]
             if (val !== null && val !== undefined) {
               if (!Array.isArray(val)) {
                 item.values[attr.identifier] = [val]
@@ -1148,9 +1148,13 @@ export default {
                 // remove null value from array if we have it
                 if (val.includes(null)) item.values[attr.identifier] = val.filter(elem => elem !== null)
               }
+              for (let i = 0; i < item.values[attr.identifier].length; i++) {
+                const val = item.values[attr.identifier][i]
+                if (typeof val === 'string' || val instanceof String) item.values[attr.identifier][i] = parseInt(val)
+              }
             }
           } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && !isMultivalue) {
-            const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
+            const val = item.values[attr.identifier]
             if (val && Array.isArray(val) && val.length) {
               item.values[attr.identifier] = val[0]
             } else if (typeof val === 'string' || val instanceof String) {
