@@ -461,6 +461,7 @@
 	"DataTable.ExcelImport.UPDATE_ONLY": "只编辑现有的（不要创建新的",
 	"DataTable.ExcelImport.CREATE_UPDATE": "创建新的并修改现有的",
 	"DataTable.ExcelImport.NoLOVValue": "在 {attr}标识符的属性值列表中找不到“{val}”值",
+	"DataTable.ExcelImport.NoRelAttrValue": "在 {attr}标识符的属性值列表中找不到“{val}”值",
 	"FileUploadDialog.Title": "下载文件",
 	"FileUploadDialog.NewFile": "下载文件",
 	"FileUploadDialog.FileType": "类型",

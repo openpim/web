@@ -989,15 +989,19 @@ export default {
                     const val = cell ? '' + cell.v : ''
                     if (multivalueMap[attr]) { // multivalue lov
                       let errors = ''
-                      cellVal = val.split(',').reduce((accumulator, currentValue) => {
-                        const tmp = currentValue.trim()
-                        const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === tmp)
-                        if (tst2) accumulator.push(tst2.id)
-                        else {
-                          errors += i18n.t('DataTable.ExcelImport.NoLOVValue', { val: tmp, attr: attr })
-                        }
-                        return accumulator
-                      }, [])
+                      if (val === '' || val === null) {
+                        cellVal = []
+                      } else {
+                        cellVal = val.split(',').reduce((accumulator, currentValue) => {
+                          const tmp = currentValue.trim()
+                          const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === tmp)
+                          if (tst2) accumulator.push(tst2.id)
+                          else {
+                            errors += i18n.t('DataTable.ExcelImport.NoLOVValue', { val: tmp, attr: attr })
+                          }
+                          return accumulator
+                        }, [])
+                      }
                       if (errors.length > 0) {
                         log.push([item.identifier, 'ERROR', errors])
                         if (importStopOnErrorRef.value) {
@@ -1007,16 +1011,21 @@ export default {
                         continue
                       }
                     } else {
-                      const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === val)
-                      if (tst2) cellVal = tst2.id
-                      else {
-                        const err = i18n.t('DataTable.ExcelImport.NoLOVValue', { val: val, attr: attr })
-                        log.push([item.identifier, 'ERROR', err])
-                        if (importStopOnErrorRef.value) {
-                          showError(err)
-                          excelDialogRef.value = false
+                      if (val === '' || val === null) {
+                        cellVal = null
+                      } else {
+                        const tst2 = lovValues.find(elem => elem.value[currentLanguage.value.identifier] === val)
+                        if (tst2) {
+                          cellVal = tst2.id
+                        } else {
+                          const err = i18n.t('DataTable.ExcelImport.NoLOVValue', { val: val, attr: attr })
+                          log.push([item.identifier, 'ERROR', err])
+                          if (importStopOnErrorRef.value) {
+                            showError(err)
+                            excelDialogRef.value = false
+                          }
+                          continue
                         }
-                        continue
                       }
                     }
                   }
@@ -1074,7 +1083,7 @@ export default {
     }
 
     async function importRows (rows, headers, log) {
-      await replaceRelAttrDataForImport(rows, headers)
+      await replaceRelAttrDataForImport(rows, headers, log)
       const returnRows = await props.importEntities(rows, importModeRef.value)
       let errors = ''
       returnRows.forEach(row => {
@@ -1116,7 +1125,7 @@ export default {
       }
     }
 
-    async function replaceRelAttrDataForImport (rows, importHeaders) {
+    async function replaceRelAttrDataForImport (rows, importHeaders, log) {
       for (let i = 0; i < importHeaders.length; i++) {
         const header = importHeaders[i]
         if (header.substring(0, 5) === 'attr_') {
@@ -1140,12 +1149,15 @@ export default {
             }
 
             const attrAvailableItems = await getItemsForRelationAttributeImport(attrNode.item, searchArr, currentLanguage.value.identifier, 10000, 0, 'ASC')
-
             for (let k = 0; k < rows.length; k++) {
               const row = rows[k]
-              if (row.values && row.values[attrNode.item.identifier]) {
+              if (row.values) {
                 if (multivalue) {
-                  const arr = (row.values[attrNode.item.identifier] + '').split(',')
+                  if (row.values[attrNode.item.identifier] === null || row.values[attrNode.item.identifier] === '') {
+                    row.values[attrNode.item.identifier] = []
+                    continue
+                  }
+                  const arr = (row.values[attrNode.item.identifier] + '').length ? (row.values[attrNode.item.identifier] + '').split(',') : []
                   const mappedArr = []
                   for (let arrIndx = 0; arrIndx < arr.length; arrIndx++) {
                     let tst
@@ -1168,11 +1180,22 @@ export default {
                     if (tst) {
                       mappedArr.push(parseInt(tst.id))
                     } else {
-                      throw new Error('Can not find item for name ' + row.values[attrNode.item.identifier])
+                      // throw new Error('Can not find item for name ' + row.values[attrNode.item.identifier])
+                      const err = i18n.t('DataTable.ExcelImport.NoRelAttrValue', { val: arr[arrIndx], attr: attr })
+                      log.push([row.identifier, 'ERROR', err])
+                      if (importStopOnErrorRef.value) {
+                        showError(err)
+                        excelDialogRef.value = false
+                      }
+                      continue
                     }
                   }
                   row.values[attrNode.item.identifier] = mappedArr
                 } else {
+                  if (row.values[attrNode.item.identifier] === null || row.values[attrNode.item.identifier] === '') {
+                    row.values[attrNode.item.identifier] = null
+                    continue
+                  }
                   let tst
                   if (displayValue && displayValue.value && displayValue.value.startsWith('#')) {
                     const fieldName = displayValue.value.substr(1)
@@ -1193,7 +1216,14 @@ export default {
                   if (tst) {
                     row.values[attrNode.item.identifier] = parseInt(tst.id)
                   } else {
-                    throw new Error('Can not find item for name ' + row.values[attrNode.item.identifier])
+                    // throw new Error('Can not find item for name ' + row.values[attrNode.item.identifier])
+                    const err = i18n.t('DataTable.ExcelImport.NoRelAttrValue', { val: row.values[attrNode.item.identifier], attr: attr })
+                    log.push([row.identifier, 'ERROR', err])
+                    if (importStopOnErrorRef.value) {
+                      showError(err)
+                      excelDialogRef.value = false
+                    }
+                    continue
                   }
                 }
               }

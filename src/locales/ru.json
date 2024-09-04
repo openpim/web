@@ -496,6 +496,7 @@
   "DataTable.ExcelImport.UPDATE_ONLY" : "Только изменять существующие (не создавать новые)",
   "DataTable.ExcelImport.CREATE_UPDATE" : "Создавать новые и изменять существующие",
   "DataTable.ExcelImport.NoLOVValue" : "Значение '{val}' не найдено в списке значений для атрибута с идентификатором {attr}",
+  "DataTable.ExcelImport.NoRelAttrValue": "Значение '{val}' не найдено для атрибута-зависимости с идентификатором {attr}",
   "DataTable.Actions": "Действия",
   "FileUploadDialog.Title" : "Загрузка файла",
   "FileUploadDialog.NewFile" : "Файл для загрузки",
