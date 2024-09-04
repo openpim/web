@@ -482,6 +482,9 @@ export default {
       availableChannelsRef.value.forEach(channel => {
         tmp[channel.identifier] = {}
       })
+      lovCustomFields(props.lov.identifier).forEach(customField => {
+        tmp[customField.identifier] = {}
+      })
       props.lov.values.push(tmp)
       goToLastPage()
     }
