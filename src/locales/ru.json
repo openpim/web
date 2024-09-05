@@ -530,6 +530,7 @@
   "HistoryTable.Operation.Change": "Изменение",
   "HistoryTable.Added": "Добавлено",
   "HistoryTable.Changed": "Изменено",
+  "HistoryTable.Deleted": "Удалено",  
   "HistoryTable.Name": "Наименование",
   "HistoryTable.Value": "Значение",
   "HistoryTable.OldValue": "Предыдушее значение",

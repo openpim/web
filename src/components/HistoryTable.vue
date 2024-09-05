@@ -66,6 +66,29 @@
             </template>
           </v-simple-table>
         </template>
+        <template v-if="!isObjectEmpty(item.data.deleted)">
+          <h4 class="red--text mt-2">{{ $t('HistoryTable.Deleted') }}</h4>
+          <v-simple-table dense>
+            <template v-slot:default>
+              <thead>
+                <tr><th style="width:50%" class="text-left red--text">{{ $t('HistoryTable.Name') }}</th>
+                <th style="width:50%" class="text-left red--text">{{ $t('HistoryTable.Value') }}</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="(value, name) in item.data.deleted" :key="name">
+                  <template v-if="name != 'values'">
+                  <td><div class="red--text mt-2">{{ getTitle(name) }}:</div></td>
+                  <td>{{value}}</td>
+                  </template>
+                </tr>
+                <tr v-for="(value, name) in item.data.deleted.values" :key="name">
+                  <td><div class="red--text mt-2">{{ getTitle(name) }}:</div></td>
+                  <td>{{value}}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </template>
       </td>
     </template>
   </v-data-table>

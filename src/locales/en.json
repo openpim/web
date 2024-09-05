@@ -533,6 +533,7 @@
   "HistoryTable.Operation.Change": "Changing",
   "HistoryTable.Added": "Added",
   "HistoryTable.Changed": "Changed",
+  "HistoryTable.Deleted": "Deleted",
   "HistoryTable.Name": "Name",
   "HistoryTable.Value": "Value",
   "HistoryTable.OldValue": "Old Value",
