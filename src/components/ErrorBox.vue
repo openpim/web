@@ -31,6 +31,24 @@
       {{ $t('Close') }}
     </v-btn>
   </v-snackbar>
+  <v-snackbar
+      :value="hasInformation"
+      color="white"
+      top
+      :multi-line="true"
+      :timeout="-1"
+    >
+    <div class="d-flex justify-space-between align-center" style="width: 100%;">
+      <span v-html="information" style="color: black"></span>
+      <v-btn
+        class="ml-5"
+        color="info"
+        @click="clearInformation"
+      >
+        {{ $t('Close') }}
+      </v-btn>
+    </div>
+  </v-snackbar>
 </div>
 
 </template>
@@ -40,9 +58,10 @@ import * as errorStore from '../store/error'
 export default {
   setup () {
     const {
-      state: { error, hasError, info, hasInfo },
+      state: { error, hasError, info, hasInfo, information, hasInformation },
       clearError,
-      clearInfo
+      clearInfo,
+      clearInformation
     } = errorStore.useStore()
 
     return {
@@ -50,8 +69,11 @@ export default {
       hasError,
       info,
       hasInfo,
+      information,
+      hasInformation,
       clearError,
-      clearInfo
+      clearInfo,
+      clearInformation
     }
   }
 }
