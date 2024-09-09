@@ -38,14 +38,16 @@
       :multi-line="true"
       :timeout="-1"
     >
-    <span v-html="information" style="color: black"></span>
-    <v-btn
-      class="ml-5"
-      color="info"
-      @click="clearInformation"
-    >
-      {{ $t('Close') }}
-    </v-btn>
+    <div class="d-flex justify-space-between align-center" style="width: 100%;">
+      <span v-html="information" style="color: black"></span>
+      <v-btn
+        class="ml-5"
+        color="info"
+        @click="clearInformation"
+      >
+        {{ $t('Close') }}
+      </v-btn>
+    </div>
   </v-snackbar>
 </div>
 
