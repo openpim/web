@@ -666,6 +666,7 @@ import * as attrStore from '../store/attributes'
 import * as actionsStore from '../store/actions'
 import * as userStore from '../store/users'
 import * as itemStore from '../store/item'
+import * as errorStore from '../store/error'
 import * as itemRelationStore from '../store/itemRelations'
 import { ref, computed, onMounted, onUnmounted, onBeforeUpdate, watch } from '@vue/composition-api'
 import LanguageDependentField from './LanguageDependentField'
@@ -721,6 +722,8 @@ export default {
       findByIdentifier,
       getAvailableItemsForRelationAttr
     } = attrStore.useStore()
+
+    const { showInformation } = errorStore.useStore()
 
     const itemStoreForAction = itemStore.useStore()
     const itemRelationStoreForAction = itemRelationStore.useStore()
@@ -1113,7 +1116,7 @@ export default {
     }
 
     function showAlert (text) {
-      alert(text)
+      showInformation(text)
     }
 
     function removeValue (attr, val, lang) {
