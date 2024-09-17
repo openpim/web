@@ -478,6 +478,9 @@ export default {
           for (let i = 0; i < attrs.length; i++) {
             const attr = attrs[i]
 
+            const noMappingOption = attr.options.find(option => option.name === 'no_mapping')
+            if (noMappingOption && noMappingOption.value === 'true') continue
+
             let isSupplierValid = false
             let isSupplierVisible = false
             // let isMasterValid = false
