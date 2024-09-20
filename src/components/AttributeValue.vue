@@ -814,6 +814,9 @@ export default {
     const loadingRef = ref(false)
 
     if (props.attr.type === AttributeType.Relation) {
+      const attrValue = computed(() => {
+        return props.values[props.attr.identifier]
+      })
       let awaitingSearch = null
       watch(searchRef, (val, prevVal) => {
         // eslint-disable-next-line eqeqeq
@@ -828,6 +831,16 @@ export default {
             await updateAvailableItemsForRelationAttr(val)
           }, 1000)
         }
+      })
+      watch(attrValue, (val, prevVal) => {
+        if (val === prevVal) return
+        setTimeout(async () => {
+          if (searchRef.value && searchRef.value.length) {
+            await updateAvailableItemsForRelationAttr(searchRef.value)
+          } else {
+            await updateAvailableItemsForRelationAttr('')
+          }
+        }, 1000)
       })
     }
 
