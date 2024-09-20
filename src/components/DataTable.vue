@@ -58,7 +58,7 @@
         </template>
         <span>{{ $t('Item.toCollection') }}</span>
       </v-tooltip>
-      <template v-if="hasChannelsRef">
+      <template v-if="hasChannelsRef && searchEntityRef !== 'ITEM_RELATION'">
         <v-menu offset-y>
           <template v-slot:activator="{ on }"><v-btn v-on="on" icon><v-icon>mdi-access-point-plus</v-icon></v-btn></template>
           <v-list>
@@ -71,7 +71,7 @@
           </v-list>
         </v-menu>
       </template>
-      <v-tooltip top>
+      <v-tooltip top v-if="searchEntityRef !== 'ITEM_RELATION'">
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" icon @click="collSelectionDialogRef.showDialog(true)"><v-icon>mdi-access-point-minus</v-icon></v-btn>
         </template>
@@ -94,7 +94,7 @@
             </v-list>
         </v-menu>
       </template>
-      <v-tooltip top>
+      <v-tooltip top v-if="collection">
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" icon @click="deleteFromCollection"><v-icon>mdi-trash-can</v-icon></v-btn>
         </template>

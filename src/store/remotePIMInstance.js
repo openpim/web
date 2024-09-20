@@ -32,7 +32,7 @@ const actions = {
     query += `]},
           ]}
         }
-    ]) { responses {... on AttributesResponse { count rows {id identifier name valid visible languageDependent } } }}}`
+    ]) { responses {... on AttributesResponse { count rows {id identifier name valid visible languageDependent options } } }}}`
     const data = await serverFetchCustomUrl(server.value, token.value, query)
     return data.search.responses[0]
   },

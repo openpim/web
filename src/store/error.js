@@ -4,7 +4,9 @@ const state = reactive({
   error: '',
   hasError: computed(() => (state.error !== '')),
   info: '',
-  hasInfo: computed(() => (state.info !== ''))
+  hasInfo: computed(() => (state.info !== '')),
+  information: '',
+  hasInformation: computed(() => state.information !== '')
 })
 
 const actions = {
@@ -17,6 +19,11 @@ const actions = {
   showInfo: (msg) => {
     state.info = msg
     setTimeout(() => { state.info = '' }, 60000)
+  },
+  clearInformation: () => { state.information = '' },
+  showInformation: (msg) => {
+    state.information = msg
+    setTimeout(() => { state.information = '' }, 60000)
   }
 }
 

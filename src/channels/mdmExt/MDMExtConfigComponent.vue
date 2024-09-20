@@ -56,7 +56,7 @@
         </v-row>
         <v-row class="pt-0 mt-0">
           <v-col><v-text-field v-model="masterLogin" @change="masterLoginChanged" :label="$t('MappingConfigComponent.MasterLogin')" dense/></v-col>
-          <v-col><v-text-field v-model="masterPassword" @change="masterPasswordChanged" :label="$t('MappingConfigComponent.MasterPassword')" dense type="password"/></v-col>
+          <v-col><v-text-field v-model="masterPassword" @change="masterPasswordChanged" :label="$t('MappingConfigComponent.MasterPassword')" dense type="password" autocomplete="new-password"/></v-col>
         </v-row>
       </v-card-text>
     </v-card>
@@ -477,6 +477,9 @@ export default {
 
           for (let i = 0; i < attrs.length; i++) {
             const attr = attrs[i]
+
+            const noMappingOption = attr.options.find(option => option.name === 'no_mapping')
+            if (noMappingOption && noMappingOption.value === 'true') continue
 
             let isSupplierValid = false
             let isSupplierVisible = false
