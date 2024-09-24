@@ -58,7 +58,7 @@
               <input v-model="item[channel.identifier][currentLanguage.identifier]" />
             </td>
             <td class="pa-1" v-for="(customField, i) in lovCustomFields(lov.identifier)" :key="'cf_'+i">
-              <input v-model="item[customField.identifier][currentLanguage.identifier]" :readonly="customField.readonly"/>
+              <input :type="customField.type == 'bool' ? 'checkbox': 'text'" v-model="item[customField.identifier][currentLanguage.identifier]" :readonly="customField.readonly"/>
             </td>
             <td class="pa-1">
               <v-chip @click="editLevels(item)">
