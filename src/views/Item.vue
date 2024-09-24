@@ -847,25 +847,29 @@ export default {
 
     function linkNewFile (filesData) {
       fileUploadDialogRef.value.closeDialog()
-      let result = true
+      const promises = []
       for (let i = 0; i < filesData.length; i++) {
         const fileData = filesData[i]
-        uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier, fileData.fileName, fileData.fileIdentifier).then((ok) => {
-          if (!ok) result = false
-          else {
-            sourceRelationsListRef.value.reloadRelation(fileData.relationId)
-            loadAssets(itemRef.value.id).then(arr => {
-              arr.forEach(elem => {
-                elem.type = findType(elem.typeId)?.node
+        const promise = new Promise((resolve, reject) => {
+          uploadAndCreateFile(itemRef.value.id, fileData.file, fileData.fileItemTypeId, fileData.parentId, fileData.relationId, currentLanguage.value.identifier, fileData.fileName, fileData.fileIdentifier).then((ok) => {
+            if (!ok) reject(new Error('Can not upload a file!'))
+            else {
+              sourceRelationsListRef.value.reloadRelation(fileData.relationId)
+              loadAssets(itemRef.value.id).then(arr => {
+                arr.forEach(elem => {
+                  elem.type = findType(elem.typeId)?.node
+                })
+                filesRef.value = arr
+                resolve()
               })
-              filesRef.value = arr
-            })
-          }
+            }
+          })
         })
+        promises.push(promise)
       }
-      if (result) {
+      Promise.all(promises).then((values) => {
         showInfo(i18n.t('Saved'))
-      }
+      })
     }
 
     function removeFile () {

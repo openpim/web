@@ -362,7 +362,10 @@ export default {
 
     function reloadRelation (relationId) {
       const rel = relations.find(rel => rel.id === relationId)
-      if (rel) pageChanged(rel.identifier)
+      if (rel) {
+        if (getOption2(rel, 'reloadItemOnUpdate', false)) props.itemRefreshFunction()
+        pageChanged(rel.identifier)
+      }
     }
 
     const itemRelations = computed(() => {

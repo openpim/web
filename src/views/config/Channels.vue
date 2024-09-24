@@ -429,7 +429,11 @@ export default {
       })
     }
 
+    let isSaving = false
+
     function save () {
+      if (isSaving) return
+      isSaving = true
       selectedRef.value.parentId = selectedRef.value.parentId ? selectedRef.value.parentId : 0
       if (formRef.value.validate()) {
         findChanges(oldChannel.value, selectedRef.value)
@@ -444,8 +448,12 @@ export default {
             selectedChannel.internalId = selectedRef.value.internalId
             selectedChannel.order = selectedRef.value.order
           }
+        }).finally(() => {
+          isSaving = false
+          oldChannel.value = JSON.parse(JSON.stringify(selectedRef.value))
         })
-        oldChannel.value = JSON.parse(JSON.stringify(selectedRef.value))
+      } else {
+        isSaving = false
       }
     }
 

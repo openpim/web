@@ -843,7 +843,7 @@ export default {
           } else {
             await updateAvailableItemsForRelationAttr('')
           }
-        }, 1000)
+        }, 100)
       })
     }
 
@@ -1056,7 +1056,7 @@ export default {
 
         if (props.attr.type === AttributeType.Relation) {
           multivalueRef.value = getOption('multivalue', false)
-          updateAvailableItemsForRelationAttr('')
+          setTimeout(async () => { await updateAvailableItemsForRelationAttr('') }, 100)
         }
         runBeforeShowActions()
       })
