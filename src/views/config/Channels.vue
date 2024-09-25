@@ -391,7 +391,7 @@ export default {
         findChanges(oldChannel.value, selectedRef.value)
         saveChannel(selectedRef.value).then(() => {
           showInfo(i18n.t('Saved'))
-          const readingTime = new Date().toISOString()
+          const readingTime = new Date(new Date().getTime() + 1000).toISOString()
           updateCategories(selectedRef.value, readingTime)
         })
         oldChannel.value = JSON.parse(JSON.stringify(selectedRef.value))
@@ -439,7 +439,7 @@ export default {
         findChanges(oldChannel.value, selectedRef.value)
         saveChannel(selectedRef.value).then(() => {
           showInfo(i18n.t('Saved'))
-          const readingTime = new Date().toISOString()
+          const readingTime = new Date(new Date().getTime() + 1000).toISOString()
           updateCategories(selectedRef.value, readingTime)
           const selectedChannel = channelsRef.value.find(chan => chan.id === selectedRef.value.id)
           if (selectedChannel) {
