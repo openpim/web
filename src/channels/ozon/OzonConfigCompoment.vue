@@ -6,6 +6,7 @@
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить product ID" clearable/>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonFBOIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить FBO ID" clearable/>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonFBSIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить FBS ID" clearable/>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonCategoryAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить текущую категорию Озон" clearable/>
     <v-checkbox :readonly="readonly" v-model="channel.config.ozonGetContentRating" label="Получать контент рейтинг" required></v-checkbox>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonAttrContentRating" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит контент рейтинг" clearable  v-if="channel.config.ozonGetContentRating"/>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.ozonImageAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит URL изображения" clearable/>
