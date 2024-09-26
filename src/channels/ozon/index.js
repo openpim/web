@@ -92,6 +92,12 @@ function getStandardAttributes () {
       name: 'Маркетинговый цвет (ссылка)',
       required: false,
       dictionary: false
+    },
+    {
+      id: '#new_category',
+      name: 'Новый идентификатор категории. Укажите его, если нужно изменить текущую категорию товара. (integer)',
+      required: false,
+      dictionary: false
     }
   ]
 }
