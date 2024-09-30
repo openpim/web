@@ -104,6 +104,7 @@ export default {
     const updateAvailableItemsForRelationAttr = async (searchStr) => {
       loadingRef.value = true
       const attrNode = findByIdentifier(props.attrIdentifier)
+      if (!attrNode) return
       const displayValueOption = attrNode.item.options.find(el => el.name === 'displayValue')
       const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
       const lov = displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
