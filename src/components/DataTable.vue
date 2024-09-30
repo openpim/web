@@ -636,6 +636,7 @@ export default {
         if (header.type === AttributeType.Relation) {
           const attrIdentifier = header.identifier.substring(5)
           const attrNode = findByIdentifier(attrIdentifier)
+          if (!attrNode) return
           const displayValueOption = attrNode.item.options.find(el => el.name === 'displayValue')
           const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
           const lov = displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
