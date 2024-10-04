@@ -95,7 +95,7 @@ function getStandardAttributes () {
     },
     {
       id: '#images',
-      name: 'Доплнительные изображения. (массив)',
+      name: 'Дополнительные изображения. (массив)',
       required: false,
       dictionary: false
     },
