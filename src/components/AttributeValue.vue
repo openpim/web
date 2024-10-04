@@ -160,11 +160,12 @@
       </v-menu>
 
       <!-- LOV -->
-      <v-autocomplete :chips="multivalueRef" :multiple="multivalueRef" @input="attrInput($event)" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
+      <v-autocomplete :chips="multivalueRef" :multiple="multivalueRef" @input="attrInput($event)" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">
         <template #selection="selection">
-          <v-chip @click.stop="if (selection.item.url) goto(selection.item.url)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
+          <v-chip @click.stop="if (selection.item.url) goto(selection.item.url)" :close="multivalueRef" @click:close="removeValue(attr,selection.item.value)">{{selection.item.text}}</v-chip>
         </template>
         <template #append>
+          <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
               <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
@@ -176,7 +177,7 @@
       </v-autocomplete>
       <v-autocomplete :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput($event)" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" clearable>
         <template #selection="selection">
-          <v-chip @click.stop="showAlert('test')" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value, currentLanguage.identifier)">{{selection.item.text}}</v-chip>
+          <v-chip :close="multivalueRef" @click:close="removeValue(attr,selection.item.value, currentLanguage.identifier)">{{selection.item.text}}</v-chip>
         </template>
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
@@ -264,10 +265,19 @@
           :search-input.sync="searchRef"
           :loading="loadingRef"
           @input="attrInput($event)"
-          clearable
         >
+          <template #append>
+            <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
+            <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
+              </template>
+              <p v-html="desc.replaceAll('\n', '<br>')"/>
+            </v-tooltip>
+            <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
+          </template>
           <template #selection="selection">
-            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">
+            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="multivalueRef" @click:close="removeValue(attr,selection.item.value)">
               <v-avatar left tile v-if="getOption('showThumbnail', false) === true && selection.item.imageUrl">
                 <v-img :src="selection.item.imageUrl"></v-img>
               </v-avatar>
@@ -444,11 +454,12 @@
       </v-menu>
 
       <!-- LOV -->
-      <v-autocomplete dense hide-details="true" :chips="multivalueRef" :multiple="multivalueRef" @input="attrInput($event)" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" clearable>
+      <v-autocomplete dense hide-details="true" :chips="multivalueRef" :multiple="multivalueRef" @input="attrInput($event)" @change="lovChanged" v-model="values[attr.identifier]" v-if="attr.type === AttributeType.LOV && !attr.languageDependent" :items="lovSelection" :readonly="attr.readonly">
         <template #selection="selection">
-          <v-chip @click.stop="if (selection.item.url) goto(selection.item.url)" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value)">{{selection.item.text}}</v-chip>
+          <v-chip @click.stop="if (selection.item.url) goto(selection.item.url)" :close="multivalueRef" @click:close="removeValue(attr,selection.item.value)">{{selection.item.text}}</v-chip>
         </template>
         <template #append>
+          <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
               <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
@@ -460,7 +471,7 @@
       </v-autocomplete>
       <v-autocomplete dense hide-details="true" :chips="multivalueRef" :deletable-chips="multivalueRef" :multiple="multivalueRef" @input="attrInput($event)" @change="lovChanged" v-model="values[attr.identifier][currentLanguage.identifier]" v-if="attr.type === AttributeType.LOV && attr.languageDependent" :items="lovSelection" :readonly="attr.readonly" clearable>
         <template #selection="selection">
-          <v-chip @click.stop="showAlert('test')" :close="multivalueRef" @click:close="removeValue(attr.identifier,selection.item.value, currentLanguage.identifier)">{{selection.item.text}}</v-chip>
+          <v-chip :close="multivalueRef" @click:close="removeValue(attr,selection.item.value, currentLanguage.identifier)">{{selection.item.text}}</v-chip>
         </template>
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
@@ -531,10 +542,19 @@
           :search-input.sync="searchRef"
           :loading="loadingRef"
           @input="attrInput($event)"
-          clearable
         >
+          <template #append>
+            <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
+            <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
+              </template>
+              <p v-html="desc.replaceAll('\n', '<br>')"/>
+            </v-tooltip>
+            <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
+          </template>
           <template #selection="selection">
-            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="true" @click:close="removeValue(attr.identifier,selection.item.value)">
+            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="true" @click:close="removeValue(attr,selection.item.value)">
               <v-avatar left tile v-if="getOption('showThumbnail', false) === true && selection.item.imageUrl">
                 <v-img :src="selection.item.imageUrl"></v-img>
               </v-avatar>
@@ -635,10 +655,19 @@
           :search-input.sync="searchRef"
           :loading="loadingRef"
           @input="attrInput($event)"
-          clearable
         >
+          <template #append>
+            <v-icon @click.stop="clearValue" class="mr-2">mdi-close</v-icon>
+            <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" @click.stop="showAlert(desc)" class="mr-2">mdi-help-circle-outline</v-icon>
+              </template>
+              <p v-html="desc.replaceAll('\n', '<br>')"/>
+            </v-tooltip>
+            <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
+          </template>
           <template #selection="selection">
-            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="true" @click:close="removeValue(attr.identifier,selection.item.value)">
+            <v-chip @click.stop="goto('#/item/' + selection.item.identifier)" :close="true" @click:close="removeValue(attr,selection.item.value)">
               <v-avatar left tile v-if="getOption('showThumbnail', false) === true && selection.item.imageUrl">
                 <v-img :src="selection.item.imageUrl"></v-img>
               </v-avatar>
@@ -1133,16 +1162,18 @@ export default {
     }
 
     function removeValue (attr, val, lang) {
+      if (attr.readonly) return
       if (!lang) {
-        const arr = props.values[attr]
-        if (arr && arr.length > 0) props.values[attr] = arr.filter(elem => elem !== val)
+        const arr = props.values[attr.identifier]
+        if (arr && arr.length > 0) props.values[attr.identifier] = arr.filter(elem => elem !== val)
       } else {
-        const arr = props.values[attr][lang]
-        if (arr && arr.length > 0) props.values[attr][lang] = arr.filter(elem => elem !== val)
+        const arr = props.values[attr.identifier][lang]
+        if (arr && arr.length > 0) props.values[attr.identifier][lang] = arr.filter(elem => elem !== val)
       }
     }
 
     async function clearValue () {
+      if (props.attr.readonly) return
       if (props.attr.languageDependent) {
         props.values[props.attr.identifier][currentLanguage.value.identifier] = null
       } else {
