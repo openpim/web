@@ -565,6 +565,7 @@
   "Channels.Ext.File": "Generated file name",
   "Channels.Ext.Mime": "Mime type of generated file",
   "Channels.Ext.Template": "Path to Excel template",
+  "Channels.Ext.ExternalExecMng": "External execution management",
   "Channels.Type.WB": "Wildberries",
   "Channels.Type.Ozon": "Ozon",
   "Channels.Type.YM": "Yandex Market",
