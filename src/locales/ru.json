@@ -754,5 +754,7 @@
   "ImportConfig.Actions": "Действия",
   "ImportConfig.BeforeStartAction": "Перед началом",
   "ImportConfig.AfterEndAction": "После окончания",
-  "ImportConfig.BeforeEachRow": "Перед каждой строкой"
+  "ImportConfig.BeforeEachRow": "Перед каждой строкой",
+  "ImportConfig.YML.Categories": "Категории",
+  "ImportConfig.YML.Offers": "Товары"
 }
