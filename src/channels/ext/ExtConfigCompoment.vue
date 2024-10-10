@@ -3,6 +3,7 @@
     <v-text-field v-if="channel" v-model="channel.config.extCmd" :readonly=readonly :label="$t('Channels.Ext.cmd')" required></v-text-field>
     <v-text-field v-if="channel" v-model="channel.config.file" :readonly=readonly :label="$t('Channels.Ext.File')" required></v-text-field>
     <v-text-field v-if="channel" v-model="channel.config.mime" :readonly=readonly :label="$t('Channels.Ext.Mime')" required></v-text-field>
+    <v-checkbox :readonly="readonly" v-model="channel.config.externalExecMng" :label="$t('Channels.Ext.ExternalExecMng')" required></v-checkbox>
   </div>
 </template>
 <script>

@@ -94,6 +94,12 @@ function getStandardAttributes () {
       dictionary: false
     },
     {
+      id: '#images',
+      name: 'Дополнительные изображения. (массив)',
+      required: false,
+      dictionary: false
+    },
+    {
       id: '#new_category',
       name: 'Новый идентификатор категории. Укажите его, если нужно изменить текущую категорию товара. (integer)',
       required: false,

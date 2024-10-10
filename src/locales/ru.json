@@ -562,6 +562,7 @@
   "Channels.Ext.File": "Генерируемое имя файла",
   "Channels.Ext.Mime": "Mime тип генерированного файла",
   "Channels.Ext.Template": "Путь к шаблону Excel",
+  "Channels.Ext.ExternalExecMng": "Не управлять запусками",
   "Channels.Type.WB": "Wildberries",
   "Channels.Type.Ozon": "Озон",
   "Channels.Type.YM": "Яндекс Маркет",
