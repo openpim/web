@@ -46,7 +46,7 @@
           </div>
         </template>
 
-        <template v-slot:item="{ item, index }">
+        <template v-slot:item="{ item }">
           <tr>
             <td class="pa-1">
               <input v-model="item.id" type="number" size="5" maxlength="5" :placeholder="$t('Config.LOV.ID')" />
@@ -75,7 +75,7 @@
             </td>
             <td class="pa-1">
               <input v-model="item.filter" :placeholder="$t('Config.LOV.Filter')" />
-              <v-btn class="pa-0" icon color="primary" @click="removeValue(index)">
+              <v-btn class="pa-0" icon color="primary" @click="removeValue(item.id)">
                 <v-icon dark>mdi-close-circle-outline</v-icon>
               </v-btn>
             </td>
@@ -384,7 +384,8 @@ export default {
       dialogElem.level = visible.value.map(item => item.path)
     }
 
-    function removeValue (idx) {
+    function removeValue (id) {
+      const idx = props.lov.values.findIndex(el => el.id === id)
       props.lov.values.splice(idx, 1)
     }
 
