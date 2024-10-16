@@ -1,3 +1,4 @@
+<!-- eslint-disable eqeqeq -->
 <template>
 <div class="mb-10">
   <h3>{{ $t(searchHeader) }}</h3>
@@ -1164,19 +1165,25 @@ export default {
                     let tst
                     if (displayValue && displayValue.value && displayValue.value.startsWith('#')) {
                       const fieldName = displayValue.value.substr(1)
-                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el[fieldName] === arr[arrIndx])
+                      // eslint-disable-next-line eqeqeq
+                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el[fieldName] == arr[arrIndx])
                     } else if (displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7) {
                       if (!lovsMap[displayAttr.item.lov]) {
                         lovsMap[displayAttr.item.lov] = await getLOVData(displayAttr.item.lov)
                       }
-                      const lovData = lovsMap[displayAttr.item.lov].find(el => el.value[currentLanguage.value.identifier] === arr[arrIndx])
-                      tst = lovData ? attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] === lovData.id) : null
+                      // eslint-disable-next-line eqeqeq
+                      const lovData = lovsMap[displayAttr.item.lov].find(el => el.value[currentLanguage.value.identifier] == arr[arrIndx])
+                      // eslint-disable-next-line eqeqeq
+                      tst = lovData ? attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] == lovData.id) : null
                     } else if (displayValue && !langDependent) {
-                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] === arr[arrIndx])
+                      // eslint-disable-next-line eqeqeq
+                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] == arr[arrIndx])
                     } else if (displayValue && langDependent) {
-                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value][currentLanguage.value.identifier] === arr[arrIndx])
+                      // eslint-disable-next-line eqeqeq
+                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value][currentLanguage.value.identifier] == arr[arrIndx])
                     } else {
-                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.name[currentLanguage.value.identifier] === arr[arrIndx])
+                      // eslint-disable-next-line eqeqeq
+                      tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.name[currentLanguage.value.identifier] == arr[arrIndx])
                     }
                     if (tst) {
                       mappedArr.push(parseInt(tst.id))
@@ -1205,14 +1212,19 @@ export default {
                     if (!lovsMap[displayAttr.item.lov]) {
                       lovsMap[displayAttr.item.lov] = await getLOVData(displayAttr.item.lov)
                     }
-                    const lovData = lovsMap[displayAttr.item.lov].find(el => el.value[currentLanguage.value.identifier] === row.values[attrNode.item.identifier])
-                    tst = lovData ? attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] === lovData.id) : null
+                    // eslint-disable-next-line eqeqeq
+                    const lovData = lovsMap[displayAttr.item.lov].find(el => el.value[currentLanguage.value.identifier] == row.values[attrNode.item.identifier])
+                    // eslint-disable-next-line eqeqeq
+                    tst = lovData ? attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] == lovData.id) : null
                   } else if (displayValue && !langDependent) {
-                    tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] === row.values[attrNode.item.identifier])
+                    // eslint-disable-next-line eqeqeq
+                    tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value] == row.values[attrNode.item.identifier])
                   } else if (displayValue && langDependent) {
-                    tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value][currentLanguage.value.identifier] === row.values[attrNode.item.identifier])
+                    // eslint-disable-next-line eqeqeq
+                    tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.values[displayValue.value][currentLanguage.value.identifier] == row.values[attrNode.item.identifier])
                   } else {
-                    tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.name[currentLanguage.value.identifier] === row.values[attrNode.item.identifier])
+                    // eslint-disable-next-line eqeqeq
+                    tst = attrAvailableItems.getItemsForRelationAttributeImport.find(el => el.name[currentLanguage.value.identifier] == row.values[attrNode.item.identifier])
                   }
                   if (tst) {
                     row.values[attrNode.item.identifier] = parseInt(tst.id)
