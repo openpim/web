@@ -1145,7 +1145,7 @@ export default {
               if (row.values && row.values[attrNode.item.identifier] && multivalue) {
                 searchArr = searchArr.concat((row.values[attrNode.item.identifier] + '').split(','))
               } else if (row.values && typeof row.values[attrNode.item.identifier] !== 'undefined' && row.values[attrNode.item.identifier] !== null) {
-                searchArr.push(row.values[attrNode.item.identifier])
+                searchArr.push(row.values[attrNode.item.identifier] + '')
               }
             }
 
