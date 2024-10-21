@@ -71,7 +71,7 @@
     </v-row>
     <v-row>
       <v-col cols="11">
-        <v-autocomplete v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories.filter(elem => !elem.deleted)" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Category')" clearable></v-autocomplete>
+        <v-autocomplete v-model="categoryIdRef" @change="categoryChanged" :items="mappedCategories.filter(elem => !elem.deleted)" item-text="name" item-value="key" :label="$t('MappingConfigComponent.Category')" clearable></v-autocomplete>
 
         <div v-if="categoryIdRef">
           <v-row>
@@ -299,11 +299,20 @@ export default {
         newCat = categoriesRef.value.find(elem => elem.id === newCategoryIdRef.value)
         newName = newCat.name
       }
+      let newCatId = newCat.id
+      let counter = 2
+      while (props.channel.mappings[newCatId]) {
+        newCatId = `${newCat.id}_${counter}`
+        newName = newName.includes('(')
+          ? newName.replace(/\(\d+\)/, `(${counter})`)
+          : `${newName} (${counter})`
+        counter++
+      }
       dialogRef.value = false
-      categoryRef.value = { id: newCat.id, name: newName, valid: props.channel.valid || [], visible: [], attributes: [] }
+      categoryRef.value = { id: newCat.id, name: newName, key: newCatId, valid: props.channel.valid || [], visible: [], attributes: [] }
       loadAttributes()
-      root.$set(props.channel.mappings, newCat.id, categoryRef.value)
-      categoryIdRef.value = newCat.id
+      root.$set(props.channel.mappings, newCatId, categoryRef.value)
+      categoryIdRef.value = newCatId
     }
     function findNodeByComparator (id, children, path, comparator) {
       for (var i = 0; i < children.length; i++) {
@@ -330,7 +339,7 @@ export default {
     }
 
     function categoryChanged () {
-      categoryRef.value = mappedCategories.value.find(elem => elem.id === categoryIdRef.value)
+      categoryRef.value = mappedCategories.value.find(elem => elem.key === categoryIdRef.value)
       if (categoryRef.value?.categoryAttr) lovChanged(categoryRef.value.categoryAttr)
       loadAttributes()
     }
