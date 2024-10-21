@@ -108,10 +108,10 @@
             </v-container>
           </v-card-title>
           <v-card-actions style="max-height: 500px" class="overflow-y-auto">
-            <v-btn v-if="canEditSelected" :color="itemChangedRef ? 'primary' : ''" depressed :text="!itemChangedRef" @click="save" v-text="$t('Save')"></v-btn>
-            <v-btn v-if="canEditSelected" text @click="move" v-text="$t('Move')"></v-btn>
-            <v-btn v-if="canEditSelected" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
-            <v-btn v-if="canEditSelected" text @click="remove" v-text="$t('Remove')"></v-btn>
+            <v-btn v-if="canEditSelected && customEnableButton(itemRef, 'save')" :color="itemChangedRef ? 'primary' : ''" depressed :text="!itemChangedRef" @click="save" v-text="$t('Save')"></v-btn>
+            <v-btn v-if="canEditSelected && customEnableButton(itemRef, 'move')" text @click="move" v-text="$t('Move')"></v-btn>
+            <v-btn v-if="canEditSelected && customEnableButton(itemRef, 'duplicate')" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
+            <v-btn v-if="canEditSelected && customEnableButton(itemRef, 'remove')" text @click="remove" v-text="$t('Remove')"></v-btn>
             <v-menu offset-y v-if="hasChannels">
               <template v-slot:activator="{ on }">
                 <v-btn text v-on="on" v-text="$t('Submit')"></v-btn>
@@ -474,6 +474,7 @@ import FirstTabsComponent from '../_customizations/item/tabs/firstTabs/TabsCompo
 import FirstTabsItemComponent from '../_customizations/item/tabs/firstTabs/TabsItemComponent'
 import LastTabsComponent from '../_customizations/item/tabs/lastTabs/TabsComponent'
 import LastTabsItemComponent from '../_customizations/item/tabs/lastTabs/TabsItemComponent'
+import customEnableButton from '../_customizations/item/customEnableButton.js'
 
 import BeforeAttributesComponent from '../_customizations/item/beforeAttributes/BeforeAttributesComponent'
 import AfterAttributesComponent from '../_customizations/item/afterAttributes/AfterAttributesComponent'
@@ -1532,6 +1533,7 @@ export default {
       sourceRelationsListRef,
       targetRelationsListRef,
       groupPanels,
+      customEnableButton,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
