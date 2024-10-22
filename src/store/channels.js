@@ -69,6 +69,7 @@ const actions = {
           Object.keys(element.mappings).forEach(mapping => {
             if (mapping !== '_default') {
               element.mappings[mapping].readingTime = readingTime
+              if (!element.mappings[mapping].key) element.mappings[mapping].key = element.mappings[mapping].id
             }
           })
         }
