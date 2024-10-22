@@ -182,7 +182,7 @@
         </v-container>
         <v-tabs-items v-model="tabRef">
           <FirstTabsItemComponent :item="itemRef"></FirstTabsItemComponent>
-          <v-tab-item v-for="attrGroups in tabAttrGroups" :key="attrGroups.identifier"> <!-- Attributes -->
+          <v-tab-item v-for="(attrGroups, grpIdx) in tabAttrGroups" :key="attrGroups.identifier"> <!-- Attributes -->
             <div class="mt-3"></div>
             <v-text-field v-if="!getOption(itemType, 'hideIdentifier', false)" class="pb-0 pr-5 pl-5" v-model="itemRef.identifier" readonly :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
             <div :class="getOption(itemType, 'name_class', '')" :style="getOption(itemType, 'name_style', '')"><LanguageDependentField class="pb-0 pr-5 pl-5" @input="nameInput" :values="itemRef.name" v-model="itemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')"></LanguageDependentField></div>
@@ -190,7 +190,7 @@
             <v-card flat v-if="!tabsMode">
               <v-card-text class="pt-2 pl-0 pr-0">
                 <BeforeAttributesComponent></BeforeAttributesComponent>
-                <v-expansion-panels popout multiple focusable v-model="groupPanels">
+                <v-expansion-panels popout multiple focusable v-model="groupPanels[grpIdx]">
                   <v-expansion-panel v-for="(group,i) in attrGroups.groups" :key="i">
                     <v-expansion-panel-header>{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
@@ -607,7 +607,7 @@ export default {
 
     const canViewAttrConfigRef = ref(false)
 
-    const groupPanels = ref([])
+    const groupPanels = ref([[]])
 
     const attributeValues = ref([])
     onBeforeUpdate(() => {
@@ -1071,6 +1071,7 @@ export default {
         if (itemTabName) {
           if (!acc[itemTabName]) {
             acc[itemTabName] = []
+            groupPanels.value.push([])
           }
           acc[itemTabName].push(group)
         }
@@ -1090,83 +1091,87 @@ export default {
       }
 
       if (!item.values) item.values = {}
-      let grpIdx = 0
-      attrGroups.value.forEach(group => {
-        const expandTst = getOption(group, 'openByDefault', null)
-        if (expandTst) groupPanels.value.push(grpIdx)
-        grpIdx++
+      let tabGrpIdx = 0
+      for (const tabAttrGroup of tabAttrGroups.value) {
+        let grpIdx = 0
+        tabAttrGroup.groups.forEach(group => {
+          const expandTst = getOption(group, 'openByDefault', null)
+          if (expandTst) groupPanels.value[tabGrpIdx].push(grpIdx)
+          grpIdx++
 
-        group.itemAttributes.forEach(attr => {
-          let attrValue = getOption(attr, 'default', null)
-          if (attrValue && attr.lov) attrValue = parseInt(attrValue)
-          const isMultivalue = getOption(attr, 'multivalue', false)
-          if (item.values[attr.identifier] === null || item.values[attr.identifier] === undefined) {
-            if (attr.languageDependent) {
-              item.values[attr.identifier] = {}
-              item.values[attr.identifier][currentLanguage.value.identifier] = attrValue
-            } else {
-              item.values[attr.identifier] = attrValue
-            }
-          } else if (attr.languageDependent && typeof item.values[attr.identifier] !== 'object') {
-            // attr was changed to languageDependent and it has old data that must be cleared
-            item.values[attr.identifier] = {}
-            item.values[attr.identifier][currentLanguage.value.identifier] = attrValue
-          } else if (!attr.languageDependent && !Array.isArray(item.values[attr.identifier]) && typeof item.values[attr.identifier] === 'object') {
-            // attr was changed to NOT languageDependent and it has old data that must be cleared
-            item.values[attr.identifier] = null
-          }
-
-          if (attr.type === AttributeType.URL) {
-            if (!item.values[attr.identifier + '_text']) {
-              if (attr.languageDependent) {
-                item.values[attr.identifier + '_text'] = {}
-                item.values[attr.identifier + '_text'][currentLanguage.value.identifier] = ''
-              } else {
-                item.values[attr.identifier + '_text'] = ''
-              }
-            } else if (attr.languageDependent && typeof item.values[attr.identifier + '_text'] !== 'object') {
-              // attr was changed to languageDependent and it has old data that must be cleared
-              item.values[attr.identifier + '_text'] = {}
-              item.values[attr.identifier + '_text'][currentLanguage.value.identifier] = ''
-            } else if (!attr.languageDependent && typeof item.values[attr.identifier + '_text'] === 'object') {
-              // attr was changed to NOT languageDependent and it has old data that must be cleared
-              item.values[attr.identifier + '_text'] = null
-            }
-          } else if (attr.type === AttributeType.Date) {
-            // check that date is right
-            const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
-            if (Object.prototype.toString.call(val) !== '[object String]') {
+          group.itemAttributes.forEach(attr => {
+            let attrValue = getOption(attr, 'default', null)
+            if (attrValue && attr.lov) attrValue = parseInt(attrValue)
+            const isMultivalue = getOption(attr, 'multivalue', false)
+            if (item.values[attr.identifier] === null || item.values[attr.identifier] === undefined) {
               if (attr.languageDependent) {
                 item.values[attr.identifier] = {}
-                item.values[attr.identifier][currentLanguage.value.identifier] = ''
+                item.values[attr.identifier][currentLanguage.value.identifier] = attrValue
               } else {
-                item.values[attr.identifier] = ''
+                item.values[attr.identifier] = attrValue
               }
+            } else if (attr.languageDependent && typeof item.values[attr.identifier] !== 'object') {
+            // attr was changed to languageDependent and it has old data that must be cleared
+              item.values[attr.identifier] = {}
+              item.values[attr.identifier][currentLanguage.value.identifier] = attrValue
+            } else if (!attr.languageDependent && !Array.isArray(item.values[attr.identifier]) && typeof item.values[attr.identifier] === 'object') {
+            // attr was changed to NOT languageDependent and it has old data that must be cleared
+              item.values[attr.identifier] = null
             }
-          } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && isMultivalue) {
-            const val = item.values[attr.identifier]
-            if (val !== null && val !== undefined) {
-              if (!Array.isArray(val)) {
-                item.values[attr.identifier] = [val]
-              } else {
+
+            if (attr.type === AttributeType.URL) {
+              if (!item.values[attr.identifier + '_text']) {
+                if (attr.languageDependent) {
+                  item.values[attr.identifier + '_text'] = {}
+                  item.values[attr.identifier + '_text'][currentLanguage.value.identifier] = ''
+                } else {
+                  item.values[attr.identifier + '_text'] = ''
+                }
+              } else if (attr.languageDependent && typeof item.values[attr.identifier + '_text'] !== 'object') {
+              // attr was changed to languageDependent and it has old data that must be cleared
+                item.values[attr.identifier + '_text'] = {}
+                item.values[attr.identifier + '_text'][currentLanguage.value.identifier] = ''
+              } else if (!attr.languageDependent && typeof item.values[attr.identifier + '_text'] === 'object') {
+              // attr was changed to NOT languageDependent and it has old data that must be cleared
+                item.values[attr.identifier + '_text'] = null
+              }
+            } else if (attr.type === AttributeType.Date) {
+            // check that date is right
+              const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
+              if (Object.prototype.toString.call(val) !== '[object String]') {
+                if (attr.languageDependent) {
+                  item.values[attr.identifier] = {}
+                  item.values[attr.identifier][currentLanguage.value.identifier] = ''
+                } else {
+                  item.values[attr.identifier] = ''
+                }
+              }
+            } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && isMultivalue) {
+              const val = item.values[attr.identifier]
+              if (val !== null && val !== undefined) {
+                if (!Array.isArray(val)) {
+                  item.values[attr.identifier] = [val]
+                } else {
                 // remove null value from array if we have it
-                if (val.includes(null)) item.values[attr.identifier] = val.filter(elem => elem !== null)
+                  if (val.includes(null)) item.values[attr.identifier] = val.filter(elem => elem !== null)
+                }
+                for (let i = 0; i < item.values[attr.identifier].length; i++) {
+                  const val = item.values[attr.identifier][i]
+                  if (typeof val === 'string' || val instanceof String) item.values[attr.identifier][i] = parseInt(val)
+                }
               }
-              for (let i = 0; i < item.values[attr.identifier].length; i++) {
-                const val = item.values[attr.identifier][i]
-                if (typeof val === 'string' || val instanceof String) item.values[attr.identifier][i] = parseInt(val)
+            } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && !isMultivalue) {
+              const val = item.values[attr.identifier]
+              if (val && Array.isArray(val) && val.length) {
+                item.values[attr.identifier] = val[0]
+              } else if (typeof val === 'string' || val instanceof String) {
+                item.values[attr.identifier] = parseInt(val)
               }
             }
-          } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && !isMultivalue) {
-            const val = item.values[attr.identifier]
-            if (val && Array.isArray(val) && val.length) {
-              item.values[attr.identifier] = val[0]
-            } else if (typeof val === 'string' || val instanceof String) {
-              item.values[attr.identifier] = parseInt(val)
-            }
-          }
+          })
         })
-      })
+        tabGrpIdx++
+      }
     }
 
     function loadItemPath (path) {
