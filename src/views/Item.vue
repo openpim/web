@@ -387,7 +387,7 @@
                       </div>
                     </v-col>
                     <v-col cols="3">
-                      <div>{{$t('ItemView.Channels.SubmittedAt')}}: {{ dateFormat(new Date(itemRef.channels[channel.identifier].submittedAt), DATE_FORMAT) }}</div>
+                      <div v-if="itemRef.channels[channel.identifier].submittedAt">{{$t('ItemView.Channels.SubmittedAt')}}: {{ dateFormat(new Date(itemRef.channels[channel.identifier].submittedAt), DATE_FORMAT) }}</div>
                     </v-col>
                     <v-col cols="3">
                       <div>{{$t('ItemView.Channels.SubmittedBy')}}: {{ itemRef.channels[channel.identifier].submittedBy }}</div>
