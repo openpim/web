@@ -1152,13 +1152,12 @@ export default {
               if (val !== null && val !== undefined) {
                 if (!Array.isArray(val)) {
                   item.values[attr.identifier] = [val]
-                } else {
-                // remove null value from array if we have it
-                  if (val.includes(null)) item.values[attr.identifier] = val.filter(elem => elem !== null)
                 }
+                // remove null and Nan values from array if we have it
+                item.values[attr.identifier] = val.filter(elem => elem !== null && !isNaN(parseInt(elem)))
                 for (let i = 0; i < item.values[attr.identifier].length; i++) {
                   const val = item.values[attr.identifier][i]
-                  if (typeof val === 'string' || val instanceof String) item.values[attr.identifier][i] = isNaN(parseInt(val)) ? null : parseInt(val)
+                  if (typeof val === 'string' || val instanceof String) item.values[attr.identifier][i] = parseInt(val)
                 }
               }
             } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && !isMultivalue) {
