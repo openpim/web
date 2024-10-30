@@ -1148,10 +1148,10 @@ export default {
                 }
               }
             } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && isMultivalue) {
-              const val = item.values[attr.identifier]
+              let val = item.values[attr.identifier]
               if (val !== null && val !== undefined) {
                 if (!Array.isArray(val)) {
-                  item.values[attr.identifier] = [val]
+                  val = [val]
                 }
                 // remove null and Nan values from array if we have it
                 item.values[attr.identifier] = val.filter(elem => elem !== null && !isNaN(parseInt(elem)))
