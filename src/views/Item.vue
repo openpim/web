@@ -1158,7 +1158,7 @@ export default {
                 }
                 for (let i = 0; i < item.values[attr.identifier].length; i++) {
                   const val = item.values[attr.identifier][i]
-                  if (typeof val === 'string' || val instanceof String) item.values[attr.identifier][i] = parseInt(val)
+                  if (typeof val === 'string' || val instanceof String) item.values[attr.identifier][i] = isNaN(parseInt(val)) ? null : parseInt(val)
                 }
               }
             } else if ((attr.type === AttributeType.LOV || attr.type === AttributeType.Relation) && !isMultivalue) {
