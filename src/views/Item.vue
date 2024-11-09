@@ -931,6 +931,10 @@ export default {
       // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
       if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
       eventBus.emit('item_changed', itemRef.value)
+
+      const refreshItemAfterSave = getOption(itemType.value, 'refreshItemAfterSave', false)
+      if (refreshItemAfterSave) refresh()
+
       showInfo(i18n.t('Saved'))
     }
 
