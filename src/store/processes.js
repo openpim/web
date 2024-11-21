@@ -22,14 +22,21 @@ const actions = {
     if (options.itemsPerPage === -1) options.itemsPerPage = 15
     const offset = (options.page - 1) * options.itemsPerPage
     const order = generateSorting(options)
-    const data = await serverFetch('query { getProcesses(where: {active:true}, order: ' + objectToGraphgl(order) + ', offset: ' + offset + ', limit:' + options.itemsPerPage + ') { count rows { id identifier title active status finishTime storagePath mimeType fileName log createdAt updatedAt } } }')
+    const data = await serverFetch('query { getProcesses(where: {active:true}, order: ' + objectToGraphgl(order) + ', offset: ' + offset + ', limit:' + options.itemsPerPage + ') { count rows { id identifier title active status finishTime storagePath mimeType fileName createdAt updatedAt } } }')
     return data.getProcesses
   },
   loadFinishedProcesses: async (options) => {
     if (options.itemsPerPage === -1) options.itemsPerPage = 15
     const offset = (options.page - 1) * options.itemsPerPage
     const order = generateSorting(options)
-    const data = await serverFetch('query { getProcesses(where: {active:false}, order: ' + objectToGraphgl(order) + ', offset: ' + offset + ', limit:' + options.itemsPerPage + ') { count rows { id identifier title active status finishTime storagePath mimeType fileName log createdAt updatedAt } } }')
+    const data = await serverFetch('query { getProcesses(where: {active:false}, order: ' + objectToGraphgl(order) + ', offset: ' + offset + ', limit:' + options.itemsPerPage + ') { count rows { id identifier title active status finishTime storagePath mimeType fileName createdAt updatedAt } } }')
+    return data.getProcesses
+  },
+  loadProcessesByFilter: async (options, where) => {
+    if (options.itemsPerPage === -1) options.itemsPerPage = 15
+    const offset = (options.page - 1) * options.itemsPerPage
+    const order = generateSorting(options)
+    const data = await serverFetch('query { getProcesses(where: ' + objectToGraphgl(where) + ', order: ' + objectToGraphgl(order) + ', offset: ' + offset + ', limit:' + options.itemsPerPage + ') { count rows { id identifier title active status finishTime storagePath mimeType fileName log createdAt updatedAt } } }')
     return data.getProcesses
   }
 }
