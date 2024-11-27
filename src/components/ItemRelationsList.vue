@@ -559,8 +559,10 @@ export default {
           router.clearDataChanged(itemRel.identifier)
           changedRelations.value.splice(changedIdx, 1)
           const rel = relations.find(rel => rel.identifier === identifier)
-          if (getOption2(rel, 'reloadItemOnUpdate', false)) props.itemRefreshFunction()
-          if (!skipMsg) showInfo(i18n.t('Saved'))
+          if (!skipMsg) {
+            if (getOption2(rel, 'reloadItemOnUpdate', false)) props.itemRefreshFunction()
+            showInfo(i18n.t('Saved'))
+          }
         }
       } else {
         // update
@@ -568,11 +570,10 @@ export default {
         router.clearDataChanged(itemRel.identifier)
         changedRelations.value.splice(changedIdx, 1)
         const rel = relations.find(rel => rel.identifier === identifier)
-        if (getOption2(rel, 'reloadItemOnUpdate', false)) {
-          console.log(111, props.itemRefreshFunction)
-          props.itemRefreshFunction()
+        if (!skipMsg) {
+          if (getOption2(rel, 'reloadItemOnUpdate', false)) props.itemRefreshFunction()
+          showInfo(i18n.t('Saved'))
         }
-        if (!skipMsg) showInfo(i18n.t('Saved'))
       }
     }
 

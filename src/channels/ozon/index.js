@@ -110,6 +110,12 @@ function getStandardAttributes () {
       name: 'Новый идентификатор категории - new_description_category_id. Укажите его, если нужно изменить текущую категорию товара. (integer)',
       required: false,
       dictionary: false
+    },
+    {
+      id: '#image_links_other',
+      name: 'Ссылки на изображения (нестрандартные) (массив)',
+      required: false,
+      dictionary: false
     }
   ]
 }

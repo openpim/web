@@ -57,10 +57,10 @@
             <template v-if="header.value === 'createdAt'">{{dateFormat(item[header.value], DATE_FORMAT)}}</template>
             <template v-if="header.value == 'title' || header.value == 'status'">{{item[header.value]}}</template>
             <template v-if="header.value === 'log'">
-              <v-row><v-col cols="7">{{item.log.length >  7 ? item.log.substring(0, 7) + '...' : item.log}}</v-col>
-              <v-col cols="5"><v-tooltip top v-if="item.log.length > 20">
+              <v-row>
+              <v-col><v-tooltip top v-if="item">
                 <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" @click="showLog(item.log)"><v-icon>mdi-message-outline</v-icon></v-btn>
+                  <v-btn icon v-on="on" @click="showLog(item)"><v-icon>mdi-message-outline</v-icon></v-btn>
                 </template>
                 <span>{{ $t('ExecutionsTable.ViewDetails') }}</span>
               </v-tooltip></v-col></v-row>
@@ -94,10 +94,10 @@
             <template v-if="header.value === 'finishTime'">{{item.finishTime ? dateFormat(item.finishTime, DATE_FORMAT) : ''}}</template>
             <template v-if="header.value == 'title' || header.value == 'status'">{{item[header.value]}}</template>
             <template v-if="header.value === 'log'">
-              <v-row><v-col cols="7">{{item.log.length >  7 ? item.log.substring(0, 7) + '...' : item.log}}</v-col>
-              <v-col cols="5"><v-tooltip top v-if="item.log.length > 20">
+              <v-row>
+              <v-col><v-tooltip top v-if="item">
                 <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" @click="showLog(item.log)"><v-icon>mdi-message-outline</v-icon></v-btn>
+                  <v-btn icon v-on="on" @click="showLog(item)"><v-icon>mdi-message-outline</v-icon></v-btn>
                 </template>
                 <span>{{ $t('ExecutionsTable.ViewDetails') }}</span>
               </v-tooltip></v-col></v-row>
@@ -177,21 +177,24 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="logDialogRef" persistent width="90%">
-          <v-card>
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-textarea :rows="15" :readonly="true" v-model="logRef"></v-textarea>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="primary darken-1" text @click="logDialogRef = false">{{ $t('Close') }}</v-btn>
-            </v-card-actions>
-          </v-card>
+      <v-card>
+        <div class="text-center" v-if="!logRef" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+          <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+        </div>
+        <v-card-text v-else>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-textarea :rows="15" :readonly="true" v-model="logRef"></v-textarea>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary darken-1" text v-if="logRef" @click="logDialogRef = false; logRef = null">{{ $t('Close') }}</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
   </div>
 </template>
@@ -250,7 +253,8 @@ export default {
 
     const {
       loadActiveProcesses,
-      loadFinishedProcesses
+      loadFinishedProcesses,
+      loadProcessesByFilter
     } = procStore.useStore()
 
     const drawer = ref(null)
@@ -374,9 +378,22 @@ export default {
       finishedLoadingRef.value = false
     }
 
-    function showLog (log) {
-      logRef.value = log
-      logDialogRef.value = true
+    async function showLog (process) {
+      try {
+        const options = {
+          page: 1,
+          itemsPerPage: 1,
+          sortBy: ['createdAt'],
+          sortDesc: [true]
+        }
+        const where = { id: process.id }
+
+        logDialogRef.value = true
+        const result = await loadProcessesByFilter(options, where)
+        logRef.value = result.rows[0]?.log || 'Лог отсутствует'
+      } catch (error) {
+        console.error('Ошибка загрузки логов:', error)
+      }
     }
 
     const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'

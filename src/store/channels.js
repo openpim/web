@@ -235,9 +235,14 @@ const actions = {
   loadExecutions: async (channelId, options) => {
     const offset = (options.page - 1) * options.itemsPerPage
     const order = generateSorting(options)
+    const includeLog = options.log ? ', log' : ''
     const data = await serverFetch('query { getExecutions(channelId: "' + channelId + '", offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) { 
-      count, rows {id, status, startTime, finishTime, storagePath, log }}}`)
+      count, rows {id, status, startTime, finishTime, storagePath ${includeLog} }}}`)
     return data.getExecutions
+  },
+  loadExecutionById: async (id) => {
+    const data = await serverFetch(`query { getExecutionById(id: "${id}") { id channelId status startTime finishTime storagePath log  createdAt updatedAt } }`)
+    return data.getExecutionById
   },
   getChannelCategories: async (channelId) => {
     const data = await serverFetch('query { getChannelCategories(id: "' + channelId + '") { list {id name} tree } }')

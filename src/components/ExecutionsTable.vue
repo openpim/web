@@ -44,11 +44,9 @@
     </template>
     <template v-slot:item.log="{ item }">
         <td>
-          {{item.log.length > 20 ? item.log.substring(0, 20) + '...' : item.log}}
-
-          <v-tooltip top v-if="item.log.length > 20">
+          <v-tooltip top>
             <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="showLog(item.log)"><v-icon>mdi-message-outline</v-icon></v-btn>
+              <v-btn icon v-on="on" @click="showLog(item)"><v-icon>mdi-message-outline</v-icon></v-btn>
             </template>
             <span>{{ $t('ExecutionsTable.ViewDetails') }}</span>
           </v-tooltip>
@@ -59,7 +57,10 @@
       <v-row justify="center">
         <v-dialog v-model="dialogRef" persistent width="90%">
           <v-card>
-            <v-card-text>
+            <div class="text-center" v-if="!logRef" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+              <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+            </div>
+            <v-card-text v-else>
               <v-container>
                 <v-row>
                   <v-col cols="12">
@@ -70,7 +71,7 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Close') }}</v-btn>
+              <v-btn color="blue darken-1" text v-if="logRef" @click="dialogRef = false; logRef = null">{{ $t('Close') }}</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -99,7 +100,8 @@ export default {
     } = langStore.useStore()
 
     const {
-      loadExecutions
+      loadExecutions,
+      loadExecutionById
     } = channelsStore.useStore()
 
     const { showError } = errorStore.useStore()
@@ -118,13 +120,20 @@ export default {
     const dialogRef = ref(false)
     const logRef = ref('')
 
-    function showLog (log) {
-      logRef.value = log
-      dialogRef.value = true
+    async function showLog (item) {
+      try {
+        dialogRef.value = true
+        const execution = await loadExecutionById(item.id)
+        logRef.value = execution?.log || 'Лог отсутствует'
+      } catch (error) {
+        logRef.value = 'Ошибка загрузки логов'
+        console.error('Ошибка загрузки логов:', error)
+      }
     }
 
     watch(() => props.channel, (newItem, oldItem) => {
       optionsRef.value.page = 1
+      optionsRef.value.log = false
       totalItemsRef.value = 0
       optionsUpdate(optionsRef.value)
     })
