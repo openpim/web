@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="canViewConfigRef && importConfigLicenceExist">
+  <v-container v-if="canViewConfigRef && ((selectedRef.type !== 3 && importConfigCSVLicenceExist) || (selectedRef.type === 3 && importConfigYMLLicenceExist))">
     <v-row no-gutters>
       <v-col cols="3" lg="2" xl="2">
         <v-toolbar dense flat>
@@ -33,7 +33,6 @@
           <LanguageDependentField :values="selectedRef.name" v-model="selectedRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ImportConfig.Name')"></LanguageDependentField>
           <v-select v-model="selectedRef.type" @change="resetModel" :items="types" :readonly="!canEditConfigRef" :label="$t('ImportConfig.Type')"></v-select>
           <component v-if="importConfigFactory.getConfigCompoment()" :is="importConfigFactory.getConfigCompoment()" :importConfig="selectedRef" :readonly="!canEditConfigRef" ></component>
-
           <v-expansion-panels flat focusable class="mb-5">
             <v-expansion-panel>
               <v-expansion-panel-header>{{ $t('ImportConfig.Actions') }}</v-expansion-panel-header>
@@ -49,7 +48,7 @@
             </v-expansion-panel>
           </v-expansion-panels>
 
-          <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="!selectedRef.filedata.info.fileName" @click="save">{{ $t('Save') }}</v-btn>
+          <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="!selectedRef.filedata.info.fileName && selectedRef.type !== 3" @click="save">{{ $t('Save') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="isTestDisabled()" @click="saveAndTest">{{ $t('ImportConfig.SaveAndTest') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
@@ -93,7 +92,8 @@ export default {
     const searchRef = ref('')
     const selectedRef = ref(empty)
 
-    const importConfigLicenceExist = ref(false)
+    const importConfigCSVLicenceExist = ref(false)
+    const importConfigYMLLicenceExist = ref(false)
 
     const {
       channelTypes,
@@ -107,7 +107,6 @@ export default {
     const types = ref([
       { value: 1, text: i18n.t('ImportConfig.Filetype.CSV') },
       { value: 2, text: i18n.t('ImportConfig.Filetype.XLS') }
-      // { value: 3, text: i18n.t('ImportConfig.Filetype.YML') }
     ])
 
     function add () {
@@ -149,9 +148,14 @@ export default {
             router.push('/config/imports')
           }
         }
-        const importConfigLicence = channelTypes.find(el => el === 1000)
-        if (importConfigLicence) {
-          importConfigLicenceExist.value = true
+        const importConfigCSVLicence = channelTypes.find(el => el === 1000)
+        if (importConfigCSVLicence) {
+          importConfigCSVLicenceExist.value = true
+        }
+        const importConfigYMLLicence = channelTypes.find(el => el === 1001)
+        if (importConfigYMLLicence) {
+          importConfigYMLLicenceExist.value = true
+          types.value.push({ value: 3, text: i18n.t('ImportConfig.Filetype.YML') })
         }
       })
     })
@@ -200,9 +204,11 @@ export default {
     }
 
     function isTestDisabled () {
-      const identifierMapping = selectedRef.value.mappings.find(el => el.attribute === 'identifier')
-      if (selectedRef.value.filedata.info.fileName && identifierMapping && (identifierMapping.column || (identifierMapping.expression && identifierMapping.expression.length))) {
-        return false
+      if (selectedRef.value.type !== 3) {
+        const identifierMapping = selectedRef.value.mappings.find(el => el.attribute === 'identifier')
+        if (selectedRef.value.filedata.info.fileName && identifierMapping && (identifierMapping.column || (identifierMapping.expression && identifierMapping.expression.length))) {
+          return false
+        }
       }
       return true
     }
@@ -221,7 +227,7 @@ export default {
         limit: 0
       }
 
-      selectedRef.value.mappings = [
+      selectedRef.value.mappings = selectedRef.value.type === 3 ? { categories: [], offers: [] } : [
         {
           attribute: 'identifier',
           column: null,
@@ -319,7 +325,8 @@ export default {
       add,
       canEditConfigRef,
       canViewConfigRef,
-      importConfigLicenceExist,
+      importConfigCSVLicenceExist,
+      importConfigYMLLicenceExist,
       clearSelection,
       currentLanguage,
       defaultLanguageIdentifier,
