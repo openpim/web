@@ -11,6 +11,12 @@
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn icon v-on="on" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
+            </template>
+            <span>{{ $t('Config.LOV.Export') }}</span>
+          </v-tooltip>
         </v-toolbar>
         <template v-if="item"><input type="checkbox" v-model="showEmptyGroups" class="ml-5 mr-2">{{$t('Config.Attributes.ShowEmptyGroups')}}</template>
         <v-text-field @input="searchChanged" @clear="searchChanged" v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5 mt-2 pt-0"></v-text-field>
@@ -109,6 +115,11 @@ import OptionsTable from '../../components/OptionsTable'
 import AttributeViewComponent from '../../components/AttributeViewComponent.vue'
 import newAttributeGenerator from '../../_customizations/attributes/newAttributeGenerator'
 import filterAttrGroups from '../../_customizations/attributes/filterAttrGroups'
+
+import XLSX from 'xlsx'
+import { saveAs } from 'file-saver'
+import { s2ab } from '../../store/utils.js'
+import AttributeType from '../../constants/attributeTypes'
 
 export default {
   components: { LanguageDependentField, SystemInformation, OptionsTable, AttributeViewComponent },
@@ -466,6 +477,30 @@ export default {
       groupsFiltered.value = filteredAttributes.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.children }))
     }
 
+    function exportData () {
+      const cols = ['group identifier', 'group name', 'identifier', 'name', 'type']
+      const data = [cols]
+      for (const grp of groupsFiltered.value) {
+        for (const attr of grp.children) {
+          const row = [grp.identifier, grp.name[defaultLanguageIdentifier.value], attr.identifier, attr.name[defaultLanguageIdentifier.value]]
+          let type = attr.type
+          for (const prop in AttributeType) {
+            if (AttributeType[prop] === type) {
+              type = prop
+              break
+            }
+          }
+          row.push(type)
+          data.push(row)
+        }
+      }
+      const ws = XLSX.utils.aoa_to_sheet(data)
+      var wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Data')
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+      saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'data.xlsx')
+    }
+
     function identifierValidation (v) {
       if (!/^[A-Za-z0-9_]*$/.test(v)) {
         return i18n.t('Wrong.Identifier')
@@ -510,6 +545,7 @@ export default {
       defaultLanguageIdentifier,
       showEmptyGroups,
       refreshItemAttributes,
+      exportData,
       identifierRules: [
         v => identifierValidation(v)
       ],
