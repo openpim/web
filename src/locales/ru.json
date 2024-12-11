@@ -1,4 +1,5 @@
 {
+  "Clear": "Очистить",
   "Close": "Закрыть",
   "Save": "Сохранить",
   "Move": "Переместить",
@@ -83,6 +84,7 @@
   "Config.Attribute.Type.Boolean": "Да/Нет",
   "Config.Attribute.Type.Integer": "Целочисленный",
   "Config.Attribute.Type.Float": "Дробный",
+  "Config.Attribute.Filtering.Options": "Параметры фильтрации",
   "Config.Attribute.Type.Date": "Дата",
   "Config.Attribute.Type.Time": "Время",
   "Config.Attribute.Type.LOV": "Список значений",

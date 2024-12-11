@@ -1,4 +1,5 @@
 {
+  "Clear": "Clear",
   "Close": "Close",
   "Save": "Save",
   "Move": "Move",
@@ -92,6 +93,7 @@
   "Config.Attribute.Type.URL": "URL",
   "Config.Attribute.Type.Relation": "Relation",
   "Config.Attribute.URL.Text": "URL text",
+  "Config.Attribute.Filtering.Options": "Filtering options",
   "Config.Attribute.Type": "Attribute type",
   "Config.Attribute.Pattern": "Regex pattern",
   "Config.Attribute.ErrorMessage": "Error message at regex validation",

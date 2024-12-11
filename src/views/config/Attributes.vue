@@ -19,7 +19,16 @@
           </v-tooltip>
         </v-toolbar>
         <template v-if="item"><input type="checkbox" v-model="showEmptyGroups" class="ml-5 mr-2">{{$t('Config.Attributes.ShowEmptyGroups')}}</template>
-        <v-text-field @input="searchChanged" @clear="searchChanged" v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5 mt-2 pt-0"></v-text-field>
+        <v-text-field @input="searchChanged" @clear="searchChanged" v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5 mt-2 pt-0">
+          <template v-slot:append-outer>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" icon @click="filterDialogRef = true"><v-icon :color="additionalFilterActive ? 'blue' : ''">mdi-tune</v-icon></v-btn>
+              </template>
+              <span>{{ $t('Config.Attribute.Filtering.Options') }}</span>
+            </v-tooltip>
+          </template>
+        </v-text-field>
         <v-treeview dense activatable hoverable :items="groupsFiltered" @update:active="activeChanged" :active="activeRef" :open="openRef">
           <template v-slot:prepend="{ item }">
             <v-icon>{{ item.group ? 'mdi-format-list-bulleted-type' : 'mdi-alpha-a-box-outline' }}</v-icon>
@@ -97,6 +106,56 @@
         </v-dialog>
       </v-row>
     </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="filterDialogRef" persistent max-width="1000px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('Config.Attribute.Filtering.Options') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-select v-model="filterData.type" :items="filterTypeSelection" :label="$t('Config.Attribute.Type')" chips multiple></v-select>
+                    <ValidVisibleComponent :elem="filterData" :canEditConfig="true"/>
+                    <v-card class="mb-5 mt-2">
+                      <v-card-title class="subtitle-2 font-weight-bold" >
+                        <div style="width:90%">{{ $t('Config.Attributes.ForRelations') }}</div>
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on }">
+                            <v-btn icon v-on="on" @click="editFilterRelations"><v-icon>mdi-file-document-edit-outline</v-icon></v-btn>
+                          </template>
+                          <span>{{ $t('Edit') }}</span>
+                        </v-tooltip>
+                      </v-card-title>
+                      <v-divider></v-divider>
+                      <v-list dense class="pt-0 pb-0">
+                        <v-list-item v-for="(item, i) in filterRelations" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                          <router-link :to="'/config/relations/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
+                        </v-list-item-content></v-list-item>
+                      </v-list>
+                    </v-card>
+                    <RelationsSelectionDialog ref="filterRelSelectionDialogRef" :multiselect="true" @selected="filterRelationsSelected"/>
+                    <v-card>
+                      <v-card-text>
+                        <OptionsTable :options="filterData.options" @changed="filterOptionsChanged" />
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="filterDialogRef = false">{{ $t('Cancel') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="clearFilter">{{ $t('Clear') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="applyFilter">{{ $t('Search') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
   </v-container>
 </template>
 
@@ -108,6 +167,7 @@ import router from '../../router'
 import * as errorStore from '../../store/error'
 import * as itemsStore from '../../store/item'
 import * as langStore from '../../store/languages'
+import * as relStore from '../../store/relations.js'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
@@ -115,6 +175,9 @@ import OptionsTable from '../../components/OptionsTable'
 import AttributeViewComponent from '../../components/AttributeViewComponent.vue'
 import newAttributeGenerator from '../../_customizations/attributes/newAttributeGenerator'
 import filterAttrGroups from '../../_customizations/attributes/filterAttrGroups'
+import ValidVisibleComponent from '../../components/ValidVisibleComponent'
+import RelationsSelectionDialog from '../../components/RelationsSelectionDialog'
+import additionalAttrTypesList from '../../_customizations/attributes/additionalTypes.js'
 
 import XLSX from 'xlsx'
 import { saveAs } from 'file-saver'
@@ -122,7 +185,7 @@ import { s2ab } from '../../store/utils.js'
 import AttributeType from '../../constants/attributeTypes'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, OptionsTable, AttributeViewComponent },
+  components: { LanguageDependentField, SystemInformation, OptionsTable, AttributeViewComponent, ValidVisibleComponent, RelationsSelectionDialog },
   props: {
     item: {
       type: Object,
@@ -158,6 +221,11 @@ export default {
       removeAttribute
     } = attrStore.useStore()
 
+    const {
+      relations,
+      loadAllRelations
+    } = relStore.useStore()
+
     const { nextId } = itemsStore.useStore()
 
     const canViewConfigRef = ref(false)
@@ -177,6 +245,47 @@ export default {
     const maxChiidrenNumber = 100
     const showEmptyGroups = ref(false)
     const grpId = ref(null)
+    const rels = ref([])
+
+    const filterDialogRef = ref(false)
+    const filterData = ref({
+      type: [],
+      valid: [],
+      visible: [],
+      relations: [],
+      options: []
+    })
+    const filterRelSelectionDialogRef = ref(null)
+
+    function clearFilter () {
+      filterData.value = {
+        type: [],
+        valid: [],
+        visible: [],
+        relations: [],
+        options: []
+      }
+    }
+
+    function editFilterRelations () {
+      filterRelSelectionDialogRef.value.showDialog('', filterData.value.relations)
+    }
+
+    function filterRelationsSelected (arr) {
+      filterRelSelectionDialogRef.value.closeDialog()
+      filterData.value.relations = arr
+    }
+
+    const additionalFilterActive = computed(() => {
+      if (filterData.value.type.length || filterData.value.valid.length || filterData.value.visible.length || filterData.value.relations.length || filterData.value.options.length) {
+        return true
+      }
+      return false
+    })
+
+    const filterRelations = computed(() => {
+      return filterData.value.relations.map(id => rels.value.find(rel => rel.id === id))
+    })
 
     const connectGroups = computed(() => {
       const filteredGroups = filterAttrGroups(selectedRef.value, selectedGroupsRef.value, groups)
@@ -189,7 +298,7 @@ export default {
 
     let awaitingSearch = null
     function searchChanged () {
-      if (searchRef.value && searchRef.value.length > 2) {
+      if ((searchRef.value && searchRef.value.length > 2) || additionalFilterActive.value) {
         if (awaitingSearch) {
           clearTimeout(awaitingSearch)
           awaitingSearch = null
@@ -208,27 +317,75 @@ export default {
       }
     }
 
+    function applyFilter () {
+      performSearch()
+      filterDialogRef.value = false
+    }
+
     function performSearch () {
       openRef.value = []
       activeRef.value = []
       selectedRef.value = empty
       groupsFiltered.value = []
       const groupsToUse = props.item ? filteredAttributes : groups
-      for (let k = 0; k < groupsToUse.length; k++) {
-        const group = groupsToUse[k]
-        if (group.name[currentLanguage.value.identifier].toLowerCase().includes(searchRef.value.toLowerCase())) {
-          groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) })
-          continue
-        }
-        const foundAttr = []
-        const attr = group.attributes
-        for (let i = 0; i < attr.length; i++) {
-          if (attr[i].name[currentLanguage.value.identifier].toLowerCase().includes(searchRef.value.toLowerCase()) || attr[i].identifier.toLowerCase().includes(searchRef.value.toLowerCase())) {
-            foundAttr.push(attr[i])
+      const searchJsonData = filterData.value
+      if (!additionalFilterActive.value) {
+        if (searchRef.value) {
+          for (let k = 0; k < groupsToUse.length; k++) {
+            const group = groupsToUse[k]
+            if (group.name[currentLanguage.value.identifier].toLowerCase().includes(searchRef.value.toLowerCase())) {
+              groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) })
+              continue
+            }
+            const foundAttr = []
+            const attr = group.attributes
+            for (let i = 0; i < attr.length; i++) {
+              if (attr[i].name[currentLanguage.value.identifier].toLowerCase().includes(searchRef.value.toLowerCase()) || attr[i].identifier.toLowerCase().includes(searchRef.value.toLowerCase())) {
+                foundAttr.push(attr[i])
+              }
+            }
+            if (foundAttr.length) {
+              groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: foundAttr.slice(0, maxChiidrenNumber) })
+            }
+          }
+        } else {
+          if (props.item) {
+            groupsFiltered.value = filteredAttributes
+          } else {
+            groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
           }
         }
-        if (foundAttr.length) {
-          groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: foundAttr.slice(0, maxChiidrenNumber) })
+      } else {
+        for (let k = 0; k < groupsToUse.length; k++) {
+          const group = groupsToUse[k]
+          const foundAttr = []
+          const attrs = group.attributes
+          for (let i = 0; i < attrs.length; i++) {
+            const attr = attrs[i]
+            if ((searchJsonData.type.length && !searchJsonData.type.includes(attr.type)) ||
+              (searchJsonData.valid.length && !attr.valid.filter(value => searchJsonData.valid.includes(value)).length) ||
+              (searchJsonData.visible.length && !attr.visible.filter(value => searchJsonData.visible.includes(value)).length) ||
+              (searchJsonData.relations.length && !attr.relations.filter(value => searchJsonData.relations.includes(value)).length) ||
+              (searchJsonData.options.length && !searchJsonData.options.filter(value => attr.options.some(option => {
+                if (typeof (value.value) !== 'undefined' && value.value !== null && value.value !== '') {
+                  return option.name === value.name && option.value === value.value
+                } else {
+                  return option.name === value.name
+                }
+              })).length)) {
+              continue
+            }
+            if (searchRef.value && searchRef.value.length) {
+              if (attr.name[currentLanguage.value.identifier].toLowerCase().includes(searchRef.value.toLowerCase()) || attr.identifier.toLowerCase().includes(searchRef.value.toLowerCase())) {
+                foundAttr.push(attr)
+              }
+            } else {
+              foundAttr.push(attr)
+            }
+          }
+          if (foundAttr.length) {
+            groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: foundAttr.slice(0, maxChiidrenNumber) })
+          }
         }
       }
     }
@@ -261,8 +418,29 @@ export default {
       }
     }
 
+    const filterTypeSelection = ref([
+      { text: i18n.t('Config.Attribute.Type.Text'), value: AttributeType.Text },
+      { text: i18n.t('Config.Attribute.Type.Boolean'), value: AttributeType.Boolean },
+      { text: i18n.t('Config.Attribute.Type.Integer'), value: AttributeType.Integer },
+      { text: i18n.t('Config.Attribute.Type.Float'), value: AttributeType.Float },
+      { text: i18n.t('Config.Attribute.Type.Date'), value: AttributeType.Date },
+      { text: i18n.t('Config.Attribute.Type.Time'), value: AttributeType.Time },
+      { text: i18n.t('Config.Attribute.Type.LOV'), value: AttributeType.LOV },
+      { text: i18n.t('Config.Attribute.Type.URL'), value: AttributeType.URL },
+      { text: i18n.t('Config.Attribute.Type.Relation'), value: AttributeType.Relation }
+    ])
+
+    if (additionalAttrTypesList) {
+      const mappedAddAttrTypeList = additionalAttrTypesList.map(el => ({ text: el.text, value: el.value }))
+      filterTypeSelection.value = [...filterTypeSelection.value, ...mappedAddAttrTypeList]
+    }
+
     function optionsChanged (val) {
       selectedRef.value.options = val
+    }
+
+    function filterOptionsChanged (val) {
+      filterData.value.options = val
     }
 
     async function add () {
@@ -414,6 +592,9 @@ export default {
 
     onMounted(() => {
       loadAllLanguages()
+      loadAllRelations().then(() => {
+        rels.value = relations
+      })
       loadAllAttributes().then(() => {
         canViewConfigRef.value = canViewConfig('attributes')
         canEditConfigRef.value = canEditConfig('attributes')
@@ -518,6 +699,9 @@ export default {
     }
 
     return {
+      additionalFilterActive,
+      applyFilter,
+      clearFilter,
       grpId,
       canViewConfigRef,
       canEditConfigRef,
@@ -526,6 +710,14 @@ export default {
       searchRef,
       searchChanged,
       filter,
+      filterData,
+      filterDialogRef,
+      filterRelations,
+      filterTypeSelection,
+      filterRelSelectionDialogRef,
+      filterRelationsSelected,
+      filterOptionsChanged,
+      editFilterRelations,
       add,
       remove,
       removeAttr,

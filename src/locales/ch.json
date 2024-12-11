@@ -1,4 +1,5 @@
 {
+	"Clear": "清楚",
 	"Close": "关闭",
 	"Save": "保存",
 	"Move": "移动",
@@ -91,6 +92,7 @@
 	"Config.Attribute.MultiLine": "多行",
 	"Config.Attribute.RichText": "保持格式化",
 	"Config.Attribute.LOV": "值列表",
+	"Config.Attribute.Filtering.Options": "过滤选项",
 	"Types.SelectionDialog.Title": "类型选择",
 	"Relations.SelectionDialog.Title": "依赖选择",
 	"Config.Relations.Relations": "依赖项:",
