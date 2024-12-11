@@ -336,6 +336,20 @@ const routes = [
         }
       },
       {
+        path: 'templates',
+        components: {
+          menu: () => import('../components/ConfigMenu.vue'),
+          default: () => import('../views/config/Templates.vue')
+        }
+      },
+      {
+        path: 'templates/:id',
+        components: {
+          menu: () => import('../components/ConfigMenu.vue'),
+          default: () => import('../views/config/Templates.vue')
+        }
+      },
+      {
         path: 'lovs',
         components: {
           menu: () => import('../components/ConfigMenu.vue'),

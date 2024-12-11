@@ -28,6 +28,10 @@
           <v-list-item-icon><v-icon>mdi-file-cog-outline</v-icon></v-list-item-icon>
           <v-list-item-content><v-list-item-title>{{ $t('Config.ImportConfigs') }}</v-list-item-title></v-list-item-content>
         </v-list-item>
+        <v-list-item link to="/config/templates" v-if="canViewConfig('templates')">
+          <v-list-item-icon><v-icon>mdi-file-edit-outline</v-icon></v-list-item-icon>
+          <v-list-item-content><v-list-item-title>{{ $t('Config.TemplateConfigs') }}</v-list-item-title></v-list-item-content>
+        </v-list-item>
         <v-list-item link to="/config/users" v-if="canViewConfig('users')">
           <v-list-item-icon><v-icon>mdi-account</v-icon></v-list-item-icon>
           <v-list-item-content><v-list-item-title>{{ $t('Config.Users') }}</v-list-item-title></v-list-item-content>

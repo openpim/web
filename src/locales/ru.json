@@ -767,5 +767,14 @@
   "ImportConfig.AfterEndAction": "После окончания",
   "ImportConfig.BeforeEachRow": "Перед каждой строкой",
   "ImportConfig.YML.Categories": "Категории",
-  "ImportConfig.YML.Offers": "Товары"
+  "ImportConfig.YML.Offers": "Товары",
+
+  "Config.TemplateConfigs": "Конфигурация шаблонов",
+  "Config.Template.Templates": "Шаблоны:",
+  "Config.Template.Template": "Шаблон",
+  "Config.Template.NewName": "Новый шаблон",
+  "Config.Template.Confirm.Delete": "Удалить шаблон {name}?",
+  "Config.Template.Error.IdentifierRequired": "Не введен идентификатор",
+  "Config.Template.Error.IdentifierNotUnique": "Такой идентификатор уже существует",
+  "Config.Template.Error.NameRequired": "Не введено наименование"
 }
