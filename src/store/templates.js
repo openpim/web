@@ -134,69 +134,6 @@ const actions = {
       await serverFetch(query, variables)
     }
     templates.splice(idx, 1)
-  },
-  getImportConfigTemplateData: async (id) => {
-    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'import-config-data/' + id, {
-      method: 'GET',
-      headers: {
-        'x-token': localStorage.getItem('token')
-      }
-    })
-    return resp
-  },
-  testImportConfig: async function (importsConfig) {
-    const data = new FormData()
-    data.append('language', currentLanguage.value.identifier)
-
-    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'import-config-test/' + importsConfig.id, {
-      method: 'POST',
-      headers: {
-        'x-token': localStorage.getItem('token')
-      },
-      body: data
-    })
-    return resp
-  },
-  uploadImportConfigTemplate: async (file) => {
-    const data = new FormData()
-    data.append('file', file)
-
-    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'import-config-template-upload', {
-      method: 'POST',
-      headers: {
-        'x-token': localStorage.getItem('token')
-      },
-      body: data
-    })
-
-    if (!resp.ok) {
-      // err.store.showError(i18n.t('File.UploadFailed'))
-      alert('File.UploadFailed')
-      return false
-    } else {
-      return await resp.json()
-    }
-  },
-  uploadImportFile: async (id, file) => {
-    const data = new FormData()
-    data.append('file', file)
-    data.append('mappingId', id)
-    data.append('language', currentLanguage.value.identifier)
-
-    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'import-upload', {
-      method: 'POST',
-      headers: {
-        'x-token': localStorage.getItem('token')
-      },
-      body: data
-    })
-    if (!resp.ok) {
-      // err.store.showError(i18n.t('File.UploadFailed'))
-      alert(i18n.t('File.UploadFailed'))
-      return false
-    } else {
-      return await resp.json()
-    }
   }
 }
 
