@@ -123,7 +123,7 @@ export default {
         const node = findItem(id).node
         emit('selected', node.internalId, initiator)
       } else if (searchSelectedRef.value != null) {
-        emit('selected', searchResultsRef.value[searchSelectedRef.value].id, initiator)
+        emit('selected', parseInt(searchResultsRef.value[searchSelectedRef.value].id), initiator)
       }
     }
 
