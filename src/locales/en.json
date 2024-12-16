@@ -776,5 +776,14 @@
   "ImportConfig.AfterEndAction": "After End Action",
   "ImportConfig.BeforeEachRow": "Before Each Row",
   "ImportConfig.YML.Categories": "Categories",
-  "ImportConfig.YML.Offers": "Offers"
+  "ImportConfig.YML.Offers": "Offers",
+
+  "Config.TemplateConfigs": "Template configurations",
+  "Config.Template.Templates": "Templates:",
+  "Config.Template.Template": "Template",
+  "Config.Template.NewName": "New template",
+  "Config.Template.Confirm.Delete": "Remove template {name}?",
+  "Config.Template.Error.IdentifierRequired": "Identifier required",
+  "Config.Template.Error.IdentifierNotUnique": "Such identifier already exists",
+  "Config.Template.Error.NameRequired": "Name required"
 }
