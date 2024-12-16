@@ -80,8 +80,6 @@ export default {
     const itemRef = ref(null)
     const searchRef = ref('')
 
-    const availableChannelsRef = ref([])
-
     watch(itemRef, (selected, previous) => {
       // if (typeof (previous) === 'undefined') return
       if (selected == null) {
@@ -157,22 +155,6 @@ export default {
       })
     })
 
-    function identifierValidation (v) {
-      if (!v) {
-        return i18n.t('Config.Template.Error.IdentifierRequired')
-      }
-      if (!/^[A-Za-z0-9_-]*$/.test(v)) {
-        return i18n.t('Wrong.Identifier')
-      }
-      if (v && selectedRef.value.internalId === 0) {
-        const found = templates.find((lang) => lang.identifier === v)
-        if (found && found.internalId !== 0) {
-          return i18n.t('Config.Template.Error.IdentifierNotUnique')
-        }
-      }
-      return true
-    }
-
     return {
       save,
       remove,
@@ -185,14 +167,7 @@ export default {
       itemRef,
       add,
       currentLanguage,
-      defaultLanguageIdentifier,
-      availableChannelsRef,
-      identifierRules: [
-        v => identifierValidation(v)
-      ],
-      nameRules: [
-        v => !!v || i18n.t('Config.Template.Error.NameRequired')
-      ]
+      defaultLanguageIdentifier
     }
   }
 }

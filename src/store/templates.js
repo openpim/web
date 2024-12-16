@@ -59,7 +59,7 @@ const actions = {
       identifier: template.identifier,
       name: template.name,
       template: template.template,
-      order: template.order,
+      order: parseInt(template.order),
       valid: template.valid.map(num => num.toString()),
       visible: template.visible.map(num => num.toString())
     }
@@ -129,8 +129,7 @@ const actions = {
           $id: ID!
         ) {
           removeTemplate(id: $id)
-        }
-      }`
+        }`
       await serverFetch(query, variables)
     }
     templates.splice(idx, 1)

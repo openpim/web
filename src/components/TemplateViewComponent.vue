@@ -18,8 +18,8 @@
 import { ref } from '@vue/composition-api'
 import i18n from '../i18n'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
-import * as attrStore from '../store/attributes'
 import * as langStore from '../store/languages'
+import * as tempStore from '../store/templates'
 
 import SystemInformation from '../components/SystemInformation'
 import LanguageDependentField from '../components/LanguageDependentField'
@@ -36,14 +36,14 @@ export default {
   },
   setup (props, { root }) {
     const {
-      checkIdentifier
-    } = attrStore.useStore()
-
-    const {
       currentLanguage,
       defaultLanguageIdentifier,
       loadAllLanguages
     } = langStore.useStore()
+
+    const {
+      templates
+    } = tempStore.useStore()
 
     const formRef = ref(null)
 
@@ -54,9 +54,10 @@ export default {
       if (!v) {
         return i18n.t('Config.Template.Error.IdentifierRequired')
       }
-      if (v && props.attr.internalId === 0) {
-        const found = checkIdentifier(v)
-        if (found) {
+      console.log(props.temp)
+      if (v && props.temp.internalId === 0) {
+        const found = templates.find((temp) => temp.identifier === v)
+        if (found && found.internalId !== 0) {
           return i18n.t('Config.Template.Error.IdentifierNotUnique')
         }
       }
