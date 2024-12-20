@@ -29,7 +29,7 @@
                       </v-tooltip>
                     </td>
                     <td class="pa-1">
-                      <v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributes" clearable :append-outer-icon="canManageAttributes ? 'mdi-format-list-bulleted-type' : ''" @click:append-outer="manageAttribute(i, attributes[i])"></v-autocomplete>
+                      <v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributesAll" clearable :append-outer-icon="canManageAttributes ? 'mdi-format-list-bulleted-type' : ''" @click:append-outer="manageAttribute(i, attributes[i])"></v-autocomplete>
                     </td>
                     <td class="pa-1">
                       <v-text-field v-if="!canManageOrder" v-model="attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[i])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[i])" />
@@ -90,7 +90,7 @@
   </div>
 </template>
 <script>
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted, computed } from '@vue/composition-api'
 import * as langStore from '../store/languages'
 import OptionsTable from '../components/OptionsTable.vue'
 import AttributeManageDialog from './AttributeManageDialog.vue'
@@ -242,6 +242,18 @@ export default {
       }
     }
 
+    const pimAttributesAll = computed(() => {
+      const missingAttrs = []
+      for (let i = 0; i < props.attributes.length; i++) {
+        const attr = props.attributes[i]
+        if (attr.attrIdent && attr.attrIdent.length) {
+          const found = props.pimAttributes.find(el => el.value === attr.attrIdent)
+          if (!found) missingAttrs.push({ value: attr.attrIdent, text: `[[[ ${attr.attrIdent} ]]]` })
+        }
+      }
+      return props.pimAttributes.concat(missingAttrs)
+    })
+
     async function manageAttribute (i, attrMapping) {
       if (attrMapping.expr && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
 
@@ -364,7 +376,8 @@ export default {
       manageDialogClosed,
       up,
       down,
-      remove
+      remove,
+      pimAttributesAll
     }
   }
 }

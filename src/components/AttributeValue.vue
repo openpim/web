@@ -776,12 +776,24 @@ export default {
           }
         })
       }
+
       if (props.item) {
         values = values.filter(elem => !elem.level || elem.level.length === 0 || elem.level === '[]' || elem.level.find(path => props.item.path.startsWith(path)))
       }
 
       const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']', url: elem.url } })
       const sort = getOption('lovNameSort', false)
+
+      let propsValues = props.values[props.attr.identifier]
+      if (propsValues !== null && typeof (propsValues) !== 'undefined') {
+        if (!Array.isArray(propsValues)) propsValues = [propsValues]
+        for (let i = 0; i < propsValues.length; i++) {
+          const propsValue = propsValues[i]
+          const found = arr.find(el => el.id === propsValue)
+          if (!found) arr.push({ value: propsValue, text: `[[[ ${propsValue} ]]]`, url: 'about:blank' })
+        }
+      }
+
       if (sort) arr.sort((a, b) => a.text.localeCompare(b.text))
       return arr
     })
@@ -905,12 +917,24 @@ export default {
       const lov = displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
       const lovData = lov ? await getLOVData(displayAttr.item.lov) : null
       const data = await getAvailableItemsForRelationAttr(props.attr, props.values[props.attr.identifier], searchStr, currentLanguage.value.identifier || defaultLanguageIdentifier.value, 100, 0, 'ASC')
+
       availableItemsForRelationAttr.value = data.getItemsForRelationAttribute.map(el => {
         const text = getDisplayValue(el, displayValueOption, displayAttr, lovData)
         const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
         const imageUrl = el.values.__imagedata && el.values.__imagedata.id ? damUrl + 'asset/' + el.values.__imagedata.id + '/thumb?token=' + localStorage.getItem('token') : null
         return { identifier: el.identifier, value: el.id, text, imageUrl }
       })
+
+      let propsValues = props.values[props.attr.identifier]
+      if (propsValues !== null && typeof (propsValues) !== 'undefined') {
+        if (!Array.isArray(propsValues)) propsValues = [propsValues]
+        for (let i = 0; i < propsValues.length; i++) {
+          const propsValue = propsValues[i]
+          const found = availableItemsForRelationAttr.value.find(el => el.value === propsValue)
+          if (!found) availableItemsForRelationAttr.value.push({ identifier: propsValue, value: propsValue, text: `[[[ ${propsValue} ]]]`, imageUrl: null })
+        }
+      }
+
       loadingRef.value = false
     }
 
