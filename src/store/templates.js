@@ -29,6 +29,7 @@ const actions = {
           order
           valid
           visible
+          options
           createdBy
           createdAt
           updatedBy
@@ -49,7 +50,7 @@ const actions = {
   addTemplate: () => {
     const name = {}
     name[currentLanguage.value.identifier] = i18n.t('Config.Template.NewName')
-    const newTemplate = { id: Date.now(), internalId: 0, name: name, valid: [], visible: [] }
+    const newTemplate = { id: Date.now(), internalId: 0, name: name, valid: [], visible: [], options: [] }
     templates.push(newTemplate)
     return newTemplate
   },
@@ -61,7 +62,8 @@ const actions = {
       template: template.template,
       order: parseInt(template.order),
       valid: template.valid.map(num => num.toString()),
-      visible: template.visible.map(num => num.toString())
+      visible: template.visible.map(num => num.toString()),
+      options: template.options
     }
     if (template.internalId === 0) {
       const query = `
@@ -71,9 +73,10 @@ const actions = {
         $template: String!,
         $order: Int!,
         $valid: [String],
-        $visible: [String]
+        $visible: [String],
+        $options: JSON
       ) {
-        createTemplate(identifier: $identifier, name: $name, template: $template, order: $order, valid: $valid, visible: $visible) {
+        createTemplate(identifier: $identifier, name: $name, template: $template, order: $order, valid: $valid, visible: $visible, options: $options) {
             id
             identifier
             name
@@ -81,6 +84,7 @@ const actions = {
             order
             valid
             visible
+            options
             createdBy
             createdAt
             updatedBy
@@ -99,9 +103,10 @@ const actions = {
         $template: String!,
         $order: Int!,
         $valid: [String],
-        $visible: [String]
+        $visible: [String],
+        $options: JSON
       ) {
-        updateTemplate(id: $id, name: $name, template: $template, order: $order, valid: $valid, visible: $visible) {
+        updateTemplate(id: $id, name: $name, template: $template, order: $order, valid: $valid, visible: $visible, options: $options) {
             id
             identifier
             name
@@ -109,6 +114,7 @@ const actions = {
             order
             valid
             visible
+            options
             createdBy
             createdAt
             updatedBy

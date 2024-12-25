@@ -11,6 +11,7 @@
       <ValidVisibleComponent :elem="temp" :canEditConfig="canEditConfig"/>
       <v-textarea :rows="15" style="min-width: 100%" v-model="temp.template" :label="$t('Config.Template.Template')" required></v-textarea>
       <br />
+      <OptionsTable :options="temp.options" @changed="optionsChanged" />
     </v-form>
   </div>
 </template>
@@ -20,12 +21,12 @@ import i18n from '../i18n'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import * as langStore from '../store/languages'
 import * as tempStore from '../store/templates'
-
+import OptionsTable from '../components/OptionsTable'
 import SystemInformation from '../components/SystemInformation'
 import LanguageDependentField from '../components/LanguageDependentField'
 
 export default {
-  components: { SystemInformation, LanguageDependentField, ValidVisibleComponent },
+  components: { SystemInformation, LanguageDependentField, ValidVisibleComponent, OptionsTable },
   props: {
     temp: {
       required: true
@@ -47,6 +48,10 @@ export default {
 
     const formRef = ref(null)
 
+    function optionsChanged (val) {
+      props.temp.options = val
+    }
+
     function identifierValidation (v) {
       if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(v)) {
         return i18n.t('Wrong.Identifier')
@@ -54,7 +59,6 @@ export default {
       if (!v) {
         return i18n.t('Config.Template.Error.IdentifierRequired')
       }
-      console.log(props.temp)
       if (v && props.temp.internalId === 0) {
         const found = templates.find((temp) => temp.identifier === v)
         if (found && found.internalId !== 0) {
@@ -69,6 +73,7 @@ export default {
       currentLanguage,
       defaultLanguageIdentifier,
       loadAllLanguages,
+      optionsChanged,
       identifierRules: [
         v => identifierValidation(v)
       ],
