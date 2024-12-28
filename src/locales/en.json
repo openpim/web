@@ -418,6 +418,7 @@
   "Item.toChannel": "Send to Channel",
   "Item.toCollection": "Send to Collection",
   "Item.DeleteFromCollection": "Delete from Collection",
+  "Item.Templates": "Templates",
   "ItemRelation.id": "Id",
   "ItemRelation.identifier": "Identifier",
   "ItemRelation.itemIdentifier": "Item identifier",

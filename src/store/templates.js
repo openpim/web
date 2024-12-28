@@ -4,9 +4,10 @@ import { serverFetch } from './utils'
 import { currentLanguage } from './languages'
 
 const templates = reactive([])
+
+let promise
 const actions = {
   loadAllTemplates: async () => {
-    if (templates.length > 0) return templates
     const variables = {
       where: {},
       order: '',
@@ -37,7 +38,8 @@ const actions = {
         }
       }
     }`
-    const data = await serverFetch(query, variables)
+    if (!promise) promise = await serverFetch(query, variables)
+    const data = await promise
     if (templates.length > 0) return templates
     if (data.getTemplates && data.getTemplates.rows) {
       data.getTemplates.rows.forEach(element => {

@@ -24,7 +24,7 @@
           </v-list-item-group>
         </v-list>
       </v-col>
-      <v-col cols="9" v-if="selectedRef.id !== -1">
+      <v-col cols="9" v-if="selectedRef && selectedRef.id !== -1">
         <TemplateViewComponent :temp="selectedRef" :canEditConfig="canEditConfigRef"/>
         <v-spacer class="pa-4"></v-spacer>
         <v-btn class="mr-4 ml-5" v-if="canEditConfigRef && selectedRef.id !== -1" @click="save">{{ $t('Save') }}</v-btn>
@@ -39,8 +39,6 @@ import { ref, watch, onMounted, computed } from '@vue/composition-api'
 import * as langStore from '../../store/languages'
 import * as tempStore from '../../store/templates'
 import * as errorStore from '../../store/error'
-import * as typesStore from '../../store/types'
-import * as itemsStore from '../../store/item'
 import i18n from '../../i18n'
 import * as userStore from '../../store/users'
 import router from '../../router'
@@ -48,7 +46,7 @@ import TemplateViewComponent from '../../components/TemplateViewComponent.vue'
 
 export default {
   components: { TemplateViewComponent },
-  setup (props, { root }) {
+  setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
 
     const {
@@ -68,20 +66,15 @@ export default {
       addTemplate
     } = tempStore.useStore()
 
-    const { loadAllTypes } = typesStore.useStore()
-
-    const { nextId } = itemsStore.useStore()
-
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
 
     const empty = { id: -1 }
     const selectedRef = ref(empty)
-    const itemRef = ref(null)
+    const itemRef = ref(0)
     const searchRef = ref('')
 
     watch(itemRef, (selected, previous) => {
-      // if (typeof (previous) === 'undefined') return
       if (selected == null) {
         selectedRef.value = empty
         router.push('/config/templates')
@@ -94,7 +87,7 @@ export default {
         }
         selectedRef.value = arr[selected]
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
-          router.push('/config/templates/' + selectedRef.value.identifier)
+          if (selectedRef.value.identifier) router.push('/config/templates/' + selectedRef.value.identifier)
         } else {
           router.push('/config/templates')
         }
@@ -102,9 +95,22 @@ export default {
     })
 
     const templatesFiltered = computed(() => {
-      if (!searchRef.value) return templates.slice(0, 100)
-      const s = searchRef.value.toLowerCase()
-      return templates.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.title && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
+      let arr = templates
+      if (searchRef.value) {
+        const s = searchRef.value.toLowerCase()
+        arr = templates.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
+      }
+      return arr.sort((a, b) => {
+        if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
+          if (a.order === b.order) {
+            return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
+          } else {
+            return parseInt(a.order) - parseInt(b.order)
+          }
+        } else {
+          return 0
+        }
+      })
     })
 
     function clearSelection () {
@@ -113,17 +119,13 @@ export default {
     }
 
     async function add () {
-      const obj = await nextId()
       selectedRef.value = addTemplate()
       itemRef.value = templates.length - 1
-      if (obj) {
-        selectedRef.value.identifier = obj.identifier
-        if (obj.name) selectedRef.value.name = obj.name
-      }
     }
 
     function save () {
       if (selectedRef.value) {
+        router.push('/config/templates/' + selectedRef.value.identifier)
         saveTemplate(selectedRef.value).then(() => {
           showInfo(i18n.t('Saved'))
         })
@@ -131,15 +133,16 @@ export default {
     }
 
     function remove () {
-      if (confirm(i18n.t('Config.Template.Confirm.Delete', { name: selectedRef.value.name }))) {
+      if (confirm(i18n.t('Config.Template.Confirm.Delete'))) {
         removeTemplate(selectedRef.value.id)
         selectedRef.value = empty
+        router.push('/config/templates')
       }
     }
 
     onMounted(() => {
-      loadAllTypes()
-      Promise.all([loadAllTemplates()]).then(() => {
+      loadAllTemplates().then(() => {
+        clearSelection()
         canViewConfigRef.value = canViewConfig('templates')
         canEditConfigRef.value = canEditConfig('templates')
         const id = router.currentRoute.params.id
@@ -158,6 +161,7 @@ export default {
     return {
       save,
       remove,
+      templates,
       canViewConfigRef,
       canEditConfigRef,
       templatesFiltered,

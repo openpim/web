@@ -128,6 +128,16 @@
             <template v-if="!hasChannels">
               <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" v-text="$t('Item.toCollection')"></v-btn>
             </template>
+            <template>
+              <v-menu offset-y>
+                <template v-slot:activator="{ on }"><v-btn text v-on="on"> {{ $t('Item.Templates') }}</v-btn></template>
+                <v-list>
+                  <v-list-item v-for="(template, i) in buttonTemplates" :key="i" @click="executeTemplate(template)">
+                    <v-list-item-title>{{ template.name[currentLanguage.identifier] || '[' + template.name[defaultLanguageIdentifier] + ']' }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
             <template v-if="buttonActions && buttonActions.length <= 3">
               <v-btn text @click="executeAction(trigger)" v-for="(trigger, i) in buttonActions" :key="i">{{trigger.itemButton}}</v-btn>
             </template>
@@ -452,6 +462,7 @@ import * as lovsStore from '../store/lovs'
 import * as collectionsStore from '../store/collections'
 import i18n from '../i18n'
 import * as langStore from '../store/languages'
+import * as tempStore from '../store/templates'
 import AttributeValue from '../components/AttributeValue'
 import ItemRelationsList from '../components/ItemRelationsList'
 import SystemInformation from '../components/SystemInformation'
@@ -579,6 +590,11 @@ export default {
       getLOVData
     } = lovsStore.useStore()
 
+    const {
+      loadAllTemplates,
+      templates
+    } = tempStore.useStore()
+
     const itemsDataTableRef = ref(null)
     const historyTableRef = ref(null)
     const itemRef = ref(null)
@@ -699,6 +715,40 @@ export default {
         return []
       }
     })
+
+    const buttonTemplates = computed(() => {
+      if (itemRef.value) {
+        const pathArr = itemRef.value.path.split('.').map(elem => parseInt(elem))
+        const arr = []
+
+        templates.forEach(template => {
+          const visibleResult = template.visible.some(el => pathArr.includes(parseInt(el)))
+          const validResult = template.valid.includes(itemRef.value.typeId)
+          if (visibleResult && validResult) {
+            arr.push({ name: template.name, order: template.order, options: template.options, id: template.id })
+          }
+        })
+        arr.sort((a, b) => a.order - b.order)
+        return arr
+      } else {
+        return []
+      }
+    })
+
+    function executeTemplate (template) {
+      const isDirectUrl = template.options.some(
+        el => el.name === 'directUrl' && el.value === 'true'
+      )
+
+      const routePath = `template/${template.id}/${itemRef.value.id}`
+      const token = localStorage.getItem('token')
+      const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL
+      const fullPath = isDirectUrl
+        ? routePath
+        : `${routePath}?token=${token}`
+      console.log(damUrl + fullPath)
+      window.open(damUrl + fullPath, '_blank')
+    }
 
     const getRelationSearchName = (rel) => {
       if (rel && rel.options && rel.options.some(option => option.name === 'searchName')) {
@@ -1375,7 +1425,8 @@ export default {
         loadAllActions(),
         loadAllAttributes(),
         loadAllRelations(),
-        loadAllTypes()]).then(() => {
+        loadAllTypes(),
+        loadAllTemplates()]).then(() => {
         if (route.value && route.value.params && route.value.params.id) {
           itemPathRef.value = []
           loadItemByIdentifier(route.value.params.id).then((item) => {
@@ -1453,6 +1504,9 @@ export default {
       AttributeType,
       executeAction,
       buttonActions,
+      templates,
+      buttonTemplates,
+      executeTemplate,
       itemRef,
       parents,
       tabRef,
