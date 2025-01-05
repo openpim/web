@@ -23,7 +23,7 @@ const actions = {
       id: Date.now(),
       internalId: 0,
       name: '',
-      configAccess: { types: 0, attributes: 0, relations: 0, users: 0, roles: 0, languages: 0, lovs: 0, actions: 0, dashboards: 0, channels: 0 },
+      configAccess: { types: 0, attributes: 0, relations: 0, users: 0, roles: 0, languages: 0, lovs: 0, actions: 0, dashboards: 0, channels: 0, importConfigs: 0, templates: 0 },
       relAccess: { relations: [], access: 0, groups: [] },
       itemAccess: { valid: [], fromItems: [], access: 0, groups: [] },
       channelAccess: [],

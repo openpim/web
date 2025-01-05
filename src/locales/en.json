@@ -146,6 +146,7 @@
   "Config.Roles.Config.LOVs": "List of values management",
   "Config.Roles.Config.Channels": "Channels management",
   "Config.Roles.Config.Actions": "Actions management", 
+  "Config.Roles.Config.Templates": "Templates management", 
   "Config.Roles.Config.Dashboards": "Dashboards management",
   "Config.Roles.Config.ImportConfigs": "Import configurations",
   "Config.Roles.Access": "Access",
@@ -779,7 +780,7 @@
   "ImportConfig.YML.Categories": "Categories",
   "ImportConfig.YML.Offers": "Offers",
 
-  "Config.TemplateConfigs": "Template configurations",
+  "Config.TemplateConfigs": "Templates",
   "Config.Template.Templates": "Templates:",
   "Config.Template.Template": "Template",
   "Config.Template.NewName": "New template",

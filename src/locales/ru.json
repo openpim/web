@@ -143,6 +143,7 @@
   "Config.Roles.Config.LOVs": "Редактирование списков значений",  
   "Config.Roles.Config.Channels": "Редактирование каналов",
   "Config.Roles.Config.Actions": "Редактирование действий",  
+  "Config.Roles.Config.Templates": "Редактирование шаблонов",  
   "Config.Roles.Config.Dashboards": "Редактирование дашбордов",
   "Config.Roles.Config.ImportConfigs": "Конфигурация импорта",
   "Config.Roles.Access": "Доступ",
@@ -772,7 +773,7 @@
   "ImportConfig.YML.Categories": "Категории",
   "ImportConfig.YML.Offers": "Товары",
 
-  "Config.TemplateConfigs": "Конфигурация шаблонов",
+  "Config.TemplateConfigs": "Шаблоны",
   "Config.Template.Templates": "Шаблоны:",
   "Config.Template.Template": "Шаблон",
   "Config.Template.NewName": "Новый шаблон",
