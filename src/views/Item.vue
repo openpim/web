@@ -128,7 +128,7 @@
             <template v-if="!hasChannels">
               <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" v-text="$t('Item.toCollection')"></v-btn>
             </template>
-            <template>
+            <template v-if="buttonTemplates.length > 0">
               <v-menu offset-y>
                 <template v-slot:activator="{ on }"><v-btn text v-on="on"> {{ $t('Item.Templates') }}</v-btn></template>
                 <v-list>
