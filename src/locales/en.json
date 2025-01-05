@@ -159,6 +159,7 @@
   "Config.Roles.Other.SearchRelations": "Search relations",
   "Config.Roles.Other.ExportRelationsXLS": "XLS export relations",
   "Config.Roles.Other.ImportRelationsXLS": "XLS import relations ",
+  "Config.Roles.Other.Imports": "Run import",
   "Config.Roles.RestrictionsRelations": "Restrictions for relations",
   "Config.Roles.RestrictionsItems": "Restrictions for items",
   "Config.Roles.RestrictionsAttributes": "Restrictions for attributes",
