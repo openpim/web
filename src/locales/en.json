@@ -508,6 +508,7 @@
   "DataTable.ExcelImport.CREATE_UPDATE" : "Create and update",
   "DataTable.ExcelImport.NoLOVValue" : "Value '{val}' not found in list of values for attribute with identifier {attr}",
   "DataTable.ExcelImport.NoRelAttrValue": "Value '{val}' not found for relation attribute with identifier {attr}",
+  "DataTable.ApplyTemplate": "Apply template",
   "DataTable.Actions": "Actions",
   "FileUploadDialog.Title" : "File upload",
   "FileUploadDialog.NewFile" : "File to upload",
@@ -788,5 +789,6 @@
   "Config.Template.Confirm.Delete": "Remove template {name}?",
   "Config.Template.Error.IdentifierRequired": "Identifier required",
   "Config.Template.Error.IdentifierNotUnique": "Such identifier already exists",
-  "Config.Template.Error.NameRequired": "Name required"
+  "Config.Template.Error.NameRequired": "Name required",
+  "Templates.SelectionDialog.Title": "Template selection"
 }

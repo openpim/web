@@ -101,6 +101,12 @@
         </template>
         <span>{{ $t('Collections.DeleteFromCollection') }}</span>
       </v-tooltip>
+      <v-tooltip top v-if="optionsTemplates">
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" icon @click="tempSelectionDialogRef.showDialog()"><v-icon>mdi-file-edit-outline</v-icon></v-btn>
+        </template>
+        <span>{{ $t('DataTable.ApplyTemplate') }}</span>
+      </v-tooltip>
       <AfterButtonsComponent :headers="headersRef" :columnsSelected="columnsSelected" :items="itemsRef" :loadData="loadData" :processButtonAction="processButtonAction" :whereFunc="getTableWhere"></AfterButtonsComponent>
     </v-toolbar>
   <v-data-table @update:options="optionsUpdate"
@@ -234,6 +240,7 @@
   </v-data-table>
   <ColumnsSelectionDialog ref="columnsSelectionDialogRef" @selected="columnsSelected" :getColumns="getAvailableColumns" />
   <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
+  <TemplatesSelectionDialog ref="tempSelectionDialogRef" :dataTable="true" :multiselect="true" :editAccessOnly="true" @selected="templateSelected"/>
   <CollectionsSelectionDialog ref="collSelectionDialogRef" :editAccessOnly="true" @selected="collectionsSelected" @delete="deleteFromCollections"/>
   <ColumnsSaveDialog ref="columnsSaveDialogRef" @changed="loadColumns(true)"/>
   <AttrGroupsSelectionDialog ref="attrSelectionDialogRef" :multiselect="true" @selected="attrGroupsSelected"/>
@@ -338,6 +345,7 @@ import * as searchStore from '../store/search'
 import * as attrStore from '../store/attributes'
 import * as channelsStore from '../store/channels'
 import * as collectionsStore from '../store/collections'
+import * as tempStore from '../store/templates'
 import * as typesStore from '../store/types'
 import * as actionsStore from '../store/actions'
 import i18n from '../i18n'
@@ -345,6 +353,7 @@ import { ref, onMounted, watch, computed } from '@vue/composition-api'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 import ColumnsSaveDialog from './ColumnsSaveDialog'
 import ChannelsSelectionDialog from './ChannelsSelectionDialog'
+import TemplatesSelectionDialog from './TemplatesSelectionDialog'
 import CollectionsSelectionDialog from '../components/CollectionsSelectionDialog'
 import AttrGroupsSelectionDialog from './AttrGroupsSelectionDialog'
 import ActionStatusDialog from '../components/ActionStatusDialog'
@@ -357,7 +366,7 @@ import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterBu
 import RelationAttributeSearchComponent from '../components/RelationAttributeSearch.vue'
 
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent, ActionStatusDialog, CollectionsSelectionDialog, RelationAttributeSearchComponent },
+  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, TemplatesSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent, ActionStatusDialog, CollectionsSelectionDialog, RelationAttributeSearchComponent },
   props: {
     loadData: {
       required: true
@@ -453,6 +462,11 @@ export default {
       findTypeByIdentifier
     } = typesStore.useStore()
 
+    const {
+      loadAllTemplates,
+      templates
+    } = tempStore.useStore()
+
     const columnsSelectionDialogRef = ref(null)
     const columnsSaveDialogRef = ref(null)
     const attrSelectionDialogRef = ref(null)
@@ -472,6 +486,7 @@ export default {
     const savedColumnsSelectionRef = ref(null)
     const savedColumnsOptionsRef = ref([])
     const chanSelectionDialogRef = ref(null)
+    const tempSelectionDialogRef = ref(null)
     const collSelectionDialogRef = ref(null)
     const hasChannelsRef = ref([])
 
@@ -1468,6 +1483,52 @@ export default {
       showInfo(i18n.t('Collections.Deleted'))
     }
 
+    async function templateSelected (arr) {
+      const where = filterWhere || props.loadData().where
+      tempSelectionDialogRef.value.closeDialog()
+
+      if (arr.length === 0) return
+
+      const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL
+      const form = document.createElement('form')
+      form.method = 'POST'
+
+      form.action = damUrl + 'templateforitems'
+
+      const inputWhere = document.createElement('input')
+      inputWhere.type = 'hidden'
+      inputWhere.name = 'where'
+      inputWhere.value = JSON.stringify(where)
+      form.appendChild(inputWhere)
+
+      const inputTemplateId = document.createElement('input')
+      inputTemplateId.type = 'hidden'
+      inputTemplateId.name = 'templateId'
+      inputTemplateId.value = arr[0]
+      form.appendChild(inputTemplateId)
+
+      const inputItemId = document.createElement('input')
+      inputItemId.type = 'hidden'
+      inputItemId.name = 'itemId'
+      inputItemId.value = props?.item?.id || ''
+      form.appendChild(inputItemId)
+
+      const newWindow = window.open(damUrl + 'templateforitems', '_blank')
+
+      if (newWindow) {
+        newWindow.document.body.appendChild(form)
+        form.submit()
+      } else {
+        console.log('Failed to open a new window. Make sure pop-ups are not blocked.')
+      }
+    }
+
+    const optionsTemplates = computed(() => {
+      return templates.some(template =>
+        template.options?.some(option => option.name === 'tableView' && option.value === 'true')
+      )
+    })
+
     function openSearch () {
       const name = props.item.name[currentLanguage.value.identifier] || '[' + props.item.name.name[defaultLanguageIdentifier.value] + ']'
       const search = { user: '', filters: [{ type: 'attr', attr: '#level#', operation: 1, value: name, path: props.item.path }], whereClause: {}, extended: false }
@@ -1542,7 +1603,8 @@ export default {
     onMounted(async () => {
       loadAllActions().then(() => { actionLoadedRef.value = true })
       loadAllTypes()
-      loadAllChannels().then(() => {
+      loadAllChannels()
+      loadAllTemplates().then(() => {
         hasChannelsRef.value = getAvailableChannels(true).length > 0
       })
       await loadColumns(false)
@@ -1872,7 +1934,11 @@ export default {
       talendExportSelection: props.export,
       hasChannelsRef,
       chanSelectionDialogRef,
+      tempSelectionDialogRef,
+      templates,
+      optionsTemplates,
       channelsSelected,
+      templateSelected,
       collSelectionDialogRef,
       collectionsSelected,
       deleteFromCollection,

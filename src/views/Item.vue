@@ -717,22 +717,29 @@ export default {
     })
 
     const buttonTemplates = computed(() => {
-      if (itemRef.value) {
-        const pathArr = itemRef.value.path.split('.').map(elem => parseInt(elem))
-        const arr = []
+      if (!itemRef.value) return []
 
-        templates.forEach(template => {
+      const pathArr = itemRef.value.path.split('.').map(elem => parseInt(elem))
+      const typeId = itemRef.value.typeId
+
+      return templates
+        .filter(template => {
           const visibleResult = template.visible.some(el => pathArr.includes(parseInt(el)))
-          const validResult = template.valid.includes(itemRef.value.typeId)
-          if (visibleResult && validResult) {
-            arr.push({ name: template.name, order: template.order, options: template.options, id: template.id })
-          }
+          const validResult = template.valid.includes(typeId)
+          return visibleResult && validResult
         })
-        arr.sort((a, b) => a.order - b.order)
-        return arr
-      } else {
-        return []
-      }
+        .filter(temp => {
+          if (!temp.options) return true
+          const itemViewOption = temp.options.find(option => option.name === 'itemView')
+          return !itemViewOption || itemViewOption.value !== 'false'
+        })
+        .map(template => ({
+          name: template.name,
+          order: template.order,
+          options: template.options,
+          id: template.id
+        }))
+        .sort((a, b) => a.order - b.order)
     })
 
     function executeTemplate (template) {
@@ -746,7 +753,6 @@ export default {
       const fullPath = isDirectUrl
         ? routePath
         : `${routePath}?token=${token}`
-      console.log(damUrl + fullPath)
       window.open(damUrl + fullPath, '_blank')
     }
 

@@ -505,6 +505,7 @@
   "DataTable.ExcelImport.CREATE_UPDATE" : "Создавать новые и изменять существующие",
   "DataTable.ExcelImport.NoLOVValue" : "Значение '{val}' не найдено в списке значений для атрибута с идентификатором {attr}",
   "DataTable.ExcelImport.NoRelAttrValue": "Значение '{val}' не найдено для атрибута-зависимости с идентификатором {attr}",
+  "DataTable.ApplyTemplate": "Применить шаблон",
   "DataTable.Actions": "Действия",
   "FileUploadDialog.Title" : "Загрузка файла",
   "FileUploadDialog.NewFile" : "Файл для загрузки",
@@ -781,5 +782,6 @@
   "Config.Template.Confirm.Delete": "Удалить шаблон {name}?",
   "Config.Template.Error.IdentifierRequired": "Не введен идентификатор",
   "Config.Template.Error.IdentifierNotUnique": "Такой идентификатор уже существует",
-  "Config.Template.Error.NameRequired": "Не введено наименование"
+  "Config.Template.Error.NameRequired": "Не введено наименование",
+  "Templates.SelectionDialog.Title": "Выбрать шаблон"
 }
