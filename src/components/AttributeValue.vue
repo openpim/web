@@ -789,7 +789,7 @@ export default {
         if (!Array.isArray(propsValues)) propsValues = [propsValues]
         for (let i = 0; i < propsValues.length; i++) {
           const propsValue = propsValues[i]
-          const found = arr.find(el => el.id === propsValue)
+          const found = arr.find(el => el.value === propsValue)
           if (!found) arr.push({ value: propsValue, text: `[[[ ${propsValue} ]]]`, url: 'about:blank' })
         }
       }
