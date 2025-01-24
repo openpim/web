@@ -4,6 +4,8 @@
       :items="availableItemsForRelationAttr"
       :search-input.sync="searchRef"
       :loading="loadingRef"
+      :multiple="multiple"
+      :label="label"
       clearable
       dense
     >
@@ -29,6 +31,12 @@ export default {
     },
     value: {
       required: true
+    },
+    multiple: {
+      required: false
+    },
+    label: {
+      required: false
     }
   },
   setup (props, { emit }) {

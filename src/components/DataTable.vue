@@ -130,6 +130,22 @@
             <v-btn small v-if="header.sortable" icon @click="headerSort(header)">
               <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
             </v-btn>
+            <v-btn small icon @click="showMassUpdateDialog(header)" v-if="typeof (header.identifier) !== 'undefined'
+              && header.identifier !== 'id'
+              && header.identifier !== 'identifier'
+              && header.identifier !== 'parentIdentifier'
+              && header.identifier !== 'itemIdentifier'
+              && header.identifier !== 'targetIdentifier'
+              && header.identifier !== '#parentName#'
+              && header.identifier !== '#sourceParentName#'
+              && header.identifier !== '#targetParentName#'
+              && header.identifier !== '#thumbnail#'
+              && header.identifier !== 'createdAt'
+              && header.identifier !== 'updatedAt'
+              && header.identifier !== 'createdBy'
+              && header.identifier !== 'updatedBy'
+              && header.identifier !== 'typeIdentifier'
+              && !header.identifier.startsWith('#channel_')"><v-icon small>{{ 'mdi-rename-box' }}</v-icon></v-btn>
             <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" class="resizer"></div>
             <div v-if="header.identifier !== '#thumbnail#' && header.identifier !== '#parentName#' &&  header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#'">
               <input v-if="!header.lov && header.type !== AttributeType.Relation" type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="header.filter" @input="filterChanged(header)"/>
@@ -201,9 +217,7 @@
               <template v-if="getValue(item, header) === 2"><v-chip class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.Synced')}}</v-chip></template>
               <template v-if="getValue(item, header) === 3"><v-chip class="ma-2" color="red" text-color="white"> {{$t('ItemView.Channels.Error')}}</v-chip></template>
               <template v-if="getValue(item, header) === 4"><v-chip class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip></template>
-
               <span v-if="header.identifier.endsWith('_submittedAt')  || header.identifier.endsWith('_syncedAt')">{{ dateFormat(new Date(getValue(item, header)), DATE_FORMAT) }}</span>
-
               <span v-if="header.identifier.endsWith('_submittedBy')">{{ getValue(item, header) }}</span>
               <span v-if="header.identifier.endsWith('_message')">{{ getValue(item, header) }}</span>
             </template>
@@ -331,7 +345,56 @@
         </v-dialog>
       </v-row>
     </template>
-
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="massUpdateDialogRef" persistent width="80%">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('DataTable.MassUpdateDialog.Title') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field v-if="massUpdateHeaderRef && !massUpdateHeaderRef.lov && massUpdateHeaderRef.type !== AttributeType.Relation" type="text" v-model="massUpdateInputRef" :label="$t('DataTable.MassUpdateDialog.EnterValue')" required/>
+                    <v-autocomplete :multiple="massUpdateHeaderRef.multivalue" v-if="massUpdateHeaderRef && massUpdateHeaderRef.lov && massUpdateHeaderRef.type !== AttributeType.Relation" v-model="massUpdateInputRef" :items="getLOVItems(massUpdateHeaderRef.lov)" clearable required :label="$t('DataTable.MassUpdateDialog.SelectValue')"></v-autocomplete>
+                    <RelationAttributeSearchComponent :multiple="massUpdateHeaderRef.multivalue" v-if="massUpdateHeaderRef && massUpdateHeaderRef.type === AttributeType.Relation" :attrIdentifier="massUpdateHeaderRef.identifier.substring(5)" v-model="massUpdateInputRef" required :label="$t('DataTable.MassUpdateDialog.SelectValue')"/>
+                    <v-radio-group v-model="massUpdateActionRef" v-if="massUpdateHeaderRef && massUpdateHeaderRef.multivalue">
+                      <v-radio :label="$t('DataTable.MassUpdateDialog.Replace')" value="1"></v-radio>
+                      <v-radio :label="$t('DataTable.MassUpdateDialog.Add')" value="2"></v-radio>
+                    </v-radio-group>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="12">
+                    <v-expansion-panels flat focusable>
+                      <v-expansion-panel>
+                        <v-expansion-panel-header>{{ $t('DataTable.MassUpdateDialog.Additionally') }}</v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                          <v-container class="pa-0">
+                            <v-row no-gutters>
+                              <v-checkbox v-model="massUpdateSkipActionsRef" :label="$t('DataTable.MassUpdateDialog.SkipActons')"></v-checkbox>
+                            </v-row>
+                            <v-row no-gutters>
+                              <v-text-field type="number" v-model="massUpdatePageSizeRef" :label="$t('DataTable.MassUpdateDialog.PageSize')"></v-text-field>
+                            </v-row>
+                          </v-container>
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
+                    </v-expansion-panels>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="massUpdateDialogRef=false">{{ $t('Cancel') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="massUpdate">{{ $t('DataTable.MassUpdateDialog.Button.Start') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
 </div>
 </template>
 <script>
@@ -509,6 +572,13 @@ export default {
     const importFinishedDialogRef = ref(null)
     const importFinishedLogRef = ref([])
     const importConfigDialogRef = ref(null)
+
+    const massUpdateDialogRef = ref(false)
+    const massUpdateInputRef = ref(null)
+    const massUpdatePageSizeRef = ref(100)
+    const massUpdateHeaderRef = ref(null)
+    const massUpdateSkipActionsRef = ref(false)
+    const massUpdateActionRef = ref('1')
 
     const fileUploadRef = ref(null)
     const importModeRef = ref('UPDATE_ONLY')
@@ -911,6 +981,60 @@ export default {
       var view = new Uint8Array(buf)
       for (var i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF
       return buf
+    }
+
+    function showMassUpdateDialog (header) {
+      massUpdateHeaderRef.value = header
+      massUpdateDialogRef.value = true
+      massUpdateInputRef.value = null
+    }
+
+    async function massUpdate () {
+      const itemsPerPage = !isNaN(parseInt(massUpdatePageSizeRef.value, 10)) ? parseInt(massUpdatePageSizeRef.value, 10) : 100
+      let total = -1
+      let page = 0
+      massUpdateDialogRef.value = false
+      excelDialogRef.value = true
+      excelDialogProgressRef.value = 0
+      excelDialogTitleRef.value = i18n.t('DataTable.MassUpdate.ProgressTitle')
+      do {
+        // cancel button pressed
+        if (!excelDialogRef.value) {
+          DataChanged()
+          return
+        }
+        page++
+        const data = await props.loadData({ page, itemsPerPage, sortBy: ['id'], sortDesc: [false] })
+        if (total === -1) total = data.count
+        let rows = []
+        if (massUpdateHeaderRef.value.identifier.startsWith('name_')) {
+          const lang = massUpdateHeaderRef.value.identifier.substr(5)
+          rows = data.rows.map(el => ({
+            identifier: el.identifier,
+            name: { [lang]: massUpdateInputRef.value },
+            skipActions: massUpdateSkipActionsRef.value
+          }))
+        } else if (massUpdateHeaderRef.value.identifier.startsWith('attr_')) {
+          rows = data.rows.map(el => ({
+            identifier: el.identifier,
+            values: { [massUpdateHeaderRef.value.identifier.substr(5)]: getValueForMassUpdate(el, massUpdateInputRef.value) },
+            skipActions: massUpdateSkipActionsRef.value
+          }))
+        }
+        await props.importEntities(rows, 'UPDATE_ONLY')
+        excelDialogProgressRef.value = (page * itemsPerPage / total) * 100 < 100 ? (page * itemsPerPage / total) * 100 : 100
+      } while (itemsPerPage * page < total)
+      excelDialogRef.value = false
+      DataChanged()
+    }
+
+    function getValueForMassUpdate (entity, newValue) {
+      // replace
+      if (!massUpdateHeaderRef.value.multivalue || massUpdateActionRef.value === '1') return newValue
+      // add: concat values
+      let oldValues = entity.values[massUpdateHeaderRef.value.identifier.substr(5)]
+      if (!Array.isArray(oldValues)) oldValues = [oldValues]
+      return [...new Set(oldValues.concat(newValue))]
     }
 
     function importExcel (event) {
@@ -1922,6 +2046,13 @@ export default {
       exportData,
       exportExcel,
       importExcel,
+      massUpdate,
+      massUpdateInputRef,
+      massUpdatePageSizeRef,
+      massUpdateSkipActionsRef,
+      massUpdateHeaderRef,
+      massUpdateActionRef,
+      showMassUpdateDialog,
       fileUploadRef,
       excelDialogRef,
       excelDialogProgressRef,
@@ -1961,6 +2092,7 @@ export default {
       importFinishedDialogRef,
       importFinishedLogRef,
       importConfigDialogRef,
+      massUpdateDialogRef,
       importModeRef,
       importModes,
       importStopOnErrorRef,

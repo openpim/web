@@ -244,12 +244,18 @@ export default {
               data.lov = attr.lov
               data.multivalue = attr.options.some(option => option.name === 'multivalue' && option.value === 'true')
             }
+            if (attr.type === AttributeType.Relation) {
+              data.multivalue = attr.options.some(option => option.name === 'multivalue' && option.value === 'true')
+            }
             arr.push(data)
           }
         } else {
           const data = { identifier: 'attr_' + attr.identifier, text: nameText, type: attr.type, textLong: nameText, textShort: nameShort, align: 'start', sortable: true, filterable: false, value: { path: ['values', attr.identifier] } }
           if (attr.type === AttributeType.LOV && attr.lov) {
             data.lov = attr.lov
+            data.multivalue = attr.options.some(option => option.name === 'multivalue' && option.value === 'true')
+          }
+          if (attr.type === AttributeType.Relation) {
             data.multivalue = attr.options.some(option => option.name === 'multivalue' && option.value === 'true')
           }
           arr.push(data)
