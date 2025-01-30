@@ -1177,7 +1177,7 @@ export default {
                   const attrIdent = attr.substring(0, idx)
                   const tst = attr.substring(idx + 1)
                   if (availableLangs.includes(tst)) {
-                    if (!item.values[attrIdent]) item.values[attrIdent] = {}
+                    if (!item.values[attrIdent] || typeof item.values[attrIdent] !== 'object') item.values[attrIdent] = {}
                     item.values[attrIdent][tst] = convertValueIfNecessary(attrIdent, cellVal)
                   } else {
                     item.values[attr] = convertValueIfNecessary(attr, cellVal)
