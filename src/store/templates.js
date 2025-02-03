@@ -27,6 +27,7 @@ const actions = {
           identifier
           name
           template
+          templateRichtext
           order
           valid
           visible
@@ -62,6 +63,7 @@ const actions = {
       identifier: template.identifier,
       name: template.name,
       template: template.template,
+      templateRichtext: template.templateRichtext,
       order: parseInt(template.order),
       valid: template.valid.map(num => num.toString()),
       visible: template.visible.map(num => num.toString()),
@@ -72,17 +74,19 @@ const actions = {
       mutation CreateTemplate(
         $identifier: String!,
         $name: LanguageDependentString!,
-        $template: String!,
+        $template: String,
+        $templateRichtext: String,
         $order: Int!,
         $valid: [String],
         $visible: [String],
         $options: JSON
       ) {
-        createTemplate(identifier: $identifier, name: $name, template: $template, order: $order, valid: $valid, visible: $visible, options: $options) {
+        createTemplate(identifier: $identifier, name: $name, template: $template, templateRichtext: $templateRichtext, order: $order, valid: $valid, visible: $visible, options: $options) {
             id
             identifier
             name
             template
+            templateRichtext
             order
             valid
             visible
@@ -102,17 +106,19 @@ const actions = {
       mutation UpdateProcess(
         $id: ID!,
         $name: LanguageDependentString!,
-        $template: String!,
+        $template: String,
+        $templateRichtext: String,
         $order: Int!,
         $valid: [String],
         $visible: [String],
         $options: JSON
       ) {
-        updateTemplate(id: $id, name: $name, template: $template, order: $order, valid: $valid, visible: $visible, options: $options) {
+        updateTemplate(id: $id, name: $name, template: $template, templateRichtext: $templateRichtext, order: $order, valid: $valid, visible: $visible, options: $options) {
             id
             identifier
             name
             template
+            templateRichtext
             order
             valid
             visible

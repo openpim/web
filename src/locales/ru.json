@@ -792,6 +792,12 @@
   "Config.Template.Confirm.Delete": "Удалить шаблон {name}?",
   "Config.Template.Error.IdentifierRequired": "Не введен идентификатор",
   "Config.Template.Error.IdentifierNotUnique": "Такой идентификатор уже существует",
+  "Config.Template.Identifier": "Идентификатор",
+  "Config.Template.Name": "Наименование",
+  "Config.Template.Order": "Порядковый номер",
+  "Config.Template.Attribute": "Атрибут",
+  "Config.Template.ItemRelation": "Зависимость",
+  "Config.Template.Value": "Значение",
   "Config.Template.Error.NameRequired": "Не введено наименование",
   "Templates.SelectionDialog.Title": "Выбрать шаблон"
 }

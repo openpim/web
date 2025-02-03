@@ -799,6 +799,12 @@
   "Config.Template.Confirm.Delete": "Remove template {name}?",
   "Config.Template.Error.IdentifierRequired": "Identifier required",
   "Config.Template.Error.IdentifierNotUnique": "Such identifier already exists",
+  "Config.Template.Identifier": "Identifier",
+  "Config.Template.Name": "Name",
+  "Config.Template.Order": "Order",
+  "Config.Template.Attribute": "Attribute",
+  "Config.Template.ItemRelation": "Item Relation",
+  "Config.Template.Value": "Value",
   "Config.Template.Error.NameRequired": "Name required",
   "Templates.SelectionDialog.Title": "Template selection"
 }
