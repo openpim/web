@@ -74,6 +74,25 @@ export default {
     const itemRef = ref(0)
     const searchRef = ref('')
 
+    const templatesFiltered = computed(() => {
+      let arr = templates
+      if (searchRef.value) {
+        const s = searchRef.value.toLowerCase()
+        arr = templates.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
+      }
+      return arr.sort((a, b) => {
+        if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
+          if (a.order === b.order) {
+            return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
+          } else {
+            return parseInt(a.order) - parseInt(b.order)
+          }
+        } else {
+          return 0
+        }
+      })
+    })
+
     watch(itemRef, (selected, previous) => {
       if (selected == null) {
         selectedRef.value = empty
@@ -92,25 +111,6 @@ export default {
           router.push('/config/templates')
         }
       }
-    })
-
-    const templatesFiltered = computed(() => {
-      let arr = templates
-      if (searchRef.value) {
-        const s = searchRef.value.toLowerCase()
-        arr = templates.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
-      }
-      return arr.sort((a, b) => {
-        if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
-          if (a.order === b.order) {
-            return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
-          } else {
-            return parseInt(a.order) - parseInt(b.order)
-          }
-        } else {
-          return 0
-        }
-      })
     })
 
     function clearSelection () {
