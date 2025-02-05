@@ -268,36 +268,6 @@ const actions = {
             }
         }}}
       `)
-    console.log(`query { search(
-        requests: [
-            {
-                entity: ITEM_RELATION, 
-                offset: ` + offset + `, 
-                limit: ` + options.itemsPerPage + `,
-                where: ` + objectToGraphgl(where) + `,
-                order: ` + objectToGraphgl(order) + `
-            }]
-        ) {
-        responses {
-            ... on SearchItemRelationResponse {
-                count
-                rows {
-                  id
-                  identifier
-                  itemId
-                  itemIdentifier
-                  targetId
-                  targetIdentifier
-                  relationIdentifier
-                  values
-                  createdBy
-                  createdAt
-                  updatedBy
-                  updatedAt
-                }
-            }
-        }}}
-      `)
     const res = data.search.responses[0]
     if (res.count <= options.itemsPerPage && res.rows.length !== res.count) {
       // count can be more then real rows because system perform addition filtering after SQL query, while count based on SQL only
