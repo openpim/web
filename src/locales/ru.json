@@ -799,5 +799,10 @@
   "Config.Template.ItemRelation": "Зависимость",
   "Config.Template.Value": "Значение",
   "Config.Template.Error.NameRequired": "Не введено наименование",
-  "Templates.SelectionDialog.Title": "Выбрать шаблон"
+  "Templates.SelectionDialog.Title": "Выбрать шаблон",
+  "Config.Template.Mapping": "Маппинг",
+  "Config.Template.Replace.What": "Что менять",
+  "Config.Template.Replace.With": "На что изменять",
+  "Config.Template.Button.Apply": "Установить",
+  "Config.Template.Button.SelectItem": "Выбрать элемент"
 }

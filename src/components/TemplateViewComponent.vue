@@ -2,12 +2,10 @@
   <div v-if="temp">
     <v-form ref="formRef" lazy-validation class="ml-7" v-if="temp.id != -1">
       <div class="d-inline-flex align-center">
-        <v-text-field style="min-width: 100%" v-model="temp.identifier" :disabled="temp.internalId !== 0"
-          :rules="identifierRules" :label="$t('Config.Template.Identifier')" required></v-text-field>
-        <SystemInformation :data="temp" />
+        <v-text-field style="min-width: 100%" v-model="temp.identifier" :disabled="temp.internalId !== 0" :rules="identifierRules" :label="$t('Config.Template.Identifier')" required></v-text-field>
+        <SystemInformation :data="temp"/>
       </div>
-      <LanguageDependentField :values="temp.name" v-model="temp.name[currentLanguage.identifier]" :rules="nameRules"
-        :label="$t('Config.Template.Name')"></LanguageDependentField>
+      <LanguageDependentField :values="temp.name" v-model="temp.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('Config.Template.Name')"></LanguageDependentField>
       <v-text-field v-model="temp.order" type="number" :label="$t('Config.Template.Order')" required></v-text-field>
       <ValidVisibleComponent :elem="temp" :canEditConfig="canEditConfig" />
       <v-container ref="tabsContainerRef" class="ma-0 pa-0">
@@ -19,66 +17,88 @@
       <v-tabs-items v-model="tabRef">
         <v-tab-item>
           <jodit-editor ref="joditRef" :config="joditConfig" v-model="temp.templateRichtext" />
-          <v-card v-if="isSearchDialogOpen">
-            <v-card-title>
-              <span class="headline">Поиск</span>
-            </v-card-title>
-            <v-card-text class="pr-1">
-              <div class="pa-0 text-right">
-                <v-btn color="blue darken-1" text @click="addVisible">{{ $t('Select') }}</v-btn>
-              </div>
-              <v-container v-if="itemSelected" ref="tabsContRef" class="ma-0 pa-0">
-                <v-tabs v-model="tabPasteRef">
-                  <v-tab v-text="$t('Config.Template.Attribute')"></v-tab>
-                  <v-tab v-text="$t('Config.Template.ItemRelation')"></v-tab>
-                </v-tabs>
-              </v-container>
-              <v-tabs-items v-if="itemSelected" v-model="tabPasteRef">
-                <v-tab-item>
-                  <v-text-field v-if="itemSelected" v-model="itemSelected.identifier"
-                    :label="$t('Config.Template.Identifier')"></v-text-field>
-                  <v-autocomplete v-if="itemSelected" v-model="attrSelected" :items="availableAttributesKeys"
-                    :label="$t('Config.Template.Attribute')" item-text="name" item-value="key"></v-autocomplete>
-                  <v-text-field v-if="itemSelected" v-model="selectedValue"
-                    :label="$t('Config.Template.Value')"></v-text-field>
-                </v-tab-item>
-                <v-tab-item>
-                  <v-text-field v-if="itemSelected" v-model="itemSelected.identifier"
-                    :label="$t('Config.Template.Identifier')"></v-text-field>
-                  <v-autocomplete v-if="itemSelected" v-model="itemRelationSelected" :items="availableItemRelationsKeys"
-                    :label="$t('Config.Template.ItemRelation')" item-text="name" item-value="key"></v-autocomplete>
-                  <v-text-field v-if="itemSelected" v-model="order" type="number"
-                    :label="$t('Config.Template.Order')"></v-text-field>
-                  <v-text-field v-if="itemSelected" v-model="selectedValue"
-                    :label="$t('Config.Template.Value')"></v-text-field>
-                </v-tab-item>
-              </v-tabs-items>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="isSearchDialogOpen = false">{{ $t('Close') }}</v-btn>
-            </v-card-actions>
-          </v-card>
         </v-tab-item>
         <v-tab-item>
-          <v-textarea :rows="15" style="min-width: 100%" v-model="temp.template" :label="$t('Config.Template.Template')"
-            required></v-textarea>
+          <v-textarea :rows="15" style="min-width: 100%" v-model="temp.template" :label="$t('Config.Template.Template')" required></v-textarea>
         </v-tab-item>
       </v-tabs-items>
       <br />
       <OptionsTable :options="temp.options" @changed="optionsChanged" />
     </v-form>
-    <v-dialog v-model="isSearchDialogOpen_" persistent width="80%">
+    <v-dialog v-model="isSearchDialogOpen" persistent width="70%">
       <v-card>
         <v-card-title>
-          <span class="headline">Поиск</span>
+          <span class="headline">{{ $t('Search') }}</span>
         </v-card-title>
         <v-card-text>
-          <v-btn color="blue darken-1" text @click="addVisible">{{ $t('Add') }}</v-btn>
-          <v-text-field v-if="itemSelected" v-model="itemSelected.identifier"></v-text-field>
-          <v-autocomplete v-if="itemSelected" v-model="attrSelected" :items="availableAttributesKeys" label="Атрибут"
-            item-text="name" item-value="key"></v-autocomplete>
-          <v-text-field v-if="itemSelected" v-model="selectedValue"></v-text-field>
+          <div class="text-right">
+            <v-btn v-if="!itemSelected" color="blue darken-1" text @click="addVisible">{{ $t('Config.Template.Button.SelectItem') }}</v-btn>
+          </div>
+          <v-container v-if="itemSelected" ref="tabsContRef" class="ma-0 pa-0">
+            <v-tabs v-model="tabPasteRef">
+              <v-tab v-text="$t('Config.Template.Attribute')"></v-tab>
+              <v-tab v-text="$t('Config.Template.ItemRelation')"></v-tab>
+            </v-tabs>
+          </v-container>
+          <v-tabs-items v-if="itemSelected" v-model="tabPasteRef">
+            <v-tab-item>
+              <v-row>
+                <v-col cols="10" class="pb-0">
+                  <v-text-field v-if="itemSelected" v-model="itemSelected.identifier" :label="$t('Config.Template.Identifier')"></v-text-field>
+                </v-col>
+                <v-col cols="2" v-if="itemSelected" class="d-flex align-center">
+                  <v-btn color="blue darken-1" text @click="addVisible">{{ $t('Config.Template.Button.SelectItem') }}</v-btn>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="10" class="pt-0 pb-0">
+                  <v-autocomplete v-if="itemSelected" v-model="attrSelected" :items="availableAttributesKeys" :label="$t('Config.Template.Attribute')" item-text="name" item-value="key"></v-autocomplete>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="10" class="pt-0 pb-0">
+                  <v-text-field v-if="itemSelected" v-model="selectedValueForUser" :label="$t('Config.Template.Value')"></v-text-field>
+                </v-col>
+                <v-col cols="2" class="d-flex align-center">
+                  <v-btn icon @click="openMappingDialog(index)">
+                    <v-icon>mdi-file-document-edit-outline</v-icon>
+                  </v-btn>
+                </v-col>
+              </v-row>
+              <!-- <v-text-field v-if="itemSelected" v-model="selectedValue" :label="$t('Config.Template.Value')"></v-text-field> -->
+            </v-tab-item>
+            <v-tab-item>
+              <v-row>
+                <v-col cols="10 pb-0">
+                  <v-text-field v-if="itemSelected" v-model="itemSelected.identifier" :label="$t('Config.Template.Identifier')"></v-text-field>
+                </v-col>
+                <v-col cols="2" v-if="itemSelected" class="d-flex align-center">
+                  <v-btn color="blue darken-1" text @click="addVisible">{{ $t('Config.Template.Button.SelectItem') }}</v-btn>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="10" class="pt-0 pb-0">
+                  <v-autocomplete v-if="itemSelected" v-model="itemRelationSelected" :items="availableItemRelationsKeys" :label="$t('Config.Template.ItemRelation')" item-text="name" item-value="key"></v-autocomplete>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="10" class="pt-0 pb-0">
+                  <v-text-field v-if="itemSelected" v-model="order" type="number" :label="$t('Config.Template.Order')"></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="10" class="pt-0 pb-0">
+                  <v-text-field v-if="itemSelected" v-model="selectedValueForUser" :label="$t('Config.Template.Value')"></v-text-field>
+                </v-col>
+                <v-col cols="2" class="d-flex align-center">
+                  <v-btn icon @click="openMappingDialog(index)">
+                    <v-icon>mdi-file-document-edit-outline</v-icon>
+                  </v-btn>
+                </v-col>
+              </v-row>
+              <!-- <v-text-field v-if="itemSelected" v-model="selectedValue" :label="$t('Config.Template.Value')"></v-text-field> -->
+            </v-tab-item>
+          </v-tabs-items>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -87,11 +107,62 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogMappingRef" persistent max-width="1000px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">{{ $t('Config.Template.Mapping') }}</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-simple-table>
+              <template v-slot:default>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>{{ $t('Config.Template.Replace.What') }}</th>
+                    <th>{{ $t('Config.Template.Replace.With') }}</th>
+                    <th>
+                      <v-btn icon @click="addTextFiend()">
+                        <v-icon>mdi-plus</v-icon>
+                      </v-btn>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, i) in mapping" :key="i">
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      <v-text-field
+                        v-model="mapping[i].before" :label="$t('Config.Template.Replace.What')"
+                      ></v-text-field>
+                    </td>
+                    <td>
+                      <v-text-field
+                        v-model="mapping[i].after" :label="$t('Config.Template.Replace.With')"
+                      ></v-text-field>
+                    </td>
+                    <td>
+                      <v-btn icon @click="removeTextFiend(i)">
+                        <v-icon>mdi-minus</v-icon>
+                      </v-btn>
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="dialogMappingRef = false">{{ $t('Config.Template.Button.Apply') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected" />
   </div>
 </template>
 <script>
-import { ref, onBeforeUpdate, onMounted, computed } from '@vue/composition-api'
+import { ref, onMounted, computed } from '@vue/composition-api'
 import i18n from '../i18n'
 import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import * as langStore from '../store/languages'
@@ -160,41 +231,27 @@ export default {
     const tabPasteRef = ref(0)
 
     const joditRef = ref(null)
+    let editorJodit = null
     const joditConfig = ref({
       readonly: false,
       toolbarAdaptive: true,
       toolbarButtonSize: 'small',
-      extraButtons: ['myCustomButton', 'myCustomButton2'],
+      extraButtons: ['openSearchDialog'],
       controls: {
-        myCustomButton: {
+        openSearchDialog: {
           tooltip: 'Открыть окно вставки',
-          exec: () => {
+          exec: (editor) => {
+            editorJodit = editor
             openSearchDialog()
           },
-          iconURL: 'https://www.svgrepo.com/download/509178/open.svg'
-        },
-        myCustomButton2: {
-          tooltip: 'Вставить',
-          exec: (editor) => {
-            editor.s.insertHTML(selectedValue.value)
-          },
-          iconURL: 'https://www.svgrepo.com/download/521781/paste.svg'
+          iconURL: '/folder-search.svg'
         }
       }
     })
 
     const isSearchDialogOpen = ref(false)
-    const isSearchDialogOpen_ = ref(false)
-
+    const dialogMappingRef = ref(false)
     const selectedOption = ref('')
-
-    const handler = (event) => {
-      console.log('Событие сработало:', event.type)
-      if (joditRef.value && joditRef.value.editor) {
-        console.log('Текущее содержимое:', joditRef.value.editor.getEditorValue())
-      }
-    }
-
     const currentEditor = ref(null)
 
     function openSearchDialog (editor) {
@@ -205,7 +262,7 @@ export default {
     const selectedItemRel = ref(null)
     const order = ref(null)
 
-    const selectedValue = computed(() => {
+    const selectedValueForUser = computed(() => {
       if (tabPasteRef.value === 0) {
         if (!itemSelected.value || !attrSelected.value) return ''
 
@@ -218,10 +275,10 @@ export default {
               lov.values = data
             })
             const value = lov?.values?.find(el => el.id === itemSelected.value.values?.[attrSelected.value])?.value[currentLanguage.value.identifier] || ''
-            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order=''>${value}</attr> `
+            return `${value}`
           } else {
             const value = itemSelected.value.values[attrSelected.value] || ''
-            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order=''${value}</attr> `
+            return `${value}`
           }
         }
       }
@@ -244,7 +301,53 @@ export default {
             if (!selectedItemRel.value) selectedItemRel.value = data.rows[0]
           })
           const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
-          return `<attr identifier='' language='' relIdentifier='${rel.identifier}' order='${order ? order.value : ''}'><img src='${damUrl}asset/inline/${selectedItemRel.value?.targetId}'/></attr> `
+          return `<img src='${damUrl}asset/inline/${selectedItemRel.value?.targetId}'/>`
+        }
+      }
+
+      return ''
+    })
+
+    const selectedValue = computed(() => {
+      if (tabPasteRef.value === 0) {
+        if (!itemSelected.value || !attrSelected.value) return ''
+
+        if (attrSelected.value && itemSelected.value) {
+          itemRelationSelected.value = null
+          const lovAttr = lovAttributes.value.find(attr => attr.identifier === attrSelected.value)
+          if (lovAttr) {
+            const lov = availableLOVs.value.find(lov => parseInt(lov.id) === parseInt(lovAttr.lov))
+            getLOVData(lov.id).then((data) => {
+              lov.values = data
+            })
+            const value = lov?.values?.find(el => el.id === itemSelected.value.values?.[attrSelected.value])?.value[currentLanguage.value.identifier] || ''
+            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order='' mapping='${JSON.stringify(mapping.value)}'>${value}</attr> `
+          } else {
+            const value = itemSelected.value.values[attrSelected.value] || ''
+            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order='' mapping='${JSON.stringify(mapping.value)}'>${value}</attr> `
+          }
+        }
+      }
+
+      if (tabPasteRef.value === 1) {
+        if (!itemSelected.value || !itemRelationSelected.value) return ''
+
+        if (itemRelationSelected.value) {
+          attrSelected.value = null
+          const rel = availableItemRelations.value[itemRelationSelected.value]
+          const where = {
+            itemId: itemSelected.value.id,
+            relationId: rel.id
+          }
+          const options = { page: 1, itemsPerPage: 50 }
+          searchItemRelations(where, options).then((data) => {
+            selectedItemRel.value = data.rows.find(
+              (itemRel) => parseInt(itemRel.values._itemRelationOrder) === parseInt(order.value)
+            )
+            if (!selectedItemRel.value) selectedItemRel.value = data.rows[0]
+          })
+          const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
+          return `<attr identifier='' language='' relIdentifier='${rel.identifier}' order='${order ? order.value : ''}' mapping='${JSON.stringify(mapping.value)}'><img src='${damUrl}asset/inline/${selectedItemRel.value?.targetId}'/></attr> `
         }
       }
 
@@ -252,28 +355,27 @@ export default {
     })
 
     function closeSearchDialog () {
-      try {
-        if (!attrSelected.value || !itemSelected.value || !itemSelected.value.values) {
-          console.error('Некорректные данные для вставки')
-          return
-        }
-
-        const valueToInsert = selectedValue.value
-        if (!valueToInsert) {
-          console.error('Нет значения для вставки')
-          return
-        }
-
-        if (!currentEditor.value?.s) {
-          console.error('Редактор не инициализирован')
-          return
-        }
-
-        currentEditor.value.s.insertHTML(valueToInsert)
-        isSearchDialogOpen.value = false
-      } catch (error) {
-        console.error('Ошибка при вставке значения:', error)
+      isSearchDialogOpen.value = false
+      if (editorJodit && editorJodit.s) {
+        setTimeout(() => {
+          editorJodit.s.insertHTML(selectedValue.value)
+          mapping.value = []
+        }, 0)
       }
+    }
+
+    function openMappingDialog () {
+      dialogMappingRef.value = true
+    }
+
+    const mapping = ref([])
+
+    function addTextFiend () {
+      mapping.value.push({ before: '', after: '' })
+    }
+
+    function removeTextFiend (index) {
+      mapping.value.splice(index, 1)
     }
 
     function optionsChanged (val) {
@@ -340,14 +442,6 @@ export default {
         .filter(Boolean)
     })
 
-    onBeforeUpdate(() => {
-      if (joditRef.value?.editor) {
-        const editor = joditRef.value.editor
-        editor.events.on('keyup', handler)
-        editor.events.on('afterPaste', handler)
-      }
-    })
-
     const lovAttributes = ref([])
     const availableLOVs = ref([])
 
@@ -357,11 +451,6 @@ export default {
       }
       if (!props.temp?.template) {
         props.temp.template = ''
-      }
-      if (joditRef.value?.editor) {
-        const editor = joditRef.value.editor
-        editor.events.on('keyup', handler)
-        editor.events.on('afterPaste', handler)
       }
       loadAllRelations().then(() => {
         availableItemRelations.value = relations
@@ -386,6 +475,12 @@ export default {
     })
 
     return {
+      mapping,
+      addTextFiend,
+      removeTextFiend,
+      openMappingDialog,
+      dialogMappingRef,
+      selectedValueForUser,
       order,
       selectedItemRel,
       availableLOVs,
@@ -401,7 +496,6 @@ export default {
       addVisible,
       itemsSelected,
       isSearchDialogOpen,
-      isSearchDialogOpen_,
       openSearchDialog,
       closeSearchDialog,
       selectedOption,
