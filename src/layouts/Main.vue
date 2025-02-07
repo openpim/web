@@ -50,7 +50,7 @@
       :no-data-text="$t('Process.Table.no-data-text')"
       :no-results-text="$t('Process.Table.no-results-text')"
       dense
-      class="mt-14 ml-5 mr-5 mb-0">
+      class="ml-5 mr-5 mb-0" style="margin-top: 12%;">
       <template v-slot:item="{ item, headers }">
         <tr class="zebra">
           <td v-for="(header, i) in headers" :key="i" class="truncate p-1">
