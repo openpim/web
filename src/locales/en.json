@@ -101,6 +101,7 @@
   "Config.Attribute.RichText": "Rich text",
   "Config.Attribute.LOV": "List of values",
   "Config.Attribute.OpenUrl.Tooltip": "Open in browser",
+  "Config.Attribute.OpenUrl.ExportingData": "Exporting data",
   "Types.SelectionDialog.Title": "Types selection",
   "Relations.SelectionDialog.Title": "Relations selection",
   "Config.Relations.Relations": "Relations:",

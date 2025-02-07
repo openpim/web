@@ -98,6 +98,7 @@
   "Config.Attribute.RichText": "Поддержка форматирования",
   "Config.Attribute.LOV": "Список значений",
   "Config.Attribute.OpenUrl.Tooltip": "Открыть в новой вкладке",
+  "Config.Attribute.OpenUrl.ExportingData": "Экспорт данных",
   "Types.SelectionDialog.Title": "Выбор типов",
   "Relations.SelectionDialog.Title": "Выбор зависимостей",
   "Config.Relations.Relations": "Зависимости:",

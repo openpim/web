@@ -13,7 +13,7 @@
           </v-tooltip>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="exportData"><v-icon>mdi-export</v-icon></v-btn>
+              <v-btn icon v-on="on" @click="openExportDataDialog"><v-icon>mdi-export</v-icon></v-btn>
             </template>
             <span>{{ $t('Config.LOV.Export') }}</span>
           </v-tooltip>
@@ -156,6 +156,34 @@
         </v-dialog>
       </v-row>
     </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="exportDialogRef" persistent width="80%">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('Config.Attribute.OpenUrl.ExportingData') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-progress-linear v-model="excelDialogProgressRef" color="primary" height="25">
+                      <template v-slot:default="{ value }">
+                        <strong>{{ Math.ceil(value) }}%</strong>
+                      </template>
+                    </v-progress-linear>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="exportDialogRef = false">{{ $t('Cancel') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
   </v-container>
 </template>
 
@@ -168,6 +196,7 @@ import * as errorStore from '../../store/error'
 import * as itemsStore from '../../store/item'
 import * as langStore from '../../store/languages'
 import * as relStore from '../../store/relations.js'
+import * as typesStore from '../../store/types'
 import LanguageDependentField from '../../components/LanguageDependentField'
 import * as userStore from '../../store/users'
 import SystemInformation from '../../components/SystemInformation'
@@ -204,6 +233,11 @@ export default {
     } = errorStore.useStore()
 
     const {
+      findType,
+      loadAllTypes
+    } = typesStore.useStore()
+
+    const {
       currentLanguage,
       defaultLanguageIdentifier,
       loadAllLanguages
@@ -226,7 +260,10 @@ export default {
       loadAllRelations
     } = relStore.useStore()
 
-    const { nextId } = itemsStore.useStore()
+    const {
+      loadItemsByIds,
+      nextId
+    } = itemsStore.useStore()
 
     const canViewConfigRef = ref(false)
     const canEditConfigRef = ref(false)
@@ -246,6 +283,8 @@ export default {
     const showEmptyGroups = ref(false)
     const grpId = ref(null)
     const rels = ref([])
+    const exportDialogRef = ref(false)
+    const excelDialogProgressRef = ref(0)
 
     const filterDialogRef = ref(false)
     const filterData = ref({
@@ -312,7 +351,7 @@ export default {
         if (props.item) {
           groupsFiltered.value = filteredAttributes
         } else {
-          groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
+          groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
         }
       }
     }
@@ -334,7 +373,7 @@ export default {
           for (let k = 0; k < groupsToUse.length; k++) {
             const group = groupsToUse[k]
             if (group.name[currentLanguage.value.identifier].toLowerCase().includes(searchRef.value.toLowerCase())) {
-              groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) })
+              groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) })
               continue
             }
             const foundAttr = []
@@ -345,14 +384,14 @@ export default {
               }
             }
             if (foundAttr.length) {
-              groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: foundAttr.slice(0, maxChiidrenNumber) })
+              groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: foundAttr, children: foundAttr.slice(0, maxChiidrenNumber) })
             }
           }
         } else {
           if (props.item) {
             groupsFiltered.value = filteredAttributes
           } else {
-            groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
+            groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
           }
         }
       } else {
@@ -384,7 +423,7 @@ export default {
             }
           }
           if (foundAttr.length) {
-            groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: foundAttr.slice(0, maxChiidrenNumber) })
+            groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: foundAttr, children: foundAttr.slice(0, maxChiidrenNumber) })
           }
         }
       }
@@ -592,6 +631,7 @@ export default {
 
     onMounted(() => {
       loadAllLanguages()
+      loadAllTypes()
       loadAllRelations().then(() => {
         rels.value = relations
       })
@@ -614,7 +654,7 @@ export default {
             }
           }
         }
-        if (!props.item) groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.attributes.slice(0, maxChiidrenNumber) }))
+        if (!props.item) groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
       })
     })
 
@@ -655,31 +695,79 @@ export default {
         if (showEmptyGroups.value || groupAttr.length > 0) newGroups.push(newGroup)
       })
       filteredAttributes = newGroups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
-      groupsFiltered.value = filteredAttributes.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, children: group.children }))
+      groupsFiltered.value = filteredAttributes.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.children }))
     }
 
-    function exportData () {
-      const cols = ['group identifier', 'group name', 'identifier', 'name', 'type']
+    function openExportDataDialog () {
+      excelDialogProgressRef.value = 0
+      exportDialogRef.value = true
+      setTimeout(exportData, 300)
+    }
+
+    async function exportData () {
+      const cols = ['group identifier', 'group name', 'identifier', 'name', 'type', 'valid', 'visible', 'relations', 'options']
       const data = [cols]
-      for (const grp of groupsFiltered.value) {
-        for (const attr of grp.children) {
-          const row = [grp.identifier, grp.name[defaultLanguageIdentifier.value], attr.identifier, attr.name[defaultLanguageIdentifier.value]]
-          let type = attr.type
-          for (const prop in AttributeType) {
-            if (AttributeType[prop] === type) {
-              type = prop
-              break
+      try {
+        let allVisibleItemsIds = []
+        for (const grp of groupsFiltered.value) {
+          for (const attr of grp.attributes) {
+            allVisibleItemsIds = allVisibleItemsIds.concat(attr.visible)
+          }
+        }
+        allVisibleItemsIds = [...new Set(allVisibleItemsIds)]
+
+        const itemsPerPage = 100
+        const total = allVisibleItemsIds.length
+        let page = 0
+        let allVisibleItems = []
+        do {
+          if (exportDialogRef.value) {
+            const data = await loadItemsByIds(allVisibleItemsIds.slice(page * itemsPerPage, page * itemsPerPage + itemsPerPage))
+            allVisibleItems = allVisibleItems.concat(data)
+          }
+          excelDialogProgressRef.value = (page * itemsPerPage / total) * 100 < 100 ? (page * itemsPerPage / total) * 100 : 100
+          page++
+        } while (itemsPerPage * page < total)
+
+        if (exportDialogRef.value) {
+          for (const grp of groupsFiltered.value) {
+            for (const attr of grp.attributes) {
+              const row = [grp.identifier, grp.name[defaultLanguageIdentifier.value], attr.identifier, attr.name[defaultLanguageIdentifier.value]]
+              let type = attr.type
+              for (const prop in AttributeType) {
+                if (AttributeType[prop] === type) {
+                  type = prop
+                  break
+                }
+              }
+              row.push(type)
+              row.push(attr.valid.map(id => {
+                const type = findType(id).node
+                return (type) ? `${type.identifier} (${type.name[defaultLanguageIdentifier.value]})` : `[[[ ${id} ]]]`
+              }).join(', '))
+              row.push(attr.visible.map(id => {
+                const item = allVisibleItems.find(el => el.id === id)
+                return (item) ? `${item.identifier} (${(item.name[defaultLanguageIdentifier.value])})` : `[[[ ${id} ]]]`
+              }).join(', '))
+              row.push(attr.relations.map(id => {
+                const relation = relations.find(el => el.id === id)
+                return (relation) ? `${relation.identifier} (${relation.name[defaultLanguageIdentifier.value]})` : `[[[ ${id} ]]]`
+              }).join(', '))
+              row.push(attr.options.map(el => `${el.name} : ${el.value}`).join(', '))
+              data.push(row)
             }
           }
-          row.push(type)
-          data.push(row)
+          const ws = XLSX.utils.aoa_to_sheet(data)
+          const wb = XLSX.utils.book_new()
+          XLSX.utils.book_append_sheet(wb, ws, 'Data')
+          const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+          saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'data.xlsx')
         }
+      } catch (e) {
+        alert('Error! Can not export data')
+      } finally {
+        exportDialogRef.value = false
       }
-      const ws = XLSX.utils.aoa_to_sheet(data)
-      var wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, 'Data')
-      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
-      saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'data.xlsx')
     }
 
     function identifierValidation (v) {
@@ -738,6 +826,9 @@ export default {
       showEmptyGroups,
       refreshItemAttributes,
       exportData,
+      openExportDataDialog,
+      exportDialogRef,
+      excelDialogProgressRef,
       identifierRules: [
         v => identifierValidation(v)
       ],
