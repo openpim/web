@@ -1294,7 +1294,7 @@ export default {
               const row = rows[k]
               if (row.values) {
                 if (multivalue) {
-                  if (row.values[attrNode.item.identifier] === null || row.values[attrNode.item.identifier] === '') {
+                  if (row.values[attrNode.item.identifier] === undefined || row.values[attrNode.item.identifier] === null || row.values[attrNode.item.identifier] === '') {
                     row.values[attrNode.item.identifier] = []
                     continue
                   }
@@ -1339,7 +1339,7 @@ export default {
                   }
                   row.values[attrNode.item.identifier] = mappedArr
                 } else {
-                  if (row.values[attrNode.item.identifier] === null || row.values[attrNode.item.identifier] === '') {
+                  if (row.values[attrNode.item.identifier] === undefined || row.values[attrNode.item.identifier] === null || row.values[attrNode.item.identifier] === '') {
                     row.values[attrNode.item.identifier] = null
                     continue
                   }
