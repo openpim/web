@@ -273,6 +273,8 @@
   "Config.Actions.Triggers.ConfirmDelete": "Удалить триггер?",
   "Config.Actions.Triggers.ButtonsWithText": "Кнопка с текстом '{text}' для типа ",
   "Config.Actions.Triggers.ButtonsWithText2": "Кнопка с текстом '{text}'",
+  "Config.Actions.Triggers.TableButtonsWithText": "Кнопка в таблице с текстом '{text}' для типа ",
+  "Config.Actions.Triggers.TableButtonsWithText2": "Кнопка в таблице с текстом '{text}'",
   "Config.Actions.Triggers.Item1": "Объект типа",
   "Config.Actions.Triggers.Item2": "начиная с объекта",
   "Config.Actions.Triggers.Relation": "Зависимость",

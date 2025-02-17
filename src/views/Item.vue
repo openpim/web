@@ -175,7 +175,7 @@
           </v-card-actions>
         </v-card>
       </v-col>
-      <v-col cols="12">
+      <v-col cols="12" style="z-index: 0">
         <v-container ref="tabsContainerRef" class="ma-0 pa-0">
           <v-tabs v-model="tabRef">
           <FirstTabsComponent :item="itemRef"></FirstTabsComponent>

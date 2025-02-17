@@ -98,7 +98,7 @@
                         ({{ displayEvent(trigger.event) }})
                       </div>
                       <div v-if="trigger.type === 6">
-                        {{ type && item ? $t('Config.Actions.Triggers.ButtonsWithText', {text: trigger.itemButton}) : $t('Config.Actions.Triggers.ButtonsWithText2', {text: trigger.itemButton}) }}
+                        {{ type && item ? $t('Config.Actions.Triggers.TableButtonsWithText', {text: trigger.itemButton}) : $t('Config.Actions.Triggers.TableButtonsWithText2', {text: trigger.itemButton}) }}
                         <template v-if="type && item">
                           <router-link :to="'/config/types/' + type.identifier">{{ type.identifier }}</router-link>
                           {{ $t('Config.Actions.Triggers.Item2') }}
