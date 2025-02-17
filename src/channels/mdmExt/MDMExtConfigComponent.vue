@@ -142,7 +142,7 @@
     </template>
     <v-row>
       <v-col cols="12">
-        <MappingAttributesCompoment class="mt-5" v-if="masterAttributesRef.length && !categoryRef.deleted" :readonly="readonly" :category="categoryRef" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="masterAttributesRef" :channelAttributes="channelAttributesRef" />
+        <MappingAttributesCompoment class="mt-5" v-if="masterAttributesRef.length && !categoryRef.deleted" :readonly="readonly" :category="categoryRef" :channel="channel" :canManageAttributes="channelFactory.canManageAttributes && canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="masterAttributesRef" :channelAttributes="channelAttributesRef" :showValuesList="true" />
       </v-col>
     </v-row>
     <ItemsSelectionDialog ref="supplierCategorySelectionDialogRef" @selected="supplierCategorySelected"/>

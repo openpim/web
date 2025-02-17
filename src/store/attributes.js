@@ -309,6 +309,10 @@ const actions = {
     }
     data.getItemsForRelationAttribute = data.getItemsForRelationAttribute.map(el => ({ id: parseInt(el.id), identifier: el.identifier, name: el.name, values: el.values }))
     return data
+  },
+  getAttributeValues: async (attrIdentifier, limit, offset) => {
+    const data = await serverFetch(`query { getAttributeValues (attrIdentifier: "${attrIdentifier}", limit: ${limit}, offset: ${offset}) { rows, total} }`)
+    return data.getAttributeValues
   }
 }
 

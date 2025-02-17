@@ -18,9 +18,13 @@
                         </template>
                         <span>{{ attr.description }}</span>
                       </v-tooltip>
-
                       <span :class="attr.required ? 'font-weight-bold' : ''"  @click="showHelp(i)">{{ attr.name }}</span>
-
+                      <v-tooltip bottom v-if="showValuesList">
+                        <template v-slot:activator="{ on }">
+                          <v-btn icon v-on="on" @click="showAttrValuesDialog(elem.value)"><v-icon>mdi-arrow-top-right</v-icon></v-btn>
+                        </template>
+                        <span>{{ 'Show values' }}</span>
+                      </v-tooltip>
                       <v-tooltip bottom v-if="attr.dictionaryLink">
                         <template v-slot:activator="{ on }">
                           <v-btn icon v-on="on" @click="openWindow(i)"><v-icon>mdi-arrow-top-right</v-icon></v-btn>
@@ -87,6 +91,7 @@
       </v-row>
     </template>
     <AttributeManageDialog ref="attrManageDialogRef" @manage="manageDialogClosed"/>
+    <AttributeValuesDialog ref="attrValuesDialogRef" />
   </div>
 </template>
 <script>
@@ -94,6 +99,7 @@ import { ref, onMounted, computed } from '@vue/composition-api'
 import * as langStore from '../store/languages'
 import OptionsTable from '../components/OptionsTable.vue'
 import AttributeManageDialog from './AttributeManageDialog.vue'
+import AttributeValuesDialog from './AttributeValuesDialog.vue'
 import i18n from '../i18n'
 import AttributeType from '../constants/attributeTypes'
 import * as attrStore from '../store/attributes'
@@ -102,7 +108,7 @@ import * as lovStore from '../store/lovs'
 import * as chanStore from '../store/channels'
 
 export default {
-  components: { OptionsTable, AttributeManageDialog },
+  components: { OptionsTable, AttributeManageDialog, AttributeValuesDialog },
   props: {
     attributes: {
       required: true
@@ -129,6 +135,10 @@ export default {
       default: false
     },
     category: {
+      required: false
+    },
+    showValuesList: {
+      type: Boolean,
       required: false
     }
   },
@@ -164,6 +174,7 @@ export default {
     const optAttrRef = ref(null)
     const optDialogRef = ref(null)
     const attrManageDialogRef = ref(null)
+    const attrValuesDialogRef = ref(null)
 
     function getAttribute (id) {
       return props.channelAttributes.find(elem => elem.id === id)
@@ -201,6 +212,10 @@ export default {
     function showExpression (attr) {
       exprAttrRef.value = attr
       exprDialogRef.value = true
+    }
+
+    function showAttrValuesDialog (identifier) {
+      attrValuesDialogRef.value.showDialog(identifier)
     }
 
     function showOptions (attr) {
@@ -373,7 +388,9 @@ export default {
       optionsChanged,
       manageAttribute,
       attrManageDialogRef,
+      attrValuesDialogRef,
       manageDialogClosed,
+      showAttrValuesDialog,
       up,
       down,
       remove,
