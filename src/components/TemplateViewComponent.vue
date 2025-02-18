@@ -158,6 +158,23 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="isBackgroundDialogOpen" persistent max-width="1000px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">{{ $t('Config.Template.Background') }}</span>
+        </v-card-title>
+        <v-card-text>
+          <v-autocomplete v-model="backgroundSelected" :items="staticImages" item-text="name" item-value="url"></v-autocomplete>
+          <v-text-field v-model="width" :label="$t('Config.Template.Width')"></v-text-field>
+          <v-text-field v-model="height" :label="$t('Config.Template.Height')"></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="isBackgroundDialogOpen = false">{{ $t('Close') }}</v-btn>
+          <v-btn color="blue darken-1" text @click="applyBackgroundDialog">{{ $t('Config.Template.Button.Apply') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected" />
   </div>
 </template>
@@ -172,6 +189,7 @@ import * as relationsStore from '../store/relations'
 import * as itemRelationStore from '../store/itemRelations'
 import * as attrStore from '../store/attributes'
 import * as lovStore from '../store/lovs'
+import * as mediaStore from '../store/media'
 import OptionsTable from '../components/OptionsTable'
 import SystemInformation from '../components/SystemInformation'
 import LanguageDependentField from '../components/LanguageDependentField'
@@ -213,7 +231,8 @@ export default {
 
     const {
       groups,
-      loadAllAttributes
+      loadAllAttributes,
+      getAttributesForItem
     } = attrStore.useStore()
 
     const {
@@ -226,9 +245,19 @@ export default {
       searchItemRelations
     } = itemRelationStore.useStore()
 
+    const {
+      staticFonts,
+      loadAllFonts,
+      staticImages,
+      loadAllImages
+    } = mediaStore.useStore()
+
     const formRef = ref(null)
     const tabRef = ref(0)
     const tabPasteRef = ref(0)
+
+    const fontListRef = ref(null)
+    const fontStylesRef = ref(null)
 
     const joditRef = ref(null)
     let editorJodit = null
@@ -236,7 +265,7 @@ export default {
       readonly: false,
       toolbarAdaptive: true,
       toolbarButtonSize: 'small',
-      extraButtons: ['openSearchDialog'],
+      extraButtons: ['openSearchDialog', 'addBackground'],
       controls: {
         openSearchDialog: {
           tooltip: 'Открыть окно вставки',
@@ -245,18 +274,56 @@ export default {
             openSearchDialog()
           },
           iconURL: '/folder-search.svg'
+        },
+        addBackground: {
+          tooltip: 'Открыть окно вставки фона',
+          exec: () => {
+            openBackgroundDialog()
+          },
+          iconURL: '/image-edit.svg'
+        },
+        font: {
+          list: {
+            'GolosText-Black, sans-serif': 'GolosText Black',
+            'GolosText-Bold, sans-serif': 'GolosText Bold',
+            'GolosText-ExtraBold, sans-serif': 'GolosText ExtraBold',
+            'GolosText-Medium, sans-serif': 'GolosText Medium',
+            'GolosText-Regular, sans-serif': 'GolosText Regular',
+            'GolosText-SemiBold, sans-serif': 'GolosText SemiBold',
+            'GolosText-VariableFont_wght, sans-serif': 'GolosText VariableFont_wght'
+          }
         }
       }
     })
 
     const isSearchDialogOpen = ref(false)
+    const isBackgroundDialogOpen = ref(false)
     const dialogMappingRef = ref(false)
     const selectedOption = ref('')
-    const currentEditor = ref(null)
 
-    function openSearchDialog (editor) {
-      currentEditor.value = editor
+    function openSearchDialog () {
       isSearchDialogOpen.value = true
+      itemSelected.value ||= JSON.parse(localStorage.getItem('itemSelectedTemplate'))
+      if (itemSelected.value) {
+        availableAttributes.value = getAttributesForItem(itemSelected.value.typeId, itemSelected.value.path)[0].attributes
+      }
+    }
+
+    const backgroundSelected = ref(null)
+
+    function openBackgroundDialog () {
+      isBackgroundDialogOpen.value = true
+    }
+
+    const width = ref(1200)
+    const height = ref(1200)
+
+    function applyBackgroundDialog () {
+      props.temp.templateRichtext = `
+      <div style="background-image: url('${backgroundSelected.value}'); width: ${width.value}px; height: ${height.value}px">
+      ${props.temp.templateRichtext}
+      </div>`
+      isBackgroundDialogOpen.value = false
     }
 
     const selectedItemRel = ref(null)
@@ -321,10 +388,10 @@ export default {
               lov.values = data
             })
             const value = lov?.values?.find(el => el.id === itemSelected.value.values?.[attrSelected.value])?.value[currentLanguage.value.identifier] || ''
-            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order='' mapping='${JSON.stringify(mapping.value)}'>${value}</attr> `
+            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order='' mapping='${JSON.stringify(mapping.value)}'><span>${value}</span></attr> `
           } else {
             const value = itemSelected.value.values[attrSelected.value] || ''
-            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order='' mapping='${JSON.stringify(mapping.value)}'>${value}</attr> `
+            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order='' mapping='${JSON.stringify(mapping.value)}'><span>${value}</span></attr> `
           }
         }
       }
@@ -412,7 +479,8 @@ export default {
       itemSelectionDialogRef.value.closeDialog()
       loadItemsByIdsForImport(id, false).then(item => {
         itemSelected.value = item[0]
-        availableAttributes.value = item[0].values
+        localStorage.setItem('itemSelectedTemplate', JSON.stringify(itemSelected.value))
+        availableAttributes.value = getAttributesForItem(itemSelected.value.typeId, itemSelected.value.path)[0].attributes
       })
     }
 
@@ -421,9 +489,9 @@ export default {
 
     const availableAttributesKeys = computed(() => {
       if (!availableAttributes.value) return []
-      return Object.keys(availableAttributes.value).map(key => ({
-        key,
-        name: key
+      return availableAttributes.value.map(attr => ({
+        key: attr.identifier,
+        name: `${attr.identifier} (${attr.name[currentLanguage.value.identifier]})`
       }))
     })
 
@@ -444,6 +512,17 @@ export default {
 
     const lovAttributes = ref([])
     const availableLOVs = ref([])
+
+    function getFontFormat (filename) {
+      const ext = filename.split('.').pop().toLowerCase()
+      switch (ext) {
+        case 'ttf': return 'truetype'
+        case 'otf': return 'opentype'
+        case 'woff': return 'woff'
+        case 'woff2': return 'woff2'
+        default: return 'truetype'
+      }
+    }
 
     onMounted(() => {
       if (!props.temp?.templateRichtext) {
@@ -472,9 +551,36 @@ export default {
         availableLOVs.value = lovs
       })
       loadAllLanguages()
+      loadAllFonts().then(() => {
+        joditConfig.value.controls.font.list = Object.fromEntries(staticFonts.map(font => [`${font.name.replace(/\.(ttf|woff|woff2|otf)$/i, '')}, sans-serif`, font.name]))
+        fontStylesRef.value = staticFonts
+          .map(
+            (font) => `
+      @font-face {
+        font-family: '${font.name.replace(/\.(ttf|woff|woff2|otf)$/i, '')}';
+        src: url('${font.url}') format('${getFontFormat(font.url)}');
+        font-weight: normal;
+        font-style: normal;
+      }
+    `
+          ).join('\n')
+        const styleTag = document.createElement('style')
+        styleTag.type = 'text/css'
+        styleTag.innerHTML = fontStylesRef.value
+        document.head.appendChild(styleTag)
+      })
+      loadAllImages()
     })
 
     return {
+      width,
+      height,
+      fontListRef,
+      fontStylesRef,
+      applyBackgroundDialog,
+      staticFonts,
+      staticImages,
+      backgroundSelected,
       mapping,
       addTextFiend,
       removeTextFiend,
@@ -496,7 +602,9 @@ export default {
       addVisible,
       itemsSelected,
       isSearchDialogOpen,
+      isBackgroundDialogOpen,
       openSearchDialog,
+      openBackgroundDialog,
       closeSearchDialog,
       selectedOption,
       joditRef,

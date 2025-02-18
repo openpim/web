@@ -19,6 +19,7 @@ import * as importConfigsStore from './importConfigs'
 import * as authStore from './auth'
 import * as remotePIMInstanceStore from './remotePIMInstance'
 import * as tempStore from './templates'
+import * as mediaStore from './media'
 
 export default () => {
   errorStore.provideStore()
@@ -42,4 +43,5 @@ export default () => {
   authStore.provideStore()
   remotePIMInstanceStore.provideStore()
   tempStore.provideStore()
+  mediaStore.provideStore()
 }

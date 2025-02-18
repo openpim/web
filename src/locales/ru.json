@@ -810,5 +810,8 @@
   "Config.Template.Replace.What": "Что менять",
   "Config.Template.Replace.With": "На что изменять",
   "Config.Template.Button.Apply": "Установить",
-  "Config.Template.Button.SelectItem": "Выбрать элемент"
+  "Config.Template.Button.SelectItem": "Выбрать элемент",
+  "Config.Template.Background": "Фон",
+  "Config.Template.Width": "Ширина",
+  "Config.Template.Height": "Высота"
 }
