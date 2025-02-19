@@ -16,7 +16,7 @@
       </v-container>
       <v-tabs-items v-model="tabRef">
         <v-tab-item>
-          <jodit-editor ref="joditRef" :config="joditConfig" v-model="temp.templateRichtext" />
+          <jodit-editor ref="joditRef" :config="joditConfig" v-model="temp.templateRichtext" :key="editorKey" />
         </v-tab-item>
         <v-tab-item>
           <v-textarea :rows="15" style="min-width: 100%" v-model="temp.template" :label="$t('Config.Template.Template')" required></v-textarea>
@@ -260,6 +260,7 @@ export default {
     const fontStylesRef = ref(null)
 
     const joditRef = ref(null)
+    const editorKey = ref(0)
     let editorJodit = null
     const joditConfig = ref({
       readonly: false,
@@ -283,15 +284,7 @@ export default {
           iconURL: '/image-edit.svg'
         },
         font: {
-          list: {
-            'GolosText-Black, sans-serif': 'GolosText Black',
-            'GolosText-Bold, sans-serif': 'GolosText Bold',
-            'GolosText-ExtraBold, sans-serif': 'GolosText ExtraBold',
-            'GolosText-Medium, sans-serif': 'GolosText Medium',
-            'GolosText-Regular, sans-serif': 'GolosText Regular',
-            'GolosText-SemiBold, sans-serif': 'GolosText SemiBold',
-            'GolosText-VariableFont_wght, sans-serif': 'GolosText VariableFont_wght'
-          }
+          list: {}
         }
       }
     })
@@ -388,10 +381,10 @@ export default {
               lov.values = data
             })
             const value = lov?.values?.find(el => el.id === itemSelected.value.values?.[attrSelected.value])?.value[currentLanguage.value.identifier] || ''
-            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order='' mapping='${JSON.stringify(mapping.value)}'><span>${value}</span></attr> `
+            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order='' mapping='${JSON.stringify(mapping.value)}'><span>${value}</span></attr> <br>`
           } else {
             const value = itemSelected.value.values[attrSelected.value] || ''
-            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order='' mapping='${JSON.stringify(mapping.value)}'><span>${value}</span></attr> `
+            return `<attr identifier='${attrSelected.value}' language='${currentLanguage.value.identifier}' relidentifier='' order='' mapping='${JSON.stringify(mapping.value)}'><span>${value}</span></attr> <br>`
           }
         }
       }
@@ -414,7 +407,7 @@ export default {
             if (!selectedItemRel.value) selectedItemRel.value = data.rows[0]
           })
           const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
-          return `<attr identifier='' language='' relIdentifier='${rel.identifier}' order='${order ? order.value : ''}' mapping='${JSON.stringify(mapping.value)}'><img src='${damUrl}asset/inline/${selectedItemRel.value?.targetId}'/></attr> `
+          return `<attr identifier='' language='' relIdentifier='${rel.identifier}' order='${order ? order.value : ''}' mapping='${JSON.stringify(mapping.value)}'><img src='${damUrl}asset/inline/${selectedItemRel.value?.targetId}'/></attr> <br>`
         }
       }
 
@@ -552,7 +545,7 @@ export default {
       })
       loadAllLanguages()
       loadAllFonts().then(() => {
-        joditConfig.value.controls.font.list = Object.fromEntries(staticFonts.map(font => [`${font.name.replace(/\.(ttf|woff|woff2|otf)$/i, '')}, sans-serif`, font.name]))
+        joditConfig.value.controls.font.list = Object.fromEntries(staticFonts.map(font => [`${font.name.replace(/\.(ttf|woff|woff2|otf)$/i, '')}, sans-serif`, font.name.replace(/\.(ttf|woff|woff2|otf)$/i, '')]))
         fontStylesRef.value = staticFonts
           .map(
             (font) => `
@@ -568,11 +561,13 @@ export default {
         styleTag.type = 'text/css'
         styleTag.innerHTML = fontStylesRef.value
         document.head.appendChild(styleTag)
+        editorKey.value++
       })
       loadAllImages()
     })
 
     return {
+      editorKey,
       width,
       height,
       fontListRef,
