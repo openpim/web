@@ -298,7 +298,7 @@ export default {
       isSearchDialogOpen.value = true
       itemSelected.value ||= JSON.parse(localStorage.getItem('itemSelectedTemplate'))
       if (itemSelected.value) {
-        availableAttributes.value = getAttributesForItem(itemSelected.value.typeId, itemSelected.value.path)[0].attributes
+        availableAttributes.value = getAttributesForItem(itemSelected.value.typeId, itemSelected.value.path)
       }
     }
 
@@ -473,7 +473,7 @@ export default {
       loadItemsByIdsForImport(id, false).then(item => {
         itemSelected.value = item[0]
         localStorage.setItem('itemSelectedTemplate', JSON.stringify(itemSelected.value))
-        availableAttributes.value = getAttributesForItem(itemSelected.value.typeId, itemSelected.value.path)[0].attributes
+        availableAttributes.value = getAttributesForItem(itemSelected.value.typeId, itemSelected.value.path)
       })
     }
 
@@ -482,10 +482,12 @@ export default {
 
     const availableAttributesKeys = computed(() => {
       if (!availableAttributes.value) return []
-      return availableAttributes.value.map(attr => ({
-        key: attr.identifier,
-        name: `${attr.identifier} (${attr.name[currentLanguage.value.identifier]})`
-      }))
+      return availableAttributes.value.flatMap(group =>
+        group.attributes.map(attr => ({
+          key: attr.identifier,
+          name: `${attr.identifier} (${attr.name[currentLanguage.value.identifier]})`
+        }))
+      )
     })
 
     const availableItemRelationsKeys = computed(() => {
