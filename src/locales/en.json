@@ -817,5 +817,8 @@
   "Config.Template.Replace.What": "Replace what",
   "Config.Template.Replace.With": "Replace with",
   "Config.Template.Button.Apply": "Apply",
-  "Config.Template.Button.SelectItem": "Select item"
+  "Config.Template.Button.SelectItem": "Select item",
+  "Config.Template.Background": "Background",
+  "Config.Template.Width": "Width",
+  "Config.Template.Height": "Height"
 }
