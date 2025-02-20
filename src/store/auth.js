@@ -23,7 +23,7 @@ const authList = {
     }
     return data
   },
-  callback: async (id, uri, rederectURI) => {
+  callback: async (id, uri, redirectURI) => {
     let data = null
     try {
       const serverUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_SERVER_URL : window.OPENPIM_SERVER_URL + '/graphql'
@@ -33,7 +33,7 @@ const authList = {
           'Content-Type': 'application/json',
           Accept: 'application/json'
         },
-        body: JSON.stringify({ query: 'query { callback(id: "' + id + '", uri: "' + uri + '", rederectURI: "' + rederectURI + '") }' })
+        body: JSON.stringify({ query: 'query { callback(id: "' + id + '", uri: "' + uri + '", redirectURI: "' + redirectURI + '") }' })
       })
       if (resp.ok) {
         data = (await resp.json())

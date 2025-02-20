@@ -15,7 +15,7 @@
               'Content-Type': 'application/json',
               Accept: 'application/json'
             },
-            body: JSON.stringify({ query: 'query { callback(id: "google", uri: "' + window.location.href + '", rederectURI: "' + window.location.origin + window.location.pathname + '") { token, locale, user {id internalId login name email roles tenantId options props external} } }' })
+            body: JSON.stringify({ query: 'query { callback(id: "default", uri: "' + window.location.href + '", redirectURI: "' + window.location.origin + window.location.pathname + '") { token, locale, user {id internalId login name email roles tenantId options props external} } }' })
           })
           if (resp.ok) {
             respData = await resp.json()
