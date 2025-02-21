@@ -589,6 +589,7 @@
   "Channels.Type.MDM": "Master data",
   "Channels.Type.MDM.External": "Master data (внешний)",
   "Channels.Type.ExcelTemplate": "Шаблон Excel",
+  "Channels.Type.Yandex": "Yandex",
   "Channels.SelectionDialog.Title": "Выбор каналов",
   "ChannelView.Dashboard": "Дашборд",
   "ChannelView.Executions": "Запуски",

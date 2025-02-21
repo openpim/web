@@ -6,6 +6,7 @@ import ExtMapFactory from './extmap'
 import MDMFactory from './mdm'
 import MDMExternalFactory from './mdmExt'
 import XLSTemplFactory from './xlsTemplate'
+import YandexFactory from './yandex'
 
 function getConfigCompoment () { return null }
 function getStandardAttributes () { return null }
@@ -28,6 +29,7 @@ export default function getChannelFactory (type) {
     case 6: return MDMFactory
     case 7: return XLSTemplFactory
     case 8: return MDMExternalFactory
+    case 9: return YandexFactory
     default: return empty
   }
 }

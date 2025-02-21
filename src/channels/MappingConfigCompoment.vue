@@ -291,7 +291,7 @@ export default {
         if (treeActiveRef.value.length === 0) return
         const parents = []
         newCat = findNodeByComparator(treeActiveRef.value[0], categoriesTreeRef.value.children, parents, (id, item) => item.id === id)
-        if (newCat.children.length > 0) return
+        if (newCat.children && newCat.children.length > 0) return
         const fulName = parents.join('\\')
         newName = fulName + '\\' + newCat.name
       } else {
