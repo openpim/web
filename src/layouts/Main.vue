@@ -36,7 +36,7 @@
       </v-bottom-navigation>
       <a class="copyright-link d-flex flex-row-reverse mr-2" href="https://openpim.org" target="_blank">&copy; OpenPIM</a>
     </v-navigation-drawer>
-    <v-navigation-drawer v-model="drawerRight" absolute right clipped width="45%">
+    <v-navigation-drawer v-model="drawerRight" absolute right clipped width="45%" class="overflow-y: hidden">
 
       <v-data-table @update:options="activeOptionsUpdate"
       :caption="$t('Process.Table.ActiveCaption')"
