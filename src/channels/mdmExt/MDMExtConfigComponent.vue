@@ -367,7 +367,12 @@ export default {
 
     function addCategory () {
       if (treeActiveRef.value.length === 0) return
-      categoryRef.value = findNodeByComparator(treeActiveRef.value[0], categoriesTreeRef.value, [], (id, item) => item.id === id)
+      const data = findNodeByComparator(treeActiveRef.value[0], categoriesTreeRef.value, [], (id, item) => item.id === id)
+      delete data.children
+      delete data.values
+      delete data.channels
+
+      categoryRef.value = data
 
       if (props.channel.config.supplierCategoryTypes.indexOf(parseInt(categoryRef.value.typeId)) === -1) {
         alert(i18n.t('MappingConfigComponent.IncorrectCategoryTypeSelected'))
