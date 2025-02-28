@@ -15,7 +15,8 @@
               </template>
               <template v-slot:item="{ item }">
                 <tr>
-                  <td class="pa-1">{{ item }}</td>
+                  <td class="pa-1">{{ item.value }}</td>
+                  <td class="pa-1"><v-text-field v-model="item.mapping" @input="updateMapping(item)"/></td>
                 </tr>
               </template>
             </v-data-table>
@@ -24,7 +25,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text :loading="exportInProgress" @click="exportData">{{ $t('Export') }}</v-btn>
-          <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Cancel') }}</v-btn>
+          <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Save') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -62,17 +63,34 @@ export default {
     const loadingRef = ref(false)
     const limitRef = ref(500)
     const exportInProgress = ref(false)
+    let categoryRef
 
-    async function showDialog (identifier) {
+    async function showDialog (identifier, category) {
+      categoryRef = category
       attrIdentifier.value = identifier
       attrValues.value = []
       dialogRef.value = true
       loadingRef.value = true
       search.value = null
       totalRef.value = 0
+
       const data = await getAttributeValues(identifier, limitRef.value, 0)
-      attrValues.value = data.rows
       totalRef.value = data.total
+
+      let mappingData = {}
+      if (category && category.attributes) {
+        const attribute = category.attributes.find(elem => elem.value === identifier)
+        console.log(attribute)
+        if (attribute && attribute.mapping) {
+          mappingData = attribute.mapping
+        }
+      }
+
+      attrValues.value = data.rows.map(value => ({
+        value,
+        mapping: mappingData[value] || ''
+      }))
+
       loadingRef.value = false
     }
 
@@ -104,17 +122,28 @@ export default {
 
     const filteredValues = computed(() => {
       if (!search.value) return attrValues.value
+
       const searchTerm = search.value.toLowerCase()
-      return attrValues.value.filter(item => {
-        if (item.toLowerCase().includes(searchTerm)) {
-          return true
-        }
-      })
+      return attrValues.value.filter(item => item.value.toLowerCase().includes(searchTerm))
     })
 
+    function updateMapping (item) {
+      if (!attrIdentifier.value) return
+      if (categoryRef) {
+        const attribute = categoryRef.attributes.find(attr => attr.value === attrIdentifier.value)
+        if (attribute) {
+          if (!attribute.mapping) {
+            attribute.mapping = {}
+          }
+          attribute.mapping[item.value] = item.mapping
+        }
+      }
+    }
+
     return {
+      updateMapping,
       attrValues,
-      headers: [{ text: 'Value', value: 'value' }],
+      headers: [{ text: 'Value', value: 'value' }, { text: 'Mapping', value: 'mapping' }],
       filteredValues,
       itemsPerPage,
       currentPage,

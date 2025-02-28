@@ -549,6 +549,7 @@ export default {
               if (existedAttr && existedAttr.expr) {
                 attr.expr = existedAttr.expr
               }
+              if (existedAttr && existedAttr.mapping) attr.mapping = existedAttr.mapping
             }
           }
 

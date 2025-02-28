@@ -215,7 +215,7 @@ export default {
     }
 
     function showAttrValuesDialog (identifier) {
-      attrValuesDialogRef.value.showDialog(identifier)
+      attrValuesDialogRef.value.showDialog(identifier, props.category)
     }
 
     function showOptions (attr) {
