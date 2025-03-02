@@ -9,8 +9,8 @@
             <v-alert v-if="totalRef > limitRef" border="bottom" colored-border type="warning" elevation="2">{{$t('AttributeValuesDialog.LimitWarning', { limit: limitRef, total: totalRef })}}</v-alert>
             <v-data-table :headers="headers" :items="filteredValues" dense fixed-header height="50vh" :page.sync="currentPage" :items-per-page="itemsPerPage">
               <template v-slot:top>
-                <div class="d-flex align-items-center justify-content-between">
-                  <v-text-field type="text" class="pa-0" v-model="search" append-icon="mdi-magnify" :label="$t('Search')" single-line></v-text-field>
+                <div class="d-flex align-items-center justify-content-between pa-0 ma-0">
+                  <v-text-field dense type="text" class="pa-0 ma-0" v-model="search" append-icon="mdi-magnify" :label="$t('Search')" single-line></v-text-field>
                 </div>
               </template>
               <template v-slot:item="{ item }">
