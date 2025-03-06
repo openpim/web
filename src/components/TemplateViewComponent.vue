@@ -270,9 +270,9 @@ export default {
       controls: {
         openSearchDialog: {
           tooltip: 'Открыть окно вставки',
-          exec: (editor) => {
+          exec: async (editor) => {
             editorJodit = editor
-            openSearchDialog()
+            await openSearchDialog()
           },
           iconURL: '/folder-search.svg'
         },
@@ -294,11 +294,20 @@ export default {
     const dialogMappingRef = ref(false)
     const selectedOption = ref('')
 
-    function openSearchDialog () {
+    async function openSearchDialog () {
       isSearchDialogOpen.value = true
-      itemSelected.value ||= JSON.parse(localStorage.getItem('itemSelectedTemplate'))
-      if (itemSelected.value) {
-        availableAttributes.value = getAttributesForItem(itemSelected.value.typeId, itemSelected.value.path)
+      if (!itemSelected.value) {
+        const storedItem = localStorage.getItem('itemSelectedTemplate')
+        if (storedItem) itemSelected.value = JSON.parse(storedItem)
+      }
+
+      if (itemSelected.value && itemSelected.value.id) {
+        const items = await loadItemsByIdsForImport(itemSelected.value.id, false)
+        if (items && items.length > 0) {
+          itemSelected.value = items[0]
+          localStorage.setItem('itemSelectedTemplate', JSON.stringify(itemSelected.value))
+          availableAttributes.value = getAttributesForItem(itemSelected.value.typeId, itemSelected.value.path)
+        }
       }
     }
 

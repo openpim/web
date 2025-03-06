@@ -33,7 +33,21 @@
                       </v-tooltip>
                     </td>
                     <td class="pa-1">
-                      <v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributesAll" clearable :append-outer-icon="canManageAttributes ? 'mdi-format-list-bulleted-type' : ''" @click:append-outer="manageAttribute(i, attributes[i])"></v-autocomplete>
+                      <v-row>
+                        <v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributesAll" clearable :append-outer-icon="canManageAttributes ? 'mdi-format-list-bulleted-type' : ''" @click:append-outer="manageAttribute(i, attributes[i])"></v-autocomplete>
+                        <v-tooltip bottom v-if="supportMultiValues">
+                          <template v-slot:activator="{ on }">
+                            <v-btn icon v-on="on" @click="addMapping(i)"><v-icon>mdi-plus</v-icon></v-btn>
+                          </template>
+                          <span>{{ $t('MappingConfigComponent.AddMapping') }}</span>
+                        </v-tooltip>
+                        <v-tooltip bottom v-if="supportMultiValues">
+                          <template v-slot:activator="{ on }">
+                            <v-btn icon v-on="on" @click="removeMapping(i)"><v-icon>mdi-minus</v-icon></v-btn>
+                          </template>
+                          <span>{{ $t('MappingConfigComponent.RemoveMapping') }}</span>
+                        </v-tooltip>
+                      </v-row>
                     </td>
                     <td class="pa-1">
                       <v-text-field v-if="!canManageOrder" v-model="attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[i])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[i])" />
@@ -138,6 +152,10 @@ export default {
       required: false
     },
     showValuesList: {
+      type: Boolean,
+      required: false
+    },
+    supportMultiValues: {
       type: Boolean,
       required: false
     }
@@ -369,6 +387,23 @@ export default {
       data.attrMapping.attrIdent = data.attr.identifier
     }
 
+    function addMapping (index) {
+      const newAttr = JSON.parse(JSON.stringify(props.attributes[index]))
+      newAttr.id = Date.now()
+      const newArr = props.channelAttributes
+      newArr.splice(index + 1, 0, newAttr)
+    }
+
+    function removeMapping (index) {
+      const newArr = props.channelAttributes
+      const isLastValue = newArr.every((attr, i) => i === index || attr.value !== newArr[index].value)
+      if (isLastValue) {
+        showError(i18n.t('MappingConfigComponent.CannotDeleteLastMapping'))
+        return
+      }
+      newArr.splice(index, 1)
+    }
+
     onMounted(() => {
       loadAllLOVs()
       loadAllLanguages()
@@ -394,7 +429,9 @@ export default {
       up,
       down,
       remove,
-      pimAttributesAll
+      pimAttributesAll,
+      addMapping,
+      removeMapping
     }
   }
 }
