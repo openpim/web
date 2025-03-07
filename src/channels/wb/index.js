@@ -40,19 +40,25 @@ function getStandardAttributes () {
     },
     {
       id: '#length',
-      name: 'Длина (см.)',
+      name: 'Длина (см.) integer',
       required: false,
       dictionary: false
     },
     {
       id: '#width',
-      name: 'Ширина (см.)',
+      name: 'Ширина (см.) integer',
       required: false,
       dictionary: false
     },
     {
       id: '#height',
-      name: 'Высота (см.)',
+      name: 'Высота (см.) integer',
+      required: false,
+      dictionary: false
+    },
+    {
+      id: '#weightBrutto',
+      name: 'Вес (кг) number decimal places <= 3',
       required: false,
       dictionary: false
     },
