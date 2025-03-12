@@ -30,7 +30,7 @@ function getStandardAttributes () {
     {
       id: '#price',
       name: 'Цена (строка)',
-      required: true,
+      required: false,
       dictionary: false
     },
     {
