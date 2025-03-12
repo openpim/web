@@ -84,9 +84,10 @@
                         {{ $t('Config.Actions.Triggers.Item2') }}
                         <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
                         <br />
-                        {{ $t('Config.Roles') + ': ' }}
-                        {{ roles.map(role => role.name).join(', ') }}
+                        {{ roles.length > 0 ? $t('Config.Roles') + ': ' + roles.map(role => role.name).join(', ') : '' }}
+                        <br v-if="roles.length > 0"/>
                         {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
+                        <br v-if="trigger.askBeforeExec"/>
                         {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
                       </div>
                       <div v-if="trigger.type === 4">
@@ -105,9 +106,10 @@
                           <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
                         </template>
                         <br />
-                        {{ $t('Config.Roles') + ': ' }}
-                        {{ roles.map(role => role.name).join(', ') }}
+                        {{ roles.length > 0 ? $t('Config.Roles') + ': ' + roles.map(role => role.name).join(', ') : '' }}
+                        <br v-if="roles.length > 0"/>
                         {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
+                        <br v-if="trigger.askBeforeExec"/>
                         {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
                       </div>
                       <div v-if="trigger.type === 7">

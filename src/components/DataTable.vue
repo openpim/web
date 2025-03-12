@@ -252,6 +252,7 @@
       </tr>
     </template>
   </v-data-table>
+  <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelectionDialogSelected"/>
   <ColumnsSelectionDialog ref="columnsSelectionDialogRef" @selected="columnsSelected" :getColumns="getAvailableColumns" />
   <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
   <TemplatesSelectionDialog ref="tempSelectionDialogRef" :dataTable="true" :multiselect="true" :editAccessOnly="true" @selected="templateSelected"/>
@@ -413,6 +414,7 @@ import * as typesStore from '../store/types'
 import * as actionsStore from '../store/actions'
 import i18n from '../i18n'
 import { ref, onMounted, watch, computed } from '@vue/composition-api'
+import ItemsSelectionDialog from './ItemsSelectionDialog'
 import ColumnsSelectionDialog from './ColumnsSelectionDialog'
 import ColumnsSaveDialog from './ColumnsSaveDialog'
 import ChannelsSelectionDialog from './ChannelsSelectionDialog'
@@ -429,7 +431,7 @@ import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterBu
 import RelationAttributeSearchComponent from '../components/RelationAttributeSearch.vue'
 
 export default {
-  components: { ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, TemplatesSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent, ActionStatusDialog, CollectionsSelectionDialog, RelationAttributeSearchComponent },
+  components: { ItemsSelectionDialog, ColumnsSelectionDialog, ColumnsSaveDialog, ChannelsSelectionDialog, TemplatesSelectionDialog, AttrGroupsSelectionDialog, AfterButtonsComponent, ActionStatusDialog, CollectionsSelectionDialog, RelationAttributeSearchComponent },
   props: {
     loadData: {
       required: true
@@ -533,6 +535,7 @@ export default {
     const columnsSelectionDialogRef = ref(null)
     const columnsSaveDialogRef = ref(null)
     const attrSelectionDialogRef = ref(null)
+    const itemSelectionDialogRef = ref(null)
 
     const excelDialogRef = ref(false)
     const excelDialogProgressRef = ref(0)
@@ -590,6 +593,12 @@ export default {
       { text: i18n.t('DataTable.ExcelImport.UPDATE_ONLY'), value: 'UPDATE_ONLY' },
       { text: i18n.t('DataTable.ExcelImport.CREATE_UPDATE'), value: 'CREATE_UPDATE' }
     ]
+
+    function itemSelectionDialogSelected (id, initiator) {
+      itemSelectionDialogRef.value.closeDialog()
+      const trigger = initiator
+      processButtonAction(trigger.itemButton, id)
+    }
 
     function pageSizeChanged (itemsPerPage) {
       optionsRef.value.itemsPerPage = parseInt(itemsPerPage)
@@ -1889,7 +1898,11 @@ export default {
       if (trigger.askBeforeExec) {
         if (!confirm(i18n.t('Execute') + '?')) return
       }
-      processButtonAction(trigger.itemButton)
+      if (trigger.selectItems) {
+        itemSelectionDialogRef.value.showDialog(trigger, trigger.selectItemsFilter ? trigger.selectItemsFilter.split(',').map(elem => parseInt(elem)) : null)
+      } else {
+        processButtonAction(trigger)
+      }
     }
 
     async function processButtonAction (button, data) {
@@ -2009,6 +2022,8 @@ export default {
     }
 
     return {
+      itemSelectionDialogRef,
+      itemSelectionDialogSelected,
       columnsSelectionDialogRef,
       columnsSaveDialogRef,
       cellClicked,
