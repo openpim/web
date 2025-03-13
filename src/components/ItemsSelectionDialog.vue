@@ -133,6 +133,7 @@ export default {
       initiator = init
       if (itemsTree.length === 0) {
         loadItems().then(() => {
+          treeRef.value = itemsTree
           treeRef.value = itemsTreeFiltered.value
           selectionDialogRef.value = true
         })
@@ -182,6 +183,7 @@ export default {
 
       function cloneWithFilter (elem, arr) {
         const clone = { ...elem }
+        console.log(111, clone)
         clone.children = elem.children.filter(item => {
           const type = findType(item.typeId)
           return hasTypes(type.node, arr)
