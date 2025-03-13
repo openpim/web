@@ -183,7 +183,6 @@ export default {
 
       function cloneWithFilter (elem, arr) {
         const clone = { ...elem }
-        console.log(111, clone)
         clone.children = elem.children.filter(item => {
           const type = findType(item.typeId)
           return hasTypes(type.node, arr)
