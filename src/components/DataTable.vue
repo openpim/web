@@ -1901,7 +1901,7 @@ export default {
       if (trigger.selectItems) {
         itemSelectionDialogRef.value.showDialog(trigger, trigger.selectItemsFilter ? trigger.selectItemsFilter.split(',').map(elem => parseInt(elem)) : null)
       } else {
-        processButtonAction(trigger)
+        processButtonAction(trigger.itemButton)
       }
     }
 
