@@ -151,7 +151,7 @@
                 </v-list>
               </v-menu>
             </template>
-            <AfterButtonsComponent :item="itemRef"></AfterButtonsComponent>
+            <AfterButtonsComponent :item="itemRef" :refresh="refresh"></AfterButtonsComponent>
             <v-spacer></v-spacer>
             <template v-if="sourceRelationSearch.length + targetRelationSearch.length === 1">
               <v-btn v-if="sourceRelationSearch.length === 1" text @click="performRelationSearch(sourceRelationSearch[0].identifier, 'source')" v-text="getRelationSearchName(sourceRelationSearch[0]) || sourceRelationSearch[0].name[currentLanguage.identifier] || '[' + sourceRelationSearch[0].name[defaultLanguageIdentifier] + ']'"></v-btn>
