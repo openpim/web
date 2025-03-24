@@ -1,5 +1,5 @@
 <template>
-    <v-row no-gutters v-if="hasAccess('search')">
+  <v-row no-gutters v-if="hasAccess('search')">
     <v-col cols="12">
       <v-toolbar dense flat>
         <v-toolbar-title class="subtitle-2">{{ selectedRef && selectedRef.extended ? $t('Home.Search.TitleExtended') : null }}</v-toolbar-title>
@@ -39,7 +39,33 @@
                 <v-row no-gutters v-if="filter.attr && (!filter.attr.endsWith('#status') || filter.attr === 'attr#status')">
                   <v-col cols="12">
                     <template v-if="filter.attr === '#level#'">
-                      <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
+                      <v-card class="mb-5">
+                        <v-card-title class="subtitle-2 font-weight-bold" >
+                          <div style="width:80%">{{ $t('Search.Levels') }}</div>
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on }">
+                              <v-btn icon v-on="on" @click="itemSelectionDialogRef.showDialog(filter)"><v-icon>mdi-plus</v-icon></v-btn>
+                            </template>
+                            <span>{{ $t('Add') }}</span>
+                          </v-tooltip>
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on }">
+                              <v-btn icon v-on="on" @click="removeVisible(filter)" :disabled="visibleSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
+                            </template>
+                            <span>{{ $t('Remove') }}</span>
+                          </v-tooltip>
+                        </v-card-title>
+                        <v-divider></v-divider>
+                        <v-list dense class="pt-0 pb-0">
+                          <v-list-item-group v-model="visibleSelectedRef" color="primary">
+                            <v-list-item dense class="pt-0 pb-0"  v-for="(item, i) in visible" :key="i">
+                              <v-list-item-content style="display: inline">
+                              <router-link :to="'/item/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
+                              </v-list-item-content>
+                            </v-list-item>
+                          </v-list-item-group>
+                        </v-list>
+                      </v-card>
                     </template>
                     <template v-if="filter.attr === 'collectionId'">
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="collSelectionDialogRef.showDialog(false, filter)"></v-text-field>
@@ -73,7 +99,7 @@
   </v-col>
   <SearchSaveDialog ref="searchSaveDialogRef" ></SearchSaveDialog>
   <SearchLoadDialog ref="searchLoadDialogRef" @selected="searchSelected"></SearchLoadDialog>
-  <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelected"/>
+  <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
   <CollectionsSelectionDialog ref="collSelectionDialogRef" :editAccessOnly="true" @selected="collectionSelected"/>
   <DatePickerDialog ref="datePickerDialogRef" @selected="datePicker"/>
   <TypeSelectionDialog ref="typeSelectionDialogRef" :multiselect="false" @selected="typesSelected"/>
@@ -307,7 +333,7 @@ export default {
               data.channels[channelIdentifier][field][operation] = await parseValue(null, filter.attr, filter.value, filter)
             } else if (filter.attr === '#level#') {
               data.path = {}
-              data.path.OP_regexp = filter.path + '.*'
+              data.path.OP_or = filter.path.map(id => ({ OP_regexp: `*.${id}.*` }))
             } else if (filter.attr.startsWith('name#')) {
               const lang = filter.attr.substring(5)
               data.name = {}
@@ -425,12 +451,17 @@ export default {
       }
     } */
 
-    function itemSelected (id, filter) {
+    const visible = ref([])
+    const visibleSelectedRef = ref(null)
+
+    function itemsSelected (id, filter) {
       itemSelectionDialogRef.value.closeDialog()
       loadItemsByIds([id], false).then(items => {
         const item = items[0]
-        filter.value = item.name[currentLanguage.value.identifier] || '[' + item.name[defaultLanguageIdentifier.value] + ']'
-        filter.path = item.path
+        visibleSelectedRef.value = item
+        visible.value.push(item)
+        filter.value = visible.value.map(item => item.name[currentLanguage.value.identifier] || '[' + item.name[defaultLanguageIdentifier.value] + ']')
+        filter.path = visible.value.map(item => item.id)
       })
     }
 
@@ -475,7 +506,38 @@ export default {
             return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' }
           })
         }
+        if (filter.attr === '#level#' && !Array.isArray(filter.path)) {
+          filter.path = [filter.path]
+        }
+        if (filter.attr === '#level#') {
+          loadItemsByIds(filter.path, false).then(items => {
+            visible.value = []
+            items.forEach((item, index) => {
+              if (index === 0) {
+                visibleSelectedRef.value = item
+              }
+              visible.value.push(item)
+            })
+            filter.value = visible.value.map(item =>
+              item.name[currentLanguage.value.identifier] ||
+              '[' + item.name[defaultLanguageIdentifier.value] + ']'
+            )
+            filter.path = visible.value.map(item => item.id)
+          })
+        }
       }
+    }
+
+    function removeVisible (filter) {
+      if (visibleSelectedRef.value !== -1) {
+        visible.value.splice(visibleSelectedRef.value, 1)
+      }
+      visibleSelectedRef.value = null
+      filter.path = visible.value.map(item => item.id)
+      filter.value = visible.value.map(item =>
+        item.name[currentLanguage.value.identifier] ||
+        '[' + item.name[defaultLanguageIdentifier.value] + ']'
+      )
     }
 
     onMounted(() => {
@@ -589,6 +651,10 @@ export default {
     })
 
     return {
+      currentLanguage,
+      visible,
+      visibleSelectedRef,
+      removeVisible,
       getAttrIdentifier,
       getAttrType,
       AttributeType,
@@ -605,7 +671,7 @@ export default {
       itemSelectionDialogRef,
       collSelectionDialogRef,
       datePickerDialogRef,
-      itemSelected,
+      itemsSelected,
       collectionSelected,
       searchForKey,
       add,
