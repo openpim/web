@@ -41,7 +41,7 @@
                     <template v-if="filter.attr === '#level#'">
                       <v-card class="mb-5">
                         <v-card-title class="subtitle-2 font-weight-bold" >
-                          <div style="width:80%">{{ $t('Search.Levels') }}</div>
+                          <div class="mr-3">{{ $t('Search.Levels') }}</div>
                           <v-tooltip bottom>
                             <template v-slot:activator="{ on }">
                               <v-btn icon v-on="on" @click="itemSelectionDialogRef.showDialog(filter)"><v-icon>mdi-plus</v-icon></v-btn>
@@ -60,7 +60,7 @@
                           <v-list-item-group v-model="visibleSelectedRef" color="primary">
                             <v-list-item dense class="pt-0 pb-0"  v-for="(item, i) in visible" :key="i">
                               <v-list-item-content style="display: inline">
-                              <router-link :to="'/item/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
+                              <router-link :to="'/item/' + item.identifier">{{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</router-link>
                               </v-list-item-content>
                             </v-list-item>
                           </v-list-item-group>
