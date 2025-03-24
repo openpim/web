@@ -523,6 +523,7 @@
   "DataTable.FilterDialog.Title": "Параметры фильтрации",
   "DataTable.FilterDialog.Empty": "Пусто",
   "DataTable.FilterDialog.NotEmpty": "Не пусто",
+  "DataTable.FilterDialog.Button.Value": "Значение",
   "DataTable.FilterDialog.Button.Apply": "Применить",
   "FileUploadDialog.Title" : "Загрузка файла",
   "FileUploadDialog.NewFile" : "Файл для загрузки",
