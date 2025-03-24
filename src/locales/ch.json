@@ -478,6 +478,7 @@
   "DataTable.FilterDialog.Empty": "空的",
   "DataTable.FilterDialog.NotEmpty": "不是空的",
   "DataTable.FilterDialog.Value": "价值",
+	"DataTable.FilterDialog.Button.Apply": "申请",
 	"FileUploadDialog.Title": "下载文件",
 	"FileUploadDialog.NewFile": "下载文件",
 	"FileUploadDialog.FileType": "类型",

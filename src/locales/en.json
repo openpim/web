@@ -527,6 +527,7 @@
   "DataTable.FilterDialog.Empty": "Empty",
   "DataTable.FilterDialog.NotEmpty": "Not empty",
   "DataTable.FilterDialog.Value": "Value",
+  "DataTable.FilterDialog.Button.Apply": "Apply",
   "FileUploadDialog.Title" : "File upload",
   "FileUploadDialog.NewFile" : "File to upload",
   "FileUploadDialog.FileType" : "Type",
