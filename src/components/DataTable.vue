@@ -148,9 +148,13 @@
               && !header.identifier.startsWith('#channel_')"><v-icon small>{{ 'mdi-rename-box' }}</v-icon></v-btn>
             <div @mouseover="divMouseOver" @mouseleave="divMouseLeave" @mousedown="divMouseDown" class="resizer"></div>
             <div v-if="header.identifier !== '#thumbnail#' && header.identifier !== '#parentName#' &&  header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#'">
-              <input v-if="!header.lov && header.type !== AttributeType.Relation" type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="header.filter" @input="filterChanged(header)"/>
-              <v-autocomplete v-if="header.lov && header.type !== AttributeType.Relation " v-model="header.filter" :items="getLOVItems(header.lov)" dense clearable class="ml-2 mr-2" @input="filterChanged(header)"></v-autocomplete>
-              <RelationAttributeSearchComponent v-if="header.type === AttributeType.Relation" :attrIdentifier="header.identifier.substring(5)" v-model="header.filter" @input="filterChanged(header)" />
+              <input :disabled="header.filterType && header.filterType !== 'VALUE'" v-if="!header.lov && header.type !== AttributeType.Relation" type="text" style="border: solid; border-color: grey; border-width: 1px" v-model="header.filter" @input="filterChanged(header)"/>
+              <v-autocomplete :disabled="header.filterType && header.filterType !== 'VALUE'" v-if="header.lov && header.type !== AttributeType.Relation " v-model="header.filter" :items="getLOVItems(header.lov)" dense clearable class="ml-2 mr-2" @input="filterChanged(header)"></v-autocomplete>
+              <RelationAttributeSearchComponent :disabled="header.filterType && header.filterType !== 'VALUE'" v-if="header.type === AttributeType.Relation" :attrIdentifier="header.identifier.substring(5)" v-model="header.filter" @input="filterChanged(header)" />
+              <v-btn small icon @click="showFilterDialog(header)">
+                <v-icon v-if="!header.filterType || header.filterType === 'VALUE'" small>{{ 'mdi-filter-outline' }}</v-icon>
+                <v-icon v-else small color="blue">{{ 'mdi-filter' }}</v-icon>
+              </v-btn>
             </div>
         </th>
       </tr>
@@ -396,6 +400,35 @@
         </v-dialog>
       </v-row>
     </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="filterDialogRef" persistent width="40%">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('DataTable.FilterDialog.Title') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-radio-group v-model="filterDialogDataRef">
+                      <v-radio :label="$t('DataTable.FilterDialog.Empty')" value="EMPTY"></v-radio>
+                      <v-radio :label="$t('DataTable.FilterDialog.NotEmpty')" value="NOTEMPTY"></v-radio>
+                      <v-radio :label="$t('DataTable.FilterDialog.Value')" value="VALUE"></v-radio>
+                    </v-radio-group>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="filterDialogRef=false">{{ $t('Cancel') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="filterUpdate">{{ $t('DataTable.FilterDialog.Button.Apply') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
 </div>
 </template>
 <script>
@@ -582,6 +615,10 @@ export default {
     const massUpdateHeaderRef = ref(null)
     const massUpdateSkipActionsRef = ref(false)
     const massUpdateActionRef = ref('1')
+
+    const filterDialogRef = ref(false)
+    const filterDialogDataRef = ref('VALUE')
+    const filterDialogHeaderRef = ref(null)
 
     const fileUploadRef = ref(null)
     const importModeRef = ref('UPDATE_ONLY')
@@ -996,6 +1033,23 @@ export default {
       massUpdateHeaderRef.value = header
       massUpdateDialogRef.value = true
       massUpdateInputRef.value = null
+    }
+
+    function showFilterDialog (header) {
+      if (!header.filterType) {
+        header.filterType = 'VALUE'
+      }
+      filterDialogHeaderRef.value = header
+      filterDialogDataRef.value = filterDialogHeaderRef.value.filterType
+      filterDialogRef.value = true
+    }
+
+    function filterUpdate () {
+      filterDialogHeaderRef.value.filterType = filterDialogDataRef.value
+      filterDialogHeaderRef.value.filter = null
+      headersRef.value = [...headersRef.value]
+      filterDialogRef.value = false
+      filterChanged(filterDialogHeaderRef.value)
     }
 
     async function massUpdate () {
@@ -1948,7 +2002,7 @@ export default {
     const filterHeaders = []
     let filterWhere = null
     function applyFilter (header) {
-      if (!header.filter) {
+      if (!header.filter && (header.filterType === 'VALUE' || !header.filterType)) {
         const idx = filterHeaders.findIndex(elem => elem.identifier === header.identifier)
         if (idx !== -1) filterHeaders.splice(idx, 1)
       } else if (!filterHeaders.some(elem => elem.identifier === header.identifier)) {
@@ -1977,16 +2031,28 @@ export default {
             obj[pathElem] = internalObj
             obj = internalObj
           }
-          if (filterHeader.lov) {
-            obj[valuePath[valuePath.length - 1]] = filterHeader.multivalue ? { OP_substring: '' + filterHeader.filter } : { OP_eq: filterHeader.filter }
-          } else {
-            obj[valuePath[valuePath.length - 1]] = { OP_iLike: '%' + filterHeader.filter + '%' }
+          if (!filterHeader.filterType || filterHeader.filterType === 'VALUE') {
+            if (filterHeader.lov) {
+              obj[valuePath[valuePath.length - 1]] = filterHeader.multivalue ? { OP_substring: '' + filterHeader.filter } : { OP_eq: filterHeader.filter }
+            } else {
+              obj[valuePath[valuePath.length - 1]] = { OP_iLike: '%' + filterHeader.filter + '%' }
+            }
+          } else if (filterHeader.filterType === 'EMPTY') {
+            obj[valuePath[valuePath.length - 1]] = { OP_or: [{ OP_eq: '' }, { OP_eq: null }] }
+          } else if (filterHeader.filterType === 'NOTEMPTY') {
+            obj[valuePath[valuePath.length - 1]] = { OP_and: [{ OP_ne: '' }, { OP_ne: null }] }
           }
         } else {
-          if (filterHeader.lov) {
-            operation[filterHeader.value] = filterHeader.multivalue ? { OP_substring: '' + filterHeader.filter } : { OP_eq: filterHeader.filter }
-          } else {
-            operation[filterHeader.value] = { OP_iLike: '%' + filterHeader.filter + '%' }
+          if (!filterHeader.filterType || filterHeader.filterType === 'VALUE') {
+            if (filterHeader.lov) {
+              operation[filterHeader.value] = filterHeader.multivalue ? { OP_substring: '' + filterHeader.filter } : { OP_eq: filterHeader.filter }
+            } else {
+              operation[filterHeader.value] = { OP_iLike: '%' + filterHeader.filter + '%' }
+            }
+          } else if (filterHeader.filterType === 'EMPTY') {
+            operation[filterHeader.value] = { OP_or: [{ OP_eq: '' }, { OP_eq: null }] }
+          } else if (filterHeader.filterType === 'NOTEMPTY') {
+            operation[filterHeader.value] = { OP_and: [{ OP_ne: '' }, { OP_ne: null }] }
           }
         }
         arr.push(operation)
@@ -2006,6 +2072,7 @@ export default {
       props.loadData().applyFilter(null)
       filterHeaders.forEach(header => {
         header.filter = ''
+        header.filterType = 'VALUE'
       })
       filterWhere = null
       filterHeaders.splice(0, filterHeaders.length)
@@ -2068,6 +2135,11 @@ export default {
       massUpdateHeaderRef,
       massUpdateActionRef,
       showMassUpdateDialog,
+      showFilterDialog,
+      filterUpdate,
+      filterDialogDataRef,
+      filterDialogHeaderRef,
+      filterDialogRef,
       fileUploadRef,
       excelDialogRef,
       excelDialogProgressRef,
