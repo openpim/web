@@ -462,6 +462,7 @@
   "Search.Extended.Error": "Wrong where clause: ",
   "Search.Or": "OR",
   "Search.And": "AND",
+  "Search.Levels": "Levels",
   "SearchSaveDialog.Title": "Save search",
   "SearchSaveDialog.SaveTooltip": "Save",
   "SearchSaveDialog.LoadTooltip": "Load",
