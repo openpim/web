@@ -437,6 +437,7 @@
 	"DataTable.Export.Limit": "您已加载 {数} 个条目，但只能导出 {最大数 个条目。继续}?",
 	"DataTable.OpenSearch": "找出所有子类型",
 	"DataTable.ExportExcel": "导出为Excel格式",
+	"DataTable.ExportExcelWithCategories" : "导出到带有类别的Excel文件",
 	"DataTable.ImportExcel": "从Excel格式导入",
 	"DataTable.ExportCSV": "导出为CSV格式",
 	"DataTable.TalendExportSelection": "导出",

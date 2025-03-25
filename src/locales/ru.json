@@ -482,6 +482,7 @@
   "DataTable.Export.Limit" : "У вас загружено {number} записей, но только {max} записей может быть выгружено. Продолжить?",
   "DataTable.OpenSearch" : "Найти все с подкатегориями",
   "DataTable.ExportExcel" : "Выгрузить в файл Excel",
+  "DataTable.ExportExcelWithCategories" : "Выгрузить в файл Excel с категориями",
   "DataTable.ImportExcel" : "Загрузить из файла Excel",
   "DataTable.ExportCSV" : "Выгрузить в CSV файл",
   "DataTable.TalendExportSelection" : "Выгрузить",

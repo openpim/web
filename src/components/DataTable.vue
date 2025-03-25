@@ -13,9 +13,15 @@
       </v-tooltip>
       <v-tooltip top v-if="!talendExportSelection && exportXLSEnabled">
         <template v-slot:activator="{ on }">
-          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportExcel"><v-icon>mdi-application-export</v-icon></v-btn>
+          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportExcel(false)"><v-icon>mdi-application-export</v-icon></v-btn>
         </template>
         <span>{{ $t('DataTable.ExportExcel') }}</span>
+      </v-tooltip>
+      <v-tooltip top v-if="!talendExportSelection && exportXLSEnabled">
+        <template v-slot:activator="{ on }">
+          <v-btn icon :disabled="!totalItemsRef" v-on="on" @click="exportExcel(true)"><v-icon>mdi-table-arrow-right</v-icon></v-btn>
+        </template>
+        <span>{{ $t('DataTable.ExportExcelWithCategories') }}</span>
       </v-tooltip>
       <v-tooltip top v-if="!talendExportSelection && importXLSEnabled">
         <template v-slot:activator="{ on }">
@@ -855,7 +861,7 @@ export default {
       })
     }
 
-    async function exportExcel () {
+    async function exportExcel (addParentData) {
       excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleExport')
       excelDialogRef.value = true
       const itemsPerPage = 1000
@@ -918,8 +924,8 @@ export default {
         if (!excelDialogRef.value) return // exit if process was canceled
         data.rows.forEach(row => {
           const rowData = []
-          rowData.push(row.parentIdentifier)
-          rowData.push(row.typeIdentifier)
+          rowData.push(addParentData ? row.parentIdentifier : null)
+          rowData.push(addParentData ? row.typeIdentifier : null)
           rowData.push(row.identifier)
           headersRef.value.forEach(header => {
             if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' && header.identifier !== 'typeIdentifier') {
