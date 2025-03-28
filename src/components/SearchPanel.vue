@@ -3,7 +3,7 @@
     <v-col cols="12">
       <v-select v-model="searchVal" :items="items" @change="onSearchEntityChange" dense hide-details class="mx-4 mb-0 py-0" />
       <v-input
-          v-if="selectedRef && selectedRef.identifier && selectedRef.identifier.length"
+          v-if="selectedRef && selectedRef.identifier && selectedRef.identifier.length && searchVal === 'ITEM_RELATION'"
           class="mx-4 mb-0 py-0"
           append-icon="mdi-close"
           @click:append="clearSelectedRef"
@@ -53,7 +53,7 @@ export default {
       const name = {}
       name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
       currentWhereRef.value = null
-      selectedRef.value = { identifier: '', entity: searchEntityRef.value.valuel, name: {}, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
+      selectedRef.value = { identifier: '', entity: searchEntityRef.value, name: {}, filters: [], whereClause: {}, extended: false, public: false, orAnd: 1 }
       router.push('/search')
     }
 

@@ -53,7 +53,13 @@ import router from '../router'
 export default {
   name: 'SaveSearchDialog',
   components: { SystemInformation, LanguageDependentField },
-  setup () {
+  props: {
+    modelValue: {
+      type: Object,
+      required: false
+    }
+  },
+  setup (props) {
     const {
       currentLanguage,
       defaultLanguageIdentifier
@@ -100,13 +106,13 @@ export default {
             }
             save(selectedRef.value).then(() => {
               dialogRef.value = false
-              router.push('/search/' + selectedRef.value.identifier)
+              if (!props?.modelValue) router.push('/search/' + selectedRef.value.identifier)
             })
           })
         } else {
           save(selectedRef.value).then(() => {
             dialogRef.value = false
-            router.push('/search/' + selectedRef.value.identifier)
+            if (!props?.modelValue) router.push('/search/' + selectedRef.value.identifier)
           })
         }
       }
