@@ -245,7 +245,8 @@ export default {
     const {
       currentLanguage,
       defaultLanguageIdentifier,
-      loadAllLanguages
+      loadAllLanguages,
+      languages
     } = langStore.useStore()
 
     const {
@@ -499,20 +500,41 @@ export default {
     }
 
     function exportData () {
-      const cols = ['identifier', 'name', 'id', 'value']
+      const cols = ['identifier', 'name', 'id']
       const data = [cols]
-      availableChannelsRef.value.forEach(channel => {
-        cols.push(channel.name[defaultLanguageIdentifier.value])
+      languages.forEach(lang => {
+        cols.push('value [' + lang.identifier + ']')
       })
+      availableChannelsRef.value.forEach(channel => {
+        for (const lang of languages) {
+          cols.push(channel.name[defaultLanguageIdentifier.value] + ` [${lang.identifier}]`)
+        }
+      })
+      const customFields = lovCustomFields(props.lov.identifier)
+      customFields.forEach(customField => {
+        for (const lang of languages) {
+          cols.push(customField.name + ` [${lang.identifier}]`)
+        }
+      })
+
       props.lov.values.forEach(elem => {
         const row = [props.lov.identifier, props.lov.name[defaultLanguageIdentifier.value]]
         row.push(elem.id)
-        for (const prop in elem.value) {
-          row.push(elem.value[prop])
+        for (const lang of languages) {
+          row.push(elem.value[lang.identifier])
         }
         availableChannelsRef.value.forEach(channel => {
-          for (const prop in elem[channel.identifier]) {
-            row.push(elem[channel.identifier]?.[prop])
+          if (elem[channel.identifier] && typeof elem[channel.identifier] === 'object') {
+            for (const lang of languages) {
+              row.push(elem[channel.identifier]?.[lang.identifier])
+            }
+          } else {
+            for (let i = 0; i < languages.length; i++) { row.push('') }
+          }
+        })
+        customFields.forEach(customField => {
+          for (const lang of languages) {
+            row.push(elem[customField.identifier]?.[lang.identifier])
           }
         })
         data.push(row)
