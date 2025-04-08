@@ -59,7 +59,6 @@ export default {
     async function search () {
       if (selectedRef.value.extended) {
         try {
-          selectedRef.value.whereClause = JSON.parse(extendedSearchRef.value)
           searchEntityRef.value = 'ITEM'
           selectedRef.value.entity = searchEntityRef.value
           currentWhereRef.value = selectedRef.value.whereClause
