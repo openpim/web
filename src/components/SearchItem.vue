@@ -1,6 +1,6 @@
 <template>
   <v-row no-gutters v-if="hasAccess('search')">
-    <SearchFilters @updateData="handleUpdate" />
+    <SearchFilters @updateData="handleUpdate" @performSearch="search" />
     <v-col cols="12" class="d-inline-flex justify-end align-center">
       <v-btn text @click="search" v-text="$t('Search.Find')" class="mr-2"></v-btn>
     </v-col>
@@ -50,7 +50,6 @@ export default {
       hasAccess
     } = userStore.useStore()
 
-    const extendedSearchRef = ref('{ "identifier": "???", ... }')
     const fieldsSelection = ref([])
     function handleUpdate (arr) {
       fieldsSelection.value = arr
@@ -61,7 +60,7 @@ export default {
         try {
           searchEntityRef.value = 'ITEM'
           selectedRef.value.entity = searchEntityRef.value
-          currentWhereRef.value = selectedRef.value.whereClause
+          currentWhereRef.value = selectedRef.value.extWhereClause ? JSON.parse(selectedRef.value.extWhereClause) : selectedRef.value.whereClause
           currentFilterRef.value = null
         } catch (err) {
           console.error(err)
@@ -284,7 +283,6 @@ export default {
       selectedRef,
       searchForKey,
       search,
-      extendedSearchRef,
       fieldsSelection,
       lovsMapRef,
       hasAccess

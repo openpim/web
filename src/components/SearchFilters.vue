@@ -96,7 +96,7 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
-      <v-textarea v-if="localSelectedRef && localSelectedRef.extended" class="ml-3 mr-3" v-model="extendedSearchRef" :label="$t('Search.Extended.Label')"></v-textarea>
+      <v-textarea v-if="localSelectedRef && localSelectedRef.extended" class="ml-3 mr-3" v-model="localSelectedRef.extWhereClause" :label="$t('Search.Extended.Label')"></v-textarea>
     </v-col>
     <v-col cols="4" class="d-inline-flex justify-end align-center">
       <v-select v-if="localSelectedRef && !localSelectedRef.extended && localSelectedRef.filters && localSelectedRef.filters.length > 1" class="ml-5" dense v-model="localSelectedRef.orAnd" :items="orAndSelection"></v-select>
@@ -194,7 +194,6 @@ export default {
     const visibleSelectedRef = ref(null)
     const selectedFilterRef = ref(null)
     const fieldsSelection = ref([])
-    const extendedSearchRef = ref('{ "identifier": "???", ... }')
     const localSelectedRef = ref({})
 
     async function searchSelected (selected) {
@@ -207,9 +206,9 @@ export default {
       } else {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
-        localSelectedRef.value = { identifier: '', name: name, filters: selected.filters, whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
+        localSelectedRef.value = { identifier: '', name: name, filters: selected.filters, extWhereClause: JSON.stringify(selected.whereClause) || '{ "identifier": "???", ... }', whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
       }
-      if (selected.extended) extendedSearchRef.value = JSON.stringify(selected.whereClause)
+      if (selected.extended && typeof selected.whereClause === 'string' && selected.whereClause) localSelectedRef.value.extWhereClause = selected.whereClause
       searchEntityRef.value = selected.entity ? selected.entity : 'ITEM'
       selectedRef.value = localSelectedRef.value
       searchLoadDialogRef.value.closeDialog()
@@ -441,6 +440,7 @@ export default {
               searchToOpenRef.value.user = ''
               await searchSelected(searchToOpenRef.value)
               searchToOpenRef.value = null
+              emit('performSearch')
             } else {
               const tst2 = localStorage.getItem('last_item_search')
               if (tst2) searchSelected(JSON.parse(tst2))
@@ -487,7 +487,6 @@ export default {
       remove,
       save,
       load,
-      extendedSearchRef,
       localSelectedRef,
       fieldsSelection,
       lovsMapRef,
