@@ -505,7 +505,7 @@ export default {
       if (confirm(i18n.t('ItemRelationsList.Confirm.DeleteAllItemRelations'))) {
         let reloadItem = false
         const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
-        const rels = itemRels[identifier]
+        const rels = [...itemRels[identifier]]
         for (let i = 0; i < rels.length; i++) {
           const rel = rels[i]
           if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem = true
