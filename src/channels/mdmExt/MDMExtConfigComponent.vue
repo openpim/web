@@ -445,7 +445,7 @@ export default {
       masterAttributesRef.value = []
 
       const req = {
-        values: { [masterCategoryAttributeIdentifier.value]: { OP_eq: categoryRef.value.identifier } }
+        values: { [masterCategoryAttributeIdentifier.value]: { OP_substring: categoryRef.value.identifier } }
       }
 
       dataLoading.value = true
@@ -453,13 +453,18 @@ export default {
         searchItemsRemotePIMInstance(req).then(async resp => {
           if (!resp.rows) return
 
+          const filteredRows = resp.rows.filter(row => {
+            const ids = String(row.values[masterCategoryAttributeIdentifier.value]).split(',')
+            return ids.includes(categoryRef.value.identifier)
+          })
+
           const allMasterTypes = await seacrhTypesRemotePIMInstance()
           let validMasterTypes = masterProductTypes.value.split(',')
           validMasterTypes = validMasterTypes.map(el => allMasterTypes.rows.find(type => type.identifier === el)).filter(el => el).map(el => el.id)
 
           const masterPathArr = []
-          for (let i = 0; i < resp.rows.length; i++) {
-            const row = resp.rows[i]
+          for (let i = 0; i < filteredRows.length; i++) {
+            const row = filteredRows[i]
             const path = (row.path + '').split('.')
             for (let k = 0; k < path.length; k++) {
               if (masterPathArr.indexOf(path[k])) {
