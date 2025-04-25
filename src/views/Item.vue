@@ -71,7 +71,12 @@
                   <div v-for="(channel, i) in channelsOnHead" :key="i" >
                   <v-card v-if="itemRef.channels[channel.identifier] && itemRef.channels[channel.identifier].status" flat class="ma-0 pa-0">
                     <v-card-title class="text-subtitle-2 pa-0 ma-0">
-                      {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}:
+                      <a v-if="itemRef.channels[channel.identifier].url" :href="itemRef.channels[channel.identifier].url" target="_blank">
+                        {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}:
+                      </a>
+                      <div v-else>
+                        {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}:
+                      </div>
                       <v-chip small v-if="itemRef.channels[channel.identifier].status === 1" class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip>
                       <template v-if="itemRef.channels[channel.identifier].status === 2">
                         <v-tooltip top :disabled="!itemRef.channels[channel.identifier].message">
@@ -394,6 +399,12 @@
                         <template v-if="itemRef.channels[channel.identifier].status === 2"><v-chip class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.Synced')}}</v-chip></template>
                         <template v-if="itemRef.channels[channel.identifier].status === 3"><v-chip class="ma-2" color="red" text-color="white"> {{$t('ItemView.Channels.Error')}}</v-chip></template>
                         <template v-if="itemRef.channels[channel.identifier].status === 4"><v-chip class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip></template>
+                      </div>
+                      <div v-if="itemRef.channels[channel.identifier].url">
+                        URL:
+                        <a :href="itemRef.channels[channel.identifier].url" target="_blank">
+                          {{ itemRef.channels[channel.identifier].url }}
+                        </a>
                       </div>
                     </v-col>
                     <v-col cols="3">
