@@ -400,12 +400,6 @@
                         <template v-if="itemRef.channels[channel.identifier].status === 3"><v-chip class="ma-2" color="red" text-color="white"> {{$t('ItemView.Channels.Error')}}</v-chip></template>
                         <template v-if="itemRef.channels[channel.identifier].status === 4"><v-chip class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip></template>
                       </div>
-                      <div v-if="itemRef.channels[channel.identifier].url">
-                        URL:
-                        <a :href="itemRef.channels[channel.identifier].url" target="_blank">
-                          {{ itemRef.channels[channel.identifier].url }}
-                        </a>
-                      </div>
                     </v-col>
                     <v-col cols="3">
                       <div v-if="itemRef.channels[channel.identifier].submittedAt">{{$t('ItemView.Channels.SubmittedAt')}}: {{ dateFormat(new Date(itemRef.channels[channel.identifier].submittedAt), DATE_FORMAT) }}</div>
@@ -415,6 +409,11 @@
                     </v-col>
                     <v-col cols="3">
                       <div>{{$t('ItemView.Channels.SyncedAt')}}: {{ itemRef.channels[channel.identifier].syncedAt ? dateFormat(new Date(itemRef.channels[channel.identifier].syncedAt), DATE_FORMAT) : '' }}</div>
+                    </v-col>
+                    <v-col cols="12">
+                      <span v-if="itemRef.channels[channel.identifier].url">
+                        URL: <a :href="itemRef.channels[channel.identifier].url" target="_blank">{{ itemRef.channels[channel.identifier].url }}</a>
+                      </span>
                     </v-col>
                     <v-col cols="12" v-if="itemRef.channels[channel.identifier].message">
                       <div>{{$t('ItemView.Channels.Message')}}: {{itemRef.channels[channel.identifier].message}}</div>
