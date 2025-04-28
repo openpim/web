@@ -31,6 +31,12 @@
                         </template>
                         <span>{{ $t('MappingConfigComponent.Table.DictionaryLink') + ' - ' + attr.dictionaryLink}}</span>
                       </v-tooltip>
+                      <v-tooltip bottom v-if="attr.allowCustomValues && attr.dictionaryLink" color="blue-grey darken-4">
+                        <template v-slot:activator="{ on }">
+                          <v-icon v-on="on" class="ml-0" small>mdi-plus-thick</v-icon>
+                        </template>
+                        <span>Можно посылать свои значения вместо стандартных</span>
+                      </v-tooltip>
                     </td>
                     <td class="pa-1">
                       <v-row>
