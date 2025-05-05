@@ -71,6 +71,7 @@ export default {
         const orAndOperation = selectedRef.value.orAnd === 1 ? 'OP_and' : 'OP_or'
         const where = {}
         where[orAndOperation] = []
+        if (!selectedRef.value.filters) selectedRef.value.filters = []
         currentFilterRef.value = selectedRef.value.filters
         for (let i = 0; i < selectedRef.value.filters.length; i++) {
           const filter = selectedRef.value.filters[i]
