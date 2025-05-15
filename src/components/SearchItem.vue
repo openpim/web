@@ -56,6 +56,7 @@ export default {
     }
 
     async function search () {
+      if (!selectedRef.value) selectedRef.value = { extended: false }
       if (selectedRef.value.extended) {
         try {
           searchEntityRef.value = 'ITEM'
