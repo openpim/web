@@ -1796,8 +1796,8 @@ export default {
     onMounted(async () => {
       loadAllActions().then(() => { actionLoadedRef.value = true })
       loadAllTypes()
-      loadAllChannels()
-      loadAllTemplates().then(() => {
+      loadAllTemplates()
+      loadAllChannels().then(() => {
         hasChannelsRef.value = getAvailableChannels(true).length > 0
       })
       await loadColumns(false)
