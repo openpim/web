@@ -1724,7 +1724,7 @@ export default {
 
     function openSearch () {
       const name = props.item.name[currentLanguage.value.identifier] || '[' + props.item.name.name[defaultLanguageIdentifier.value] + ']'
-      const search = { user: '', filters: [{ type: 'attr', attr: '#level#', operation: 1, value: name, path: props.item.path }], whereClause: {}, extended: false }
+      const search = { user: '', filters: [{ type: 'attr', attr: '#level#', operation: 1, value: name, path: [props.item.id] }], whereClause: {}, extended: false }
 
       const type = findTypeByIdentifier(props.item.typeIdentifier).node
       const typesToExclude = []
