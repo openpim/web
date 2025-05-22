@@ -208,7 +208,7 @@ export default {
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
         localSelectedRef.value = { identifier: '', name: name, filters: selected.filters, extWhereClause: JSON.stringify(selected.whereClause) || '{ "identifier": "???", ... }', whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
       }
-      if (selected.extended && typeof selected.whereClause === 'string' && selected.whereClause) localSelectedRef.value.extWhereClause = selected.whereClause
+      if (selected.extended && (selected.whereClause || selected.extWhereClause)) localSelectedRef.value.extWhereClause = JSON.stringify(selected.whereClause || selected.extWhereClause)
       searchEntityRef.value = selected.entity ? selected.entity : 'ITEM'
       selectedRef.value = localSelectedRef.value
       searchLoadDialogRef.value.closeDialog()

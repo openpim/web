@@ -132,6 +132,10 @@ export default {
           data.extended = selected.extended
           data.filters = selected.filters
           data.whereClause = selected.whereClause
+          if (selected.extended && selected.extWhereClause) {
+            data.whereClause = JSON.parse(selected.extWhereClause)
+            selectedRef.value.whereClause = JSON.parse(selected.extWhereClause)
+          }
           if (!selected.extended && selected.whereClause && selected.whereClause.orAnd) data.orAnd = selected.whereClause.orAnd
           indexlInListRef.value = idx
         } else {
