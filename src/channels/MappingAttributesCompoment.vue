@@ -37,6 +37,12 @@
                         </template>
                         <span>Можно посылать свои значения вместо стандартных</span>
                       </v-tooltip>
+                      <v-tooltip bottom v-if="attr.filtering" color="blue-grey darken-4">
+                        <template v-slot:activator="{ on }">
+                          <v-icon v-on="on" class="ml-0" small>mdi-filter-outline</v-icon>
+                        </template>
+                        <span>Этот атрибут используется в фильтре на маркетплейсе</span>
+                      </v-tooltip>
                     </td>
                     <td class="pa-1">
                       <v-row>
