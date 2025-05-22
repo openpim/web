@@ -164,9 +164,11 @@ const actions = {
     const res = []
     for (var i = 0; i < channels.length; i++) {
       const channel = channels[i]
-      if (hasChannelAccess(channel, fullAccessOnly)) res.push(channel)
+      if (!channel.group && hasChannelAccess(channel, fullAccessOnly)) res.push(channel)
     }
-    return res
+    return res.sort((a, b) => {
+      return a.type - b.type
+    })
   },
   updateItemChannels: async (item, channels) => {
     const query = `
