@@ -90,7 +90,7 @@ export default {
 
     const {
       channels,
-      getAvailableChannels,
+      getAvailableChannelsWithGroups,
       loadAllChannels
     } = channelsStore.useStore()
 
@@ -182,13 +182,13 @@ export default {
       if (channels.length === 0) {
         loadAllChannels().then(() => {
           selectionDialogRef.value = true
-          channelsListRef.value = getAvailableChannels(props.editAccessOnly)
+          channelsListRef.value = getAvailableChannelsWithGroups(props.editAccessOnly)
           const arr = selected ? selected.map(id => channelsListRef.value.findIndex(rel => rel.id === id || rel.internalId === id)) : []
           selectedChannelsRef.value = arr
         })
       } else {
         selectionDialogRef.value = true
-        channelsListRef.value = getAvailableChannels(props.editAccessOnly)
+        channelsListRef.value = getAvailableChannelsWithGroups(props.editAccessOnly)
         const arr = selected ? selected.map(id => channelsListRef.value.findIndex(rel => rel.id === id || rel.internalId === id)) : []
         selectedChannelsRef.value = arr
       }

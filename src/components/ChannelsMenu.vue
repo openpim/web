@@ -65,7 +65,7 @@ export default {
 
     const {
       loadAllChannels,
-      getAvailableChannels
+      getAvailableChannelsWithGroups
     } = channelsStore.useStore()
 
     const itemRef = ref(null)
@@ -175,7 +175,7 @@ export default {
     onMounted(() => {
       loadAllChannels().then(() => {
         clearSelection()
-        channelsRef.value = getAvailableChannels()
+        channelsRef.value = getAvailableChannelsWithGroups()
         if (route.value && route.value.params && route.value.params.id) {
           itemRef.value = channelsRef.value.find(elem => elem.identifier === route.value.params.id).id
         }

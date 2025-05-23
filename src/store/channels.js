@@ -170,6 +170,16 @@ const actions = {
       return a.type - b.type
     })
   },
+  getAvailableChannelsWithGroups: (fullAccessOnly) => {
+    const res = []
+    for (var i = 0; i < channels.length; i++) {
+      const channel = channels[i]
+      if (hasChannelAccess(channel, fullAccessOnly)) res.push(channel)
+    }
+    return res.sort((a, b) => {
+      return a.type - b.type
+    })
+  },
   updateItemChannels: async (item, channels) => {
     const query = `
         mutation { updateItem(id: "` + item.id +
