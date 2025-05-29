@@ -9,7 +9,7 @@
       <LanguageDependentField :values="lov.name" v-model="lov.name[currentLanguage.identifier]" :rules="nameRules"
         :label="$t('Config.Languages.Name')"></LanguageDependentField>
       <v-alert v-if="loadingRef" type="info">{{$t('Config.LOV.Loading')}}</v-alert>
-      <v-data-table :headers="headers" :items="filteredValues" dense fixed-header height="60vh" :page.sync="currentPage"
+      <v-data-table :headers="headers" :items="filteredValues" hide-default-header dense :page.sync="currentPage"
         :items-per-page="itemsPerPage">
         <template v-slot:top>
           <div class="d-flex align-items-center justify-content-between">
@@ -45,13 +45,29 @@
             </div>
           </div>
         </template>
-
+        <template v-slot:header="{ props }">
+          <tr v-sticky-columns>
+            <th v-for="header in props.headers" :key="header.value"
+              style="cursor:pointer; user-select:none; background-color: white; border-bottom: 1px solid #e0e0e0;"
+              @click="toggleSort(header.value)">
+              <span
+                style="display: table-cell; text-align: start !important; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;"
+                class="pl-4 pr-4">
+                {{ header.text }}
+                <span v-if="sortBy === header.value">
+                  <v-icon small v-if="!sortDesc">mdi-arrow-up</v-icon>
+                  <v-icon small v-else>mdi-arrow-down</v-icon>
+                </span>
+              </span>
+            </th>
+          </tr>
+        </template>
         <template v-slot:item="{ item }">
-          <tr>
-            <td class="pa-1">
+          <tr v-sticky-columns>
+            <td class="pa-1" style="background-color: white;">
               <input v-model="item.id" type="number" size="5" maxlength="5" :placeholder="$t('Config.LOV.ID')" />
             </td>
-            <td class="pa-1">
+            <td class="pa-1" style="background-color: white; border-right: 1px solid #e0e0e0;">
               <input v-model="item.value[currentLanguage.identifier]" size="50" :placeholder="$t('Config.LOV.Value')" />
             </td>
             <td class="pa-1" v-for="(channel, i) in availableChannelsRef" :key="i">
@@ -96,7 +112,7 @@
                 <v-row>
                   <v-col cols="12">
                     <v-card class="mb-5">
-                      <v-card-title class="subtitle-2 font-weight-bold" >
+                      <v-card-title class="subtitle-2 font-weight-bold">
                         <div style="width:80%">{{ $t('Config.LOV.Visible') }}</div>
                         <v-tooltip bottom v-if="canEditConfig">
                           <template v-slot:activator="{ on }">
@@ -231,6 +247,41 @@ import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import AttributeSelectionDialog from '../components/AttributeSelectionDialog'
 import lovCustomFields from '../_customizations/lovs/lovCustomFields.js'
 
+const stickyColumns = {
+  inserted (el) {
+    function update () {
+      const ths = el.querySelectorAll('th')
+      const tds = el.querySelectorAll('td')
+
+      if (ths.length) {
+        ths[0].style.position = 'sticky'
+        ths[0].style.left = '0px'
+        ths[0].style.zIndex = 12
+      }
+      if (tds.length) {
+        tds[0].style.position = 'sticky'
+        tds[0].style.left = '0px'
+        tds[0].style.zIndex = 12
+      }
+
+      if (ths.length > 1) {
+        ths[1].style.position = 'sticky'
+        ths[1].style.left = ths[0].offsetWidth + 'px'
+        ths[1].style.zIndex = 11
+      }
+      if (tds.length > 1) {
+        tds[1].style.position = 'sticky'
+        tds[1].style.left = tds[0].offsetWidth + 'px'
+        tds[1].style.zIndex = 11
+      }
+    }
+
+    update()
+    window.addEventListener('resize', update)
+    setTimeout(update, 350)
+  }
+}
+
 export default {
   components: { SystemInformation, LanguageDependentField, ItemsSelectionDialog, AttributeSelectionDialog },
   props: {
@@ -241,6 +292,7 @@ export default {
       required: true
     }
   },
+  directives: { stickyColumns },
   setup (props, { root }) {
     const {
       currentLanguage,
@@ -321,27 +373,76 @@ export default {
       ]
     })
 
+    const sortBy = ref(null)
+    const sortDesc = ref(false)
+
+    function getCellValue (item, column) {
+      if (column === 'id' || column === 'url' || column === 'filter') return item[column]
+
+      if (column === 'value') return item.value[currentLanguage.value.identifier] || ''
+
+      if (availableChannelsRef.value.some(ch => ch.identifier === column)) {
+        return item[column]?.[currentLanguage.value.identifier] || ''
+      }
+
+      const custom = lovCustomFields(props.lov.identifier).find(f => f.name === column || f.identifier === column)
+      if (custom) return item[custom.identifier]?.[currentLanguage.value.identifier] || ''
+
+      if (column === 'level') return item.level?.length || 0
+      if (column === 'attrs') return item.attrs?.length || 0
+
+      return ''
+    }
+
+    function toggleSort (headerValue) {
+      if (sortBy.value !== headerValue) {
+        sortBy.value = headerValue
+        sortDesc.value = false
+      } else if (!sortDesc.value) {
+        sortDesc.value = true
+      } else {
+        sortBy.value = null
+        sortDesc.value = false
+      }
+    }
+
     const filteredValues = computed(() => {
       if (!props.lov.values) return []
-      if (!search.value) return props.lov.values
-
-      const searchTerm = search.value.toLowerCase()
-
-      return props.lov.values.filter(item => {
-        if (
-          item.id.toString().includes(searchTerm) ||
-          item.value[currentLanguage.value.identifier]?.toLowerCase().includes(searchTerm) ||
-          (item.url && item.url.toLowerCase().includes(searchTerm)) ||
-          (item.filter && item.filter.toString().includes(searchTerm))
-        ) {
-          return true
-        }
-
-        return availableChannelsRef.value.some(channel => {
-          const channelData = item[channel.identifier][currentLanguage.value.identifier]
-          return channelData && channelData.toLowerCase().includes(searchTerm)
+      let arr = props.lov.values
+      if (search.value) {
+        const searchTerm = search.value.toLowerCase()
+        arr = arr.filter(item => {
+          if (
+            item.id.toString().includes(searchTerm) ||
+            item.value[currentLanguage.value.identifier]?.toLowerCase().includes(searchTerm) ||
+            (item.url && item.url.toLowerCase().includes(searchTerm)) ||
+            (item.filter && item.filter.toString().includes(searchTerm))
+          ) {
+            return true
+          }
+          return availableChannelsRef.value.some(channel => {
+            const channelData = item[channel.identifier][currentLanguage.value.identifier]
+            return channelData && channelData.toLowerCase().includes(searchTerm)
+          })
         })
-      })
+      }
+      if (sortBy.value !== null) {
+        return [...arr].sort((a, b) => {
+          const valA = getCellValue(a, sortBy.value)
+          const valB = getCellValue(b, sortBy.value)
+          if (valA == null && valB == null) return 0
+          if (valA == null) return sortDesc.value ? 1 : -1
+          if (valB == null) return sortDesc.value ? -1 : 1
+          if (typeof valA === 'number' && typeof valB === 'number') {
+            return sortDesc.value ? valB - valA : valA - valB
+          }
+          return sortDesc.value
+            ? valB.toString().localeCompare(valA.toString())
+            : valA.toString().localeCompare(valB.toString())
+        })
+      } else {
+        return arr
+      }
     })
 
     function goToLastPage () {
@@ -603,6 +704,10 @@ export default {
       defaultLanguageIdentifier,
       loadingRef,
       lovCustomFields,
+      toggleSort,
+      getCellValue,
+      sortBy,
+      sortDesc,
       identifierRules: [
         v => identifierValidation(v)
       ],
