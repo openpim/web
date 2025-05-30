@@ -256,23 +256,23 @@ const stickyColumns = {
       if (ths.length) {
         ths[0].style.position = 'sticky'
         ths[0].style.left = '0px'
-        ths[0].style.zIndex = 12
+        ths[0].style.zIndex = 1
       }
       if (tds.length) {
         tds[0].style.position = 'sticky'
         tds[0].style.left = '0px'
-        tds[0].style.zIndex = 12
+        tds[0].style.zIndex = 1
       }
 
       if (ths.length > 1) {
         ths[1].style.position = 'sticky'
         ths[1].style.left = ths[0].offsetWidth + 'px'
-        ths[1].style.zIndex = 11
+        ths[1].style.zIndex = 1
       }
       if (tds.length > 1) {
         tds[1].style.position = 'sticky'
         tds[1].style.left = tds[0].offsetWidth + 'px'
-        tds[1].style.zIndex = 11
+        tds[1].style.zIndex = 1
       }
     }
 

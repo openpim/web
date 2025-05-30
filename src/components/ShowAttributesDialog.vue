@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="showAttributesDialogRef" persistent fullscreen style="z-index: 1010">
+  <v-dialog v-model="showAttributesDialogRef" persistent fullscreen>
     <v-card>
       <v-card-text>
         <Attributes v-if="currentItem" :item=currentItem :type="typeRef" />
