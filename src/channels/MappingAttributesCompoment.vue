@@ -364,11 +364,10 @@ export default {
                   pimAttr.lov = parseInt(tst.internalId || tst.id)
                 } else if (confirm(i18n.t('AttributeManageDialog.ConfirmDictionary'))) {
                   const lov = { identifier: catAttrId, id: Date.now(), internalId: 0, name: name, values: [] }
-                  json.result.forEach(elem => {
-                    const val = {}
-                    val[currentLanguage.value.identifier] = elem.value
+                  ;[json.result, json.values].forEach(arr => arr?.forEach(elem => {
+                    const val = { [currentLanguage.value.identifier]: elem.value }
                     lov.values.push({ id: elem.id, value: val })
-                  })
+                  }))
                   await saveLOV(lov)
                   lovs.push(lov)
                   pimAttr.type = AttributeType.LOV
