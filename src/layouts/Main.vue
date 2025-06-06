@@ -243,7 +243,8 @@ export default {
     const {
       channelTypes,
       loadAllChannelTypes,
-      loadAllChannels
+      loadAllChannels,
+      getAvailableChannels
     } = channelsStore.useStore()
 
     const {
@@ -445,7 +446,8 @@ export default {
 
         if (currentUserRef.value.tenantId !== '0') {
           loadAllChannels().then(channels => {
-            if (channels && channels.length > 0) hasChannelsRef.value = true
+            const tst = getAvailableChannels(false)
+            if (tst && tst.length > 0) hasChannelsRef.value = true
           })
           hasConfigRef.value = canViewConfig('types') || canViewConfig('attributes') || canViewConfig('relations') || canViewConfig('users') || canViewConfig('roles') || canViewConfig('languages') || canViewConfig('lovs') || canViewConfig('actions') || canViewConfig('dashboards') || canViewConfig('channels')
         }
