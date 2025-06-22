@@ -8,7 +8,7 @@
         <v-container>
           <v-row>
             <v-col cols="12">
-            <v-text-field v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
+            <v-text-field v-if="!multiselect" v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
             <v-list nav dense>
               <v-list-item-group v-model="selectedRelationsRef" color="primary" :multiple="multiselect">
                 <v-list-item v-for="(item, i) in relationsFiltered" :key="i">
@@ -63,9 +63,9 @@ export default {
     function selected () {
       let arr
       if (props.multiselect) {
-        arr = selectedRelationsRef.value.map(idx => relationsFiltered.value[idx].internalId)
+        arr = selectedRelationsRef.value.map(idx => relations[idx].internalId)
       } else {
-        arr = [relations[selectedRelationsRef.value].internalId]
+        arr = [relationsFiltered.value[selectedRelationsRef.value].internalId]
       }
       emit('selected', arr, initiator)
     }
