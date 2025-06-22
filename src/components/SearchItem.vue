@@ -58,7 +58,6 @@ export default {
     const filtersKeyRef = ref(1)
 
     async function search () {
-      debugger
       if (!selectedRef.value) {
         selectedRef.value = { extended: false, filters: [], orAnd: 1 }
         filtersKeyRef.value++
