@@ -1,6 +1,6 @@
 <template>
   <v-row no-gutters v-if="hasAccess('search')">
-    <SearchFilters @updateData="handleUpdate" @performSearch="search" />
+    <SearchFilters @updateData="handleUpdate" @performSearch="search" :key="filtersKeyRef"/>
     <v-col cols="12" class="d-inline-flex justify-end align-center">
       <v-btn text @click="search" v-text="$t('Search.Find')" class="mr-2"></v-btn>
     </v-col>
@@ -55,8 +55,14 @@ export default {
       fieldsSelection.value = arr
     }
 
+    const filtersKeyRef = ref(1)
+
     async function search () {
-      if (!selectedRef.value) selectedRef.value = { extended: false }
+      debugger
+      if (!selectedRef.value) {
+        selectedRef.value = { extended: false, filters: [], orAnd: 1 }
+        filtersKeyRef.value++
+      }
       if (selectedRef.value.extended) {
         try {
           searchEntityRef.value = 'ITEM'
@@ -287,7 +293,8 @@ export default {
       search,
       fieldsSelection,
       lovsMapRef,
-      hasAccess
+      hasAccess,
+      filtersKeyRef
     }
   }
 }
