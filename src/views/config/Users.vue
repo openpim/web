@@ -122,7 +122,7 @@ export default {
         router.push('/config/users')
         return
       }
-      if (selected < userFiltered.value.length) {
+      if (userFiltered && selected < userFiltered.value.length) {
         if (previous && userFiltered.value[previous].internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }

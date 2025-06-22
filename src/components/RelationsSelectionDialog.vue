@@ -67,7 +67,6 @@ export default {
       } else {
         arr = [relations[selectedRelationsRef.value].internalId]
       }
-      console.log(111, arr)
       emit('selected', arr, initiator)
     }
 
