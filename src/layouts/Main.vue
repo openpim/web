@@ -17,7 +17,7 @@
             <span>{{ $t('Main.Search') }}</span>
             <v-icon>mdi-magnify</v-icon>
         </v-btn>
-        <v-btn to="/collections">
+        <v-btn to="/collections" v-if="hasCollectionsAccess">
             <span>{{ $t('Main.Collections') }}</span>
             <v-icon>mdi-bookmark-outline</v-icon>
         </v-btn>
@@ -271,6 +271,7 @@ export default {
 
     const hasSearchAccess = ref(false)
     const hasImportsAccess = ref(false)
+    const hasCollectionsAccess = ref(false)
     const importConfigCSVLicenceExist = ref(false)
     const importConfigYMLLicenceExist = ref(false)
     const isUserAdmin = ref(false)
@@ -432,6 +433,7 @@ export default {
         isUserAdmin.value = isAdmin()
         hasSearchAccess.value = hasAccess('search') || hasAccess('searchRelations')
         hasImportsAccess.value = hasAccess('imports')
+        hasCollectionsAccess.value = hasAccess('collections')
 
         loadAllChannelTypes().then(() => {
           const importConfigCSVLicence = channelTypes.find(el => el === 1000)
@@ -496,6 +498,7 @@ export default {
       isExportSearch: props.export,
       hasSearchAccess,
       hasImportsAccess,
+      hasCollectionsAccess,
       importConfigCSVLicenceExist,
       importConfigYMLLicenceExist,
       isUserAdmin,

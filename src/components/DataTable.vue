@@ -59,13 +59,20 @@
         </template>
         <span>{{ $t('DataTable.SaveColumns') }}</span>
       </v-tooltip>
-      <v-tooltip top v-if="!hasChannelsRef">
+
+      <v-tooltip top v-if="!hasChannelsRef && hasAccess('collections')">
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" icon @click="collSelectionDialogRef.showDialog()"><v-icon>mdi-access-point-plus</v-icon></v-btn>
         </template>
         <span>{{ $t('Item.toCollection') }}</span>
       </v-tooltip>
-      <template v-if="hasChannelsRef && searchEntityRef !== 'ITEM_RELATION'">
+      <v-tooltip top v-if="hasChannelsRef && !hasAccess('collections')">
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" icon @click="chanSelectionDialogRef.showDialog()"><v-icon>mdi-access-point-plus</v-icon></v-btn>
+        </template>
+        <span>{{ $t('Item.toChannel') }}</span>
+      </v-tooltip>
+      <template v-if="hasChannelsRef && hasAccess('collections') && searchEntityRef !== 'ITEM_RELATION'">
         <v-menu offset-y>
           <template v-slot:activator="{ on }"><v-btn v-on="on" icon><v-icon>mdi-access-point-plus</v-icon></v-btn></template>
           <v-list>
@@ -78,6 +85,7 @@
           </v-list>
         </v-menu>
       </template>
+
       <v-tooltip top v-if="searchEntityRef !== 'ITEM_RELATION'">
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" icon @click="collSelectionDialogRef.showDialog(true)"><v-icon>mdi-access-point-minus</v-icon></v-btn>

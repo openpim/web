@@ -117,22 +117,27 @@
             <v-btn v-if="canEditSelected && customEnableButton(itemRef, 'move')" text @click="move" v-text="$t('Move')"></v-btn>
             <v-btn v-if="canEditSelected && customEnableButton(itemRef, 'duplicate')" text @click="duplicate" v-text="$t('Duplicate')"></v-btn>
             <v-btn v-if="canEditSelected && customEnableButton(itemRef, 'remove')" text @click="remove" v-text="$t('Remove')"></v-btn>
-            <v-menu offset-y v-if="hasChannels">
+
+            <v-menu offset-y v-if="hasChannels && hasAccess('collections')">
               <template v-slot:activator="{ on }">
                 <v-btn text v-on="on" v-text="$t('Submit')"></v-btn>
               </template>
               <v-list>
                 <v-list-item >
-                  <v-btn class="pl-1 pr-1" v-if="hasChannels" text @click="submit" v-text="$t('Item.toChannel')"></v-btn>
+                  <v-btn class="pl-1 pr-1" text @click="submit" v-text="$t('Item.toChannel')"></v-btn>
                 </v-list-item>
                 <v-list-item>
                   <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" v-text="$t('Item.toCollection')"></v-btn>
                 </v-list-item>
               </v-list>
             </v-menu>
-            <template v-if="!hasChannels">
+            <template v-if="!hasChannels && hasAccess('collections')">
               <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" v-text="$t('Item.toCollection')"></v-btn>
             </template>
+            <template v-if="hasChannels && !hasAccess('collections')">
+              <v-btn class="pl-1 pr-1" text @click="submit" v-text="$t('Item.toChannel')"></v-btn>
+            </template>
+
             <template v-if="buttonTemplates.length > 0">
               <v-menu offset-y>
                 <template v-slot:activator="{ on }"><v-btn text v-on="on"> {{ $t('Item.Templates') }}</v-btn></template>

@@ -158,6 +158,7 @@
   "Config.Roles.Other.ExportRelationsXLS": "Экспорт зависимостей в XLS",
   "Config.Roles.Other.ImportRelationsXLS": "Импорт зависимостей из XLS ",
   "Config.Roles.Other.Imports": "Запукс импорта",
+  "Config.Roles.Other.Collections": "Коллекции",
   "Config.Roles.RestrictionsRelations": "Органичения для зависимостей",
   "Config.Roles.RestrictionsItems": "Органичения для данных",
   "Config.Roles.RestrictionsAttributes": "Органичения для атрибутов",

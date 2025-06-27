@@ -225,6 +225,7 @@
                 <v-checkbox v-model="selectedRef.otherAccess.searchRelations" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.SearchRelations')" required></v-checkbox>
                 <v-checkbox v-model="selectedRef.otherAccess.exportRelationsXLS" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.ExportRelationsXLS')" required></v-checkbox>
                 <v-checkbox v-model="selectedRef.otherAccess.importRelationsXLS" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.ImportRelationsXLS')" required></v-checkbox>
+                <v-checkbox v-model="selectedRef.otherAccess.collections" :readonly="!canEditConfigRef" dense :label="$t('Config.Roles.Other.Collections')" required></v-checkbox>
               </div>
             </v-tab-item>
           </v-tabs-items>
