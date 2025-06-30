@@ -1615,10 +1615,16 @@ export default {
       excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleSubmit')
       excelDialogRef.value = true
       excelDialogProgressRef.value = 0
-      await submitItems(where, arr)
-      excelDialogProgressRef.value = 100
-      excelDialogRef.value = false
-      showInfo(i18n.t('Submitted'))
+      try {
+        await submitItems(where, arr)
+        showInfo(i18n.t('Submitted'))
+      } catch (err) {
+        console.error('Error submitting items to channels', arr, err)
+        showError(err.message)
+      } finally {
+        excelDialogProgressRef.value = 100
+        excelDialogRef.value = false
+      }
     }
 
     async function collectionsSelected (colId) {
