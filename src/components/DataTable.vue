@@ -717,7 +717,7 @@ export default {
     const inplaceLovSelection = computed(() => {
       if (inplaceAttribute.value && inplaceAttribute.value.lov) {
         const lovValues = lovsMap[inplaceAttribute.value.lov]
-        const values = lovValues.filter(elem => !elem.level || elem.level.length === 0 || elem.level === '[]' || elem.level.find(path => inplaceItem.value.path.startsWith(path)))
+        const values = lovValues.filter(elem => !elem.level || elem.level.length === 0 || elem.level === '[]' || elem.level.find(path => inplaceItem.value.path.startsWith(path))).filter(val => !val.attrs || val.attrs.length === 0 || val.attrs.includes(inplaceAttribute.value.internalId))
         return values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' } })
       } else {
         return []
