@@ -238,6 +238,7 @@
               <span v-if="header.identifier.endsWith('_submittedAt')  || header.identifier.endsWith('_syncedAt')">{{ dateFormat(new Date(getValue(item, header)), DATE_FORMAT) }}</span>
               <span v-if="header.identifier.endsWith('_submittedBy')">{{ getValue(item, header) }}</span>
               <span v-if="header.identifier.endsWith('_message')">{{ getValue(item, header) }}</span>
+              <a v-if="header.identifier.endsWith('_url')" :href="getValue(item, header)" target="_blank">{{ getValue(item, header) }}</a>
             </template>
           </template>
 

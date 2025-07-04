@@ -215,6 +215,14 @@ export default {
           filterable: false,
           value: { path: ['channels', channel.identifier, 'message'] }
         })
+        arr.push({
+          identifier: '#channel_' + channel.identifier + '_url',
+          text: 'URL (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')',
+          align: 'start',
+          sortable: true,
+          filterable: false,
+          value: { path: ['channels', channel.identifier, 'url'] }
+        })
       }
       for (let i = 0; i < languages.length; i++) {
         const lang = languages[i]
