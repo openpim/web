@@ -389,6 +389,10 @@ export default {
             value: 'channel#' + channel.identifier + '#message',
             text: i18n.t('ColumnsSelection.ChannelMessage') + ' (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
           })
+          arr.push({
+            value: 'channel#' + channel.identifier + '#url',
+            text: 'URL (' + i18n.t('ColumnsSelection.Channel') + (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']') + ')'
+          })
         }
         for (let i = 0; i < languages.length; i++) {
           const lang = languages[i]
