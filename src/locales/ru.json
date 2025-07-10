@@ -570,6 +570,7 @@
   "HistoryTable.targetIdentifier": "Идентификатор назначения",
   "HistoryTable.ObjName": "Наименование объекта",
   "HistoryTable.Values": "Значения",
+  "HistoryTable.ShowValue": "Показать значение",
   "ColumnsSaveDialog.Title": "Сохранение конфигурации колонок",
   "ColumnsSaveDialog.Identifier": "Идентификатор",
   "ColumnsSaveDialog.Name": "Наименование",

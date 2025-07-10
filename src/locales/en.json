@@ -573,6 +573,7 @@
   "HistoryTable.targetIdentifier": "Target Object Identifier",
   "HistoryTable.ObjName": "Name",
   "HistoryTable.Values": "Values",
+  "HistoryTable.ShowValue": "Show Value",
   "ColumnsSaveDialog.Title": "Save columns configuration",
   "ColumnsSaveDialog.Identifier": "Identifier",
   "ColumnsSaveDialog.Name": "Name",

@@ -33,8 +33,19 @@
                   </template>
                 </tr>
                 <tr v-for="(value, name) in item.data.added.values" :key="name">
-                  <td><div class="teal--text mt-2">{{ getTitle(name) }}:</div></td>
-                  <td>{{value}}</td>
+                  <td class="d-inline-flex">
+                    <div class="teal--text mt-2">{{ getTitle(name) }}:</div>
+                    <v-tooltip bottom v-if="hasValueButton(name)">
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" @click="loadAttrValue(name, item.id, 'added')" icon><v-icon small>mdi-magnify</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('HistoryTable.ShowValue') }}</span>
+                    </v-tooltip>
+                  </td>
+                  <td>
+                    <span v-if="!item.data.loaded || !item.data.loaded.values[name]">{{value}}</span>
+                    <span v-if="item.data.loaded && item.data.loaded.values[name]" class="font-weight-bold">{{item.data.loaded.values[name]}}</span>
+                  </td>
                 </tr>
               </tbody>
             </template>
@@ -42,7 +53,7 @@
         </template>
         <template v-if="!isObjectEmpty(item.data.changed)">
           <h4 class="indigo--text mt-2">{{ $t('HistoryTable.Changed') }}</h4>
-          <v-simple-table dense>
+          <v-simple-table dense :key="keysRef[item.index]">
             <template v-slot:default>
               <thead>
                 <tr><th style="width:30%" class="text-left indigo--text">{{ $t('HistoryTable.Name') }}</th>
@@ -58,9 +69,23 @@
                   </template>
                 </tr>
                 <tr v-for="(value, name) in item.data.changed.values" :key="name">
-                  <td><div class="indigo--text mt-2">{{ getTitle(name) }}:</div></td>
-                  <td>{{value}}</td>
-                  <td>{{item.data.old.values[name]}}</td>
+                  <td class="d-inline-flex">
+                    <span class="indigo--text mt-2">{{ getTitle(name) }}:</span>
+                    <v-tooltip bottom v-if="hasValueButton(name)">
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" @click="loadAttrValue(name, item.id, 'changed')" icon><v-icon small>mdi-magnify</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('HistoryTable.ShowValue') }}</span>
+                    </v-tooltip>
+                  </td>
+                  <td>
+                    <span v-if="!item.data.loaded || !item.data.loaded.values[name]">{{value}}</span>
+                    <span v-if="item.data.loaded && item.data.loaded.values[name]" class="font-weight-bold">{{item.data.loaded.values[name]}}</span>
+                  </td>
+                  <td>
+                    <span v-if="!item.data.loaded2 || !item.data.loaded2.values[name]">{{item.data.old.values[name]}}</span>
+                    <span v-if="item.data.loaded2 && item.data.loaded2.values[name]" class="font-weight-bold">{{item.data.loaded2.values[name]}}</span>
+                  </td>
                 </tr>
               </tbody>
             </template>
@@ -82,8 +107,19 @@
                   </template>
                 </tr>
                 <tr v-for="(value, name) in item.data.deleted.values" :key="name">
-                  <td><div class="red--text mt-2">{{ getTitle(name) }}:</div></td>
-                  <td>{{value}}</td>
+                  <td class="d-inline-flex">
+                    <div class="red--text mt-2">{{ getTitle(name) }}:</div>
+                    <v-tooltip bottom v-if="hasValueButton(name)">
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" @click="loadAttrValue(name, item.id, 'deleted')" icon><v-icon small>mdi-magnify</v-icon></v-btn>
+                      </template>
+                      <span>{{ $t('HistoryTable.ShowValue') }}</span>
+                    </v-tooltip>
+                  </td>
+                  <td>
+                    <span v-if="!item.data.loaded || !item.data.loaded.values[name]">{{value}}</span>
+                    <span v-if="item.data.loaded && item.data.loaded.values[name]" class="font-weight-bold">{{item.data.loaded.values[name]}}</span>
+                  </td>
                 </tr>
               </tbody>
             </template>
@@ -100,9 +136,11 @@ import * as langStore from '../store/languages'
 import * as errorStore from '../store/error'
 import * as auditStore from '../store/audit'
 import * as attrStore from '../store/attributes'
+import * as lovStore from '../store/lovs'
 import dateFormat from 'dateformat'
 import i18n from '../i18n'
 import { ref, onMounted, watch } from '@vue/composition-api'
+import AttributeType from '../constants/attributeTypes'
 
 export default {
   props: {
@@ -125,8 +163,13 @@ export default {
     } = auditStore.useStore()
 
     const {
-      findByIdentifier
+      findByIdentifier,
+      getAvailableItemsForRelationAttr
     } = attrStore.useStore()
+
+    const {
+      getLOVData
+    } = lovStore.useStore()
 
     const { showError } = errorStore.useStore()
 
@@ -138,6 +181,8 @@ export default {
       { identifier: 'user', text: i18n.t('HistoryTable.User'), align: 'start', sortable: false, filterable: false, value: 'user' },
       { identifier: 'changedAt', text: i18n.t('HistoryTable.ChangedAt'), align: 'start', sortable: true, filterable: false, value: 'changedAt' },
       { text: '', value: 'data-table-expand' }])
+
+    const keysRef = ref([])
 
     watch(() => props.item, (newItem, oldItem) => {
       optionsRef.value.page = 1
@@ -152,6 +197,11 @@ export default {
       if (props.componentType === 'item') {
         loadItemHistory(props.item.internalId, options).then(data => {
           if (!data) return
+          keysRef.value = []
+          data.rows.forEach((elem, idx) => {
+            elem.index = idx
+            keysRef.value.push(0)
+          })
           itemsRef.value = data.rows
           totalItemsRef.value = data.count
           loadingRef.value = false
@@ -162,6 +212,11 @@ export default {
       } else {
         loadItemRelationHistory(props.item.id, options).then(data => {
           if (!data) return
+          keysRef.value = []
+          data.rows.forEach((elem, idx) => {
+            elem.index = idx
+            keysRef.value.push(0)
+          })
           itemsRef.value = data.rows
           totalItemsRef.value = data.count
           loadingRef.value = false
@@ -190,11 +245,75 @@ export default {
       else {
         if (showAttributesName) {
         // finding attribute can be very long if we have a lot of them
-          const tst = findByIdentifier(name)?.item
+          const tst = findByIdentifier(name, true)?.item
           return tst ? name + ' - ' + (tst.name[currentLanguage.value.identifier] || tst.name[defaultLanguageIdentifier.value]) : name
         } else {
           return name
         }
+      }
+    }
+
+    const notAttr = ['typeIdentifier', 'parentIdentifier', 'mimeType', 'fileOrigName', 'relationIdentifier', 'itemIdentifier', 'targetIdentifier', 'name', 'values']
+    function hasValueButton (name) {
+      if (showAttributesName && !notAttr.includes(name)) {
+        const tst = findByIdentifier(name, true)?.item
+        return tst && (tst.type === AttributeType.Relation || (tst.type === AttributeType.LOV && tst.lov))
+      }
+    }
+
+    async function loadAttrValue (name, id, type) {
+      const attr = findByIdentifier(name, true)?.item
+      const row = itemsRef.value.find(elem => elem.id === id)
+      if (!row.data.loaded) row.data.loaded = { values: {} }
+
+      if (row.data[type].values[name]) {
+        const val = Array.isArray(row.data[type].values[name]) ? row.data[type].values[name] : [row.data[type].values[name]]
+        if (attr.type === AttributeType.Relation) {
+          const res = await getAvailableItemsForRelationAttr(attr, val, '', currentLanguage.value.identifier || defaultLanguageIdentifier.value, 100, 0, 'ASC')
+          res.getItemsForRelationAttribute.length = val.length
+          row.data.loaded.values[name] = res.getItemsForRelationAttribute.map(elem => elem.name[currentLanguage.value.identifier || defaultLanguageIdentifier.value]).join(',')
+        } else {
+          row.data.loaded.values[name] = await getLOVValue(attr.lov, val)
+        }
+      }
+      if (type === 'changed') {
+        if (!row.data.loaded2) row.data.loaded2 = { values: {} }
+        if (row.data.old.values[name]) {
+          const val = Array.isArray(row.data.old.values[name]) ? row.data.old.values[name] : [row.data.old.values[name]]
+          if (attr.type === AttributeType.Relation) {
+            const res = await getAvailableItemsForRelationAttr(attr, val, '', currentLanguage.value.identifier || defaultLanguageIdentifier.value, 100, 0, 'ASC')
+            res.getItemsForRelationAttribute.length = val.length
+            row.data.loaded2.values[name] = res.getItemsForRelationAttribute.map(elem => elem.name[currentLanguage.value.identifier || defaultLanguageIdentifier.value]).join(',')
+          } else {
+            row.data.loaded2.values[name] = await getLOVValue(attr.lov, val)
+          }
+        }
+      }
+
+      const clone = [...keysRef.value]
+      clone[row.index] = Date.now()
+      keysRef.value = clone
+    }
+
+    const lovsMap = {}
+    async function getLOVValue (lovId, attrValue) {
+      let values = lovsMap[lovId]
+      if (!values) {
+        values = await getLOVData(lovId)
+        lovsMap[lovId] = values
+      }
+      if (Array.isArray(attrValue)) { // multivalue attribute
+        let result = ''
+        for (let i = 0; i < attrValue.length; i++) {
+          const val = attrValue[i]
+          const elem = values.find(elem => elem.id === val)
+          result += elem ? (elem.value[currentLanguage.value.identifier] || elem.value[defaultLanguageIdentifier.value]) : attrValue
+          if (i !== attrValue.length - 1) result += ', '
+        }
+        return result
+      } else {
+        const elem = values.find(elem => elem.id === attrValue)
+        return elem ? (elem.value[currentLanguage.value.identifier] || elem.value[defaultLanguageIdentifier.value]) : attrValue
       }
     }
 
@@ -218,6 +337,9 @@ export default {
       isObject,
       isObjectEmpty,
       getTitle,
+      hasValueButton,
+      loadAttrValue,
+      keysRef,
       dateFormat,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT
     }
