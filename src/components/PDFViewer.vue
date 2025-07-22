@@ -12,6 +12,9 @@ export default {
   props: {
     src: {
       required: true
+    },
+    name: {
+      required: true
     }
   }
 }
