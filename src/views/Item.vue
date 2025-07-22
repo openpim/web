@@ -329,7 +329,7 @@
                 </v-card>
                 <v-card v-if="isFile">
                   <v-card-title>
-                    <a v-if="itemRef.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + itemRef.id + '?inline&key='+imageKeyRef+'&token=' + token" target="_blank"><pdf :src="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token"> </pdf></a>
+                    <a v-if="itemRef.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + itemRef.id + '?inline&key='+imageKeyRef+'&token=' + token" target="_blank"><PDFViewer :src="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token"> </PDFViewer></a>
                     <a v-else :href="damUrl + 'asset/' + itemRef.id + '?key='+imageKeyRef+'&token=' + token">{{itemRef.fileOrigName}}</a>
                   </v-card-title>
                   <v-card-actions>
@@ -357,7 +357,7 @@
                   </v-card>
                   <v-card v-if="file && !file.image" class="ma-4" style="background: white;border:1px solid grey">
                     <v-card-title>
-                      <a v-if="file.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + file.id + '?inline&token=' + token" target="_blank"><pdf :src="damUrl + 'asset/' + file.id + '?token=' + token"> </pdf></a>
+                      <a v-if="file.mimeType == 'application/pdf'" :href="damUrl + 'asset/' + file.id + '?inline&token=' + token" target="_blank"><PDFViewer :src="damUrl + 'asset/' + file.id + '?token=' + token"> </PDFViewer></a>
                       <a v-else :href="damUrl + 'asset/' + file.id + '?token=' + token">{{ file.name[currentLanguage.identifier] || '[' + file.name[defaultLanguageIdentifier] + ']' }} - {{ file.relationName[currentLanguage.identifier] || '[' + file.relationName[defaultLanguageIdentifier] + ']' }}</a>
                       <v-btn :to="'/item/' + file.identifier" icon color="black" class="ml-4"><v-icon>mdi-arrow-right-bold-circle-outline</v-icon></v-btn>
                     </v-card-title>
@@ -508,7 +508,7 @@ import AfterAttributesComponent from '../_customizations/item/afterAttributes/Af
 import eventBus from '../eventBus'
 import dateFormat from 'dateformat'
 import getChannelFactory from '../channels'
-import pdf from 'vue-pdf'
+import PDFViewer from '../components/PDFViewer.vue'
 
 export default {
   components: {
@@ -533,7 +533,7 @@ export default {
     CollectionsSelectionDialog,
     ActionStatusDialog,
     ShowAttributesDialog,
-    pdf
+    PDFViewer
   },
   name: 'Home',
   setup (params, context) {
