@@ -437,7 +437,6 @@ export default {
           } else {
             const tst = localStorage.getItem('search_to_open')
             if (tst) {
-              localStorage.removeItem('search_to_open')
               searchToOpenRef.value = JSON.parse(tst)
             }
             if (searchToOpenRef.value) {

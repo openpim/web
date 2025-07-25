@@ -58,9 +58,11 @@ export default {
     const filtersKeyRef = ref(1)
 
     async function search () {
-      if (!selectedRef.value) {
+      if (!selectedRef.value && !localStorage.getItem('search_to_open')) {
         selectedRef.value = { extended: false, filters: [], orAnd: 1 }
         filtersKeyRef.value++
+      } else {
+        localStorage.removeItem('search_to_open')
       }
       if (selectedRef.value.extended) {
         try {
