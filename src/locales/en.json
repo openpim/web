@@ -624,6 +624,8 @@
   "ExecutionsTable.Status": "Status",
   "ExecutionsTable.File": "File",
   "ExecutionsTable.Log": "Log",
+  "ExecutionsTable.LogSize": "Log Size",
+  "ExecutionsTable.DownloadLog": "Download Log",
   "ExecutionsTable.Status.Running": "Running",
   "ExecutionsTable.Status.Finished": "Finished",
   "ExecutionsTable.Status.Error": "Error",

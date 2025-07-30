@@ -249,7 +249,7 @@ const actions = {
     const order = generateSorting(options)
     const includeLog = options.log ? ', log' : ''
     const data = await serverFetch('query { getExecutions(channelId: "' + channelId + '", offset: ' + offset + ', limit: ' + options.itemsPerPage + ', order: ' + objectToGraphgl(order) + `) { 
-      count, rows {id, status, startTime, finishTime, storagePath ${includeLog} }}}`)
+      count, rows {id, status, startTime, finishTime, storagePath, shortLog, logSizeBytes ${includeLog} }}}`)
     return data.getExecutions
   },
   loadExecutionById: async (id) => {

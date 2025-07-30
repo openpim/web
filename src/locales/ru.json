@@ -621,6 +621,8 @@
   "ExecutionsTable.Status": "Статус",
   "ExecutionsTable.File": "Файл",
   "ExecutionsTable.Log": "Ход выполнения",
+  "ExecutionsTable.LogSize": "Размер лога",
+  "ExecutionsTable.DownloadLog": "Скачать лог",
   "ExecutionsTable.Status.Running": "Работает",
   "ExecutionsTable.Status.Finished": "Закончено",
   "ExecutionsTable.Status.Error": "Ошибка",

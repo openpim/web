@@ -8,22 +8,17 @@
       :items="itemsRef"
       :footer-props="{'items-per-page-options': [10, 20, 30, 40, 50] }"
       class="elevation-1">
-    <template v-slot:header.log="{ header }">
-        <td>
-          <v-row no-gutters>
-            <v-col cols="11">
-              <div class="mt-3">{{ header.text }}</div>
-            </v-col>
-            <v-col cols="1">
-              <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" @click="optionsUpdate(optionsRef)"><v-icon>mdi-refresh</v-icon></v-btn>
-                </template>
-                <span>{{ $t('DataTable.Refresh') }}</span>
-              </v-tooltip>
-            </v-col>
-          </v-row>
-        </td>
+    <template v-slot:header.refresh>
+      <div class="d-flex align-center justify-center" style="height: 100%;">
+        <v-tooltip top>
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-on="on" @click="optionsUpdate(optionsRef)">
+              <v-icon>mdi-refresh</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t('DataTable.Refresh') }}</span>
+        </v-tooltip>
+      </div>
     </template>
     <template v-slot:item.startTime="{ item, header }">
         <td>{{ dateFormat(new Date(Date.parse(item[header.value])), DATE_FORMAT) }}</td>
@@ -43,14 +38,52 @@
         </td>
     </template>
     <template v-slot:item.log="{ item }">
-        <td>
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="showLog(item)"><v-icon>mdi-message-outline</v-icon></v-btn>
-            </template>
-            <span>{{ $t('ExecutionsTable.ViewDetails') }}</span>
-          </v-tooltip>
-        </td>
+      <td>
+        <span
+          style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; display: inline-block;"
+          :title="item.shortLog"
+        >
+          {{ item.shortLog }}
+        </span>
+      </td>
+    </template>
+    <template v-slot:item.viewLog="{ item }">
+      <td>
+        <v-tooltip top v-if="item.shortLog.length > 20">
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-on="on" @click="showLog(item)">
+              <v-icon>mdi-message-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t('ExecutionsTable.ViewDetails') }}</span>
+        </v-tooltip>
+      </td>
+    </template>
+    <template v-slot:item.logSize="{ item }">
+      <td>
+        <span style="color: #aaa; font-size: 12px; white-space: nowrap;">
+          ({{ computedLogSize(item) }})
+        </span>
+      </td>
+    </template>
+    <template v-slot:item.downloadLog="{ item }">
+      <td>
+        <v-tooltip top>
+          <template v-slot:activator="{ on }">
+            <a
+              :href="`${damUrl}execution_log/${item.id}?token=${token}`"
+              :download="`log_${item.id}.txt`"
+              v-on="on"
+              style="display: inline-block;"
+            >
+              <v-btn icon>
+                <v-icon>mdi-download</v-icon>
+              </v-btn>
+            </a>
+          </template>
+          <span>{{ $t('ExecutionsTable.DownloadLog') }}</span>
+        </v-tooltip>
+      </td>
     </template>
   </v-data-table>
     <template>
@@ -115,7 +148,11 @@ export default {
       { identifier: 'finishTime', text: i18n.t('ExecutionsTable.EndTime'), align: 'start', sortable: true, filterable: true, value: 'finishTime' },
       { identifier: 'status', text: i18n.t('ExecutionsTable.Status'), align: 'start', sortable: true, filterable: true, value: 'status' },
       { identifier: 'file', text: i18n.t('ExecutionsTable.File'), align: 'start', sortable: false, filterable: false, value: 'file' },
-      { identifier: 'log', text: i18n.t('ExecutionsTable.Log'), align: 'start', sortable: false, filterable: false, value: 'log' }
+      { identifier: 'log', text: i18n.t('ExecutionsTable.Log'), align: 'start', sortable: false, filterable: false, value: 'log' },
+      { identifier: 'viewLog', text: '', align: 'start', sortable: false, filterable: false, value: 'viewLog' },
+      { identifier: 'logSize', text: i18n.t('ExecutionsTable.LogSize'), align: 'start', sortable: false, filterable: false, value: 'logSize' },
+      { identifier: 'downloadLog', text: i18n.t('ExecutionsTable.DownloadLog'), align: 'start', sortable: false, filterable: false, value: 'downloadLog' },
+      { identifier: 'refresh', text: '', align: 'start', sortable: false, filterable: false, value: 'refresh' }
     ])
     const dialogRef = ref(false)
     const logRef = ref('')
@@ -153,6 +190,13 @@ export default {
       })
     }
 
+    function computedLogSize (item) {
+      if (!item.logSizeBytes) return '0 B'
+      if (item.logSizeBytes < 1024) return `${item.logSizeBytes} B`
+      if (item.logSizeBytes < 1024 * 1024) return `${(item.logSizeBytes / 1024).toFixed(2)} KB`
+      return `${(item.logSizeBytes / 1024 / 1024).toFixed(2)} MB`
+    }
+
     onMounted(() => {
       optionsUpdate(optionsRef.value)
     })
@@ -161,6 +205,7 @@ export default {
       itemsRef,
       totalItemsRef,
       headersRef,
+      computedLogSize,
       currentLanguage,
       defaultLanguageIdentifier,
       optionsUpdate,
