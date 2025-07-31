@@ -118,7 +118,7 @@ import * as errorStore from '../store/error'
 import * as channelsStore from '../store/channels'
 import dateFormat from 'dateformat'
 import i18n from '../i18n'
-import { ref, onMounted, watch } from '@vue/composition-api'
+import { ref, watch } from '@vue/composition-api'
 
 export default {
   props: {
@@ -141,7 +141,8 @@ export default {
 
     const itemsRef = ref([])
     const totalItemsRef = ref(0)
-    const optionsRef = ref({ page: 1, itemsPerPage: 10, sortBy: ['startTime'], sortDesc: [true] })
+    const defaultOptions = () => ({ page: 1, itemsPerPage: 10, sortBy: ['startTime'], sortDesc: [true] })
+    const optionsRef = ref(defaultOptions())
     const loadingRef = ref(false)
     const headersRef = ref([
       { identifier: 'startTime', text: i18n.t('ExecutionsTable.StartTime'), align: 'start', sortable: true, filterable: true, value: 'startTime' },
@@ -168,16 +169,14 @@ export default {
       }
     }
 
-    watch(() => props.channel, (newItem, oldItem) => {
-      optionsRef.value.page = 1
-      optionsRef.value.log = false
-      totalItemsRef.value = 0
-      optionsUpdate(optionsRef.value)
+    watch(() => props.channel, (newChannel) => {
+      if (newChannel) {
+        optionsRef.value = defaultOptions()
+      }
     })
 
     function optionsUpdate (options) {
       if (!props.channel) return
-
       loadingRef.value = true
       loadExecutions(props.channel.internalId, options).then(data => {
         if (!data) return
@@ -196,10 +195,6 @@ export default {
       if (item.logSizeBytes < 1024 * 1024) return `${(item.logSizeBytes / 1024).toFixed(2)} KB`
       return `${(item.logSizeBytes / 1024 / 1024).toFixed(2)} MB`
     }
-
-    onMounted(() => {
-      optionsUpdate(optionsRef.value)
-    })
 
     return {
       itemsRef,
