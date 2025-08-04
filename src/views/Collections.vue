@@ -57,7 +57,7 @@ export default {
       collections
     } = collectionsStore.useStore()
 
-    const { currentWhereRef } = searchStore.useStore()
+    const { currentWhereRef, searchEntityRef } = searchStore.useStore()
 
     const {
       currentLanguage,
@@ -128,6 +128,7 @@ export default {
     })
 
     onMounted(() => {
+      searchEntityRef.value = 'ITEM'
       loadAllCollections().then(() => {
         collectionsRef.value = getCollections()
         if (route.value && route.value.params && route.value.params.id && collectionsRef.value) {
