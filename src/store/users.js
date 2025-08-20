@@ -57,6 +57,7 @@ const actions = {
   loadAllUsers: async () => {
     if (!promise) promise = serverFetch('query { getUsers {id internalId login name email roles options props external createdAt createdBy updatedAt updatedBy } }')
     const data = await promise
+    if (users.length > 0) return
     if (data.getUsers) {
       data.getUsers.forEach(element => {
         users.push(element)
