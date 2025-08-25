@@ -57,7 +57,7 @@
                   </div>
                   <div :key="headAttributesKeyRef">
                     <v-col :cols="12" v-if="getOption(itemType, 'identifier_head', null)" class="caption pa-0">
-                      <span class="font-weight-bold mr-2">{{ $t('ItemCreationDialog.Identifier') }} : {{ itemRef.identifier }}</span>
+                      <span class="font-weight-bold mr-2">{{ $t('ItemCreationDialog.Identifier') }} : </span><span>{{ itemRef.identifier }}</span>
                     </v-col>
                     <template v-for="(attr) in headerAttrs">
                       <v-col :cols="12" :key="attr.id" v-if="getOption(attr, 'head', null)" class="caption pa-0">
