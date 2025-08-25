@@ -62,7 +62,7 @@
                           <span v-if="attr.type === AttributeType.URL">
                             <a :href="attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]" target="_blank">{{attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]}}</a>
                           </span>
-                          <span v-else>{{attr.lov? getLOVValue(attr) : (attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier])}}</span>
+                          <span v-else>{{attr.type === AttributeType.Relation ? getRelAttrValue(attr) : (attr.lov? getLOVValue(attr) : (attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]))}}</span>
                       </v-col>
                     </template>
                   </div>
@@ -587,7 +587,9 @@ export default {
 
     const {
       loadAllAttributes,
-      getAttributesForItem
+      getAttributesForItem,
+      findByIdentifier,
+      getAvailableItemsForRelationAttr
     } = attrStore.useStore()
 
     const {
@@ -1073,6 +1075,7 @@ export default {
       totalChildrenRef.value = -1
       hasSources.value = true
       hasTargets.value = true
+      relAttrsMap = {}
 
       loadAssets(item.internalId).then(arr => {
         arr.forEach(elem => {
@@ -1520,6 +1523,61 @@ export default {
       }
     }
 
+    let relAttrsMap = {}
+    function getRelAttrValue (attr) {
+      const val = relAttrsMap[attr.identifier]
+      if (!val) {
+        relAttrsMap[attr.identifier] = '...'
+        loadRelAttrValue(attr).then(val => {
+          headAttributesKeyRef.value++
+        })
+        return null
+      }
+      return val
+    }
+    async function loadRelAttrValue (attr) {
+      const displayValueOption = attr.options.find(el => el.name === 'displayValue')
+      const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
+      const lov = displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
+      const lovData = lov ? await getLOVData(displayAttr.item.lov) : null
+      const attrValue = attr.languageDependent ? itemRef.value.values[attr.identifier][currentLanguage.value.identifier] : itemRef.value.values[attr.identifier]
+      const data = await getAvailableItemsForRelationAttr(attr, attrValue, '', currentLanguage.value.identifier || defaultLanguageIdentifier.value, 1, 0, 'ASC')
+
+      let val = ''
+      if (attrValue !== null && typeof (attrValue) !== 'undefined') {
+        const found = data.getItemsForRelationAttribute.find(el => el.id === attrValue)
+        if (!found) val = `[[[ ${attrValue} ]]]`
+        else val = getRelDisplayValue(found, displayValueOption, displayAttr, lovData)
+      } else {
+        val = ''
+      }
+
+      relAttrsMap[attr.identifier] = val
+      headAttributesKeyRef.value++
+      return val
+    }
+    const getRelDisplayValue = (item, displayValueOption, displayAttr, lovData) => {
+      let result
+      if (displayValueOption && displayValueOption.value && displayValueOption.value.startsWith('#')) {
+        const fieldName = displayValueOption.value.substr(1)
+        result = item[fieldName]
+      } else if (displayValueOption && displayValueOption.value) {
+        // const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
+        const langDependent = displayAttr && displayAttr.item && displayAttr.item.languageDependent
+        if (langDependent) {
+          result = item.values[displayValueOption.value] ? item.values[displayValueOption.value][currentLanguage.value.identifier] || item.values[displayValueOption.value][defaultLanguageIdentifier.value] : null
+        } else if (lovData) {
+          const found = lovData.find(el => parseInt(el.id) === parseInt(item.values[displayValueOption.value]))
+          result = found ? found.value[currentLanguage.value.identifier] || item.name[defaultLanguageIdentifier.value] : ''
+        } else {
+          result = item.values[displayValueOption.value]
+        }
+      } else {
+        result = item.name[currentLanguage.value.identifier] || item.name[defaultLanguageIdentifier.value]
+      }
+      return result
+    }
+
     return {
       buttonActionStatusDialog,
       AttributeType,
@@ -1593,6 +1651,7 @@ export default {
       dateFormat,
       headAttributesKeyRef,
       getLOVValue,
+      getRelAttrValue,
       getChannelFactory,
       syncItem,
       itemChangedRef,
