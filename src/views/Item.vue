@@ -56,6 +56,9 @@
                     <v-icon :color="itemType ? itemType.iconColor : null">{{itemType ? 'mdi-'+itemType.icon : null}}</v-icon><span class="font-weight-bold">{{$t('Item.type')}} :</span> <router-link :to="'/config/types/' + itemType.identifier">{{ itemType.identifier }}</router-link><span class="ml-0"> ({{ itemType.name[currentLanguage.identifier] || '[' + itemType.name[defaultLanguageIdentifier] + ']' }})</span>
                   </div>
                   <div :key="headAttributesKeyRef">
+                    <v-col :cols="12" v-if="getOption(itemType, 'identifier_head', null)" class="caption pa-0">
+                      <span class="font-weight-bold mr-2">{{ $t('ItemCreationDialog.Identifier') }} : {{ itemRef.identifier }}</span>
+                    </v-col>
                     <template v-for="(attr) in headerAttrs">
                       <v-col :cols="12" :key="attr.id" v-if="getOption(attr, 'head', null)" class="caption pa-0">
                         <span class="font-weight-bold mr-2">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }} :</span>
