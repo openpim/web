@@ -70,17 +70,17 @@
                 <tr v-for="(itemRel, j) in rel" :key="'T'+j" :set="canEditItemRelation = canEditItemRelationByIdentifier(identifier)">
                   <td v-if="getOption(identifier, 'hideIdentifier', '') !== 'true'" class="pa-1"><input v-model="itemRel.identifier" :placeholder="$t('ItemRelationsList.Identifier')" :disabled="itemRel.id > 0"></td>
 
-                  <td class="d-inline-flex1">
+                  <td class="d-inline-flex" style="width: 100%; height: 48px;">
                     <a v-if="itemRel.item" target="_blank" :href="damUrl + 'asset/' + itemRel.item.id + '?inline=true&token=' + token" style="text-decoration: none">
                       <v-icon v-if="itemRel.item.fileOrigName && !itemRel.item.mimeType.startsWith('image/')">mdi-download-circle-outline</v-icon>
-                      <v-img class="pa-0 ma-0" v-if="itemRel.item.fileOrigName && itemRel.item.mimeType.startsWith('image/')" max-width="5vw" max-height="5vh" :src="damUrl + 'asset/' + itemRel.item.id + '/thumb?token=' + token" contain></v-img>
+                      <v-img class="pa-0 ma-0" v-if="itemRel.item.fileOrigName && itemRel.item.mimeType.startsWith('image/')" max-width="4vw" max-height="4vh" :src="damUrl + 'asset/' + itemRel.item.id + '/thumb?token=' + token" contain></v-img>
                     </a>
                     <a v-if="itemRel.item && itemRel.item.fileOrigName && itemRel.item.mimeType.startsWith('image/')" :href="damUrl + 'asset/' + itemRel.item.id + '?token=' + token" class="ml-1" style="text-decoration: none"><v-icon class="mt-2" color="grey darken-1">mdi-download-circle-outline</v-icon></a>
                     <a v-if="itemRel.item && itemRel.item.fileOrigName && !itemRel.item.mimeType.startsWith('image/')" :href="damUrl + 'asset/' + itemRel.item.id + '?token=' + token" class="ml-1 mb-0" style="text-decoration: none"><v-icon class="" color="grey darken-1">mdi-content-save-outline</v-icon></a>
 
                     <a  v-if="itemRel.target" target="_blank" :href="damUrl + 'asset/' + itemRel.target.id + '?inline=true&token=' + token" style="text-decoration: none">
                       <v-icon v-if="itemRel.target.fileOrigName && !itemRel.target.mimeType.startsWith('image/')">mdi-download-circle-outline</v-icon>
-                      <v-img class="pa-0 ma-0" v-if="itemRel.target.fileOrigName && itemRel.target.mimeType.startsWith('image/')" max-width="5vw" max-height="5vh" :src="damUrl + 'asset/' + itemRel.target.id + '/thumb?token=' + token" contain></v-img>
+                      <v-img class="pa-0 ma-0" v-if="itemRel.target.fileOrigName && itemRel.target.mimeType.startsWith('image/')" max-width="4vw" max-height="4vh" :src="damUrl + 'asset/' + itemRel.target.id + '/thumb?token=' + token" contain></v-img>
                     </a>
                     <a v-if="itemRel.target && itemRel.target.fileOrigName && itemRel.target.mimeType.startsWith('image/')" :href="damUrl + 'asset/' + itemRel.target.id + '?token=' + token" class="ml-1" style="text-decoration: none"><v-icon class="mt-2" color="grey darken-1">mdi-download-circle-outline</v-icon></a>
                     <a v-if="itemRel.target && itemRel.target.fileOrigName && !itemRel.target.mimeType.startsWith('image/')" :href="damUrl + 'asset/' + itemRel.target.id + '?token=' + token" class="ml-1" style="text-decoration: none"><v-icon class="" color="grey darken-1">mdi-content-save-outline</v-icon></a>
