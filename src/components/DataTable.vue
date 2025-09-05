@@ -2068,7 +2068,11 @@ export default {
             if (filterHeader.lov) {
               operation[filterHeader.value] = filterHeader.multivalue ? { OP_substring: '' + filterHeader.filter } : { OP_eq: filterHeader.filter }
             } else {
-              operation[filterHeader.value] = { OP_iLike: '%' + filterHeader.filter + '%' }
+              if (filterHeader.filter && filterHeader.filter.startsWith('=')) {
+                operation[filterHeader.value] = { OP_eq: filterHeader.filter.substr(1) }
+              } else {
+                operation[filterHeader.value] = { OP_iLike: '%' + filterHeader.filter + '%' }
+              }
             }
           } else if (filterHeader.filterType === 'EMPTY') {
             operation[filterHeader.value] = { OP_or: [{ OP_eq: '' }, { OP_eq: null }] }
