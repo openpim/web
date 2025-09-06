@@ -120,6 +120,10 @@
                         {{ $t('Config.Actions.Triggers.Type.LOV') }}
                         ({{ displayEvent(trigger.event) }})
                       </div>
+                      <div v-if="trigger.type === 9">
+                        {{ $t('Config.Actions.Triggers.Type.CollectionElem') }}
+                        ({{ displayEvent(trigger.event) }})
+                      </div>
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
