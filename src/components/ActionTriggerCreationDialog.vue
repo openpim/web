@@ -154,7 +154,7 @@
                   </template>
                   <template v-if="triggerRef.type === 9"> <!-- collection change -->
                     <v-radio-group v-model="triggerRef.event">
-                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterUpdate')" value="4"></v-radio>
+                      <v-radio :label="$t('Config.Actions.Triggers.Event.AfterCreate')" value="2"></v-radio>
                       <v-radio :label="$t('Config.Actions.Triggers.Event.AfterDelete')" value="6"></v-radio>
                     </v-radio-group>
                   </template>
