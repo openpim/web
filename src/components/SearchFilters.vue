@@ -420,7 +420,7 @@ export default {
               data.type = 'time'
             }
             arr.push(data)
-            if (attr.lov && !lovsMapRef.value[val]) lovsMapRef.value[val] = attr.lov
+            if (attr.lov && attr.type === AttributeType.LOV && !lovsMapRef.value[val]) lovsMapRef.value[val] = attr.lov
           }
         }
 
