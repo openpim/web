@@ -561,7 +561,7 @@
   "HistoryTable.Deleted": "Удалено",  
   "HistoryTable.Name": "Наименование",
   "HistoryTable.Value": "Значение",
-  "HistoryTable.OldValue": "Предыдушее значение",
+  "HistoryTable.OldValue": "Предыдущее значение",
   "HistoryTable.typeIdentifier": "Идентификатор типа",
   "HistoryTable.parentIdentifier": "Идентификатор родительского объекта",
   "HistoryTable.mimeType": "Mime тип",
