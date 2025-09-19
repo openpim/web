@@ -1983,7 +1983,9 @@ export default {
     async function processButtonAction (button, data) {
       buttonActionStatusDialog.value.showDialog()
       const where = getTableWhere()
-      await executeTableButtonAction(props.item ? props.item.internalId : null, button, where || {}, headersRef.value || [], data).then((result) => {
+      let dataToSend = data
+      if (props.collection && !dataToSend) dataToSend = JSON.stringify({ collection: props.collection.identifier })
+      await executeTableButtonAction(props.item ? props.item.internalId : null, button, where || {}, headersRef.value || [], dataToSend).then((result) => {
         optionsUpdate(optionsRef.value)
         if (result.data) {
           if (result.data.router) {
