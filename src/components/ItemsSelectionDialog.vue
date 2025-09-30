@@ -85,6 +85,7 @@ export default {
     const typesFilter = ref(null)
 
     let initiator
+    let multiselection
 
     function searchChanged () {
       if (searchTextRef.value.length > 1) {
@@ -118,19 +119,25 @@ export default {
     }
 
     function selected () {
-      if (selectedItemsRef.value[0]) {
-        const id = selectedItemsRef.value[0]
-        const node = findItem(id).node
-        emit('selected', node.internalId, initiator)
+      if (selectedItemsRef.value.length > 0) {
+        if (!multiselection) {
+          const id = selectedItemsRef.value[0]
+          const node = findItem(id).node
+          emit('selected', node.internalId, initiator)
+        } else {
+          const arr = selectedItemsRef.value.map(id => findItem(id).node.internalId)
+          emit('selected', arr, initiator)
+        }
       } else if (searchSelectedRef.value != null) {
         emit('selected', parseInt(searchResultsRef.value[searchSelectedRef.value].id), initiator)
       }
     }
 
-    function showDialog (init, typesToFilter, searchTabActive) {
+    function showDialog (init, typesToFilter, searchTabActive, multiselect) {
       typesFilter.value = typesToFilter
       selectedItemsRef.value = []
       initiator = init
+      multiselection = multiselect
       if (itemsTree.length === 0) {
         loadItems().then(() => {
           treeRef.value = itemsTree
@@ -151,7 +158,7 @@ export default {
     }
 
     function onSelect (arr) {
-      if (arr && arr.length > 1) {
+      if (!multiselection && arr && arr.length > 1) {
         const val = arr[arr.length - 1]
         selectedItemsRef.value = [val]
       }

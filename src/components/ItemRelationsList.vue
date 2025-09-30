@@ -440,39 +440,6 @@ export default {
       }
     }
 
-    function add (identifier) {
-      const rel = relations.find(rel => rel.identifier === identifier)
-      if (!rel) return
-
-      props.item.type = findType(props.item.typeId).node
-      if (!props.item.type) return
-
-      if (props.componentType === 'source') {
-        const rels = sourceRelations[identifier]
-        if (!rels) return
-        if (!rel.multi && rels.length > 0) {
-          showError(i18n.t('ItemRelationsList.OnlyOne'))
-        } else {
-          const data = { id: -Date.now(), relationId: rel.id, item: props.item, values: {} }
-          createLanguageDependentValues(rel.id, data)
-          sourceRelations[identifier].unshift(data)
-        }
-      } else {
-        const data = { id: -Date.now(), relationId: rel.id, target: props.item, values: {} }
-        createLanguageDependentValues(rel.id, data)
-        targetRelations[identifier].unshift(data)
-      }
-    }
-
-    function createLanguageDependentValues (relId, data) {
-      const attrs = getAttributesForRelationId(relId)
-      attrs.forEach(attr => {
-        if (attr.languageDependent) {
-          data.values[attr.identifier] = {}
-        }
-      })
-    }
-
     async function saveAll () {
       let reloadItem = false
       const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
@@ -487,7 +454,6 @@ export default {
           }
         }
       }
-      console.log(111, reloadItem)
       if (reloadItem) await props.itemRefreshFunction()
     }
 
@@ -591,41 +557,75 @@ export default {
       }
     }
 
+    function add (identifier) {
+      const rel = relations.find(rel => rel.identifier === identifier)
+      itemSelectionDialogRef.value.showDialog({ mode: 'add', identifier: identifier }, props.componentType === 'source' ? rel.targets : rel.sources, false, true)
+    }
+
+    function createLanguageDependentValues (relId, data) {
+      const attrs = getAttributesForRelationId(relId)
+      attrs.forEach(attr => {
+        if (attr.languageDependent) {
+          data.values[attr.identifier] = {}
+        }
+      })
+    }
+
     function select (identifier, itemRel) {
       const rel = relations.find(rel => rel.identifier === identifier)
-      itemSelectionDialogRef.value.showDialog({ identifier: identifier, itemRelId: itemRel.id, itemRelIdentifier: itemRel.identifier }, props.componentType === 'source' ? rel.targets : rel.sources)
+      itemSelectionDialogRef.value.showDialog({ mode: 'update', identifier: identifier, itemRelId: itemRel.id, itemRelIdentifier: itemRel.identifier }, props.componentType === 'source' ? rel.targets : rel.sources, false, false)
     }
 
     const changedRelations = ref([])
-    function itemsSelected (id, parameters) {
+    async function itemsSelected (id, parameters) {
       itemSelectionDialogRef.value.closeDialog()
-      nextId().then(nextId => {
-        loadItemsByIds([id], false).then(items => {
-          const rel = relations.find(rel => rel.identifier === parameters.identifier)
-          const typesArray = props.componentType === 'source' ? rel.targets : rel.sources
-          const tst = typesArray.find(typeId => typeId === parseInt(items[0].typeId))
-          if (tst) {
-            const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
-            itemRels[parameters.identifier].forEach(itemRel => {
-              if (itemRel.id === parameters.itemRelId) {
-                items[0].type = findType(items[0].typeId).node
-                root.$set(itemRel, props.componentType === 'source' ? 'target' : 'item', items[0])
-                if (!itemRel.identifier) {
-                  const newIdentifier = props.componentType === 'source' ? props.item.identifier + '_' + items[0].identifier + '_' + nextId : items[0].identifier + '_' + props.item.identifier + '_' + nextId
-                  root.$set(itemRel, 'identifier', newIdentifier)
-                  router.dataChanged(newIdentifier, i18n.t('Router.Changed.ItemRelation') + newIdentifier)
-                } else {
-                  router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
-                }
-                executeClientAction(itemRel, { type: props.componentType }, itemRels[parameters.identifier])
-                changedRelations.value.push(itemRel.id)
-              }
-            })
+
+      const rel = relations.find(rel => rel.identifier === parameters.identifier)
+
+      if (parameters.mode === 'add') {
+        const items = await loadItemsByIds(id, false)
+        for (const item of items) {
+          const nextIdVal = await nextId()
+          const newIdentifier = props.componentType === 'source' ? props.item.identifier + '_' + items[0].identifier + '_' + nextIdVal : items[0].identifier + '_' + props.item.identifier + '_' + nextIdVal
+          items.type = findType(items.typeId).node
+          if (props.componentType === 'source') {
+            const rels = sourceRelations[parameters.identifier]
+            if (!rels) return
+            if (!rel.multi && rels.length > 0) {
+              showError(i18n.t('ItemRelationsList.OnlyOne'))
+              return
+            }
+            const data = { id: -Date.now(), identifier: newIdentifier, relationId: rel.id, item: props.item, target: item, values: {} }
+            createLanguageDependentValues(rel.id, data)
+            sourceRelations[parameters.identifier].unshift(data)
+            router.dataChanged(data.identifier, i18n.t('Router.Changed.ItemRelation') + data.identifier)
+            executeClientAction(data, { type: props.componentType }, rels)
+            changedRelations.value.push(data.id)
           } else {
-            showError(i18n.t('ItemRelationsList.WrongSelection'))
+            const data = { id: -Date.now(), identifier: newIdentifier, relationId: rel.id, item: item, target: props.item, values: {} }
+            createLanguageDependentValues(rel.id, data)
+            targetRelations[parameters.identifier].unshift(data)
+            router.dataChanged(data.identifier, i18n.t('Router.Changed.ItemRelation') + data.identifier)
+            executeClientAction(data, { type: props.componentType }, targetRelations[parameters.identifier])
+            changedRelations.value.push(data.id)
           }
-        })
-      })
+        }
+      } else {
+        const items = await loadItemsByIds([id], false)
+        const typesArray = props.componentType === 'source' ? rel.targets : rel.sources
+        const tst = typesArray.find(typeId => typeId === parseInt(items[0].typeId))
+        if (tst) {
+          const itemRels = props.componentType === 'source' ? sourceRelations : targetRelations
+          const itemRel = itemRels[parameters.identifier].find(itemRel => itemRel.id === parameters.itemRelId)
+          items[0].type = findType(items[0].typeId).node
+          root.$set(itemRel, props.componentType === 'source' ? 'target' : 'item', items[0])
+          router.dataChanged(itemRel.identifier, i18n.t('Router.Changed.ItemRelation') + itemRel.identifier)
+          executeClientAction(itemRel, { type: props.componentType }, itemRels[parameters.identifier])
+          changedRelations.value.push(itemRel.id)
+        } else {
+          showError(i18n.t('ItemRelationsList.WrongSelection'))
+        }
+      }
     }
 
     /* change = {
