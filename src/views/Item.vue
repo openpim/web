@@ -1424,12 +1424,11 @@ export default {
       }
     }
 
-    function refresh () {
+    async function refresh () {
       if (itemRef.value) {
-        loadItemByIdentifier(itemRef.value.identifier).then((item) => {
-          loadItemPath(item.path)
-          itemSelected(item)
-        })
+        const item = await loadItemByIdentifier(itemRef.value.identifier)
+        loadItemPath(item.path)
+        itemSelected(item)
       }
     }
 

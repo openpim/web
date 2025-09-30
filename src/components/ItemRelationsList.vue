@@ -480,13 +480,15 @@ export default {
         const rels = itemRels[prop]
         for (let i = 0; i < rels.length; i++) {
           const rel = rels[i]
-          if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem = true
+          const relType = relations.find(elem => elem.id === rel.relationId)
+          if (getOption2(relType, 'reloadItemOnUpdate', false)) reloadItem = true
           if (changedRelations.value.includes(rel.id)) {
             await save(prop, rel.id, true)
           }
         }
       }
-      if (reloadItem) reloadItem(props.item)
+      console.log(111, reloadItem)
+      if (reloadItem) await props.itemRefreshFunction()
     }
 
     async function saveAllTab (identifier) {
@@ -495,12 +497,13 @@ export default {
       const rels = itemRels[identifier]
       for (let i = 0; i < rels.length; i++) {
         const rel = rels[i]
-        if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem = true
+        const relType = relations.find(elem => elem.id === rel.relationId)
+        if (getOption2(relType, 'reloadItemOnUpdate', false)) reloadItem = true
         if (changedRelations.value.includes(rel.id)) {
           await save(identifier, rel.id, true)
         }
       }
-      if (reloadItem) reloadItem(props.item)
+      if (reloadItem) await props.itemRefreshFunction()
     }
 
     async function removeAllTab (identifier) {
@@ -510,7 +513,8 @@ export default {
         const rels = [...itemRels[identifier]]
         for (let i = 0; i < rels.length; i++) {
           const rel = rels[i]
-          if (getOption2(rel, 'reloadItemOnUpdate', false)) reloadItem = true
+          const relType = relations.find(elem => elem.id === rel.relationId)
+          if (getOption2(relType, 'reloadItemOnUpdate', false)) reloadItem = true
           await removeItemRelation(props.componentType, identifier, rel.id)
         }
         if (props.componentType === 'source') {
