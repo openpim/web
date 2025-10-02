@@ -320,7 +320,7 @@ export default {
 
       currentFilter = {}
       if (props.componentType === 'source') {
-        loadSourceRelations(newValue, root, 0, pageSize.value).then(() => {
+        loadSourceRelations(newValue, root, pageSize.value).then(() => {
           emit('dataLoaded', sourceRelations)
 
           for (const identifier in sourceRelationsTotal) {
@@ -330,7 +330,7 @@ export default {
           calculateGroups()
         })
       } else {
-        loadTargetRelations(newValue, root, 0, pageSize.value).then(() => {
+        loadTargetRelations(newValue, root, pageSize.value).then(() => {
           emit('dataLoaded', targetRelations)
 
           for (const identifier in targetRelationsTotal) {

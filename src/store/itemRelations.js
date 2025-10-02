@@ -47,7 +47,7 @@ function generateSorting (options) {
 }
 
 const actions = {
-  loadSourceRelations: async (item, root, offset, limit) => {
+  loadSourceRelations: async (item, root, limit) => {
     let relations = relStore.store.relations
     if (relations.length === 0) {
       await relStore.store.loadAllRelations()
@@ -55,17 +55,11 @@ const actions = {
     relations = relations.filter(relation => userStore.store.canViewItemRelation(relation.internalId))
     relations.sort((a, b) => a.order - b.order)
 
-    for (let i = 0; i < relations.length; i++) {
-      const rel = relations[i]
-      if (rel.sources.find(id => id === parseInt(item.typeId))) {
-        const res = await serverFetch('query { getSourceRelations(itemId: ' + item.id +
-        ', relationId:' + rel.id +
-        ', offset:' + offset +
-        ', limit:' + limit +
-        `) 
-        { count,
-          rows 
+    const res = await serverFetch('query { getAllSourceRelations(itemId: ' + item.id +
+      ', limit:' + limit +
+      `) 
           { 
+            count
             id 
             identifier
             relationId
@@ -93,16 +87,21 @@ const actions = {
               }
             values
           }
-        } }`)
-        const itemRels = res.getSourceRelations
-        if (itemRels && itemRels.count > 0) {
-          itemRels.rows.forEach(row => {
+        }`)
+    const itemRels = res.getAllSourceRelations
+
+    for (let i = 0; i < relations.length; i++) {
+      const rel = relations[i]
+      if (rel.sources.find(id => id === parseInt(item.typeId))) {
+        const filteredRels = itemRels.filter(elem => elem.relationId === '' + rel.id)
+        if (filteredRels && filteredRels.length > 0) {
+          filteredRels.forEach(row => {
             row.item.type = typeStore.store.findType(row.item.typeId).node
             row.target.type = typeStore.store.findType(row.target.typeId).node
           })
-          createLanguageDependentValues(rel.id, itemRels.rows)
-          root.$set(sourceRelations, rel.identifier, itemRels.rows)
-          root.$set(sourceRelationsTotal, rel.identifier, itemRels.count)
+          createLanguageDependentValues(rel.id, filteredRels)
+          root.$set(sourceRelations, rel.identifier, filteredRels)
+          root.$set(sourceRelationsTotal, rel.identifier, filteredRels[0].count)
         } else {
           root.$set(sourceRelations, rel.identifier, [])
           root.$set(sourceRelationsTotal, rel.identifier, 0)
@@ -166,7 +165,7 @@ const actions = {
       root.$set(sourceRelations, identifier, [])
     }
   },
-  loadTargetRelations: async (item, root, offset, limit) => {
+  loadTargetRelations: async (item, root, limit) => {
     let relations = relStore.store.relations
     if (relations.length === 0) {
       await relStore.store.loadAllRelations()
@@ -174,17 +173,11 @@ const actions = {
     relations = relations.filter(relation => userStore.store.canViewItemRelation(relation.internalId))
     relations.sort((a, b) => a.order - b.order)
 
-    for (let i = 0; i < relations.length; i++) {
-      const rel = relations[i]
-      if (rel.targets.find(id => id === parseInt(item.typeId))) {
-        const res = await serverFetch('query { getTargetRelations(itemId: ' + item.id +
-        ', relationId:' + rel.id +
-        ', offset:' + offset +
-        ', limit:' + limit +
-        `) 
-        { count,
-          rows 
+    const res = await serverFetch('query { getAllTargetRelations(itemId: ' + item.id +
+      ', limit:' + limit +
+      `) 
           { 
+            count
             id 
             identifier
             relationId
@@ -212,16 +205,21 @@ const actions = {
               }
             values
           }
-        } }`)
-        const itemRels = res.getTargetRelations
-        if (itemRels && itemRels.count > 0) {
-          itemRels.rows.forEach(row => {
+        }`)
+    const itemRels = res.getAllTargetRelations
+
+    for (let i = 0; i < relations.length; i++) {
+      const rel = relations[i]
+      if (rel.targets.find(id => id === parseInt(item.typeId))) {
+        const filteredRels = itemRels.filter(elem => elem.relationId === '' + rel.id)
+        if (filteredRels && filteredRels.length > 0) {
+          filteredRels.forEach(row => {
             row.item.type = typeStore.store.findType(row.item.typeId).node
             row.target.type = typeStore.store.findType(row.target.typeId).node
           })
-          createLanguageDependentValues(rel.id, itemRels.rows)
-          root.$set(targetRelations, rel.identifier, itemRels.rows)
-          root.$set(targetRelationsTotal, rel.identifier, itemRels.count)
+          createLanguageDependentValues(rel.id, filteredRels)
+          root.$set(targetRelations, rel.identifier, filteredRels)
+          root.$set(targetRelationsTotal, rel.identifier, filteredRels[0].count)
         } else {
           root.$set(targetRelations, rel.identifier, [])
           root.$set(targetRelationsTotal, rel.identifier, 0)
