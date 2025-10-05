@@ -215,7 +215,7 @@
                 <BeforeAttributesComponent></BeforeAttributesComponent>
                 <v-expansion-panels popout multiple focusable v-model="groupPanels[grpIdx]">
                   <v-expansion-panel v-for="(group,i) in attrGroups.groups" :key="i">
-                    <v-expansion-panel-header>{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
+                    <v-expansion-panel-header :class="getOption(group, 'group_class', '')">{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
                        <v-container class="pa-0">
                         <v-row no-gutters v-if="!tableMode || getOption(group, 'noTableView')">
