@@ -114,11 +114,11 @@
 
     <AppHeader :export="isExportSearch" :drawer="drawer" :drawerRight="drawerRight"/>
 
-    <v-content>
+    <v-main>
       <v-container class="fill-height pa-2 ma-0 width:100%" fluid>
         <router-view :export="isExportSearch"></router-view>
       </v-container>
-    </v-content>
+    </v-main>
     <v-dialog v-model="userDialogRef" persistent max-width="600px">
       <v-card v-if="currentUserRef">
         <v-card-title>

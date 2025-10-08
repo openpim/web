@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="itemRef" class="pa-0">
+  <v-container v-if="itemRef" class="pa-0" :class="{ 'tabs-scroll-enabled': tabsScrollEnabled }">
     <v-row no-gutters>
       <v-col cols="12">
         <v-btn x-small fab fixed bottom right color="primary" @click="toTop"><v-icon>mdi-arrow-up-thick</v-icon></v-btn>
@@ -130,12 +130,12 @@
                   <v-btn class="pl-1 pr-1" text @click="submit" v-text="$t('Item.toChannel')"></v-btn>
                 </v-list-item>
                 <v-list-item>
-                  <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" v-text="$t('Item.toCollection')"></v-btn>
+                  <v-btn class="pl-1 pr-1" text @click="submitToCollection" v-text="$t('Item.toCollection')"></v-btn>
                 </v-list-item>
               </v-list>
             </v-menu>
             <template v-if="!hasChannels && hasAccess('collections')">
-              <v-btn class="pl-1 pr-1" text @click="submitToCollcetion" v-text="$t('Item.toCollection')"></v-btn>
+              <v-btn class="pl-1 pr-1" text @click="submitToCollection" v-text="$t('Item.toCollection')"></v-btn>
             </template>
             <template v-if="hasChannels && !hasAccess('collections')">
               <v-btn class="pl-1 pr-1" text @click="submit" v-text="$t('Item.toChannel')"></v-btn>
@@ -203,7 +203,7 @@
           <LastTabsComponent :item="itemRef"></LastTabsComponent>
         </v-tabs>
         </v-container>
-        <v-tabs-items v-model="tabRef">
+        <v-tabs-items v-model="tabRef" :class="{ 'tabs-scroll-enabled': tabsScrollEnabled }" :style="tabsMaxHeightStyle">
           <FirstTabsItemComponent :item="itemRef"></FirstTabsItemComponent>
           <v-tab-item v-for="(attrGroups, grpIdx) in tabAttrGroups" :key="attrGroups.identifier"> <!-- Attributes -->
             <div class="mt-3"></div>
@@ -260,14 +260,14 @@
                 <AfterAttributesComponent></AfterAttributesComponent>
               </v-card-text>
             </v-card>
-            <v-container class="pa-3" v-if="tabsMode">
+            <v-container class="pa-3" :class="{ 'tabs-mode-container': tabsScrollEnabled }" v-if="tabsMode">
               <v-card elevation="2" class="m-1" v-if="attrGroups.groups.length">
                 <v-card-text>
                   <v-tabs v-model="attrTabRef" class="pb-5">
                     <v-tab v-for="(group,i) in attrGroups.groups" :key="i">{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-tab>
                   </v-tabs>
-                  <v-tabs-items v-model="attrTabRef">
-                    <v-tab-item v-for="(group,i) in attrGroups.groups" :key="i">
+                  <v-tabs-items v-model="attrTabRef" :class="{ 'attributes-tab-content': tabsScrollEnabled }" :style="tabsMaxHeightStyle">
+                    <v-tab-item v-for="(group, i) in attrGroups.groups" :key="i">
                       <v-container class="pa-0">
                         <v-row no-gutters v-if="!tableMode || getOption(group, 'noTableView')">
                           <template v-for="(attr,i) in group.itemAttributes">
@@ -346,7 +346,7 @@
             <v-carousel height="500" show-arrows-on-hover>
               <v-carousel-item v-for="(file1, i) in filesRef" :key="i" :set="mainFile=filesRef[i]">
                 <v-row class="justify-center">
-                <v-col class="pl-0 pr-0" :cols="12/parseInt(getOption(itemType, 'galeryPageLength',  '1'))" v-for="(n, j) in parseInt(getOption(itemType, 'galeryPageLength',  '1'))" :key="'img'+j" :set="file=getGaleryFile(i, j)">
+                <v-col class="pl-0 pr-0" :cols="12/parseInt(getOption(itemType, 'galeryPageLength',  '1'))" v-for="(n, j) in parseInt(getOption(itemType, 'galeryPageLength',  '1'))" :key="'img'+j" :set="file=getGalleryFile(i, j)">
                   <v-card v-if="file && file.image" class="ma-2" flat style="background: white" >
                     <v-card-text class="pa-0">
                       <div class="d-inline-flex ml-3">
@@ -382,7 +382,7 @@
 
           </v-tab-item>
           <v-tab-item v-if="hasChannels" eager>  <!-- Channels -->
-            <div v-for="(channel, i) in awailableChannelsRef" :key="i">
+            <div v-for="(channel, i) in availableChannelsRef" :key="i">
               <v-card v-if="itemRef.channels && itemRef.channels[channel.identifier] && itemRef.channels[channel.identifier].status">
                 <v-card-title class="text-subtitle-2">
                   {{ channel.name[currentLanguage.identifier] || '[' + channel.name[defaultLanguageIdentifier] + ']' }}
@@ -447,20 +447,6 @@
     <ShowAttributesDialog ref="showAttributesDialogRef" @selected="showAttributes"/>
   </v-container>
 </template>
-
-<style scoped>
-.stripped-table tbody tr:nth-of-type(even) {
-    background-color: rgba(0, 0, 0, .03);
-}
-
-.stripped-table tbody tr td.stripped-table-text {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    min-height: 30px;
-    max-width: 100px;
-}
-</style>
 
 <script>
 import { ref, onMounted, watch, computed, onBeforeUpdate, onUnmounted } from '@vue/composition-api'
@@ -633,7 +619,7 @@ export default {
     const chanSelectionDialogRef = ref(null)
     const collSelectionDialogRef = ref(null)
     const showAttributesDialogRef = ref(null)
-    const awailableChannelsRef = ref([])
+    const availableChannelsRef = ref([])
     const buttonActionStatusDialog = ref(null)
     const tabsMode = ref(localStorage.getItem('tabsMode') === 'true' || false)
     const tableMode = ref(localStorage.getItem('tableMode') === 'true' || false)
@@ -646,9 +632,29 @@ export default {
 
     const groupPanels = ref([[]])
 
+    const tabsScrollEnabled = computed(() => {
+      if (itemType.value) {
+        return getOption(itemType.value, 'tabsScroll', false)
+      }
+      return false
+    })
+
     const attributeValues = ref([])
     onBeforeUpdate(() => {
       attributeValues.value = []
+    })
+
+    const tabsMaxHeightStyle = computed(() => {
+      if (!tabsScrollEnabled.value) return {}
+      if (typeof window === 'undefined') return {}
+      const bottom = tabsContainerRef.value
+        ? Math.ceil(tabsContainerRef.value.getBoundingClientRect().bottom)
+        : Math.ceil(dataTableMarginTop.value || 0)
+      const remaining = Math.max(0, window.innerHeight - bottom - 48)
+      return {
+        maxHeight: remaining + 'px',
+        overflowY: 'auto'
+      }
     })
 
     const itemType = computed(() => {
@@ -700,12 +706,20 @@ export default {
       const arr = []
       attrGroups.value.forEach(group => {
         group.itemAttributes.forEach(attr => {
-          if (getOption(attr, 'head', null)) {
-            arr.push(attr)
+          const expr = getOption(attr, 'head', null)
+          if (!expr) return
+          try {
+            const utils = { canEditItem: () => canEditItem(itemRef.value.typeId, itemRef.value.path) }
+            // eslint-disable-next-line no-new-func
+            const fn = new Function('item', 'attr', 'user', 'roles', 'utils', '"use strict"; return (' + expr + ')')
+            const shouldShow = fn(itemRef.value, attr, currentUserRef.value, currentRoles, utils)
+            if (shouldShow) arr.push(attr)
+          } catch (e) {
+            console.error('Failed to eval head for ' + attr.identifier, e)
           }
         })
       })
-      return [...new Set(arr.map(o => o.identifier))].map(identifier => { return arr.find(s => s.identifier === identifier) })
+      return arr
     })
 
     const buttonActions = computed(() => {
@@ -853,7 +867,7 @@ export default {
     const channelsOnHead = computed(() => {
       if (itemRef.value) {
         const pathArr = itemRef.value.path.split('.')
-        return awailableChannelsRef.value.filter(channel => channel.config.statusOnHead && channel.valid.includes(itemRef.value.typeId) && channel.visible.find(elem => pathArr.includes(elem)))
+        return availableChannelsRef.value.filter(channel => channel.config.statusOnHead && channel.valid.includes(itemRef.value.typeId) && channel.visible.find(elem => pathArr.includes(elem)))
       } else {
         return []
       }
@@ -1354,7 +1368,7 @@ export default {
       })
     }
 
-    function submitToCollcetion () {
+    function submitToCollection () {
       collSelectionDialogRef.value.showDialog()
     }
 
@@ -1377,8 +1391,8 @@ export default {
       if (itemRef.value) {
         const pathArr = itemRef.value.path.split('.')
 
-        for (let i = 0; i < awailableChannelsRef.value.length; i++) {
-          const channel = awailableChannelsRef.value[i]
+        for (let i = 0; i < availableChannelsRef.value.length; i++) {
+          const channel = availableChannelsRef.value[i]
           const result = channel.valid.includes(itemRef.value.typeId) && channel.visible.find(elem => pathArr.includes(elem))
           if (result) return true
         }
@@ -1407,10 +1421,12 @@ export default {
 
     function toTop () {
       goTo(0)
+      const containers = document.querySelectorAll('.v-tabs-items, .attributes-tab-content')
+      containers.forEach(el => { try { el.scrollTop = 0 } catch (e) { } })
     }
 
-    function getGaleryFile (i, j) {
-      const pageLength = parseInt(getOption(itemType.value, 'galeryPageLength', '1'))
+    function getGalleryFile (i, j) {
+      const pageLength = parseInt(getOption(itemType.value, 'galleryPageLength', '1'))
       if (pageLength === 1) return filesRef.value[i + j]
 
       const oneSide = (pageLength - 1) / 2
@@ -1443,7 +1459,7 @@ export default {
           const bName = '' + (b.name[currentLanguage.value.identifier] || b.name[defaultLanguageIdentifier.value])
           return aName.localeCompare(bName)
         })
-        awailableChannelsRef.value = channels
+        availableChannelsRef.value = channels
       })
       searchEntityRef.value = 'ITEM'
       Promise.all([
@@ -1611,7 +1627,7 @@ export default {
       upload,
       imageKeyRef,
       filesRef,
-      getGaleryFile,
+      getGalleryFile,
       getAttrRange,
       getTableRowsCount,
       mainImage,
@@ -1638,11 +1654,11 @@ export default {
       getOption,
       historyTableRef,
       hasAccess,
-      awailableChannelsRef,
+      availableChannelsRef,
       channelsOnHead,
       hasChannels,
       submit,
-      submitToCollcetion,
+      submitToCollection,
       showAttributesShowDialog,
       chanSelectionDialogRef,
       collSelectionDialogRef,
@@ -1678,6 +1694,8 @@ export default {
       targetRelationsListRef,
       groupPanels,
       customEnableButton,
+      tabsScrollEnabled,
+      tabsMaxHeightStyle,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       nameRules: [
         v => !!v || i18n.t('ItemCreationDialog.NameRequired')
@@ -1686,3 +1704,37 @@ export default {
   }
 }
 </script>
+<style scoped>
+.stripped-table tbody tr:nth-of-type(even) {
+  background-color: rgba(0, 0, 0, .03);
+}
+
+.stripped-table tbody tr td.stripped-table-text {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-height: 30px;
+  max-width: 100px;
+}
+
+.tabs-scroll-enabled .v-tabs-items {
+  overflow-y: auto;
+}
+
+.tabs-mode-container .v-tabs-items {
+  overflow-y: auto;
+}
+
+.attributes-tab-content {
+  overflow-y: auto;
+}
+
+:root {
+  scrollbar-gutter: stable both-edges;
+}
+
+body.no-scroll {
+  overflow: hidden;
+  padding-right: var(--scrollbar-width, 0px);
+}
+</style>
