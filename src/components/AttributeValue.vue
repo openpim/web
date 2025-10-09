@@ -781,6 +781,16 @@ export default {
         values = values.filter(elem => !elem.level || elem.level.length === 0 || elem.level === '[]' || elem.level.find(path => props.item.path.startsWith(path)))
       }
 
+      const depLovAttrIdentifier = getTextOption('dependentLOV', null)
+      if (depLovAttrIdentifier && props.item && props.item.values && props.item.values[depLovAttrIdentifier]) {
+        const itemValues = props.item.values[depLovAttrIdentifier]
+        const itemValuesArray = Array.isArray(itemValues) ? itemValues : [itemValues]
+        values = values.filter(elem => {
+          const elemId = parseInt(elem.id)
+          return itemValuesArray.some(itemVal => parseInt(itemVal) === elemId)
+        })
+      }
+
       const arr = values.map(elem => { return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']', url: elem.url } })
       const sort = getOption('lovNameSort', false)
 
