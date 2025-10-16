@@ -866,6 +866,7 @@ export default {
 
     const searchRef = ref(null)
     const loadingRef = ref(false)
+    let lastRequestId = 0
 
     if (props.attr.type === AttributeType.Relation) {
       const attrValue = computed(() => {
@@ -920,32 +921,118 @@ export default {
       return result
     }
 
-    const updateAvailableItemsForRelationAttr = async (searchStr) => {
-      loadingRef.value = true
-      const displayValueOption = props.attr.options.find(el => el.name === 'displayValue')
-      const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
-      const lov = displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
-      const lovData = lov ? await getLOVData(displayAttr.item.lov) : null
-      const data = await getAvailableItemsForRelationAttr(props.attr, props.values[props.attr.identifier], searchStr, currentLanguage.value.identifier || defaultLanguageIdentifier.value, 100, 0, 'ASC')
+    const toId = v => String(v).trim()
 
-      availableItemsForRelationAttr.value = data.getItemsForRelationAttribute.map(el => {
-        const text = getDisplayValue(el, displayValueOption, displayAttr, lovData)
-        const damUrl = window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/'
-        const imageUrl = el.values.__imagedata && el.values.__imagedata.id ? damUrl + 'asset/' + el.values.__imagedata.id + '/thumb?token=' + localStorage.getItem('token') : null
-        return { identifier: el.identifier, value: el.id, text, imageUrl }
+    const collectIds = (out, v) => {
+      if (v == null) return
+      if (Array.isArray(v)) return v.forEach(x => collectIds(out, x))
+      if (typeof v === 'object') {
+        if (v.id != null) out.push(toId(v.id))
+        else if (v.identifier != null) out.push(toId(v.identifier))
+        return
+      }
+      if (typeof v === 'string' && v.includes(',')) {
+        v.split(',').map(s => s.trim()).filter(Boolean).forEach(s => out.push(s))
+        return
+      }
+      out.push(toId(v))
+    }
+
+    const depSelected = computed(() => {
+      const opt = props.attr.options.find(o => o.name === 'dependentRelation')?.value
+      if (!opt) return { ids: new Set(), count: 0 }
+
+      const idents = String(opt).split(',').map(s => s.trim()).filter(Boolean)
+      const raw = []
+      idents.forEach(idf => {
+        if (props.values && Object.prototype.hasOwnProperty.call(props.values, idf)) {
+          collectIds(raw, props.values[idf])
+        } else if (props.item?.values && Object.prototype.hasOwnProperty.call(props.item.values, idf)) {
+          collectIds(raw, props.item.values[idf])
+        }
       })
+      return { ids: new Set(raw.map(toId)), count: raw.length }
+    })
 
-      let propsValues = props.values[props.attr.identifier]
-      if (propsValues !== null && typeof (propsValues) !== 'undefined') {
-        if (!Array.isArray(propsValues)) propsValues = [propsValues]
-        for (let i = 0; i < propsValues.length; i++) {
-          const propsValue = propsValues[i]
-          const found = availableItemsForRelationAttr.value.find(el => el.value === propsValue)
-          if (!found) availableItemsForRelationAttr.value.push({ identifier: propsValue, value: propsValue, text: `[[[ ${propsValue} ]]]`, imageUrl: null })
+    const updateAvailableItemsForRelationAttr = async (searchStr) => {
+      const reqId = ++lastRequestId
+      loadingRef.value = true
+
+      try {
+        const displayValueOption = props.attr.options.find(el => el.name === 'displayValue')
+        const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
+        const lov = displayAttr?.item?.lov && displayAttr?.item?.type === 7
+        const lovData = lov ? await getLOVData(displayAttr.item.lov) : null
+
+        const langId = currentLanguage.value.identifier || defaultLanguageIdentifier.value
+        const base = window.location.href.includes('localhost') ? process.env.VUE_APP_DAM_URL : (window.OPENPIM_SERVER_URL || '')
+        const damUrl = base.replace(/\/?$/, '/')
+
+        const PAGE_SIZE = 100
+        const MAX_PAGES = 50
+        const loadAll = !searchStr || searchStr.length === 0
+
+        const sel = depSelected.value
+        const hasSel = sel.count > 0
+
+        const all = []
+        const have = new Set()
+
+        const mapItem = (el) => {
+          const text = getDisplayValue(el, displayValueOption, displayAttr, lovData)
+          const imgId = el.values?.__imagedata?.id
+          const value = toId(el.id)
+          const identifier = el.identifier != null ? toId(el.identifier) : null
+          return { identifier, value, text, imageUrl: imgId ? `${damUrl}asset/${imgId}/thumb?token=${localStorage.getItem('token')}` : null }
+        }
+
+        const pushPage = (page) => {
+          for (const el of page) {
+            const m = mapItem(el)
+            all.push(m)
+            have.add(m.value)
+            if (m.identifier) have.add(m.identifier)
+          }
+        }
+
+        const covered = () => {
+          if (!hasSel) return false
+          for (const s of sel.ids) if (!have.has(s)) return false
+          return true
+        }
+
+        let offset = 0
+        for (let pageIdx = 0; pageIdx < MAX_PAGES; pageIdx++) {
+          const resp = await getAvailableItemsForRelationAttr(props.attr, props.values[props.attr.identifier], searchStr, langId, PAGE_SIZE, offset, 'ASC')
+          const page = resp.getItemsForRelationAttribute || []
+          pushPage(page)
+          offset += PAGE_SIZE
+
+          if (!loadAll) break
+          if (page.length < PAGE_SIZE) break
+          if (hasSel && covered()) break
+        }
+
+        if (!loadAll && hasSel) {
+          for (const s of sel.ids) {
+            const sId = toId(s)
+            if (!have.has(sId)) {
+              all.push({ identifier: sId, value: sId, text: `[[[ ${sId} ]]]`, imageUrl: null })
+              have.add(sId)
+            }
+          }
+        }
+
+        if (reqId === lastRequestId) {
+          relationRawItemsRef.value = all
+          loadingRef.value = false
+        }
+      } catch (e) {
+        if (reqId === lastRequestId) {
+          loadingRef.value = false
+          showInformation(i18n.t('Network.Error') || 'Network error')
         }
       }
-
-      loadingRef.value = false
     }
 
     const dateMenu = ref(false)
@@ -956,8 +1043,34 @@ export default {
     const validRef = ref(true)
     const lovFilterRef = ref(null)
     const multivalueRef = ref(false)
+    const relationRawItemsRef = ref([])
 
-    const availableItemsForRelationAttr = ref([])
+    const availableItemsForRelationAttr = computed(() => {
+      const sel = depSelected.value
+      let items = relationRawItemsRef.value || []
+
+      if (sel.count > 0) {
+        items = items.filter(el => {
+          const value = toId(el.value)
+          const identifier = el.identifier ? toId(el.identifier) : null
+          return sel.ids.has(value) || (identifier && sel.ids.has(identifier))
+        })
+      }
+
+      const out = [...items]
+      const have = new Set(out.flatMap(el => [el.value, el.identifier].filter(Boolean)))
+      let modelVals = props.values[props.attr.identifier]
+      if (modelVals !== null && typeof modelVals !== 'undefined') {
+        if (!Array.isArray(modelVals)) modelVals = [modelVals]
+        for (const v of modelVals) {
+          const s = toId(v)
+          if (!have.has(s)) {
+            out.push({ identifier: s, value: s, text: `[[[ ${s} ]]]`, imageUrl: null })
+          }
+        }
+      }
+      return out
+    })
 
     const joditRef = ref(null)
 

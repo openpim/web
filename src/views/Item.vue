@@ -195,8 +195,8 @@
           <v-tab v-for="attrGroups in tabAttrGroups" :key="attrGroups.identifier" v-text="attrGroups.identifier"></v-tab>
           <v-tab v-if="itemRef.typeFile" v-text="$t('ItemView.Tab.File')"></v-tab>
           <v-tab v-if="!itemRef.typeFile && filesRef.length > 0" v-text="$t('ItemView.Tab.MediaFiles')"></v-tab>
-          <v-tab v-if="hasSources" v-text="$t('ItemView.Tab.LinksFrom')"></v-tab>
-          <v-tab v-if="hasTargets" v-text="$t('ItemView.Tab.LinksTo')"></v-tab>
+          <v-tab v-if="hasSources" v-text="getOption(itemType, 'sourceTabName', null) || $t('ItemView.Tab.LinksFrom')"/>
+          <v-tab v-if="hasTargets" v-text="getOption(itemType, 'targetTabName', null) || $t('ItemView.Tab.LinksTo')"/>
           <v-tab v-if="totalChildrenRef === -1 || totalChildrenRef > 0">{{$t('ItemView.Tab.Children') + (totalChildrenRef > 0 ? ' (' + totalChildrenRef + ')' : '')}}</v-tab>
           <v-tab v-if="hasChannels" v-text="$t('ItemView.Tab.Channels')"></v-tab>
           <v-tab v-if="hasAccess('audit') && auditEnabled" v-text="$t('ItemView.Tab.Audit')"></v-tab>
