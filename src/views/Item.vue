@@ -593,7 +593,7 @@ export default {
     } = relStore.useStore()
 
     const {
-      getLOVData
+      getLOVsData
     } = lovsStore.useStore()
 
     const {
@@ -1267,6 +1267,9 @@ export default {
         })
         tabGrpIdx++
       }
+      fetchLovsOnce(
+        collectLovIdsFromGroups([{ itemAttributes: headerAttrs.value || [] }])
+      )
     }
 
     function loadItemPath (path) {
@@ -1515,29 +1518,85 @@ export default {
 
     const headAttributesKeyRef = ref(1)
     const lovsMap = {}
-    function getLOVValue (attr) {
-      const values = lovsMap[attr.lov]
-      if (values) {
-        const attrValue = attr.languageDependent ? itemRef.value.values[attr.identifier][currentLanguage.value.identifier] : itemRef.value.values[attr.identifier]
-        if (Array.isArray(attrValue)) { // multivalue attribute
-          let result = ''
-          for (let i = 0; i < attrValue.length; i++) {
-            const val = attrValue[i]
-            const elem = values.find(elem => elem.id === val)
-            result += elem ? (elem.value[currentLanguage.value.identifier] || elem.value[defaultLanguageIdentifier.value]) : attrValue
-            if (i !== attrValue.length - 1) result += ', '
-          }
-          return result
-        } else {
-          const elem = values.find(elem => elem.id === attrValue)
-          return elem ? (elem.value[currentLanguage.value.identifier] || elem.value[defaultLanguageIdentifier.value]) : attrValue
+    const lovsLoaded = new Set()
+    const lovsInFlight = new Set()
+
+    function collectLovIdsFromGroups (groups) {
+      const idsSet = new Set()
+
+      groups.forEach(group => {
+        if (group.itemAttributes) {
+          group.itemAttributes.forEach(attr => {
+            if (attr.lov) idsSet.add(attr.lov)
+
+            const displayOpt = attr.options?.find(o => o.name === 'displayValue')
+            if (displayOpt?.value && !displayOpt.value.startsWith('#')) {
+              const displayAttr = findByIdentifier(displayOpt.value)
+              const needsLov =
+                displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
+              if (needsLov) idsSet.add(displayAttr.item.lov)
+            }
+          })
         }
-      } else {
-        getLOVData(attr.lov).then(values => {
-          lovsMap[attr.lov] = values
+      })
+
+      return Array.from(idsSet)
+    }
+
+    let fetchTimeout = null
+    const pendingIds = new Set()
+
+    async function fetchLovsOnce(idsLike) {
+      const ids = Array.from(idsLike || []).map(n => parseInt(n, 10)).filter(Number.isFinite)
+
+      if (ids.length === 0) return
+
+      ids.forEach(id => pendingIds.add(id))
+
+      if (fetchTimeout) {
+        clearTimeout(fetchTimeout)
+      }
+
+      fetchTimeout = setTimeout(async () => {
+        const need = Array.from(pendingIds).filter(id => !lovsLoaded.has(id) && !lovsInFlight.has(id))
+        pendingIds.clear()
+
+        if (!need.length) {
+          return
+        }
+
+        need.forEach(id => lovsInFlight.add(id))
+        try {
+          const map = await getLOVsData(need)
+          need.forEach(id => {
+            lovsMap[id] = map?.[id] || []
+            lovsLoaded.add(id)
+            lovsInFlight.delete(id)
+          })
           headAttributesKeyRef.value++
-        })
-        return null
+        } catch (e) {
+          need.forEach(id => lovsInFlight.delete(id))
+          console.error('Error loading LOVs:', e)
+        }
+      }, 50)
+    }
+
+    function getLOVValue (attr) {
+      const values = lovsMap[attr.lov] || null
+      if (!values) return null
+      const raw = attr.languageDependent
+        ? itemRef.value.values?.[attr.identifier]?.[currentLanguage.value.identifier]
+        : itemRef.value.values?.[attr.identifier]
+      if (Array.isArray(raw)) {
+        return raw
+          .map(v => {
+            const found = values.find(e => parseInt(e.id) === parseInt(v))
+            return found ? (found.value[currentLanguage.value.identifier] || found.value[defaultLanguageIdentifier.value]) : v
+          })
+          .join(', ')
+      } else {
+        const found = values.find(e => parseInt(e.id) === parseInt(raw))
+        return found ? (found.value[currentLanguage.value.identifier] || found.value[defaultLanguageIdentifier.value]) : raw
       }
     }
 
@@ -1557,7 +1616,7 @@ export default {
       const displayValueOption = attr.options.find(el => el.name === 'displayValue')
       const displayAttr = displayValueOption ? findByIdentifier(displayValueOption.value) : null
       const lov = displayAttr && displayAttr.item && displayAttr.item.lov && displayAttr.item.type === 7
-      const lovData = lov ? await getLOVData(displayAttr.item.lov) : null
+      const lovData = lov ? (lovsMap[displayAttr.item.lov] || []) : null
       const attrValue = attr.languageDependent ? itemRef.value.values[attr.identifier][currentLanguage.value.identifier] : itemRef.value.values[attr.identifier]
       const data = await getAvailableItemsForRelationAttr(attr, attrValue, '', currentLanguage.value.identifier || defaultLanguageIdentifier.value, 1, 0, 'ASC')
 

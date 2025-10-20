@@ -7,28 +7,113 @@ const lovs = reactive([])
 let lovsPromise
 const lovCache = {}
 const lovCachePromise = {}
+const k = (id) => 'lov' + id
 
-async function loadLOV (key, id) {
-  const data = await serverFetch('query { getLOV(id: "' + id + '") { values } }')
-  if (data.getLOV) {
-    const lovData = data.getLOV.values
-    lovCache[key] = lovData
-    return lovData
-  } else {
-    return []
+let batchScheduled = false
+const batchIds = new Set()
+const pendingResolvers = {}
+
+async function runBatchedFetch () {
+  const ids = Array.from(batchIds)
+  batchIds.clear()
+  batchScheduled = false
+  if (!ids.length) return
+
+  try {
+    const rows = await loadLOVsBatch(ids)
+    const byId = new Map(rows.map(r => [parseInt(r.id, 10), Array.isArray(r.values) ? r.values : []]))
+    for (const id of ids) {
+      const key = k(id)
+      const vals = byId.get(id) || []
+      lovCache[key] = vals
+      const resolvers = pendingResolvers[key] || []
+      pendingResolvers[key] = []
+      while (resolvers.length) {
+        const resolve = resolvers.shift()
+        try { resolve(vals) } catch { }
+      }
+      lovCachePromise[key] = Promise.resolve(vals)
+    }
+  } catch (e) {
+    for (const id of ids) {
+      const key = k(id)
+      const vals = []
+      lovCache[key] = vals
+      const resolvers = pendingResolvers[key] || []
+      pendingResolvers[key] = []
+      while (resolvers.length) {
+        const resolve = resolvers.shift()
+        try { resolve(vals) } catch { }
+      }
+      lovCachePromise[key] = Promise.resolve(vals)
+    }
+    console.error('getLOVsData batch failed', e)
   }
+}
+
+function scheduleIdForBatch (rawId) {
+  const id = parseInt(rawId, 10)
+  const key = k(id)
+
+  if (lovCache[key]) return Promise.resolve(lovCache[key])
+  if (lovCachePromise[key]) return lovCachePromise[key]
+
+  return new Promise((resolve) => {
+    if (!pendingResolvers[key]) pendingResolvers[key] = []
+    pendingResolvers[key].push(resolve)
+    batchIds.add(id)
+
+    if (!batchScheduled) {
+      batchScheduled = true
+      Promise.resolve().then(runBatchedFetch)
+    }
+  })
+}
+
+async function loadLOVsBatch (ids) {
+  const idsStr = ids.map(id => `"${id}"`).join(',')
+  const query = `query {
+    getLOVsData(ids: [${idsStr}]) { id values }
+  }`
+  const data = await serverFetch(query)
+  return (data && data.getLOVsData) ? data.getLOVsData : []
 }
 
 const actions = {
   getLOVData: async (id) => {
-    const key = 'lov' + id
-    const lovData = lovCache[key]
-    if (!lovData) {
-      if (!lovCachePromise[key]) lovCachePromise[key] = loadLOV(key, id)
-      return await lovCachePromise[key]
-    } else {
-      return lovData
+    const byId = await actions.getLOVsData([id])
+    return byId[id] || []
+  },
+  getLOVsData: async (ids = []) => {
+    const uniq = Array.from(new Set(ids.map(n => parseInt(n, 10)).filter(Number.isFinite)))
+    if (!uniq.length) return {}
+
+    const result = {}
+    const needFetch = []
+
+    for (const id of uniq) {
+      const key = k(id)
+      if (lovCache[key]) {
+        result[id] = lovCache[key]
+      } else if (lovCachePromise[key]) {
+        result[id] = await lovCachePromise[key]
+      } else {
+        needFetch.push(id)
+      }
     }
+
+    if (needFetch.length) {
+      await Promise.all(
+        needFetch.map((id) => {
+          const key = k(id)
+          const p = scheduleIdForBatch(id)
+          lovCachePromise[key] = p
+          return p.then(vals => { result[id] = vals })
+        })
+      )
+    }
+
+    return result
   },
   getLOVsForSelect: async () => {
     const data = await serverFetch('query { getLOVs {id name} }')
