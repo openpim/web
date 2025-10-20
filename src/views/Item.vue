@@ -1546,7 +1546,7 @@ export default {
     let fetchTimeout = null
     const pendingIds = new Set()
 
-    async function fetchLovsOnce(idsLike) {
+    async function fetchLovsOnce (idsLike) {
       const ids = Array.from(idsLike || []).map(n => parseInt(n, 10)).filter(Number.isFinite)
 
       if (ids.length === 0) return
