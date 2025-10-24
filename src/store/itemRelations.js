@@ -210,6 +210,8 @@ const actions = {
 
     for (let i = 0; i < relations.length; i++) {
       const rel = relations[i]
+      if (rel.options && rel.options.some(opt => opt.name === 'hideInTarget' && opt.value === 'true')) continue
+
       if (rel.targets.find(id => id === parseInt(item.typeId))) {
         const filteredRels = itemRels.filter(elem => elem.relationId === '' + rel.id)
         if (filteredRels && filteredRels.length > 0) {
