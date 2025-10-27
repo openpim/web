@@ -921,7 +921,7 @@ export default {
       return result
     }
 
-    const toId = v => String(v).trim()
+    const toId = v => parseInt(String(v).trim())
 
     const collectIds = (out, v) => {
       if (v == null) return
