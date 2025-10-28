@@ -968,8 +968,8 @@ export default {
         const base = window.location.href.includes('localhost') ? process.env.VUE_APP_DAM_URL : (window.OPENPIM_SERVER_URL || '')
         const damUrl = base.replace(/\/?$/, '/')
 
-        const PAGE_SIZE = 100
-        const MAX_PAGES = 50
+        const PAGE_SIZE = 200
+        const MAX_PAGES = 1
         const loadAll = !searchStr || searchStr.length === 0
 
         const sel = depSelected.value
