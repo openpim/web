@@ -1113,14 +1113,13 @@ export default {
       fileUploadRef.value = null
     }
 
-    async function importRowsMulti(rows, log, modifiedLovs) {
+    async function importRowsMulti (rows, log, modifiedLovs) {
       const errors = []
-      const warnings = []
 
       for (const { lovIdentifier, item } of rows) {
         try {
           let targetLov = await findLovWithValues(lovIdentifier)
-          
+
           if (!targetLov) {
             if (importModeRef.value === 'UPDATE_ONLY') {
               const msg = i18n.t('Config.LOV.Import.UnknownLOV') || 'Unknown LOV'
@@ -1128,20 +1127,20 @@ export default {
               if (importStopOnErrorRef.value) errors.push(msg + ': ' + (lovIdentifier || '?'))
               continue
             }
-            
+
             if (!lovIdentifier) {
               log.push([lovIdentifier || '?', item.id || '?', 'ERROR', i18n.t('Config.LOV.Error.IdentifierRequired'), ''])
               if (importStopOnErrorRef.value) errors.push(i18n.t('Config.LOV.Error.IdentifierRequired'))
               continue
             }
-            
+
             if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(lovIdentifier)) {
               const msg = i18n.t('Wrong.Attribute.Identifier')
               log.push([lovIdentifier || '?', item.id || '?', 'ERROR', msg, ''])
               if (importStopOnErrorRef.value) errors.push(msg + ': ' + lovIdentifier)
               continue
             }
-            
+
             const existingLov = lovsRef.find(l => l.identifier === lovIdentifier)
             if (existingLov) {
               const msg = i18n.t('Config.LOV.Error.IdentifierNotUnique')
@@ -1149,12 +1148,12 @@ export default {
               if (importStopOnErrorRef.value) errors.push(msg + ': ' + lovIdentifier)
               continue
             }
-            
+
             targetLov = addLOV()
             targetLov.identifier = lovIdentifier
             targetLov.name = {}
             targetLov.values = []
-            
+
             if (item.__lovName) {
               Object.assign(targetLov.name, item.__lovName)
             } else {
@@ -1162,7 +1161,7 @@ export default {
               name[currentLanguage.value.identifier] = lovIdentifier
               targetLov.name = name
             }
-            
+
             modifiedLovs.add(targetLov)
           }
 
@@ -1239,7 +1238,7 @@ export default {
       }
     }
 
-    async function findLovMeta(identifier) {
+    async function findLovMeta (identifier) {
       if (!identifier) return null
       let lov = lovsRef.find(l => l.identifier === identifier)
       if (!lov) {
@@ -1249,7 +1248,7 @@ export default {
       return lov || null
     }
 
-    async function findLovWithValues(identifier) {
+    async function findLovWithValues (identifier) {
       const lov = await findLovMeta(identifier)
       if (!lov) return null
       if (lov.internalId !== 0 && (!Array.isArray(lov.values) || lov.values.length === 0)) {
