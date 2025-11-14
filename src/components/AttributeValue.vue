@@ -888,6 +888,7 @@ export default {
         }
       })
       watch(attrValue, (val, prevVal) => {
+        if (props.attr.type !== AttributeType.Relation) return
         if (val === prevVal) return
         setTimeout(async () => {
           if (searchRef.value && searchRef.value.length) {
