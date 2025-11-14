@@ -6,9 +6,9 @@
           :rules="identifierRules" :label="$t('Config.Languages.Identifier')" required></v-text-field>
         <SystemInformation :data="lov"></SystemInformation>
       </div>
-      <LanguageDependentField :values="lov.name" v-model="lov.name[currentLanguage.identifier]" :rules="nameRules"
-        :label="$t('Config.Languages.Name')"></LanguageDependentField>
-      <v-alert v-if="loadingRef" type="info">{{$t('Config.LOV.Loading')}}</v-alert>
+      <LanguageDependentField :values="lov.name" v-model="lov.name[currentLanguage && currentLanguage.identifier]"
+        :rules="nameRules" :label="$t('Config.Languages.Name')"></LanguageDependentField>
+      <v-alert v-if="loadingRef" type="info">{{ $t('Config.LOV.Loading') }}</v-alert>
       <v-data-table :headers="headers" :items="filteredValues" hide-default-header dense :page.sync="currentPage"
         :items-per-page="itemsPerPage">
         <template v-slot:top>
@@ -68,13 +68,16 @@
               <input v-model="item.id" type="number" size="5" maxlength="5" :placeholder="$t('Config.LOV.ID')" />
             </td>
             <td class="pa-1" style="background-color: white; border-right: 1px solid #e0e0e0;">
-              <input v-model="item.value[currentLanguage.identifier]" size="50" :placeholder="$t('Config.LOV.Value')" />
+              <input v-model="item.value[currentLanguage && currentLanguage.identifier]" size="50"
+                :placeholder="$t('Config.LOV.Value')" />
             </td>
             <td class="pa-1" v-for="(channel, i) in availableChannelsRef" :key="i">
-              <input v-model="item[channel.identifier][currentLanguage.identifier]" />
+              <input v-model="item[channel.identifier][currentLanguage && currentLanguage.identifier]" />
             </td>
-            <td class="pa-1" v-for="(customField, i) in lovCustomFields(lov.identifier)" :key="'cf_'+i">
-              <input :type="customField.type == 'bool' ? 'checkbox': 'text'" v-model="item[customField.identifier][currentLanguage.identifier]" :readonly="customField.readonly"/>
+            <td class="pa-1" v-for="(customField, i) in lovCustomFields(lov.identifier)" :key="'cf_' + i">
+              <input :type="customField.type == 'bool' ? 'checkbox' : 'text'"
+                v-model="item[customField.identifier][currentLanguage && currentLanguage.identifier]"
+                :readonly="customField.readonly" />
             </td>
             <td class="pa-1">
               <v-chip @click="editLevels(item)">
@@ -122,7 +125,8 @@
                         </v-tooltip>
                         <v-tooltip bottom v-if="canEditConfig">
                           <template v-slot:activator="{ on }">
-                            <v-btn icon v-on="on" @click="removeVisible" :disabled="visibleSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
+                            <v-btn icon v-on="on" @click="removeVisible"
+                              :disabled="visibleSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
                           </template>
                           <span>{{ $t('Remove') }}</span>
                         </v-tooltip>
@@ -130,9 +134,13 @@
                       <v-divider></v-divider>
                       <v-list dense class="pt-0 pb-0">
                         <v-list-item-group v-model="visibleSelectedRef" color="primary">
-                          <v-list-item dense class="pt-0 pb-0"  v-for="(item, i) in visible" :key="i">
+                          <v-list-item dense class="pt-0 pb-0" v-for="(item, i) in visible" :key="i">
                             <v-list-item-content class="pt-0 pb-0" style="display: inline">
-                            <router-link :to="'/item/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name[currentLanguage.identifier] || '[' + item.name[defaultLanguageIdentifier] + ']' }}</span>
+                              <router-link :to="'/item/' + item.identifier">{{ item.identifier }}</router-link><span
+                                class="ml-2">- {{
+                                  item.name[currentLanguage && currentLanguage.identifier] || '[' +
+                                  item.name[defaultLanguageIdentifier] +
+                                  ']' }}</span>
                             </v-list-item-content>
                           </v-list-item>
                         </v-list-item-group>
@@ -160,7 +168,7 @@
                 <v-row>
                   <v-col cols="12">
                     <v-card class="mb-5">
-                      <v-card-title class="subtitle-2 font-weight-bold" >
+                      <v-card-title class="subtitle-2 font-weight-bold">
                         <div style="width:80%">{{ $t('Config.LOV.ForAttributes') }}</div>
                         <v-tooltip bottom v-if="canEditConfig">
                           <template v-slot:activator="{ on }">
@@ -170,7 +178,8 @@
                         </v-tooltip>
                         <v-tooltip bottom v-if="canEditConfig">
                           <template v-slot:activator="{ on }">
-                            <v-btn icon v-on="on" @click="removeAttr" :disabled="attrSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
+                            <v-btn icon v-on="on" @click="removeAttr"
+                              :disabled="attrSelectedRef == null"><v-icon>mdi-minus</v-icon></v-btn>
                           </template>
                           <span>{{ $t('Remove') }}</span>
                         </v-tooltip>
@@ -178,9 +187,12 @@
                       <v-divider></v-divider>
                       <v-list dense class="pt-0 pb-0">
                         <v-list-item-group v-model="attrSelectedRef" color="primary">
-                          <v-list-item dense class="pt-0 pb-0"  v-for="(attr, i) in attrs" :key="i">
+                          <v-list-item dense class="pt-0 pb-0" v-for="(attr, i) in attrs" :key="i">
                             <v-list-item-content class="pt-0 pb-0" style="display: inline">
-                            <router-link :to="'/config/attributes/' + attr.identifier">{{ attr.identifier }}</router-link><span class="ml-2">- {{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</span>
+                              <router-link :to="'/config/attributes/' + attr.identifier">{{ attr.identifier
+                              }}</router-link><span class="ml-2">- {{ attr.name[currentLanguage &&
+                                  currentLanguage.identifier] || '[' +
+                                  attr.name[defaultLanguageIdentifier] + ']' }}</span>
                             </v-list-item-content>
                           </v-list-item>
                         </v-list-item-group>
@@ -198,28 +210,98 @@
         </v-dialog>
       </v-row>
     </template>
-    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected"/>
-    <AttributeSelectionDialog ref="attrSelectionDialogRef" @selected="attrSelected"/>
+    <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemsSelected" />
+    <AttributeSelectionDialog ref="attrSelectionDialogRef" @selected="attrSelected" />
     <template>
       <v-row justify="center">
-        <v-dialog v-model="importDialogRef" persistent max-width="600px">
+        <v-dialog v-model="excelDialogRef" persistent width="80%">
           <v-card>
             <v-card-title>
-              <span class="headline">{{ $t('Config.LOV.Import') }}</span>
+              <span class="headline">{{ excelDialogTitleRef }}</span>
             </v-card-title>
             <v-card-text>
               <v-container>
                 <v-row>
                   <v-col cols="12">
-                    <v-textarea rows="7" v-model="importDataRef"></v-textarea>
+                    <v-progress-linear v-model="excelDialogProgressRef" color="primary" height="25">
+                      <template v-slot:default="{ value }">
+                        <strong>{{ Math.ceil(value) }}%</strong>
+                      </template>
+                    </v-progress-linear>
                   </v-col>
                 </v-row>
               </v-container>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="importDialogRef = false">{{ $t('Cancel') }}</v-btn>
-              <v-btn color="blue darken-1" text @click="processImport">{{ $t('Execute') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="excelDialogClose">{{ $t('Cancel') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="importFinishedDialogRef" persistent width="500px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('DataTable.ExcelImport.Finished') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12" class="d-flex justify-center align-center">
+                    {{ $t('DataTable.ExcelImport.FinishedText', { count: importFinishedLogRef.length - 1 }) }}
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="12" class="d-flex justify-center align-center">
+                    <v-btn color="blue darken-1" text @click="downloadImportFinishedLog">{{
+                      $t('DataTable.ExcelImport.Report') }}</v-btn>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="importFinishedDialogRef = false">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="importConfigDialogRef" persistent width="80%">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('DataTable.ExcelImport.Config') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-file-input chips show-size v-model="fileUploadRef"
+                      :label="$t('DataTable.ExcelImport.FileUpload')"></v-file-input>
+                    <v-select v-model="importModeRef" :items="importModes"
+                      :label="$t('DataTable.ExcelImport.ImportMode')"></v-select>
+                    <v-checkbox v-model="importStopOnErrorRef" :label="$t('DataTable.ExcelImport.ErrorStop')"
+                      required></v-checkbox>
+                    <v-checkbox v-model="importEmptyValuesRef" :label="$t('DataTable.ExcelImport.EmptyValues')"
+                      required></v-checkbox>
+                    <v-text-field type="number" v-model="importPageSizeRef"
+                      :label="$t('DataTable.ExcelImport.PageSize')" required></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="fileUploadRef = null; importConfigDialogRef = false">{{
+                $t('Cancel')
+              }}</v-btn>
+              <v-btn color="blue darken-1" text @click="importExcel"
+                :disabled="!fileUploadRef || importPageSizeRef <= 0">{{ $t('DataTable.ExcelImport.Start') }}</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -312,13 +394,20 @@ export default {
     } = relStore.useStore()
 
     const {
-      showInfo
+      showInfo,
+      showError
     } = errorStore.useStore()
 
+    const lovStoreInstance = lovStore.useStore()
     const {
       getLOVsForSelect,
-      getLOVData
-    } = lovStore.useStore()
+      getLOVData,
+      loadAllLOVs,
+      saveLOV,
+      addLOV
+    } = lovStoreInstance
+
+    const lovsRef = lovStoreInstance.lovs
 
     const { loadItemsByIds } = itemStore.useStore()
 
@@ -345,6 +434,22 @@ export default {
 
     const importDialogRef = ref(null)
     const importDataRef = ref('')
+    const importConfigDialogRef = ref(false)
+    const fileUploadRef = ref(null)
+    const importModeRef = ref('UPDATE_ONLY')
+    const importStopOnErrorRef = ref(false)
+    const importEmptyValuesRef = ref(false)
+    const importPageSizeRef = ref(100)
+    const excelDialogRef = ref(false)
+    const excelDialogProgressRef = ref(0)
+    const excelDialogTitleRef = ref('')
+    const importFinishedDialogRef = ref(false)
+    const importFinishedLogRef = ref([])
+    const importModes = [
+      { text: i18n.t('DataTable.ExcelImport.CREATE_ONLY'), value: 'CREATE_ONLY' },
+      { text: i18n.t('DataTable.ExcelImport.UPDATE_ONLY'), value: 'UPDATE_ONLY' },
+      { text: i18n.t('DataTable.ExcelImport.CREATE_UPDATE'), value: 'CREATE_UPDATE' }
+    ]
 
     const itemsPerPage = ref(10)
     const currentPage = ref(1)
@@ -600,66 +705,557 @@ export default {
       return buf
     }
 
-    function exportData () {
-      const cols = ['identifier', 'name', 'id']
-      const data = [cols]
-      languages.forEach(lang => {
-        cols.push('value [' + lang.identifier + ']')
-      })
-      availableChannelsRef.value.forEach(channel => {
-        for (const lang of languages) {
-          cols.push(channel.name[defaultLanguageIdentifier.value] + ` [${lang.identifier}]`)
-        }
-      })
-      const customFields = lovCustomFields(props.lov.identifier)
-      customFields.forEach(customField => {
-        for (const lang of languages) {
-          cols.push(customField.name + ` [${lang.identifier}]`)
-        }
-      })
+    function langDisplayName (lang) {
+      return lang.name?.[currentLanguage.value.identifier] || `[${lang.identifier}]`
+    }
 
-      props.lov.values.forEach(elem => {
-        const row = [props.lov.identifier, props.lov.name[defaultLanguageIdentifier.value]]
-        row.push(elem.id)
-        for (const lang of languages) {
-          row.push(elem.value[lang.identifier])
+    function buildDisplayHeaderForValue (lang) {
+      return 'value' + ' [' + langDisplayName(lang) + ']'
+    }
+
+    function buildDisplayHeaderForLovName (lang) {
+      return (i18n.t('Config.LOV.Name')) + ' [' + langDisplayName(lang) + ']'
+    }
+
+    function buildDisplayHeaderForChannel (channel, lang) {
+      const chName = channel.name?.[currentLanguage.value.identifier] || `[${channel.identifier}]`
+      return chName + ' [' + langDisplayName(lang) + ']'
+    }
+
+    function buildDisplayHeaderForCustomField (customField, lang) {
+      const cfName = customField.name || customField.identifier
+      return cfName + ' [' + langDisplayName(lang) + ']'
+    }
+
+    const DISPLAY_HEADERS = {
+      lovIdentifier: i18n.t('Config.LOV.Identifier'),
+      lovName: i18n.t('Config.LOV.Name'),
+      id: 'ID',
+      url: 'URL',
+      filter: i18n.t('Config.LOV.Filter'),
+      level: i18n.t('Config.LOV.Level'),
+      attrs: i18n.t('Config.LOV.ForAttributes'),
+      delete: '#delete#'
+    }
+
+    function resolveHeaderKeyByDisplay (text, ctx) {
+      if (!text) return null
+      for (const [k, v] of Object.entries(DISPLAY_HEADERS)) {
+        if (v === text) return k
+      }
+      for (const lang of ctx.languages) {
+        if (text === buildDisplayHeaderForValue(lang)) return 'value_' + lang.identifier
+      }
+      for (const lang of ctx.languages) {
+        if (text === buildDisplayHeaderForLovName(lang)) return 'lovName_' + lang.identifier
+      }
+      for (const ch of ctx.availableChannels) {
+        for (const lang of ctx.languages) {
+          if (text === buildDisplayHeaderForChannel(ch, lang)) {
+            return 'channel_' + ch.identifier + '_' + lang.identifier
+          }
         }
-        availableChannelsRef.value.forEach(channel => {
-          if (elem[channel.identifier] && typeof elem[channel.identifier] === 'object') {
-            for (const lang of languages) {
-              row.push(elem[channel.identifier]?.[lang.identifier])
-            }
-          } else {
-            for (let i = 0; i < languages.length; i++) { row.push('') }
+      }
+      for (const cf of ctx.customFields) {
+        for (const lang of ctx.languages) {
+          if (text === buildDisplayHeaderForCustomField(cf, lang)) {
+            return 'custom_' + cf.identifier + '_' + lang.identifier
           }
-        })
-        customFields.forEach(customField => {
-          for (const lang of languages) {
-            row.push(elem[customField.identifier]?.[lang.identifier])
-          }
-        })
-        data.push(row)
-      })
-      const ws = XLSX.utils.aoa_to_sheet(data)
-      var wb = XLSX.utils.book_new()
+        }
+      }
+      return null
+    }
+
+    function exportData (allLovs = null) {
+      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleExport')
+      excelDialogRef.value = true
+      excelDialogProgressRef.value = 0
+
+      const lovsToExport = allLovs && Array.isArray(allLovs) ? allLovs : [props.lov]
+      const allChannels = availableChannelsRef.value
+
+      let customFieldsUnion = []
+      if (lovsToExport.length > 1) {
+        const set = new Map()
+        for (const lov of lovsToExport) {
+          const cfs = lovCustomFields(lov.identifier)
+          for (const cf of cfs) set.set(cf.identifier, cf)
+        }
+        customFieldsUnion = [...set.values()]
+      } else {
+        const cfs = lovCustomFields(lovsToExport[0].identifier)
+        customFieldsUnion = cfs
+      }
+
+      const cols = [
+        DISPLAY_HEADERS.lovIdentifier,
+        ...languages.map(lang => buildDisplayHeaderForLovName(lang)),
+        DISPLAY_HEADERS.id,
+        ...languages.map(lang => buildDisplayHeaderForValue(lang)),
+        ...allChannels.flatMap(ch => languages.map(lang => buildDisplayHeaderForChannel(ch, lang))),
+        ...customFieldsUnion.flatMap(cf => languages.map(lang => buildDisplayHeaderForCustomField(cf, lang))),
+        DISPLAY_HEADERS.url,
+        DISPLAY_HEADERS.filter,
+        DISPLAY_HEADERS.level,
+        DISPLAY_HEADERS.attrs
+      ]
+
+      const ws = XLSX.utils.aoa_to_sheet([cols])
+      ws['!cols'] = Array(cols.length).fill({ wch: 24 })
+      ws['!cols'][0] = { wch: 24 }
+
+      let c = 0
+      function mark (cellKey) {
+        const cell = ws[XLSX.utils.encode_cell({ c, r: 0 })]
+        if (!cell) return
+        cell.c = []
+        cell.c.hidden = true
+        cell.c.push({ a: 'OpenPIM', t: cellKey })
+        c++
+      }
+      mark('lovIdentifier')
+      for (const lang of languages) mark('lovName_' + lang.identifier)
+      mark('id')
+      for (const lang of languages) mark('value_' + lang.identifier)
+      for (const ch of allChannels) for (const lang of languages) mark(`channel_${ch.identifier}_${lang.identifier}`)
+      for (const cf of customFieldsUnion) for (const lang of languages) mark(`custom_${cf.identifier}_${lang.identifier}`)
+      mark('url')
+      mark('filter')
+      mark('level')
+      mark('attrs')
+
+      let total = 0
+      for (const lov of lovsToExport) total += lov.values.length
+      let processed = 0
+
+      for (const lov of lovsToExport) {
+        for (const elem of lov.values) {
+          const row = [
+            lov.identifier,
+            ...languages.map(lang => (lov.name?.[lang.identifier] || '')),
+            elem.id,
+            ...languages.map(lang => elem.value?.[lang.identifier] || ''),
+            ...allChannels.flatMap(ch => languages.map(lang => (elem[ch.identifier]?.[lang.identifier]) || '')),
+            ...customFieldsUnion.flatMap(cf => languages.map(lang => (elem[cf.identifier]?.[lang.identifier]) || '')),
+            elem.url || '',
+            elem.filter || '',
+            elem.level && elem.level.length ? elem.level.join(',') : '',
+            elem.attrs && elem.attrs.length ? elem.attrs.join(',') : ''
+          ]
+          XLSX.utils.sheet_add_aoa(ws, [row], { origin: -1 })
+          excelDialogProgressRef.value = (++processed) * 100 / Math.max(total, 1)
+        }
+      }
+
+      const range = XLSX.utils.decode_range(ws['!ref'])
+      ws['!autofilter'] = { ref: XLSX.utils.encode_range(range) }
+
+      const wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, 'Data')
       const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
-      saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'data.xlsx')
+      saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), (lovsToExport.length > 1 ? 'lov_all' : 'lov_' + props.lov.identifier) + '.xlsx')
+      excelDialogRef.value = false
     }
 
     function importData () {
-      importDataRef.value = ''
-      importDialogRef.value = true
+      fileUploadRef.value = null
+      importConfigDialogRef.value = true
     }
 
-    function processImport () {
-      importDialogRef.value = false
-      if (importDataRef.value) {
-        const arr = importDataRef.value.split(/\r\n|\n|\r/)
-        for (const str of arr) {
-          addValue(str)
+    function excelDialogClose () {
+      excelDialogRef.value = false
+    }
+
+    function downloadImportFinishedLog () {
+      const ws = XLSX.utils.aoa_to_sheet(importFinishedLogRef.value)
+      var wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Data')
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+      saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'log.xlsx')
+    }
+
+    async function importExcel () {
+      importConfigDialogRef.value = false
+      excelDialogTitleRef.value = i18n.t('DataTable.ExcelDialog.TitleImport')
+      const pageSize = parseInt(importPageSizeRef.value)
+
+      const file = fileUploadRef.value
+      if (!file) return
+
+      const log = [['lov', 'id', 'result', 'errors', 'warnings']]
+      const modifiedLovs = new Set()
+
+      excelDialogProgressRef.value = 0
+      excelDialogRef.value = true
+      var reader = new FileReader()
+      reader.onload = async function (evt) {
+        const data = evt.target.result
+
+        try {
+          const wb = XLSX.read(data, { type: 'binary' })
+
+          let totalRows = 0
+          for (const sheetName of wb.SheetNames) {
+            const ws = wb.Sheets[sheetName]
+            const range = XLSX.utils.decode_range(ws['!ref'])
+            totalRows += range.e.r
+          }
+
+          let currentRow = 0
+
+          const allLovIds = new Set()
+          for (const sheetName of wb.SheetNames) {
+            const ws0 = wb.Sheets[sheetName]
+            if (!ws0 || !ws0['!ref']) continue
+            const range0 = XLSX.utils.decode_range(ws0['!ref'])
+            let lovCol = -1
+            for (let c = range0.s.c; c <= range0.e.c; c++) {
+              const cell = ws0[XLSX.utils.encode_cell({ r: 0, c })]
+              if (!cell) continue
+              const commentKey = (cell.c && cell.c[0] && cell.c[0].t) ? cell.c[0].t : null
+              const displayKey = cell.v
+              if (commentKey === 'lovIdentifier' || displayKey === (i18n.t('Config.LOV.Identifier'))) {
+                lovCol = c
+                break
+              }
+            }
+            if (lovCol === -1) continue
+            for (let r = range0.s.r + 1; r <= range0.e.r; r++) {
+              const v = ws0[XLSX.utils.encode_cell({ r, c: lovCol })]
+              if (v && v.v != null && String(v.v).trim() !== '') {
+                allLovIds.add(String(v.v).trim())
+              }
+            }
+          }
+
+          const customFieldsUnion = []
+          const seenCF = new Set()
+          for (const id of allLovIds) {
+            try {
+              const lov = await findLovMeta(id)
+              if (!lov) continue
+              for (const cf of lovCustomFields(lov.identifier)) {
+                if (!seenCF.has(cf.identifier)) {
+                  seenCF.add(cf.identifier)
+                  customFieldsUnion.push(cf)
+                }
+              }
+            } catch { }
+          }
+
+          const ctx = {
+            languages,
+            availableChannels: availableChannelsRef.value,
+            customFields: customFieldsUnion
+          }
+
+          for (const sheetName of wb.SheetNames) {
+            const ws = wb.Sheets[sheetName]
+            const range = XLSX.utils.decode_range(ws['!ref'])
+            const headers = []
+
+            for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
+              const cell = ws[XLSX.utils.encode_cell({ r: 0, c: colNum })]
+              if (!cell) { headers.push(null); continue }
+              const commentKey = (cell.c && cell.c[0] && cell.c[0].t) ? cell.c[0].t : null
+              if (commentKey) {
+                headers.push(commentKey)
+                continue
+              }
+              const display = cell.v
+              const fallback = resolveHeaderKeyByDisplay(display, ctx)
+              headers.push(fallback)
+            }
+
+            const rowsBatch = []
+            let firstRow = true
+
+            for (let rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
+              if (firstRow) { firstRow = false; continue }
+              if (!excelDialogRef.value) return
+
+              const item = {}
+              const rowCtx = { lovIdentifier: null }
+              let hasData = false
+
+              for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
+                const key = headers[colNum]
+                if (!key) continue
+                const cell = ws[XLSX.utils.encode_cell({ r: rowNum, c: colNum })]
+
+                switch (true) {
+                  case key === 'lovIdentifier':
+                    rowCtx.lovIdentifier = cell?.v ? String(cell.v).trim() : null
+                    break
+                  case key === 'id':
+                    if (cell?.v) { item.id = parseInt(cell.v); hasData = true }
+                    break
+                  case key.startsWith?.('value_'): {
+                    const lang = key.substring(6)
+                    item.value = item.value || {}
+                    if (cell || importEmptyValuesRef.value) {
+                      item.value[lang] = cell ? String(cell.v ?? '') : ''
+                      hasData = true
+                    }
+                    break
+                  }
+                  case key.startsWith?.('channel_'): {
+                    const rest = key.substring(8)
+                    const lastUnderscore = rest.lastIndexOf('_')
+                    if (lastUnderscore !== -1) {
+                      const channelId = rest.substring(0, lastUnderscore)
+                      const lang = rest.substring(lastUnderscore + 1)
+                      item[channelId] = item[channelId] || {}
+                      if (cell || importEmptyValuesRef.value) {
+                        item[channelId][lang] = cell ? String(cell.v ?? '') : ''
+                        hasData = true
+                      }
+                    }
+                    break
+                  }
+                  case key.startsWith?.('custom_'): {
+                    const rest = key.substring(7)
+                    const lastUnderscore = rest.lastIndexOf('_')
+                    if (lastUnderscore !== -1) {
+                      const cfId = rest.substring(0, lastUnderscore)
+                      const lang = rest.substring(lastUnderscore + 1)
+                      item[cfId] = item[cfId] || {}
+                      if (cell || importEmptyValuesRef.value) {
+                        item[cfId][lang] = cell ? String(cell.v ?? '') : ''
+                        hasData = true
+                      }
+                    }
+                    break
+                  }
+                  case key.startsWith?.('lovName_'): {
+                    const lang = key.substring('lovName_'.length)
+                    item.__lovName = item.__lovName || {}
+                    if (cell || importEmptyValuesRef.value) {
+                      item.__lovName[lang] = cell ? String(cell.v ?? '') : ''
+                    }
+                    break
+                  }
+                  case key === 'lovName': {
+                    const def = defaultLanguageIdentifier.value
+                    item.__lovName = item.__lovName || {}
+                    if (cell || importEmptyValuesRef.value) {
+                      item.__lovName[def] = cell ? String(cell.v ?? '') : ''
+                    }
+                    break
+                  }
+                  case key === 'url':
+                    if (cell || importEmptyValuesRef.value) { item.url = cell ? String(cell.v ?? '') : ''; hasData = true }
+                    break
+                  case key === 'filter':
+                    if (cell || importEmptyValuesRef.value) { item.filter = cell ? (cell.v ? parseInt(cell.v) : null) : null; hasData = true }
+                    break
+                  case key === 'level':
+                    if (cell && cell.v != null) {
+                      const raw = String(cell.v)
+                      item.level = raw.split(/[;,]/).map(s => s.trim()).filter(Boolean)
+                      hasData = hasData || item.level.length > 0
+                    } else {
+                      item.level = []
+                    }
+                    break
+                  case key === 'attrs':
+                    item.attrs = cell?.v ? String(cell.v).split(',').map(a => parseInt(a.trim())).filter(a => !isNaN(a)) : []
+                    if (item.attrs.length) hasData = true
+                    break
+                  case key === '#delete#':
+                  case key === 'delete':
+                    if (cell?.v) item.delete = cell.v
+                    break
+                }
+              }
+
+              if (hasData && item.id) {
+                rowsBatch.push({ lovIdentifier: rowCtx.lovIdentifier || props.lov.identifier, item })
+              }
+
+              if (rowsBatch.length >= pageSize) {
+                await importRowsMulti(rowsBatch, log, modifiedLovs)
+                rowsBatch.length = 0
+              }
+
+              excelDialogProgressRef.value = (++currentRow) * 100 / Math.max(totalRows, 1)
+            }
+
+            if (rowsBatch.length) await importRowsMulti(rowsBatch, log, modifiedLovs)
+          }
+
+          // Сохраняем все измененные LOV
+          if (modifiedLovs.size > 0) {
+            excelDialogProgressRef.value = 95
+            try {
+              for (const lov of modifiedLovs) {
+                await saveLOV(lov)
+              }
+            } catch (err) {
+              console.error('Error saving LOVs', err)
+              showError(i18n.t('Config.LOV.Import.SaveError') || 'Error saving LOVs: ' + err.message)
+            }
+          }
+
+          excelDialogProgressRef.value = 100
+          setTimeout(() => {
+            importFinishedDialogRef.value = true
+            importFinishedLogRef.value = log
+          }, 500)
+          excelDialogRef.value = false
+        } catch (err) {
+          console.error('Error opening file', err)
+          showError(err.message)
+          excelDialogRef.value = false
         }
       }
+      reader.readAsBinaryString(file)
+      fileUploadRef.value = null
+    }
+
+    async function importRowsMulti (rows, log, modifiedLovs) {
+      const errors = []
+
+      for (const { lovIdentifier, item } of rows) {
+        try {
+          let targetLov = await findLovWithValues(lovIdentifier)
+
+          if (!targetLov) {
+            if (importModeRef.value === 'UPDATE_ONLY') {
+              const msg = i18n.t('Config.LOV.Import.UnknownLOV') || 'Unknown LOV'
+              log.push([lovIdentifier || '?', item.id || '?', 'SKIPPED', msg, ''])
+              if (importStopOnErrorRef.value) errors.push(msg + ': ' + (lovIdentifier || '?'))
+              continue
+            }
+
+            if (!lovIdentifier) {
+              log.push([lovIdentifier || '?', item.id || '?', 'ERROR', i18n.t('Config.LOV.Error.IdentifierRequired'), ''])
+              if (importStopOnErrorRef.value) errors.push(i18n.t('Config.LOV.Error.IdentifierRequired'))
+              continue
+            }
+
+            if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(lovIdentifier)) {
+              const msg = i18n.t('Wrong.Attribute.Identifier')
+              log.push([lovIdentifier || '?', item.id || '?', 'ERROR', msg, ''])
+              if (importStopOnErrorRef.value) errors.push(msg + ': ' + lovIdentifier)
+              continue
+            }
+
+            const existingLov = lovsRef.find(l => l.identifier === lovIdentifier)
+            if (existingLov) {
+              const msg = i18n.t('Config.LOV.Error.IdentifierNotUnique')
+              log.push([lovIdentifier || '?', item.id || '?', 'ERROR', msg, ''])
+              if (importStopOnErrorRef.value) errors.push(msg + ': ' + lovIdentifier)
+              continue
+            }
+
+            targetLov = addLOV()
+            targetLov.identifier = lovIdentifier
+            targetLov.name = {}
+            targetLov.values = []
+
+            if (item.__lovName) {
+              Object.assign(targetLov.name, item.__lovName)
+            } else {
+              const name = {}
+              name[currentLanguage.value.identifier] = lovIdentifier
+              targetLov.name = name
+            }
+
+            modifiedLovs.add(targetLov)
+          }
+
+          const existingIdx = targetLov.values.findIndex(el => el.id === item.id)
+          const existing = existingIdx !== -1 ? targetLov.values[existingIdx] : null
+
+          if (item.delete) {
+            if (existingIdx !== -1) {
+              targetLov.values.splice(existingIdx, 1)
+              modifiedLovs.add(targetLov)
+              log.push([lovIdentifier, item.id, 'DELETED', '', ''])
+            } else {
+              log.push([lovIdentifier, item.id, 'ERROR', i18n.t('Config.LOV.Import.NotFound'), ''])
+              if (importStopOnErrorRef.value) errors.push('Not found: ' + item.id)
+            }
+            continue
+          }
+
+          if (importModeRef.value === 'CREATE_ONLY' && existing) {
+            log.push([lovIdentifier, item.id, 'SKIPPED', i18n.t('Config.LOV.Import.AlreadyExists'), ''])
+            continue
+          }
+          if (importModeRef.value === 'UPDATE_ONLY' && !existing) {
+            log.push([lovIdentifier, item.id, 'SKIPPED', i18n.t('Config.LOV.Import.NotFound'), ''])
+            continue
+          }
+
+          const out = existing || { id: item.id, value: {}, filter: null, level: [], attrs: [], url: '' }
+
+          if (item.value) Object.assign(out.value, item.value)
+
+          availableChannelsRef.value.forEach(ch => {
+            if (item[ch.identifier]) {
+              out[ch.identifier] = out[ch.identifier] || {}
+              Object.assign(out[ch.identifier], item[ch.identifier])
+            }
+          })
+
+          lovCustomFields(targetLov.identifier).forEach(cf => {
+            if (item[cf.identifier]) {
+              out[cf.identifier] = out[cf.identifier] || {}
+              Object.assign(out[cf.identifier], item[cf.identifier])
+            }
+          })
+
+          if (item.url !== undefined) out.url = item.url || ''
+          if (item.filter !== undefined) out.filter = item.filter
+          if (item.level !== undefined) out.level = item.level || []
+          if (item.attrs !== undefined) out.attrs = item.attrs || []
+
+          if (!out.filter) root.$set(out, 'filter', null)
+          if (!out.level) root.$set(out, 'level', [])
+          availableChannelsRef.value.forEach(ch => { if (!out[ch.identifier]) root.$set(out, ch.identifier, {}) })
+          lovCustomFields(targetLov.identifier).forEach(cf => { if (!out[cf.identifier]) root.$set(out, cf.identifier, {}) })
+
+          if (!existing) targetLov.values.push(out)
+
+          if (item.__lovName) {
+            targetLov.name = targetLov.name || {}
+            Object.assign(targetLov.name, item.__lovName)
+          }
+
+          modifiedLovs.add(targetLov)
+          log.push([lovIdentifier, item.id, 'OK', '', ''])
+        } catch (err) {
+          const msg = err.message || String(err)
+          log.push([lovIdentifier || '?', item.id || '?', 'ERROR', msg, ''])
+          if (importStopOnErrorRef.value) errors.push(msg)
+        }
+      }
+      if (importStopOnErrorRef.value && errors.length) {
+        showError(errors.join('; '))
+        excelDialogRef.value = false
+      }
+    }
+
+    async function findLovMeta (identifier) {
+      if (!identifier) return null
+      let lov = lovsRef.find(l => l.identifier === identifier)
+      if (!lov) {
+        await loadAllLOVs()
+        lov = lovsRef.find(l => l.identifier === identifier)
+      }
+      return lov || null
+    }
+
+    async function findLovWithValues (identifier) {
+      const lov = await findLovMeta(identifier)
+      if (!lov) return null
+      if (lov.internalId !== 0 && (!Array.isArray(lov.values) || lov.values.length === 0)) {
+        const data = await getLOVData(lov.id)
+        if (Array.isArray(data) && data.length) lov.values.push(...data)
+      }
+      return lov
     }
 
     return {
@@ -699,7 +1295,21 @@ export default {
       importDialogRef,
       importDataRef,
       importData,
-      processImport,
+      importConfigDialogRef,
+      fileUploadRef,
+      importModeRef,
+      importModes,
+      importStopOnErrorRef,
+      importEmptyValuesRef,
+      importPageSizeRef,
+      importExcel,
+      excelDialogRef,
+      excelDialogProgressRef,
+      excelDialogTitleRef,
+      excelDialogClose,
+      importFinishedDialogRef,
+      importFinishedLogRef,
+      downloadImportFinishedLog,
       currentLanguage,
       defaultLanguageIdentifier,
       loadingRef,
