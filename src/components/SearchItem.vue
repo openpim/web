@@ -47,7 +47,8 @@ export default {
     } = attrStore.useStore()
 
     const {
-      hasAccess
+      hasAccess,
+      getServerConfig
     } = userStore.useStore()
 
     const fieldsSelection = ref([])
@@ -220,38 +221,41 @@ export default {
     async function parseValue (attrObj, attr, value, filter) {
       if (filter.operation === 16) return [{ OP_eq: '' }, { OP_eq: null }]
       if (filter.operation === 17) return [{ OP_ne: '' }, { OP_ne: null }]
-      if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
+      if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + (await parseSimpleValue(attrObj, attr, value)) + '%'
       else if (filter.operation === 10) {
         const split = ('' + value).split(/\r\n|\n|\r/)
         if (getAttrType(filter) !== AttributeType.Relation) {
           const arr = []
-          split.forEach(str => {
-            arr.push(parseSimpleValue(attrObj, attr, str))
-          })
+          for (const str of split) {
+            arr.push(await parseSimpleValue(attrObj, attr, str))
+          }
           return arr
         } else {
           const items = await getItemsForRelationAttributeImport(attrObj, split, currentLanguage.value.identifier, 10000, 0, 'ASC')
           return items.getItemsForRelationAttributeImport.map(el => el.id)
         }
       } else {
-        return parseSimpleValue(attrObj, attr, value)
+        return await parseSimpleValue(attrObj, attr, value)
       }
     }
 
-    function parseSimpleValue (attrObj, attr, value) {
+    async function parseSimpleValue (attrObj, attr, value) {
       if (lovsMapRef.value[attr]) return '' + value
 
       if (value === 'null') return null
 
       if (Object.prototype.toString.call(value) !== '[object String]') return value
-      if (attrObj && attrObj.type === 1) return '' + value
+
+      const serverConfig = await getServerConfig()
+      const trimSearchString = serverConfig && serverConfig.trimSearchString
+      if (attrObj && attrObj.type === 1) return trimSearchString ? ('' + value).trim() : ('' + value)
       if (attr === 'identifier' ||
         attr === 'parentIdentifier' ||
         attr === 'typeIdentifier' ||
         attr === 'createdBy' ||
         attr === 'updatedBy' ||
         attr === 'fileOrigName' ||
-        attr === 'mimeType') return '' + value
+        attr === 'mimeType') return trimSearchString ? ('' + value).trim() : ('' + value)
 
       if (value.startsWith('"') && value.endsWith('"')) {
         return value.substring(1, value.length - 1)

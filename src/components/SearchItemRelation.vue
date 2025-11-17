@@ -144,7 +144,8 @@ export default {
 
     const {
       currentUserRef,
-      hasAccess
+      hasAccess,
+      getServerConfig
     } = userStore.useStore()
 
     const {
@@ -328,36 +329,39 @@ export default {
       }
     }
 
-    function parseValue (attrObj, attr, value, filter) {
+    async function parseValue (attrObj, attr, value, filter) {
       if (filter.operation === 16) return [{ OP_eq: '' }, { OP_eq: null }]
       if (filter.operation === 17) return [{ OP_ne: '' }, { OP_ne: null }]
-      if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + parseSimpleValue(attrObj, attr, value) + '%'
+      if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + (await parseSimpleValue(attrObj, attr, value)) + '%'
       else if (filter.operation === 10) {
         const arr = []
         const split = ('' + value).split(/\r\n|\n|\r/)
-        split.forEach(str => {
+        for (const str of split) {
           arr.push(parseSimpleValue(attrObj, attr, str))
-        })
+        }
         return arr
       } else {
-        return parseSimpleValue(attrObj, attr, value)
+        return await parseSimpleValue(attrObj, attr, value)
       }
     }
 
-    function parseSimpleValue (attrObj, attr, value) {
+    async function parseSimpleValue (attrObj, attr, value) {
       if (lovsMap[attr]) return '' + value
 
       if (value === 'null') return null
 
       if (Object.prototype.toString.call(value) !== '[object String]') return value
-      if (attrObj && attrObj.type === 1) return '' + value
+
+      const serverConfig = await getServerConfig()
+      const trimSearchString = serverConfig && serverConfig.trimSearchString
+      if (attrObj && attrObj.type === 1) return trimSearchString ? ('' + value).trim() : ('' + value)
       if (attr === 'identifier' ||
         attr === 'parentIdentifier' ||
         attr === 'typeIdentifier' ||
         attr === 'createdBy' ||
         attr === 'updatedBy' ||
         attr === 'fileOrigName' ||
-        attr === 'mimeType') return '' + value
+        attr === 'mimeType') return trimSearchString ? ('' + value).trim() : ('' + value)
 
       if (value.startsWith('"') && value.endsWith('"')) {
         return value.substring(1, value.length - 1)
