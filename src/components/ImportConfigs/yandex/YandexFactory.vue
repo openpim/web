@@ -222,11 +222,12 @@ export default {
     const ymCategoriesAttrs = [
       { id: 'id', name: 'id', required: true, description: 'Идентификатор категории' },
       { id: 'parentId', name: 'parentId', required: false, description: 'Идентификатор родительской категории' },
-      { id: 'name', name: 'name', required: false, description: 'Наименовании категории' }
+      { id: 'name', name: 'name', required: false, description: 'Наименование категории' }
     ]
 
     const ymStandardAttributes = [
       { id: 'id', name: 'id', required: true, description: 'Идентификатор предложения. Может состоять только из цифр и латинских букв. Максимальная длина — 20 символов. Должен быть уникальным для каждого предложения.' },
+      { id: 'name', name: 'name', required: false, description: 'Наименование товара' },
       { id: 'vendor', name: 'vendor', required: false, description: 'Название производителя.' },
       { id: 'vendorCode', name: 'vendorCode', required: false, description: 'Код товара, который ему присвоил производитель.' },
       { id: 'bid', name: 'bid', required: false, description: 'Размер ставки. Указывайте размер ставки в условных центах: например, значение 80 соответствует ставке 0,8 у. е. Значения должны быть целыми и положительными числами.' },
