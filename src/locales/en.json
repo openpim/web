@@ -816,6 +816,7 @@
   "ImportConfig.BeforeStartAction": "Before Start Action",
   "ImportConfig.AfterEndAction": "After End Action",
   "ImportConfig.BeforeEachRow": "Before Each Row",
+  "ImportConfig.AfterEachRow": "After Each Row",
   "ImportConfig.YML.Categories": "Categories",
   "ImportConfig.YML.Offers": "Offers",
 

@@ -809,6 +809,7 @@
   "ImportConfig.BeforeStartAction": "Перед началом",
   "ImportConfig.AfterEndAction": "После окончания",
   "ImportConfig.BeforeEachRow": "Перед каждой строкой",
+  "ImportConfig.AfterEachRow": "После каждой строки",
   "ImportConfig.YML.Categories": "Категории",
   "ImportConfig.YML.Offers": "Товары",
 
