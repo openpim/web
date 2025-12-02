@@ -202,6 +202,7 @@
   "Config.LOV.Visible": "Visible from:",
   "Config.LOV.Export": "Export",
   "Config.LOV.Import": "Import",
+  "Config.LOV.Import.Text": "Import from text field",
   "Config.LOV.Import.AlreadyExists": "Already exists",
   "Config.LOV.Import.NotFound": "Not found",
   "Config.LOV.Import.UnknownLOV": "Unknown LOV",

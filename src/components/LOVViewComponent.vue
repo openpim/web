@@ -297,11 +297,46 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="selectTextImport">
+                <v-icon left>mdi-text-box</v-icon>
+                {{ $t('Config.LOV.Import.Text') }}
+              </v-btn>
               <v-btn color="blue darken-1" text @click="fileUploadRef = null; importConfigDialogRef = false">{{
                 $t('Cancel')
               }}</v-btn>
               <v-btn color="blue darken-1" text @click="importExcel"
                 :disabled="!fileUploadRef || importPageSizeRef <= 0">{{ $t('DataTable.ExcelImport.Start') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="importTextDialogRef" persistent max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('Config.LOV.Import.Text') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-textarea v-model="importTextDataRef" rows="7" :label="$t('Config.LOV.Import.Text')">
+                    </v-textarea>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="importTextDialogRef = false; importTextDataRef = ''">
+                {{ $t('Cancel') }}
+              </v-btn>
+              <v-btn color="blue darken-1" text @click="processTextImport"
+                :disabled="!importTextDataRef || !importTextDataRef.trim()">
+                {{ $t('Execute') }}
+              </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -435,6 +470,8 @@ export default {
     const importDialogRef = ref(null)
     const importDataRef = ref('')
     const importConfigDialogRef = ref(false)
+    const importTextDialogRef = ref(false)
+    const importTextDataRef = importDataRef
     const fileUploadRef = ref(null)
     const importModeRef = ref('UPDATE_ONLY')
     const importStopOnErrorRef = ref(false)
@@ -551,7 +588,8 @@ export default {
     })
 
     function goToLastPage () {
-      currentPage.value = Math.ceil(props.lov.values.length / itemsPerPage.value)
+      const totalPages = Math.ceil(props.lov.values.length / itemsPerPage.value)
+      currentPage.value = totalPages > 0 ? totalPages : 1
     }
 
     function addVisible () {
@@ -860,6 +898,41 @@ export default {
     function importData () {
       fileUploadRef.value = null
       importConfigDialogRef.value = true
+    }
+
+    function selectTextImport () {
+      importConfigDialogRef.value = false
+      importTextDataRef.value = ''
+      importTextDialogRef.value = true
+    }
+
+    function processTextImport () {
+      importTextDialogRef.value = false
+
+      let successCount = 0
+      let errorCount = 0
+
+      const lines = importTextDataRef.value.split(/\r\n|\n|\r/)
+
+      for (const line of lines) {
+        const trimmedLine = line.trim()
+        if (trimmedLine) {
+          try {
+            addValue(trimmedLine)
+            successCount++
+          } catch (error) {
+            console.error('Error adding value:', error)
+            errorCount++
+          }
+        }
+      }
+      importTextDataRef.value = ''
+      goToLastPage()
+      if (errorCount > 0) {
+        showInfo(`Импорт завершён. Добавлено ${successCount} строк. ${errorCount} строк не были добавлены из-за ошибок. Проверьте консоль для деталей.`)
+      } else if (successCount > 0) {
+        showInfo(`Импорт завершён. Успешно добавлено ${successCount} строк.`)
+      }
     }
 
     function excelDialogClose () {
@@ -1297,6 +1370,10 @@ export default {
       importData,
       importConfigDialogRef,
       fileUploadRef,
+      importTextDialogRef,
+      importTextDataRef,
+      selectTextImport,
+      processTextImport,
       importModeRef,
       importModes,
       importStopOnErrorRef,

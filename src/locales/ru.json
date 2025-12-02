@@ -199,6 +199,7 @@
   "Config.LOV.Visible": "Видимо от:",
   "Config.LOV.Export": "Выгрузить",
   "Config.LOV.Import": "Загрузить",
+  "Config.LOV.Import.Text": "Импорт из текстового поля",
   "Config.LOV.Import.AlreadyExists": "Уже существует",
   "Config.LOV.Import.NotFound": "Не найдено",
   "Config.LOV.Import.UnknownLOV": "Неизвестный список значений",

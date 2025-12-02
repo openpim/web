@@ -188,6 +188,8 @@
 	"Config.LOV.Level": "级别",
 	"Config.LOV.Visible": "显示从:",
 	"Config.LOV.Export": "导出",
+	"Config.LOV.Import": "导入",
+	"Config.LOV.Import.Text": "从文本字段导入",
 	"Config.Channels": "通道",
 	"Config.Channels.Channels": "通道:",
 	"Config.Channels.Identifier": "标识符",
