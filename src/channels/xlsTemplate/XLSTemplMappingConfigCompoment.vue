@@ -1,110 +1,108 @@
 <template>
   <div>
     <v-row>
-        <v-col cols="11">
-            <v-autocomplete
-              v-model="categoryIdRef"
-              @change="categoryChanged"
-              :items="mappedCategories.filter(elem => !elem.deleted)"
-              item-text="name"
-              item-value="id"
-              :label="$t('MappingConfigComponent.Category')"
-              clearable
-            ></v-autocomplete>
-            <div v-if="categoryIdRef">
-                <v-row>
-                  <v-col cols="11">
-                    <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly"/>
-                    <v-select clearable class="mb-5" v-model="categoryRef.visibleRelation" :item-text="item => item.name[defaultLanguageIdentifier]" item-value="id" :items="relations" :label="$t('MappingConfigComponent.VisibleRelation')"></v-select>
-                  </v-col>
-                  <v-col cols="1">
-                    <v-tooltip bottom>
-                      <template v-slot:activator="{ on }">
-                        <v-btn icon v-on="on" @click="relCategoryDialogRef.showDialog()"><v-icon>mdi-content-copy</v-icon></v-btn>
-                      </template>
-                      <span>{{$t('MappingConfigComponent.CopyMapping')}}</span>
-                    </v-tooltip>
-
-                  </v-col>
-                </v-row>
-                <v-row>
-                    <v-col cols="11">
-                        <v-autocomplete
-                            v-model="sheetIdRef"
-                            @change="sheetChanged"
-                            :items="mappedSheets.filter(elem => !elem.deleted)"
-                            item-text="name"
-                            item-value="id"
-                            :label="$t('MappingConfigComponent.Sheet')"
-                            clearable
-                        >
-                        </v-autocomplete>
-                        <div v-if="sheetIdRef">
-                            <v-text-field type="number" :readonly="readonly" v-model="sheetRef.index" :label="$t('MappingConfigComponent.SheetIndex')" required></v-text-field>
-                            <v-text-field type="number" :readonly="readonly" v-model="sheetRef.rowStartFrom" :label="$t('MappingConfigComponent.SheetRowStartFrom')" required></v-text-field>
-                            <v-simple-table dense class="mb-4" v-if="sheetRef.colunms">
-                                <template v-slot:default>
-                                    <thead>
-                                        <tr>
-                                            <th class="text-left" style="width:30%">{{$t('MappingConfigComponent.SheetColumn')}}</th>
-                                            <th class="text-left" style="width:30%">{{$t('MappingConfigComponent.Table.Attribute')}}</th>
-                                            <th class="text-left">{{$t('MappingConfigComponent.Table.Expression')}}</th>
-                                            <th class="text-left">
-                                                <v-btn icon @click="addCell" class="d-inline-flex"><v-icon>mdi-plus</v-icon></v-btn>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(elem, i) in sheetRef.colunms" :key="i">
-                                            <td class="pa-1">
-                                                <v-text-field v-model="elem.column" dense :readonly="readonly" class="ml-3 mr-3 d-inline-flex" />
-                                            </td>
-                                            <td class="pa-1">
-                                                <v-autocomplete dense :readonly="readonly" v-model="elem.attrIdent" :items="allAttributes"></v-autocomplete>
-                                            </td>
-                                            <td class="pa-1">
-                                                <v-text-field v-model="elem.expr" dense :readonly="readonly" class="ml-3 mr-3 d-inline-flex" :prepend-icon="''" @click:prepend="showOptions(sheetRef.colunms[i])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(sheetRef.colunms[i])" />
-                                            </td>
-                                            <td>
-                                                <v-btn icon @click="removeCell(i)" class="d-inline-flex"><v-icon>mdi-minus-circle-outline</v-icon></v-btn>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </template>
-                            </v-simple-table>
-                        </div>
-                    </v-col>
-                    <v-col cols="1">
-                        <v-tooltip bottom>
-                            <template v-slot:activator="{ on }">
-                                <v-btn icon v-on="on" @click="addS"><v-icon>mdi-plus</v-icon></v-btn>
-                            </template>
-                            <span>{{ $t('Add') }}</span>
-                        </v-tooltip>
-                        <v-tooltip bottom>
-                            <template v-slot:activator="{ on }">
-                                <v-btn icon :disabled="!sheetIdRef" v-on="on" @click="removeSheet"><v-icon>mdi-minus</v-icon></v-btn>
-                            </template>
-                            <span>{{ $t('Remove') }}</span>
-                        </v-tooltip>
-                    </v-col>
-                </v-row>
-            </div>
-        </v-col>
-        <v-col cols="1">
-            <v-tooltip bottom>
+      <v-col cols="11">
+        <v-autocomplete v-model="categoryIdRef" @change="categoryChanged"
+          :items="mappedCategories.filter(elem => !elem.deleted)" item-text="name" item-value="id"
+          :label="$t('MappingConfigComponent.Category')" clearable></v-autocomplete>
+        <div v-if="categoryIdRef">
+          <v-row>
+            <v-col cols="11">
+              <ValidVisibleComponent :elem="categoryRef" :canEditConfig="!readonly" />
+              <v-select clearable class="mb-5" v-model="categoryRef.visibleRelation"
+                :item-text="item => item.name[defaultLanguageIdentifier]" item-value="id" :items="relations"
+                :label="$t('MappingConfigComponent.VisibleRelation')"></v-select>
+            </v-col>
+            <v-col cols="1">
+              <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+                  <v-btn icon v-on="on" @click="showRelCategoryDialog"><v-icon>mdi-content-copy</v-icon></v-btn>
+                </template>
+                <span>{{ $t('MappingConfigComponent.CopyMapping') }}</span>
+              </v-tooltip>
+
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="11">
+              <v-autocomplete v-model="sheetIdRef" @change="sheetChanged"
+                :items="mappedSheets.filter(elem => !elem.deleted)" item-text="name" item-value="id"
+                :label="$t('MappingConfigComponent.Sheet')" clearable>
+              </v-autocomplete>
+              <div v-if="sheetIdRef">
+                <v-text-field type="number" :readonly="readonly" v-model="sheetRef.index"
+                  :label="$t('MappingConfigComponent.SheetIndex')" required></v-text-field>
+                <v-text-field type="number" :readonly="readonly" v-model="sheetRef.rowStartFrom"
+                  :label="$t('MappingConfigComponent.SheetRowStartFrom')" required></v-text-field>
+                <v-simple-table dense class="mb-4" v-if="sheetRef.colunms">
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th class="text-left" style="width:30%">{{ $t('MappingConfigComponent.SheetColumn') }}</th>
+                        <th class="text-left" style="width:30%">{{ $t('MappingConfigComponent.Table.Attribute') }}</th>
+                        <th class="text-left">{{ $t('MappingConfigComponent.Table.Expression') }}</th>
+                        <th class="text-left">
+                          <v-btn icon @click="addCell" class="d-inline-flex"><v-icon>mdi-plus</v-icon></v-btn>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(elem, i) in sheetRef.colunms" :key="i">
+                        <td class="pa-1">
+                          <v-text-field v-model="elem.column" dense :readonly="readonly"
+                            class="ml-3 mr-3 d-inline-flex" />
+                        </td>
+                        <td class="pa-1">
+                          <v-autocomplete dense :readonly="readonly" v-model="elem.attrIdent"
+                            :items="allAttributes"></v-autocomplete>
+                        </td>
+                        <td class="pa-1">
+                          <v-text-field v-model="elem.expr" dense :readonly="readonly" class="ml-3 mr-3 d-inline-flex"
+                            :prepend-icon="''" @click:prepend="showOptions(sheetRef.colunms[i])"
+                            append-outer-icon="mdi-message-outline"
+                            @click:append-outer="showExpression(sheetRef.colunms[i])" />
+                        </td>
+                        <td>
+                          <v-btn icon @click="removeCell(i)"
+                            class="d-inline-flex"><v-icon>mdi-minus-circle-outline</v-icon></v-btn>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </div>
+            </v-col>
+            <v-col cols="1">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="addS"><v-icon>mdi-plus</v-icon></v-btn>
                 </template>
                 <span>{{ $t('Add') }}</span>
-            </v-tooltip>
-            <v-tooltip bottom>
+              </v-tooltip>
+              <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                    <v-btn icon :disabled="!categoryIdRef" v-on="on" @click="remove"><v-icon>mdi-minus</v-icon></v-btn>
+                  <v-btn icon :disabled="!sheetIdRef" v-on="on" @click="removeSheet"><v-icon>mdi-minus</v-icon></v-btn>
                 </template>
                 <span>{{ $t('Remove') }}</span>
-            </v-tooltip>
-          </v-col>
+              </v-tooltip>
+            </v-col>
+          </v-row>
+        </div>
+      </v-col>
+      <v-col cols="1">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+          </template>
+          <span>{{ $t('Add') }}</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn icon :disabled="!categoryIdRef" v-on="on" @click="remove"><v-icon>mdi-minus</v-icon></v-btn>
+          </template>
+          <span>{{ $t('Remove') }}</span>
+        </v-tooltip>
+      </v-col>
     </v-row>
     <template>
       <v-row justify="center">
@@ -157,25 +155,25 @@
       </v-row>
     </template>
     <template>
-        <v-row justify="center" v-if="exprAttrRef">
-            <v-dialog v-model="exprDialogRef" persistent max-width="90%">
-            <v-card>
-                <v-card-text>
-                <v-container>
-                    <v-row>
-                    <v-col cols="12">
-                        <v-textarea :rows="15" :readonly="readonly" v-model="exprAttrRef.expr"></v-textarea>
-                    </v-col>
-                    </v-row>
-                </v-container>
-                </v-card-text>
-                <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="exprDialogRef = false">{{ $t('Close') }}</v-btn>
-                </v-card-actions>
-            </v-card>
-            </v-dialog>
-        </v-row>
+      <v-row justify="center" v-if="exprAttrRef">
+        <v-dialog v-model="exprDialogRef" persistent max-width="90%">
+          <v-card>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-textarea :rows="15" :readonly="readonly" v-model="exprAttrRef.expr"></v-textarea>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="exprDialogRef = false">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
     </template>
     <template>
       <v-row justify="center" v-if="optAttrRef">
@@ -198,6 +196,7 @@
         </v-dialog>
       </v-row>
     </template>
+    <ChannelsCategorySelectionDialog ref="relCategoryDialogRef" :channelType="channel.type" @selected="categoryToCopySelected" />
   </div>
 </template>
 
@@ -207,6 +206,7 @@ import * as relStore from '../../store/relations'
 import * as attrStore from '../../store/attributes'
 import * as langStore from '../../store/languages'
 import ValidVisibleComponent from '../../components/ValidVisibleComponent'
+import ChannelsCategorySelectionDialog from '../../components/ChannelsCategorySelectionDialog.vue'
 import i18n from '../../i18n'
 
 export default {
@@ -224,7 +224,7 @@ export default {
       default: true
     }
   },
-  components: { ValidVisibleComponent },
+  components: { ValidVisibleComponent, ChannelsCategorySelectionDialog },
   setup (props, { root }) {
     const {
       relations,
@@ -337,6 +337,73 @@ export default {
       sheetRef.value = mappedSheets.value.find(elem => elem.id === sheetIdRef.value)
     }
 
+    function showRelCategoryDialog () {
+      if (relCategoryDialogRef.value) {
+        relCategoryDialogRef.value.showDialog()
+      }
+    }
+
+    function categoryToCopySelected (mapping) {
+      relCategoryDialogRef.value.closeDialog()
+      if (!categoryIdRef.value || !categoryRef.value) {
+        alert(i18n.t('MappingConfigComponent.SelectCategoryForCopy'))
+        return
+      }
+      if (!mapping || !mapping.sheets || mapping.sheets.length === 0) {
+        alert(i18n.t('MappingConfigComponent.NoDataForCopy'))
+        return
+      }
+      if (confirm(i18n.t('MappingConfigComponent.CopyMappingSheetsConfirmation'))) {
+        const sourceSheets = mapping.sheets
+        if (!categoryRef.value.sheets) {
+          categoryRef.value.sheets = []
+        }
+
+        let hasOverwrittenSheets = false
+
+        for (let i = 0; i < sourceSheets.length; i++) {
+          const sourceSheet = sourceSheets[i]
+          if (sourceSheet.deleted) continue
+
+          const existingIndex = categoryRef.value.sheets.findIndex(s => s.name === sourceSheet.name)
+
+          const baseSheet = existingIndex >= 0 ? categoryRef.value.sheets[existingIndex] : sourceSheet
+          const newSheet = {
+            id: existingIndex >= 0 ? baseSheet.id : ('sheet' + Date.now() + '_' + i),
+            name: sourceSheet.name,
+            index: sourceSheet.index,
+            rowStartFrom: sourceSheet.rowStartFrom || 0,
+            colunms: []
+          }
+
+          if (sourceSheet.colunms && sourceSheet.colunms.length > 0) {
+            for (let j = 0; j < sourceSheet.colunms.length; j++) {
+              const sourceCol = sourceSheet.colunms[j]
+              newSheet.colunms.push({
+                column: sourceCol.column,
+                attrIdent: sourceCol.attrIdent,
+                expr: sourceCol.expr
+              })
+            }
+          }
+
+          if (existingIndex >= 0) {
+            categoryRef.value.sheets.splice(existingIndex, 1, newSheet)
+            hasOverwrittenSheets = true
+          } else {
+            categoryRef.value.sheets.push(newSheet)
+          }
+        }
+
+        root.$set(props.channel.mappings, categoryRef.value.id, categoryRef.value)
+        sheetIdRef.value = null
+
+        if (hasOverwrittenSheets) {
+          alert(i18n.t('MappingConfigComponent.SheetsOverwrittenWarning'))
+        }
+      }
+    }
+
     const categoryIdRef = ref(null)
     const sheetIdRef = ref(null)
     const channelAttributesRef = ref([])
@@ -353,6 +420,7 @@ export default {
     const exprDialogRef = ref(null)
     const optAttrRef = ref(null)
     const optDialogRef = ref(null)
+    const relCategoryDialogRef = ref(null)
 
     onMounted(() => {
       loadAllRelations().then(() => { relationsLoadedRef.value = true })
@@ -401,7 +469,10 @@ export default {
       showOptions,
       optAttrRef,
       optDialogRef,
-      addCell
+      addCell,
+      relCategoryDialogRef,
+      categoryToCopySelected,
+      showRelCategoryDialog
     }
   }
 }
