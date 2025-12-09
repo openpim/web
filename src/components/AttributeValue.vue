@@ -1,6 +1,7 @@
 <template>
 <div ref="componentRoot">
     <div v-if="!dense && !inTableView" :set="desc = getTextOption('description', '')">
+      <h6 v-if="getTextOption('group_title', '').length > 0" class='mb-0 mt-2 mr-0 subtitle-1'>{{getTextOption('group_title', '')}}</h6>
       <!-- Text -->
       <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" v-if="attr.type === AttributeType.Text && !attr.multiLine && !attr.richText && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>

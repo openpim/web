@@ -218,7 +218,7 @@
                     <v-expansion-panel-header :class="getOption(group, 'group_class', '')">{{ group.name[currentLanguage.identifier] || '[' + group.name[defaultLanguageIdentifier] + ']' }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
                        <v-container class="pa-0">
-                        <v-row no-gutters v-if="!tableMode || getOption(group, 'noTableView')">
+                        <v-row no-gutters v-if="!tableMode || getOption(group, 'noTableView')" align="end">
                           <template v-for="(attr,i) in group.itemAttributes">
                             <v-col :key="i" :cols="getOption(attr, 'cols', 12)" :class="getOption(attr, 'class', '')" :offset="getOption(attr, 'offset', '')" :style="getOption(attr, 'style', '')">
                               <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="false"></AttributeValue>
