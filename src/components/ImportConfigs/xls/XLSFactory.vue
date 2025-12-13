@@ -452,6 +452,7 @@ export default {
         limit: limitRef.value,
         beforeStartAction: props.importConfig.config.beforeStartAction,
         beforeEachRow: props.importConfig.config.beforeEachRow,
+        afterEachRow: props.importConfig.config.afterEachRow,
         afterEndAction: props.importConfig.config.afterEndAction
       }
     }
