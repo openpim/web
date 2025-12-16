@@ -204,7 +204,7 @@ export default {
       selectedRef.value.filters.splice(selectedFilterRef.value, 1)
     }
 
-    function search () {
+    async function search () {
       if (selectedRef.value.extended) {
         try {
           selectedRef.value.whereClause = JSON.parse(extendedSearchRef.value)
@@ -222,7 +222,8 @@ export default {
         const where = {}
         where[orAndOperation] = []
         currentFilterRef.value = selectedRef.value.filters
-        selectedRef.value.filters.forEach(filter => {
+        for (let i = 0; i < selectedRef.value.filters.length; i++) {
+          const filter = selectedRef.value.filters[i]
           if (filter.attr) {
             const data = {}
 
@@ -290,7 +291,7 @@ export default {
               data.channels = {}
               data.channels[channelIdentifier] = {}
               data.channels[channelIdentifier][field] = {}
-              data.channels[channelIdentifier][field][operation] = parseValue(null, filter.attr, filter.value, filter)
+              data.channels[channelIdentifier][field][operation] = await parseValue(null, filter.attr, filter.value, filter)
             } else if (filter.attr === '#level#') {
               data.path = {}
               data.path.OP_regexp = filter.path + '.*'
@@ -306,7 +307,7 @@ export default {
                 const attrObj = findByIdentifier(attr)
                 data.values = {}
                 data.values[attr] = {}
-                data.values[attr][operation] = parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
+                data.values[attr][operation] = await parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
               } else {
                 const attr = filter.attr.substring(5, idx)
                 const lang = filter.attr.substring(idx + 1)
@@ -314,15 +315,15 @@ export default {
                 data.values = {}
                 data.values[attr] = {}
                 data.values[attr][lang] = {}
-                data.values[attr][lang][operation] = parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
+                data.values[attr][lang][operation] = await parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
               }
             } else {
               data[filter.attr] = {}
-              data[filter.attr][operation] = parseValue(null, filter.attr, filter.value, filter)
+              data[filter.attr][operation] = await parseValue(null, filter.attr, filter.value, filter)
             }
             where[orAndOperation].push(data)
           }
-        })
+        }
         searchEntityRef.value = 'ITEM_RELATION'
         selectedRef.value.entity = searchEntityRef.value
         currentWhereRef.value = where
@@ -337,7 +338,7 @@ export default {
         const arr = []
         const split = ('' + value).split(/\r\n|\n|\r/)
         for (const str of split) {
-          arr.push(parseSimpleValue(attrObj, attr, str))
+          arr.push(await parseSimpleValue(attrObj, attr, str))
         }
         return arr
       } else {
