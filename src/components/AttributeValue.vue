@@ -923,7 +923,10 @@ export default {
       return result
     }
 
-    const toId = v => parseInt(String(v).trim())
+    const toId = (v) => {
+      const trim = String(v).trim()
+      return Number.isInteger(Number(trim)) ? parseInt(trim) : trim
+    }
 
     const collectIds = (out, v) => {
       if (v == null) return
