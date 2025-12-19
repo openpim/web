@@ -131,8 +131,11 @@ export default {
     }
 
     function removeVisible () {
+      const val = visible.value[visibleSelectedRef.value]
       visible.value.splice(visibleSelectedRef.value, 1)
-      props.elem.visible.splice(visibleSelectedRef.value, 1)
+      const propsIdx = props.elem.visible.findIndex(elem => elem === val.id)
+      if (propsIdx !== -1) props.elem.visible.splice(propsIdx, 1)
+      else console.error(`Failed to find index by id: ${JSON.stringify(val)}`)
       visibleSelectedRef.value = null
     }
 
