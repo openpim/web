@@ -158,6 +158,70 @@
                       <v-radio :label="$t('Config.Actions.Triggers.Event.AfterDelete')" value="6"></v-radio>
                     </v-radio-group>
                   </template>
+                  <template v-if="triggerRef.type === 10"> <!-- button catalog -->
+                    <v-text-field v-model="triggerRef.itemButton" :label="$t('Config.Actions.Triggers.ButtonText')" required></v-text-field>
+                    <v-checkbox v-model="triggerRef.askBeforeExec" :label="$t('Config.Actions.Triggers.AskBeforeExec')" required></v-checkbox>
+                    <v-checkbox v-model="triggerRef.selectItems" :label="$t('Config.Actions.Triggers.ButtonSelectItems')" required></v-checkbox>
+                    <v-text-field v-if="triggerRef.selectItems" v-model="triggerRef.selectItemsFilter" :label="$t('Config.Actions.Triggers.ButtonSelectItemsFilter')" required></v-text-field>
+                    <div>
+                    <div class="d-inline-flex align-center">
+                      <div v-if="selectedType">
+                        <router-link :to="'/config/types/' + selectedType.identifier">{{ selectedType.identifier }}</router-link><span class="ml-2">- {{ selectedType.name[currentLanguage.identifier] || '[' + selectedType.name[defaultLanguageIdentifier] + ']' }}</span>
+                      </div>
+                      <v-btn color="blue darken-1" text @click="typeSelectionDialogRef.showDialog()">{{ $t('Config.Actions.Triggers.SelectType.Button') }}</v-btn>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="d-inline-flex align-center">
+                      <div v-if="selectedItemRef">
+                        <router-link :to="'/item/' + selectedItemRef.identifier">{{ selectedItemRef.identifier }}</router-link><span class="ml-2">- {{ selectedItemRef.name[currentLanguage.identifier] || '[' + selectedItemRef.name[defaultLanguageIdentifier] + ']' }}</span>
+                      </div>
+                      <v-btn color="blue darken-1" text @click="itemSelectionDialogRef.showDialog()">{{ $t('Config.Actions.Triggers.SelectItem.Button') }}</v-btn>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="align-center">
+                      <v-btn color="blue darken-1" text @click="editRoles">{{ $t('Config.Users.Roles') }}</v-btn>
+                        <v-list dense class="pt-0 pb-0">
+                          <v-list-item v-for="(item, i) in userRoles" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                            <router-link :to="'/config/roles/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name }}</span>
+                          </v-list-item-content></v-list-item>
+                        </v-list>
+                    </div>
+                  </div>
+                  </template>
+                  <template v-if="triggerRef.type === 11"> <!-- table button catalog -->
+                    <v-text-field v-model="triggerRef.itemButton" :label="$t('Config.Actions.Triggers.ButtonText')" required></v-text-field>
+                    <v-checkbox v-model="triggerRef.askBeforeExec" :label="$t('Config.Actions.Triggers.AskBeforeExec')" required></v-checkbox>
+                    <v-checkbox v-model="triggerRef.selectItems" :label="$t('Config.Actions.Triggers.ButtonSelectItems')" required></v-checkbox>
+                    <v-text-field v-if="triggerRef.selectItems" v-model="triggerRef.selectItemsFilter" :label="$t('Config.Actions.Triggers.ButtonSelectItemsFilter')" required></v-text-field>
+                    <div>
+                    <div class="d-inline-flex align-center">
+                      <div v-if="selectedType">
+                        <router-link :to="'/config/types/' + selectedType.identifier">{{ selectedType.identifier }}</router-link><span class="ml-2">- {{ selectedType.name[currentLanguage.identifier] || '[' + selectedType.name[defaultLanguageIdentifier] + ']' }}</span>
+                      </div>
+                      <v-btn color="blue darken-1" text @click="typeSelectionDialogRef.showDialog()">{{ $t('Config.Actions.Triggers.SelectType.Button') }}</v-btn>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="d-inline-flex align-center">
+                      <div v-if="selectedItemRef">
+                        <router-link :to="'/item/' + selectedItemRef.identifier">{{ selectedItemRef.identifier }}</router-link><span class="ml-2">- {{ selectedItemRef.name[currentLanguage.identifier] || '[' + selectedItemRef.name[defaultLanguageIdentifier] + ']' }}</span>
+                      </div>
+                      <v-btn color="blue darken-1" text @click="itemSelectionDialogRef.showDialog()">{{ $t('Config.Actions.Triggers.SelectItem.Button') }}</v-btn>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="align-center">
+                      <v-btn color="blue darken-1" text @click="editRoles">{{ $t('Config.Users.Roles') }}</v-btn>
+                        <v-list dense class="pt-0 pb-0">
+                          <v-list-item v-for="(item, i) in userRoles" :key="i" dense class="pt-0 pb-0"><v-list-item-content class="pt-0 pb-0" style="display: inline">
+                            <router-link :to="'/config/roles/' + item.identifier">{{ item.identifier }}</router-link><span class="ml-2">- {{ item.name }}</span>
+                          </v-list-item-content></v-list-item>
+                        </v-list>
+                    </div>
+                  </div>
+                  </template>
                 </v-form>
               </v-col>
             </v-row>
@@ -234,6 +298,10 @@ export default {
         selectedItemRef.value = null
       } else if (val === 3) {
         triggerRef.value.itemButton = ''
+      } else if (val === 10) {
+        triggerRef.value.itemButton = ''
+      } else if (val === 11) {
+        triggerRef.value.itemButton = ''
       } else {
         triggerRef.value.event = 0
         triggerRef.value.relation = 0
@@ -299,6 +367,10 @@ export default {
         return triggerRef.value.event
       } else if (typeRef.value === 9) {
         return triggerRef.value.event
+      } else if (typeRef.value === 10) {
+        return triggerRef.value.itemButton && triggerRef.value.itemType && triggerRef.value.itemFrom
+      } else if (typeRef.value === 11) {
+        return triggerRef.value.itemButton && ((!triggerRef.value.itemType && !triggerRef.value.itemFrom) || (triggerRef.value.itemType && triggerRef.value.itemFrom))
       } else {
         return false
       }
@@ -372,7 +444,9 @@ export default {
         { text: i18n.t('Config.Actions.Triggers.Type.TableButton'), value: 6 },
         { text: i18n.t('Config.Actions.Triggers.Type.BulkUpdateChannels'), value: 7 },
         { text: i18n.t('Config.Actions.Triggers.Type.LOV'), value: 8 },
-        { text: i18n.t('Config.Actions.Triggers.Type.CollectionElem'), value: 9 }
+        { text: i18n.t('Config.Actions.Triggers.Type.CollectionElem'), value: 9 },
+        { text: i18n.t('Config.Actions.Triggers.Type.ButtonCatalog'), value: 10 },
+        { text: i18n.t('Config.Actions.Triggers.Type.TableButtonCatalog'), value: 11 }
       ]
     }
   }

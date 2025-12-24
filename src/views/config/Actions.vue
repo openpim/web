@@ -124,6 +124,34 @@
                         {{ $t('Config.Actions.Triggers.Type.CollectionElem') }}
                         ({{ displayEvent(trigger.event) }})
                       </div>
+                      <div v-if="trigger.type === 10">
+                        {{ type && item ? $t('Config.Actions.Triggers.ButtonCatalogWithText', {text: trigger.itemButton}) : $t('Config.Actions.Triggers.ButtonCatalogWithText2', {text: trigger.itemButton}) }}
+                        <template v-if="type && item">
+                          <router-link :to="'/config/types/' + type.identifier">{{ type.identifier }}</router-link>
+                          {{ $t('Config.Actions.Triggers.Item2') }}
+                          <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
+                        </template>
+                        <br />
+                        {{ roles.length > 0 ? $t('Config.Roles') + ': ' + roles.map(role => role.name).join(', ') : '' }}
+                        <br v-if="roles.length > 0"/>
+                        {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
+                        <br v-if="trigger.askBeforeExec"/>
+                        {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
+                      </div>
+                      <div v-if="trigger.type === 11">
+                        {{ type && item ? $t('Config.Actions.Triggers.TableButtonCatalogWithText', {text: trigger.itemButton}) : $t('Config.Actions.Triggers.TableButtonCatalogWithText2', {text: trigger.itemButton}) }}
+                        <template v-if="type && item">
+                          <router-link :to="'/config/types/' + type.identifier">{{ type.identifier }}</router-link>
+                          {{ $t('Config.Actions.Triggers.Item2') }}
+                          <router-link v-if="item" :to="'/item/' + item.identifier">{{ item.identifier }}</router-link>
+                        </template>
+                        <br />
+                        {{ roles.length > 0 ? $t('Config.Roles') + ': ' + roles.map(role => role.name).join(', ') : '' }}
+                        <br v-if="roles.length > 0"/>
+                        {{ trigger.askBeforeExec ? ' ('+ $t('Config.Actions.Triggers.AskBeforeExec') + ')' : '' }}
+                        <br v-if="trigger.askBeforeExec"/>
+                        {{ trigger.selectItems ? ' ('+ $t('Config.Actions.Triggers.ButtonSelectItems') + (trigger.selectItemsFilter? ':['+trigger.selectItemsFilter+']' : '') + ')' : '' }}
+                      </div>
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -248,7 +276,7 @@ export default {
     function triggerCreated (trigger) {
       triggerDialogRef.value.closeDialog()
       selectedRef.value.triggers.push(trigger)
-      if (trigger.type === 1 || trigger.type === 3 || trigger.type === 6) {
+      if (trigger.type === 1 || trigger.type === 3 || trigger.type === 6 || trigger.type === 10 || trigger.type === 11) {
         loadItemsByIds([trigger.itemFrom]).then(arr => { itemsRef.value.push(arr[0]) })
       }
     }
@@ -326,7 +354,7 @@ export default {
       selectedRef.value = action
       const ids = []
       selectedRef.value.triggers.forEach(trigger => {
-        if (trigger.type === 1 || trigger.type === 3 || trigger.type === 6) ids.push(trigger.itemFrom)
+        if (trigger.type === 1 || trigger.type === 3 || trigger.type === 6 || trigger.type === 10 || trigger.type === 11) ids.push(trigger.itemFrom)
       })
       loadItemsByIds(ids).then(arr => { itemsRef.value = arr })
       if (action.identifier) router.push('/config/actions/' + action.identifier)
