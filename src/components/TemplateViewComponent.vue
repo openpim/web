@@ -165,6 +165,8 @@
         </v-card-title>
         <v-card-text>
           <v-autocomplete v-model="backgroundSelected" :items="staticImages" item-text="name" item-value="url"></v-autocomplete>
+          <v-file-input v-model="backgroundFile" :label="$t('ItemView.NewFile')" accept="image/*" show-size></v-file-input>
+          <v-btn :disabled="!backgroundFile" color="blue darken-1" text @click="uploadBackgroundImage">{{ $t('ItemView.Upload') }}</v-btn>
           <v-text-field v-model="width" :label="$t('Config.Template.Width')"></v-text-field>
           <v-text-field v-model="height" :label="$t('Config.Template.Height')"></v-text-field>
         </v-card-text>
@@ -249,7 +251,8 @@ export default {
       staticFonts,
       loadAllFonts,
       staticImages,
-      loadAllImages
+      loadAllImages,
+      uploadImage
     } = mediaStore.useStore()
 
     const formRef = ref(null)
@@ -312,9 +315,27 @@ export default {
     }
 
     const backgroundSelected = ref(null)
+    const backgroundFile = ref(null)
 
     function openBackgroundDialog () {
       isBackgroundDialogOpen.value = true
+    }
+
+    async function uploadBackgroundImage () {
+      if (!backgroundFile.value) return
+      const result = await uploadImage(backgroundFile.value)
+      if (result) {
+        await loadAllImages()
+        if (result.url) {
+          backgroundSelected.value = result.url
+        } else if (result.name && staticImages.value.length > 0) {
+          const uploadedImage = staticImages.value.find(img => img.name === result.name)
+          if (uploadedImage) {
+            backgroundSelected.value = uploadedImage.url
+          }
+        }
+        backgroundFile.value = null
+      }
     }
 
     const width = ref(1200)
@@ -587,6 +608,8 @@ export default {
       staticFonts,
       staticImages,
       backgroundSelected,
+      backgroundFile,
+      uploadBackgroundImage,
       mapping,
       addTextFiend,
       removeTextFiend,

@@ -1,5 +1,7 @@
 import { reactive, provide, inject } from '@vue/composition-api'
 import { serverFetch } from './utils'
+import * as err from './error'
+import i18n from '../i18n'
 
 const staticFonts = reactive([])
 const staticImages = reactive([])
@@ -45,6 +47,27 @@ const actions = {
       })
     }
     return staticImages
+  },
+  uploadImage: async (file) => {
+    const data = new FormData()
+    data.append('file', file)
+
+    const resp = await fetch((window.location.href.indexOf('localhost') >= 0 ? process.env.VUE_APP_DAM_URL : window.OPENPIM_SERVER_URL + '/') + 'image-upload', {
+      method: 'POST',
+      headers: {
+        'x-token': localStorage.getItem('token')
+      },
+      body: data
+    })
+    if (!resp.ok) {
+      err.store.showError(i18n.t('File.UploadFailed') + ' ' + (await resp.text()))
+      return false
+    } else {
+      const result = await resp.json()
+      staticImages.length = 0
+      promise = null
+      return result
+    }
   }
 }
 
