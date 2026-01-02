@@ -1534,6 +1534,8 @@ export default {
         loadThumbnails(ids).then(arr => { thumbnailsRef.value = arr })
         loadParentsIfNecessary()
         relationAttributesItemsRef.value = await getRelationAttributesItems(data.rows, false)
+
+        checkSavedColumnsByType()
       })
     }
 
@@ -1808,6 +1810,17 @@ export default {
       // loadLOVsForRelationAttrs()
     }
 
+    function checkSavedColumnsByType () {
+      if (props.item) {
+        const type = findTypeByIdentifier(props.item.typeIdentifier).node
+        const savedColumnsByType = type.options.find(el => el.name === 'savedColumns')
+        if (savedColumnsByType) {
+          const columns = savedColumnsOptionsRef.value.find(elem => elem.identifier === savedColumnsByType.value)
+          if (columns) savedColumnsSelectionRef.value = columns.value
+        }
+      }
+    }
+
     onMounted(async () => {
       loadAllActions().then(() => { actionLoadedRef.value = true })
       loadAllTypes()
@@ -1835,6 +1848,8 @@ export default {
       }
       const tst2 = localStorage.getItem('savedColumnsSelection')
       if (tst2) savedColumnsSelectionRef.value = tst2
+
+      checkSavedColumnsByType()
 
       if (!tst && !tst2 && headersRef.value.length === 0) {
         const defColumns = savedColumnsOptionsRef.value.find(elem => elem.identifier === 'default')
