@@ -1815,8 +1815,17 @@ export default {
         const type = findTypeByIdentifier(props.item.typeIdentifier).node
         const savedColumnsByType = type.options.find(el => el.name === 'savedColumns')
         if (savedColumnsByType) {
-          const columns = savedColumnsOptionsRef.value.find(elem => elem.identifier === savedColumnsByType.value)
-          if (columns) savedColumnsSelectionRef.value = columns.value
+          try {
+            // eslint-disable-next-line no-new-func
+            const func = new Function('item', '"use strict"; return (' + savedColumnsByType.value + ')')
+            const data = func(props.item)
+            if (data) {
+              const columns = savedColumnsOptionsRef.value.find(elem => elem.identifier === data)
+              if (columns) savedColumnsSelectionRef.value = columns.value
+            }
+          } catch (err) {
+            console.error('Failed to evaluate expression: "' + savedColumnsByType + '" ', err)
+          }
         }
       }
     }
