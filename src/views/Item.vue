@@ -1215,7 +1215,9 @@ export default {
               item.values[attr.identifier] = null
             }
 
-            if (attr.type === AttributeType.URL) {
+            if (attr.type === AttributeType.Text && attr.richText && item.values[attr.identifier] === null) {
+              item.values[attr.identifier] = ''
+            } else if (attr.type === AttributeType.URL) {
               if (!item.values[attr.identifier + '_text']) {
                 if (attr.languageDependent) {
                   item.values[attr.identifier + '_text'] = {}
