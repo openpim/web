@@ -537,9 +537,9 @@ export default {
   setup (props, { emit, root }) {
     const { showError, showInfo } = errorStore.useStore()
 
-    const { currentUserRef, hasAccess, canEditItem, canEditAttrGroup, currentRoles } = userStore.useStore()
+    const { currentUserRef, hasAccess, canEditItem, canEditAttrGroup, currentRoles, getServerConfig } = userStore.useStore()
 
-    const { savedColumnsRef, loadAllSavedColumns, searchEntityRef } = searchStore.useStore()
+    const { savedColumnsRef, loadAllSavedColumns, searchEntityRef, selectedRef } = searchStore.useStore()
 
     const { groups, findByIdentifier, getAttributesForItem } = attrStore.useStore()
 
@@ -1810,6 +1810,7 @@ export default {
       // loadLOVsForRelationAttrs()
     }
 
+    let serverConfig = null
     function checkSavedColumnsByType () {
       if (props.item) {
         const type = findTypeByIdentifier(props.item.typeIdentifier).node
@@ -1827,10 +1828,23 @@ export default {
             console.error('Failed to evaluate expression: "' + savedColumnsByType + '" ', err)
           }
         }
+      } else if (serverConfig && serverConfig.searchSavedColumns) {
+        try {
+          // eslint-disable-next-line no-new-func
+          const func = new Function('searchSelected', '"use strict"; return (' + serverConfig.searchSavedColumns + ')')
+          const data = func(selectedRef.value)
+          if (data) {
+            const columns = savedColumnsOptionsRef.value.find(elem => elem.identifier === data)
+            if (columns) savedColumnsSelectionRef.value = columns.value
+          }
+        } catch (err) {
+          console.error('Failed to evaluate searchSavedColumns expression: "' + serverConfig.searchSavedColumns + '" ', err)
+        }
       }
     }
 
     onMounted(async () => {
+      serverConfig = await getServerConfig()
       loadAllActions().then(() => { actionLoadedRef.value = true })
       loadAllTypes()
       loadAllTemplates()
