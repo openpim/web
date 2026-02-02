@@ -71,7 +71,7 @@
       </v-checkbox>
 
       <!-- Integer -->
-      <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+      <v-text-field :counter="getNumberOption('counter')" @wheel.prevent @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -82,7 +82,7 @@
           <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
-      <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+      <v-text-field :counter="getNumberOption('counter')" @wheel.prevent @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -95,7 +95,7 @@
       </v-text-field>
 
       <!-- Float -->
-      <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+      <v-text-field :counter="getNumberOption('counter')" @wheel.prevent @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -106,7 +106,7 @@
           <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
-      <v-text-field :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
+      <v-text-field :counter="getNumberOption('counter')" @wheel.prevent @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" :label="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -365,7 +365,7 @@
       </v-checkbox>
 
       <!-- Integer -->
-      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
+      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @wheel.prevent @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -376,7 +376,7 @@
           <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
-      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" required :error-messages="errors">
+      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @wheel.prevent @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Integer && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -389,7 +389,7 @@
       </v-text-field>
 
       <!-- Float -->
-      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
+      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @wheel.prevent @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && !attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
@@ -400,7 +400,7 @@
           <CustomAttributeTooltipComponent :attr="attr" @selected="attrInput($event)" :values="values"/>
         </template>
       </v-text-field>
-      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" required :error-messages="errors">
+      <v-text-field dense hide-details="true" :counter="getNumberOption('counter')" @wheel.prevent @input="attrInput($event)" @blur="attrBlur" type="number" v-if="attr.type === AttributeType.Float && attr.languageDependent" :readonly="attr.readonly" v-model="values[attr.identifier][currentLanguage.identifier]" required :error-messages="errors">
         <template #append>
           <v-tooltip bottom v-if="desc" color="blue-grey darken-4">
             <template v-slot:activator="{ on }">
