@@ -35,7 +35,7 @@
                 <v-list-item-group multiple v-model="selectedRightRef" color="primary">
                   <v-list-item v-for="(elem, i) in selectedColumnsComputed" :key="i">
                     <v-list-item-content>
-                      <v-list-item-title v-text="elem.text"></v-list-item-title>
+                      <v-list-item-title v-text="elem.textLong || elem.text"></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </v-list-item-group>
