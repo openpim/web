@@ -29,34 +29,88 @@
                         <td>{{ $t('ImportConfig.SelectedTemplateFile') }}</td>
                         <td><a :href="damUrl + 'import-config-template/' + importConfigRef.id + '?token=' + token">{{ importConfigRef.filedata.info.fileName ? importConfigRef.filedata.info.fileName : 'file.xls' }}</a></td>
                       </tr>
-                      <tr v-if="importConfigRef.type === 2">
-                        <td>{{ $t('ImportConfig.SelectedTab') }}</td>
-                        <td>{{ importConfigRef.config.selectedTab }}</td>
-                      </tr>
-                      <tr>
-                        <td>{{ $t('ImportConfig.HeadersLineNumber') }}</td>
-                        <td>{{ importConfigRef.config.headerLineNumber }}</td>
-                      </tr>
-                      <tr>
-                        <td>{{ $t('ImportConfig.NoHeader') }}</td>
-                        <td>{{ importConfigRef.config.noHeadersChecked ? $t('ImportConfig.Yes') : $t('ImportConfig.No') }}</td>
-                      </tr>
-                      <tr>
-                        <td>{{ $t('ImportConfig.DataLineNumber') }}</td>
-                        <td>{{ importConfigRef.config.dataLineNumber }}</td>
-                      </tr>
-                      <tr>
-                        <td>{{ $t('ImportConfig.Limit') }}</td>
-                        <td>{{ importConfigRef.config.limit ? importConfigRef.config.limit : $t('ImportConfig.ImportAllRows')  }}</td>
-                      </tr>
+                      <template v-if="importConfigRef.type !== 2 || !importConfigRef.config || !importConfigRef.config.sheets || !importConfigRef.config.sheets.length">
+                        <tr v-if="importConfigRef.type === 2">
+                          <td>{{ $t('ImportConfig.SelectedTab') }}</td>
+                          <td>{{ importConfigRef.config.selectedTab }}</td>
+                        </tr>
+                        <tr>
+                          <td>{{ $t('ImportConfig.HeadersLineNumber') }}</td>
+                          <td>{{ importConfigRef.config.headerLineNumber }}</td>
+                        </tr>
+                        <tr>
+                          <td>{{ $t('ImportConfig.NoHeader') }}</td>
+                          <td>{{ importConfigRef.config.noHeadersChecked ? $t('ImportConfig.Yes') : $t('ImportConfig.No') }}</td>
+                        </tr>
+                        <tr>
+                          <td>{{ $t('ImportConfig.DataLineNumber') }}</td>
+                          <td>{{ importConfigRef.config.dataLineNumber }}</td>
+                        </tr>
+                        <tr>
+                          <td>{{ $t('ImportConfig.Limit') }}</td>
+                          <td>{{ importConfigRef.config.limit ? importConfigRef.config.limit : $t('ImportConfig.ImportAllRows')  }}</td>
+                        </tr>
+                      </template>
                     </tbody>
                   </template>
                 </v-simple-table>
+                <v-expansion-panels v-if="importConfigRef.type === 2 && importConfigRef.config && importConfigRef.config.sheets && importConfigRef.config.sheets.length" multiple focusable class="mt-2">
+                  <v-expansion-panel v-for="(sheet, sheetIndex) in importConfigRef.config.sheets" :key="'sheet-config-' + sheetIndex">
+                    <v-expansion-panel-header>{{ $t('ImportConfig.SelectedTab') }} {{ sheetIndex + 1 }}: {{ sheet.selectedTab }}</v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                      <v-simple-table dense>
+                        <template v-slot:default>
+                          <tbody>
+                            <tr>
+                              <td class="text-left">{{ $t('ImportConfig.HeadersLineNumber') }}</td>
+                              <td>{{ sheet.headerLineNumber }}</td>
+                            </tr>
+                            <tr>
+                              <td class="text-left">{{ $t('ImportConfig.NoHeader') }}</td>
+                              <td>{{ sheet.noHeadersChecked ? $t('ImportConfig.Yes') : $t('ImportConfig.No') }}</td>
+                            </tr>
+                            <tr>
+                              <td class="text-left">{{ $t('ImportConfig.DataLineNumber') }}</td>
+                              <td>{{ sheet.dataLineNumber }}</td>
+                            </tr>
+                            <tr>
+                              <td class="text-left">{{ $t('ImportConfig.Limit') }}</td>
+                              <td>{{ sheet.limit ? sheet.limit : $t('ImportConfig.ImportAllRows') }}</td>
+                            </tr>
+                          </tbody>
+                        </template>
+                      </v-simple-table>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+                </v-expansion-panels>
                 <v-expansion-panels multiple focusable class="mt-3">
                   <v-expansion-panel key="1">
                     <v-expansion-panel-header>Mappings</v-expansion-panel-header>
                     <v-expansion-panel-content v-if="importConfigRef.type !== 3 && importConfigCSVLicenceExist">
-                      <v-simple-table dense>
+                      <template v-if="importConfigRef.type === 2 && importConfigRef.config && importConfigRef.config.sheets && importConfigRef.config.sheets.length">
+                        <div v-for="(sheet, sheetIndex) in importConfigRef.config.sheets" :key="'mapping-' + sheetIndex" class="mb-4">
+                          <div class="text-subtitle-2 mb-2">{{ $t('ImportConfig.SelectedTab') }} {{ sheetIndex + 1 }}: {{ sheet.selectedTab }}</div>
+                          <v-simple-table dense>
+                            <template v-slot:default>
+                              <thead>
+                                <tr>
+                                  <th class="text-left">{{$t('ImportConfig.OptionsTable.Attribute')}}</th>
+                                  <th class="text-left">{{$t('ImportConfig.OptionsTable.Column')}}</th>
+                                  <th class="text-left">{{$t('ImportConfig.OptionsTable.Expression')}}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr v-for="(elem, j) in (sheet.mappings && sheet.mappings.length ? sheet.mappings : importConfigRef.mappings)" :key="j">
+                                  <td class="pa-1 pr-10">{{ elem.attribute }}</td>
+                                  <td class="pa-1 pr-10">{{ elem.column }}</td>
+                                  <td class="pa-1 pr-10">{{ elem.expression }}</td>
+                                </tr>
+                              </tbody>
+                            </template>
+                          </v-simple-table>
+                        </div>
+                      </template>
+                      <v-simple-table v-else dense>
                         <template v-slot:default>
                           <thead>
                             <tr>
@@ -73,12 +127,12 @@
                             </tr>
                           </tbody>
                         </template>
-                    </v-simple-table>
+                      </v-simple-table>
                     </v-expansion-panel-content>
                     <v-expansion-panel-content v-else-if="importConfigRef.type === 3 && importConfigYMLLicenceExist">
                       <v-tabs v-model="tabRef">
-                        <v-tab v-text="$t('ImportConfig.YML.Categories')"></v-tab>
-                        <v-tab v-text="$t('ImportConfig.YML.Offers')"></v-tab>
+                        <v-tab>{{ $t('ImportConfig.YML.Categories') }}</v-tab>
+                        <v-tab>{{ $t('ImportConfig.YML.Offers') }}</v-tab>
                       </v-tabs>
                       <v-tabs-items v-model="tabRef" style="width: 100%;">
                         <v-tab-item style="width: 100%;">
