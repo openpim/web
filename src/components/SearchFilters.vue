@@ -206,7 +206,7 @@ export default {
       } else {
         const name = {}
         name[currentLanguage.value.identifier] = i18n.t('SearchSaveDialog.NameNew')
-        localSelectedRef.value = { identifier: '', name: name, filters: selected.filters, extWhereClause: JSON.stringify(selected.whereClause) || '{ "identifier": "???", ... }', whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
+        localSelectedRef.value = { identifier: selected.identifier, name: name, filters: selected.filters, extWhereClause: JSON.stringify(selected.whereClause) || '{ "identifier": "???", ... }', whereClause: selected.whereClause, extended: selected.extended, public: false, orAnd: selected.orAnd || 1 }
       }
       if (selected.extended && (selected.whereClause || selected.extWhereClause)) localSelectedRef.value.extWhereClause = JSON.stringify(selected.whereClause || selected.extWhereClause)
       searchEntityRef.value = selected.entity ? selected.entity : 'ITEM'
