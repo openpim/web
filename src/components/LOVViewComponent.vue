@@ -355,7 +355,7 @@ import * as lovStore from '../store/lovs'
 import * as errorStore from '../store/error'
 import * as itemStore from '../store/item'
 import * as channelsStore from '../store/channels'
-import XLSX from 'xlsx'
+import XLSX from 'sheetjs-style'
 import { saveAs } from 'file-saver'
 
 import SystemInformation from '../components/SystemInformation'

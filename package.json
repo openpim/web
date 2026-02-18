@@ -24,13 +24,13 @@
     "openid-client": "^5.5.0",
     "postcss-loader": "^3.0.0",
     "raw-loader": "^0.5.1",
+    "sheetjs-style": "^0.15.8",
     "vue": "^2.6.13",
     "vue-chartjs": "^3.5.0",
     "vue-i18n": "^8.15.5",
     "vue-pdf": "^4.3.0",
     "vue-router": "^3.1.5",
     "vuetify": "^2.4.6",
-    "xlsx": "^0.16.9",
     "xregexp": "^4.3.0"
   },
   "devDependencies": {

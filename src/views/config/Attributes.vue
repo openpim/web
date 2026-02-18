@@ -208,7 +208,7 @@ import ValidVisibleComponent from '../../components/ValidVisibleComponent'
 import RelationsSelectionDialog from '../../components/RelationsSelectionDialog'
 import additionalAttrTypesList from '../../_customizations/attributes/additionalTypes.js'
 
-import XLSX from 'xlsx'
+import XLSX from 'sheetjs-style'
 import { saveAs } from 'file-saver'
 import { s2ab } from '../../store/utils.js'
 import AttributeType from '../../constants/attributeTypes'

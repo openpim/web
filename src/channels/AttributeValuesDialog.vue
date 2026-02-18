@@ -36,7 +36,7 @@
 import { ref, onMounted, computed, watch } from '@vue/composition-api'
 import * as langStore from '../store/languages'
 import * as attrStore from '../store/attributes'
-import XLSX from 'xlsx'
+import XLSX from 'sheetjs-style'
 import { saveAs } from 'file-saver'
 import { s2ab } from '../store/utils.js'
 

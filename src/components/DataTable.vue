@@ -137,10 +137,10 @@
       :show-select="!!collection"
       class="elevation-1">
 
-    <template v-slot:header="{ props }">
-      <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
-        <th v-for="header in props.headers" :key="header.identifier" class="dataTableHeader">
-            <span class="ml-1 mr-1 subtitle-2" style="white-space:normal">{{header.text}}</span>
+      <template v-slot:header="{ props }">
+        <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
+          <th v-for="header in props.headers" :key="header.identifier" :class="['dataTableHeader', { 'dataTableHeaderInvalid': isHeaderInvalid(header) }]">
+            <span class="ml-1 mr-1 subtitle-2" style="white-space:normal">{{ header.text }}</span>
             <v-btn small v-if="header.sortable" icon @click="headerSort(header)">
               <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
             </v-btn>
@@ -471,7 +471,7 @@ import CollectionsSelectionDialog from '../components/CollectionsSelectionDialog
 import AttrGroupsSelectionDialog from './AttrGroupsSelectionDialog'
 import ActionStatusDialog from '../components/ActionStatusDialog'
 import AttributeType from '../constants/attributeTypes'
-import XLSX from 'xlsx'
+import XLSX from 'sheetjs-style'
 import dateFormat from 'dateformat'
 import router from '../router'
 
@@ -753,6 +753,53 @@ export default {
       columnsSelectionDialogRef.value.showDialog([...headersRef.value], onlyAttributes)
     }
 
+    const invalidHeaderIdentifiersRef = computed(() => {
+      if (!props.item || !itemsRef.value || itemsRef.value.length === 0) return new Set()
+      const first = itemsRef.value[0]
+      const typeId = parseInt(first.typeId)
+
+      const validAttrIdents = new Set()
+      groups.forEach(group => {
+        if (group.attributes) {
+          group.attributes.forEach(attr => {
+            if (attr.valid && attr.valid.includes(typeId)) {
+              validAttrIdents.add(attr.identifier)
+            }
+          })
+        }
+      })
+
+      if (validAttrIdents.size === 0) {
+        const allAttrHeaders = headersRef.value.filter(h => h.identifier && h.identifier.startsWith('attr_'))
+        if (allAttrHeaders.length > 0 && groups.length > 0) {
+          const invalidIdents = new Set()
+          allAttrHeaders.forEach(h => invalidIdents.add(h.identifier))
+          return invalidIdents
+        }
+        return new Set()
+      }
+
+      const invalidIdents = new Set()
+      headersRef.value.forEach(header => {
+        if (header.identifier && header.identifier.startsWith('attr_')) {
+          let attrIdent = null
+          if (header.value && header.value.path && header.value.path.length >= 2) {
+            attrIdent = header.value.path[1]
+          } else {
+            attrIdent = header.identifier.substring(5)
+          }
+          if (attrIdent && !validAttrIdents.has(attrIdent)) {
+            invalidIdents.add(header.identifier)
+          }
+        }
+      })
+      return invalidIdents
+    })
+
+    function isHeaderInvalid (header) {
+      return invalidHeaderIdentifiersRef.value.has(header.identifier)
+    }
+
     async function columnsSelected (arr) {
       savedColumnsSelectionRef.value = null
       localStorage.removeItem('savedColumnsSelection')
@@ -878,10 +925,14 @@ export default {
       let page = 0
       excelDialogProgressRef.value = 0
 
+      const invalidHeaders = invalidHeaderIdentifiersRef.value
+      const invalidStyle = { fill: { fgColor: { rgb: 'FFCCCC' } }, font: { color: { rgb: 'CC0000' }, bold: true } }
+
       const columns = ['parent', 'type', 'Identifier']
       headersRef.value.forEach(header => {
         if (header.identifier !== '#thumbnail#' && header.identifier !== 'identifier' && header.identifier !== '#parentName#' && header.identifier !== '#sourceParentName#' && header.identifier !== '#targetParentName#' && header.identifier !== 'typeIdentifier') {
-          columns.push(header.text)
+          const isInvalid = invalidHeaders.has(header.identifier)
+          columns.push(isInvalid ? '[!] ' + header.text : header.text)
         }
       })
       const ws = XLSX.utils.aoa_to_sheet([columns])
@@ -911,6 +962,9 @@ export default {
           cell.c = []
           cell.c.hidden = true
           cell.c.push({ a: 'OpenPIM', t: header.identifier + (header.lov ? '#' + header.lov : '') })
+          if (invalidHeaders.has(header.identifier)) {
+            cell.s = invalidStyle
+          }
           idx++
         }
       })
@@ -2264,7 +2318,8 @@ export default {
       pageSizePositive: value => parseInt(value) > 1 || i18n.t('ItemRelationsList.MustBePositive'),
       getValueForRelationAttribute,
       relationAttributesItemsRef,
-      goto
+      goto,
+      isHeaderInvalid
     }
   },
   methods: {
@@ -2305,12 +2360,21 @@ export default {
     z-index: 1;
   }
 
-  div.resizer {
-    position:absolute;
-    top: 0px; right: -1px;
-    width: 5px;
-    cursor: col-resize;
-    user-select: none;
-    height: 80px;
-  }
+th.dataTableHeaderInvalid {
+  background-color: rgba(255, 82, 82, 0.15);
+}
+
+th.dataTableHeaderInvalid>span.subtitle-2 {
+  color: #D32F2F;
+}
+
+div.resizer {
+  position: absolute;
+  top: 0px;
+  right: -1px;
+  width: 5px;
+  cursor: col-resize;
+  user-select: none;
+  height: 80px;
+}
 </style>
