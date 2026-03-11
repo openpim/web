@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="canViewConfigRef && ((selectedRef.type !== 3 && importConfigCSVLicenceExist) || (selectedRef.type === 3 && importConfigYMLLicenceExist))">
+  <v-container v-if="canViewConfigRef && hasAnyImportConfigLicence">
     <v-row no-gutters>
       <v-col cols="3" lg="2" xl="2">
         <v-toolbar dense flat>
@@ -49,8 +49,8 @@
             </v-expansion-panel>
           </v-expansion-panels>
 
-          <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="!selectedRef.filedata.info.fileName && selectedRef.type !== 3" @click="save">{{ $t('Save') }}</v-btn>
-          <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="isTestDisabled()" @click="saveAndTest">{{ $t('ImportConfig.SaveAndTest') }}</v-btn>
+          <v-btn class="mr-4" v-if="canEditConfigRef" :disabled="!selectedRef.filedata.info.fileName && selectedRef.type !== 3 && selectedRef.type !== 4" @click="save">{{ $t('Save') }}</v-btn>
+          <v-btn class="mr-4" v-if="canEditConfigRef && selectedRef.type !== 4" :disabled="isTestDisabled()" @click="saveAndTest">{{ $t('ImportConfig.SaveAndTest') }}</v-btn>
           <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.attributes && selectedRef.attributes.length > 0">{{ $t('Remove') }}</v-btn>
         </v-form>
       </v-col>
@@ -74,11 +74,12 @@ import getImportConfigFactory from '../../components/ImportConfigs'
 import CSVFactory from '@/components/ImportConfigs/csv/CSVFactory.vue'
 import XLSFactory from '@/components/ImportConfigs/xls/XLSFactory.vue'
 import YandexFactory from '@/components/ImportConfigs/yandex/YandexFactory.vue'
+import BulkFilesFactory from '@/components/ImportConfigs/bulk/BulkFilesFactory.vue'
 
 // import eventBus from '@/eventBus'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, CSVFactory, XLSFactory, YandexFactory },
+  components: { LanguageDependentField, SystemInformation, CSVFactory, XLSFactory, YandexFactory, BulkFilesFactory },
   setup () {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const { defaultLanguageIdentifier, currentLanguage } = langStore.useStore()
@@ -95,6 +96,7 @@ export default {
 
     const importConfigCSVLicenceExist = ref(false)
     const importConfigYMLLicenceExist = ref(false)
+    const importConfigBulkLicenceExist = ref(false)
 
     const {
       channelTypes,
@@ -109,6 +111,10 @@ export default {
       { value: 1, text: i18n.t('ImportConfig.Filetype.CSV') },
       { value: 2, text: i18n.t('ImportConfig.Filetype.XLS') }
     ])
+
+    const hasAnyImportConfigLicence = computed(() => {
+      return importConfigCSVLicenceExist.value || importConfigYMLLicenceExist.value || importConfigBulkLicenceExist.value
+    })
 
     function add () {
       selectedRef.value = addImportConfig()
@@ -158,6 +164,11 @@ export default {
           importConfigYMLLicenceExist.value = true
           types.value.push({ value: 3, text: i18n.t('ImportConfig.Filetype.YML') })
         }
+        const importConfigBulkLicence = channelTypes.find(el => el === 1002)
+        if (importConfigBulkLicence) {
+          importConfigBulkLicenceExist.value = true
+          types.value.push({ value: 4, text: i18n.t('ImportConfig.Filetype.BulkFiles') })
+        }
       })
     })
 
@@ -205,6 +216,7 @@ export default {
     }
 
     function isTestDisabled () {
+      if (selectedRef.value.type === 4) return true
       if (selectedRef.value.type !== 3) {
         const identifierMapping = selectedRef.value.mappings.find(el => el.attribute === 'identifier')
         if (selectedRef.value.filedata.info.fileName && identifierMapping && (identifierMapping.column || (identifierMapping.expression && identifierMapping.expression.length))) {
@@ -326,8 +338,10 @@ export default {
       add,
       canEditConfigRef,
       canViewConfigRef,
+      hasAnyImportConfigLicence,
       importConfigCSVLicenceExist,
       importConfigYMLLicenceExist,
+      importConfigBulkLicenceExist,
       clearSelection,
       currentLanguage,
       defaultLanguageIdentifier,
