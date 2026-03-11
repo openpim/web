@@ -117,6 +117,75 @@ const actions = {
     } else {
       return await resp.json()
     }
+  },
+  uploadBulkFiles: async (importConfigId, files, processId, onProgress) => {
+    const damUrl = localStorage.getItem('VUE_APP_DAM_URL') ||
+      (window.location.href.indexOf('localhost') >= 0
+        ? process.env.VUE_APP_DAM_URL
+        : window.OPENPIM_SERVER_URL + '/')
+
+    const formData = new FormData()
+    formData.append('mappingId', importConfigId)
+    if (processId) formData.append('processId', '' + processId)
+
+    for (let i = 0; i < files.length; i++) {
+      formData.append('file', files[i])
+    }
+
+    return await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', damUrl + 'bulk-upload')
+      xhr.setRequestHeader('x-token', localStorage.getItem('token'))
+
+      xhr.upload.onprogress = (event) => {
+        if (onProgress) {
+          onProgress({
+            loaded: event.loaded,
+            total: event.total,
+            lengthComputable: event.lengthComputable
+          })
+        }
+      }
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          if (onProgress) {
+            onProgress({ loaded: 1, total: 1, lengthComputable: true })
+          }
+          try {
+            resolve(xhr.responseText ? JSON.parse(xhr.responseText) : {})
+          } catch (e) {
+            reject(e)
+          }
+        } else {
+          reject(new Error(xhr.responseText || xhr.statusText || 'Bulk upload failed'))
+        }
+      }
+
+      xhr.onerror = () => reject(new Error(xhr.statusText || 'Bulk upload failed'))
+      xhr.onabort = () => reject(new Error('Bulk upload aborted'))
+      xhr.send(formData)
+    })
+  },
+  startBulkProcessing: async (processId, language) => {
+    const damUrl = localStorage.getItem('VUE_APP_DAM_URL') ||
+      (window.location.href.indexOf('localhost') >= 0
+        ? process.env.VUE_APP_DAM_URL
+        : window.OPENPIM_SERVER_URL + '/')
+
+    const resp = await fetch(damUrl + `bulk-upload/start/${processId}?language=${language}`, {
+      method: 'POST',
+      headers: {
+        'x-token': localStorage.getItem('token'),
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!resp.ok) {
+      const text = await resp.text()
+      throw new Error(text)
+    }
+    return await resp.json()
   }
 }
 

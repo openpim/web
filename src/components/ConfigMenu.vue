@@ -24,7 +24,7 @@
           <v-list-item-icon><v-icon>mdi-file-code-outline</v-icon></v-list-item-icon>
           <v-list-item-content><v-list-item-title>{{ $t('Config.Actions') }}</v-list-item-title></v-list-item-content>
         </v-list-item>
-        <v-list-item link to="/config/imports" v-if="canViewConfig('importConfigs') && (importConfigCSVLicenceExist || importConfigYMLLicenceExist)">
+        <v-list-item link to="/config/imports" v-if="canViewConfig('importConfigs') && (importConfigCSVLicenceExist || importConfigYMLLicenceExist || importConfigBulkLicenceExist)">
           <v-list-item-icon><v-icon>mdi-file-cog-outline</v-icon></v-list-item-icon>
           <v-list-item-content><v-list-item-title>{{ $t('Config.ImportConfigs') }}</v-list-item-title></v-list-item-content>
         </v-list-item>
@@ -68,6 +68,7 @@ export default {
 
     const importConfigCSVLicenceExist = ref(false)
     const importConfigYMLLicenceExist = ref(false)
+    const importConfigBulkLicenceExist = ref(false)
     onMounted(() => {
       loadAllChannelTypes().then(() => {
         const importConfigCSVLicence = channelTypes.find(el => el === 1000)
@@ -78,12 +79,17 @@ export default {
         if (importConfigYMLLicence) {
           importConfigYMLLicenceExist.value = true
         }
+        const importConfigBulkLicence = channelTypes.find(el => el === 1002)
+        if (importConfigBulkLicence) {
+          importConfigBulkLicenceExist.value = true
+        }
       })
     })
 
     return {
       importConfigCSVLicenceExist,
       importConfigYMLLicenceExist,
+      importConfigBulkLicenceExist,
       canViewConfig
     }
   }
