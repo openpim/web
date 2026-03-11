@@ -219,8 +219,8 @@ export default {
     }
 
     async function parseValue (attrObj, attr, value, filter) {
-      if (filter.operation === 16) return [{ OP_eq: '' }, { OP_eq: null }]
-      if (filter.operation === 17) return [{ OP_ne: '' }, { OP_ne: null }]
+      if (filter.operation === 16) return [{ OP_eq: '' }, { OP_eq: null }, { OP_eq: '[]' }]
+      if (filter.operation === 17) return [{ OP_ne: '' }, { OP_ne: null }, { OP_ne: '[]' }]
       if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + (await parseSimpleValue(attrObj, attr, value)) + '%'
       else if (filter.operation === 10) {
         const split = ('' + value).split(/\r\n|\n|\r/)
