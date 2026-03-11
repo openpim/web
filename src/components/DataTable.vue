@@ -2153,9 +2153,9 @@ export default {
               obj[valuePath[valuePath.length - 1]] = { OP_iLike: '%' + filterHeader.filter + '%' }
             }
           } else if (filterHeader.filterType === 'EMPTY') {
-            obj[valuePath[valuePath.length - 1]] = { OP_or: [{ OP_eq: '' }, { OP_eq: null }] }
+            obj[valuePath[valuePath.length - 1]] = { OP_or: [{ OP_eq: '' }, { OP_eq: null }, { OP_eq: '[]' }] }
           } else if (filterHeader.filterType === 'NOTEMPTY') {
-            obj[valuePath[valuePath.length - 1]] = { OP_and: [{ OP_ne: '' }, { OP_ne: null }] }
+            obj[valuePath[valuePath.length - 1]] = { OP_and: [{ OP_ne: '' }, { OP_ne: null }, { OP_ne: '[]' }] }
           }
         } else {
           if (!filterHeader.filterType || filterHeader.filterType === 'VALUE') {
@@ -2169,9 +2169,9 @@ export default {
               }
             }
           } else if (filterHeader.filterType === 'EMPTY') {
-            operation[filterHeader.value] = { OP_or: [{ OP_eq: '' }, { OP_eq: null }] }
+            operation[filterHeader.value] = { OP_or: [{ OP_eq: '' }, { OP_eq: null }, { OP_eq: '[]' }] }
           } else if (filterHeader.filterType === 'NOTEMPTY') {
-            operation[filterHeader.value] = { OP_and: [{ OP_ne: '' }, { OP_ne: null }] }
+            operation[filterHeader.value] = { OP_and: [{ OP_ne: '' }, { OP_ne: null }, { OP_ne: '[]' }] }
           }
         }
         arr.push(operation)
