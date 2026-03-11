@@ -165,6 +165,16 @@ export default {
               if (idx === -1) {
                 const attr = filter.attr.substring(5)
                 const attrObj = findByIdentifier(attr)
+                if (getAttrType(filter) === AttributeType.Relation) {
+                  if (filter.operation === 9) {
+                    operation = 'OP_iLike'
+                    filter.operation = 12
+                  }
+                  if (filter.operation === 13) {
+                    operation = 'OP_notILike'
+                    filter.operation = 15
+                  }
+                }
                 data.values = {}
                 data.values[attr] = {}
                 data.values[attr][operation] = await parseValue(attrObj ? attrObj.item : null, filter.attr, filter.value, filter)
@@ -219,12 +229,13 @@ export default {
     }
 
     async function parseValue (attrObj, attr, value, filter) {
+      const isRelAttr = getAttrType(filter) === AttributeType.Relation
       if (filter.operation === 16) return [{ OP_eq: '' }, { OP_eq: null }, { OP_eq: '[]' }]
       if (filter.operation === 17) return [{ OP_ne: '' }, { OP_ne: null }, { OP_ne: '[]' }]
       if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + (await parseSimpleValue(attrObj, attr, value)) + '%'
       else if (filter.operation === 10) {
         const split = ('' + value).split(/\r\n|\n|\r/)
-        if (getAttrType(filter) !== AttributeType.Relation) {
+        if (!isRelAttr) {
           const arr = []
           for (const str of split) {
             arr.push(await parseSimpleValue(attrObj, attr, str))
@@ -234,6 +245,8 @@ export default {
           const items = await getItemsForRelationAttributeImport(attrObj, split, currentLanguage.value.identifier, 10000, 0, 'ASC')
           return items.getItemsForRelationAttributeImport.map(el => el.id)
         }
+      } else if (isRelAttr && (filter.operation === 1 || filter.operation === 2)) {
+        return '[' + await parseSimpleValue(attrObj, attr, value) + ']'
       } else {
         return await parseSimpleValue(attrObj, attr, value)
       }
