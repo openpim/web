@@ -4,6 +4,9 @@
     <v-text-field v-if="channel" v-model="channel.config.businessId" label="Идентификатор кабинета в Яндекс маркете (businessId)" required type="text"></v-text-field>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.offerIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где находится offerID" clearable/>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.marketSkuAttr" :items="allAttributes" :readonly="readonly" label="Атрибут где хранить marketSku" clearable/>
+    <v-checkbox :readonly="readonly" v-model="channel.config.contentRating" label="Получать контент рейтинг" required></v-checkbox>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.attrContentRating" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит контент рейтинг" clearable  v-if="channel.config.contentRating"/>
+
     <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :variants="false" :imageRelations="false" ></MappingConfigCompoment>
     <v-btn v-if="!readonly" class="mb-5 mt-5" text @click="sync">Синхронизация данных</v-btn>
     <v-checkbox :readonly="readonly" v-model="channel.config.debug" label="Выводить отладочную информацию при работе" required></v-checkbox>
