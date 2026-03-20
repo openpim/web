@@ -38,6 +38,25 @@ const actions = {
     const order = generateSorting(options)
     const data = await serverFetch('query { getProcesses(where: ' + objectToGraphgl(where) + ', order: ' + objectToGraphgl(order) + ', offset: ' + offset + ', limit:' + options.itemsPerPage + ') { count rows { id identifier title active status finishTime storagePath mimeType fileName log createdAt updatedAt } } }')
     return data.getProcesses
+  },
+  finishProcess: async (id) => {
+    const variables = {
+      id,
+      active: false
+    }
+    const query = `
+      mutation UpdateProcess(
+        $id: ID!,
+        $active: Boolean
+      ) {
+        updateProcess(id: $id, active: $active) {
+          id
+          active
+          finishTime
+        }
+      }`
+    const data = await serverFetch(query, variables)
+    return data.updateProcess
   }
 }
 

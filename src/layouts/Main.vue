@@ -68,6 +68,24 @@
             <template v-if="header.value === 'storagePath'">
               <a v-if="item.storagePath" :href="damUrl + 'asset-process/' + item.id + '?token=' + token">{{ item.fileName ? item.fileName : 'file.bin' }}</a>
             </template>
+            <template v-if="header.value === 'actions'">
+              <v-row>
+                <v-col>
+                  <v-tooltip top v-if="item">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        icon
+                        v-on="on"
+                        :loading="finishingProcessIdRef === item.id"
+                        :disabled="finishingProcessIdRef === item.id"
+                        @click="forceFinishProcess(item)"
+                      ><v-icon>mdi-stop-circle-outline</v-icon></v-btn>
+                    </template>
+                    <span>{{ $t('Process.Action.ForceFinish') }}</span>
+                  </v-tooltip>
+                </v-col>
+              </v-row>
+            </template>
           </td>
         </tr>
       </template>
@@ -255,7 +273,8 @@ export default {
     const {
       loadActiveProcesses,
       loadFinishedProcesses,
-      loadProcessesByFilter
+      loadProcessesByFilter,
+      finishProcess
     } = procStore.useStore()
 
     const drawer = ref(null)
@@ -281,6 +300,7 @@ export default {
     const activeProcesses = ref({ count: 0, rows: [] })
     const activeOptionsRef = ref({ page: 1, itemsPerPage: 5, sortBy: ['createdAt'], sortDesc: [true] })
     const activeLoadingRef = ref(false)
+    const finishingProcessIdRef = ref(null)
     const logDialogRef = ref(null)
     const logRef = ref(null)
     const finishedProcesses = ref({ count: 0, rows: [] })
@@ -395,6 +415,20 @@ export default {
         logRef.value = result.rows[0]?.log || 'Лог отсутствует'
       } catch (error) {
         console.error('Ошибка загрузки логов:', error)
+      }
+    }
+
+    async function forceFinishProcess (process) {
+      if (!confirm(i18n.t('Process.Confirm.ForceFinish', { name: process.title }))) return
+
+      try {
+        finishingProcessIdRef.value = process.id
+        await finishProcess(process.id)
+        showInfo(i18n.t('Process.Info.ForceFinished', { name: process.title }))
+        await activeOptionsUpdate(activeOptionsRef.value)
+        await finishedOptionsUpdate(finishedOptionsRef.value)
+      } finally {
+        finishingProcessIdRef.value = null
       }
     }
 
@@ -513,7 +547,8 @@ export default {
         { text: i18n.t('Process.Header.Status'), value: 'status', width: '15%' },
         { text: i18n.t('Process.Header.Log'), value: 'log', sortable: false, width: '15%' },
         { text: i18n.t('Process.Header.File'), value: 'storagePath', width: '15%' },
-        { text: i18n.t('Process.Header.StartedAt'), value: 'createdAt', width: '15%' }
+        { text: i18n.t('Process.Header.StartedAt'), value: 'createdAt', width: '10%' },
+        { text: i18n.t('Process.Header.Actions'), value: 'actions', sortable: false, width: '5%' }
       ],
       finishedProcesses,
       finishedOptionsRef,
@@ -535,6 +570,8 @@ export default {
       logDialogRef,
       logRef,
       showLog,
+      forceFinishProcess,
+      finishingProcessIdRef,
       damUrl: damUrl,
       token: token
     }

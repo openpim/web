@@ -230,19 +230,19 @@
                         <v-row no-gutters v-if="tableMode && !getOption(group, 'noTableView')">
                           <template v-for="n in parseInt(getOption(group, 'tableColumns', 2))">
                             <v-col :cols="Math.round(12/parseInt(getOption(group, 'tableColumns', 2)))" :key="n">
-                              <v-simple-table dense class="stripped-table" style="width: 98%;">
+                              <v-simple-table dense class="stripped-table" style="width: 98%; table-layout: fixed;">
                               <template v-slot:default>
                                 <thead>
                                   <th style="width: 2%;">{{ $t('ItemView.TableMode.Column.Number') }}</th>
-                                  <th style="width: 49%;">{{ $t('ItemView.TableMode.Column.Name') }}</th>
-                                  <th style="width: 49%;">{{ $t('ItemView.TableMode.Column.Value') }}</th>
+                                  <th style="width: 40%;">{{ $t('ItemView.TableMode.Column.Name') }}</th>
+                                  <th style="width: 58%;">{{ $t('ItemView.TableMode.Column.Value') }}</th>
                                 </thead>
                                 <tbody>
                                   <template v-for="(attr,i) in group.itemAttributes">
-                                    <tr v-if="getAttrRange(group.itemAttributes, i) < getTableRowsCount(group)*n && getAttrRange(group.itemAttributes, i) >= getTableRowsCount(group)*(n-1)" :key="i">
+                                    <tr v-if="getAttrRange(group.itemAttributes, i) < getTableRowsCount(group)*n && getAttrRange(group.itemAttributes, i) >= getTableRowsCount(group)*(n-1)" :key="i" style="vertical-align: middle;">
                                       <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', '')">{{ i + 1 }}</td>
-                                      <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', 'stripped-table-text')" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
-                                      <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', '')">
+                                      <td :style="getOption(attr, 'style', '') + ';overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'" :class="getOption(attr, 'class', 'stripped-table-text')" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
+                                      <td :style="getOption(attr, 'style', '') + ';overflow: hidden; max-width: 0;'" :class="getOption(attr, 'class', '')">
                                         <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="true"></AttributeValue>
                                       </td>
                                     </tr>
@@ -281,19 +281,19 @@
                         <v-row no-gutters v-if="tableMode && !getOption(group, 'noTableView')">
                           <template v-for="n in parseInt(getOption(group, 'tableColumns', 2))">
                             <v-col :cols="Math.round(12/parseInt(getOption(group, 'tableColumns', 2)))" :key="n">
-                              <v-simple-table dense class="stripped-table" style="width: 98%;">
+                              <v-simple-table dense class="stripped-table" style="width: 98%; table-layout: fixed;">
                               <template v-slot:default>
                                 <thead>
                                   <th style="width: 2%;">{{ $t('ItemView.TableMode.Column.Number') }}</th>
-                                  <th style="width: 49%;">{{ $t('ItemView.TableMode.Column.Name') }}</th>
-                                  <th style="width: 49%;">{{ $t('ItemView.TableMode.Column.Value') }}</th>
+                                  <th style="width: 40%;">{{ $t('ItemView.TableMode.Column.Name') }}</th>
+                                  <th style="width: 58%;">{{ $t('ItemView.TableMode.Column.Value') }}</th>
                                 </thead>
                                 <tbody>
                                   <template v-for="(attr,i) in group.itemAttributes">
-                                    <tr v-if="getAttrRange(group.itemAttributes, i) < getTableRowsCount(group)*n && getAttrRange(group.itemAttributes, i) >= getTableRowsCount(group)*(n-1)" :key="i">
+                                    <tr v-if="getAttrRange(group.itemAttributes, i) < getTableRowsCount(group)*n && getAttrRange(group.itemAttributes, i) >= getTableRowsCount(group)*(n-1)" :key="i" style="vertical-align: middle;">
                                       <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', '')">{{ i + 1 }}</td>
-                                      <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', 'stripped-table-text')" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
-                                      <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', '')">
+                                      <td :style="getOption(attr, 'style', '') + ';overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'" :class="getOption(attr, 'class', 'stripped-table-text')" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
+                                      <td :style="getOption(attr, 'style', '') + ';overflow: hidden; max-width: 0;'" :class="getOption(attr, 'class', '')">
                                         <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="true"></AttributeValue>
                                       </td>
                                     </tr>
