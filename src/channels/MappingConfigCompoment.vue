@@ -368,6 +368,13 @@ export default {
         tmp.sort((a, b) => {
           return channelAttributesRef.value.findIndex(elem => elem.id === a.id) - channelAttributesRef.value.findIndex(elem => elem.id === b.id)
         })
+        if (props.channel.type === 3) {
+          tmp.forEach(mapping => {
+            if (!mapping.id.startsWith('#') && typeof mapping.useOzonOnUpdate !== 'boolean') {
+              root.$set(mapping, 'useOzonOnUpdate', false)
+            }
+          })
+        }
         categoryRef.value.attributes = tmp
       })
         .catch((error) => {

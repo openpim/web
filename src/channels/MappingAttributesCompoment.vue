@@ -7,6 +7,7 @@
                     <th class="text-left" style="width:30%">{{$t('MappingConfigComponent.Table.ChannelAttribute')}}</th>
                     <th class="text-left" style="width:30%">{{$t('MappingConfigComponent.Table.Attribute')}}</th>
                     <th class="text-left">{{$t('MappingConfigComponent.Table.Expression')}}</th>
+                    <th v-if="showOzonUpdateFlag" class="text-left" style="width:10%">Из Ozon при update</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -69,6 +70,16 @@
                         <v-btn icon @click="down(i)" class="d-inline-flex"><v-icon>mdi-arrow-down-circle-outline</v-icon></v-btn>
                         <v-btn icon @click="remove(i)" class="d-inline-flex"><v-icon>mdi-minus-circle-outline</v-icon></v-btn>
                       </template>
+                    </td>
+                    <td v-if="showOzonUpdateFlag" class="pa-1">
+                      <v-checkbox
+                        v-if="canUseOzonUpdateFlag(attr)"
+                        v-model="attributes[i].useOzonOnUpdate"
+                        dense
+                        hide-details
+                        :readonly="readonly"
+                        class="mt-0 pt-0"
+                      />
                     </td>
                   </tr>
                 </tbody>
@@ -205,9 +216,14 @@ export default {
     const optDialogRef = ref(null)
     const attrManageDialogRef = ref(null)
     const attrValuesDialogRef = ref(null)
+    const showOzonUpdateFlag = computed(() => props.channel?.type === 3)
 
     function getAttribute (id) {
       return props.channelAttributes.find(elem => elem.id === id)
+    }
+
+    function canUseOzonUpdateFlag (attr) {
+      return props.channel?.type === 3 && attr?.id && !attr.id.startsWith('#')
     }
 
     function openWindow (i) {
@@ -437,6 +453,8 @@ export default {
       attrValuesDialogRef,
       manageDialogClosed,
       showAttrValuesDialog,
+      showOzonUpdateFlag,
+      canUseOzonUpdateFlag,
       up,
       down,
       remove,
