@@ -443,6 +443,50 @@ export default {
       {
         supplierId: 'barcode_list',
         masterId: 'm_barcode_list'
+      },
+      {
+        supplierId: 'chz_register_number',
+        masterId: 'm_chz_register_number'
+      },
+      {
+        supplierId: 'chz_electronics_type',
+        masterId: 'm_chz_electronics_type'
+      },
+      {
+        supplierId: 'chz_memory_capacity',
+        masterId: 'm_chz_memory_capacity'
+      },
+      {
+        supplierId: 'chz_memory_capacity_unit',
+        masterId: 'm_chz_memory_capacity_unit'
+      },
+      {
+        supplierId: 'chz_ram_capacity',
+        masterId: 'm_chz_ram_capacity'
+      },
+      {
+        supplierId: 'chz_ram_capacity_unit',
+        masterId: 'm_chz_ram_capacity_unit'
+      },
+      {
+        supplierId: 'chz_processor_manufacturer',
+        masterId: 'm_chz_processor_manufacturer'
+      },
+      {
+        supplierId: 'chz_screen_size',
+        masterId: 'm_chz_screen_size'
+      },
+      {
+        supplierId: 'chz_color',
+        masterId: 'm_chz_color'
+      },
+      {
+        supplierId: 'chz_processor_model',
+        masterId: 'm_chz_processor_model'
+      },
+      {
+        supplierId: 'chz_nomenclature_number',
+        masterId: 'm_chz_nomenclature_number'
       }
     ]
 
