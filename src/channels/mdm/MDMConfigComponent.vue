@@ -487,6 +487,34 @@ export default {
       {
         supplierId: 'chz_nomenclature_number',
         masterId: 'm_chz_nomenclature_number'
+      },
+      {
+        supplierId: 'chz_variable_atr_type',
+        masterId: 'm_chz_variable_atr_type'
+      },
+      {
+        supplierId: 'chz_electrical_product_type',
+        masterId: 'm_chz_electrical_product_type'
+      },
+      {
+        supplierId: 'chz_portable_flashlight_type',
+        masterId: 'm_chz_portable_flashlight_type'
+      },
+      {
+        supplierId: 'chz_lamp_type',
+        masterId: 'm_chz_lamp_type'
+      },
+      {
+        supplierId: 'chz_printed_board_type',
+        masterId: 'm_chz_printed_board_type'
+      },
+      {
+        supplierId: 'chz_switch_equipment_type',
+        masterId: 'm_chz_switch_equipment_type'
+      },
+      {
+        supplierId: 'chz_electrical_device_type',
+        masterId: 'm_chz_electrical_device_type'
       }
     ]
 
