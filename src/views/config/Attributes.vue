@@ -245,6 +245,7 @@ export default {
 
     const {
       groups,
+      getAttributesForItem,
       findById,
       findByIdentifier,
       checkIdentifier,
@@ -675,25 +676,31 @@ export default {
 
     function refreshItemAttributes () {
       if (!props.item) return
-      const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
       const newGroups = []
-      groups.forEach(group => {
-        const newGroup = { ...group }
-        const groupAttr = []
-        group.attributes.forEach(attr => {
-          if (props.type === 1) { // show attributes only for this object (check type)
-            if (attr.valid.includes(parseInt(props.item.typeId)) && pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
-              groupAttr.push(attr)
-            }
-          } else { // show attributes for any type of object going through this level
+
+      if (props.type === 1) {
+        const visibleGroups = getAttributesForItem(props.item)
+        groups.forEach(group => {
+          const found = visibleGroups.find(visibleGroup => visibleGroup.id === group.id)
+          const groupAttr = found ? found.itemAttributes : []
+          const newGroup = { ...group, attributes: groupAttr }
+          if (showEmptyGroups.value || groupAttr.length > 0) newGroups.push(newGroup)
+        })
+      } else {
+        const pathArr = props.item.path.split('.').map(elem => parseInt(elem))
+        groups.forEach(group => {
+          const newGroup = { ...group }
+          const groupAttr = []
+          group.attributes.forEach(attr => {
             if (pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
               groupAttr.push(attr)
             }
-          }
+          })
+          newGroup.attributes = groupAttr
+          if (showEmptyGroups.value || groupAttr.length > 0) newGroups.push(newGroup)
         })
-        newGroup.attributes = groupAttr
-        if (showEmptyGroups.value || groupAttr.length > 0) newGroups.push(newGroup)
-      })
+      }
+
       filteredAttributes = newGroups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
       groupsFiltered.value = filteredAttributes.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.children }))
     }

@@ -1112,7 +1112,7 @@ export default {
     const tabAttrGroups = ref([])
 
     function enrichItem (item) {
-      const arr = getAttributesForItem(item.typeId, item.path)
+      const arr = getAttributesForItem(item)
 
       reloadBeforeShowActions(item)
       if (beforeShowActions.length > 0) {

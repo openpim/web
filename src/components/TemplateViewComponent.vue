@@ -309,7 +309,7 @@ export default {
         if (items && items.length > 0) {
           itemSelected.value = items[0]
           localStorage.setItem('itemSelectedTemplate', JSON.stringify(itemSelected.value))
-          availableAttributes.value = getAttributesForItem(itemSelected.value.typeId, itemSelected.value.path)
+          availableAttributes.value = getAttributesForItem(itemSelected.value)
         }
       }
     }
@@ -503,7 +503,7 @@ export default {
       loadItemsByIdsForImport(id, false).then(item => {
         itemSelected.value = item[0]
         localStorage.setItem('itemSelectedTemplate', JSON.stringify(itemSelected.value))
-        availableAttributes.value = getAttributesForItem(itemSelected.value.typeId, itemSelected.value.path)
+        availableAttributes.value = getAttributesForItem(itemSelected.value)
       })
     }
 
