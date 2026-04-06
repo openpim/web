@@ -515,6 +515,10 @@ export default {
       {
         supplierId: 'chz_electrical_device_type',
         masterId: 'm_chz_electrical_device_type'
+      },
+      {
+        supplierId: 'chz_not_require_labeling',
+        masterId: 'm_chz_not_require_labeling'
       }
     ]
 
