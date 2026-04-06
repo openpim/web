@@ -747,7 +747,7 @@ export default {
       let onlyAttributes = null
       if (props.item && itemsRef.value && itemsRef.value.length > 0) { // filter attributes only when table show children (not in search)
         const first = itemsRef.value[0]
-        onlyAttributes = getAttributesForItem(first.typeId, first.path)
+        onlyAttributes = getAttributesForItem(first)
       }
 
       columnsSelectionDialogRef.value.showDialog([...headersRef.value], onlyAttributes)
@@ -1822,7 +1822,7 @@ export default {
       let filter = null
       if (props.item && itemsRef.value && itemsRef.value.length > 0) {
         const first = itemsRef.value[0]
-        const onlyAttributes = getAttributesForItem(first.typeId, first.path)
+        const onlyAttributes = getAttributesForItem(first)
         filter = onlyAttributes.map(elem => elem.id)
       }
       attrSelectionDialogRef.value.showDialog(null, null, filter)
@@ -1834,7 +1834,7 @@ export default {
       let onlyAttributes = null
       if (props.item && itemsRef.value && itemsRef.value.length > 0) {
         const first = itemsRef.value[0]
-        onlyAttributes = getAttributesForItem(first.typeId, first.path)
+        onlyAttributes = getAttributesForItem(first)
       }
 
       groupIds.forEach(groupId => {

@@ -4,6 +4,34 @@ import * as userStore from './users'
 
 const groups = reactive([])
 
+const RELATION_ATTRIBUTE_TYPE = 9
+
+function parsePath (path) {
+  if (!path) return []
+  return path.split('.').map(elem => parseInt(elem)).filter(elem => !isNaN(elem))
+}
+
+function getStoredRelationPaths (item, relationId) {
+  if (!item || !item.relations || typeof item.relations !== 'object') return []
+  const rawPaths = item.relations[String(relationId)]
+  if (!Array.isArray(rawPaths)) return []
+  return rawPaths.map(parsePath).filter(pathArr => pathArr.length > 0)
+}
+
+function isAttributeVisibleForItem (attr, item, pathArr) {
+  const typeId = parseInt(item.typeId)
+  if (!attr.valid.includes(typeId)) return false
+  if (!attr.visible || attr.visible.length === 0) return false
+
+  let paths = [pathArr]
+  if (attr.type !== RELATION_ATTRIBUTE_TYPE && attr.relations && attr.relations.length > 0) {
+    paths = attr.relations.flatMap(relationId => getStoredRelationPaths(item, relationId))
+    if (paths.length === 0) return false
+  }
+
+  return paths.some(path => path.some(id => attr.visible.indexOf(id) !== -1))
+}
+
 function findByComparator (id, comparator, onlyFirst, skipGroups) {
   const arr = []
   let item = null
@@ -182,10 +210,10 @@ const actions = {
     })
     return res
   },
-  getAttributesForItem: (typeId, path) => {
-    typeId = parseInt(typeId)
+  getAttributesForItem: (item) => {
+    const typeId = parseInt(item.typeId)
     const groupsArr = []
-    const pathArr = path.split('.').map(elem => parseInt(elem))
+    const pathArr = parsePath(item.path)
     groups.forEach(group => {
       if (group.visible) {
         const roles = userStore.store.currentRoles
@@ -203,12 +231,9 @@ const actions = {
         if (access === -1 || access > 0) {
           const attrArr = []
           group.attributes.forEach(attr => {
-            if (attr.valid.includes(typeId)) {
-              if (pathArr.some(r => attr.visible.indexOf(r) !== -1)) {
-                attr.readonly = (access === 1)
-                attrArr.push(attr)
-              }
-            }
+            if (!isAttributeVisibleForItem(attr, item, pathArr)) return
+            attr.readonly = (access === 1)
+            attrArr.push(attr)
           })
           if (attrArr.length > 0) {
             attrArr.sort((a, b) => a.order - b.order)

@@ -76,6 +76,7 @@ const actions = {
     const item = await serverFetch('query { getItemByIdentifier(identifier: "' + identifier + `") { 
       id 
       path 
+      relations
       identifier
       parentIdentifier
       name
@@ -105,6 +106,7 @@ const actions = {
     const res = await serverFetch('query { getItemsByIds(ids: [' + arr + `]) { 
       id 
       path 
+      relations
       parentIdentifier
       identifier
       name
@@ -129,6 +131,7 @@ const actions = {
     const res = await serverFetch('query { getItemsByIds(ids: [' + arr + `]) { 
       id 
       path 
+      relations
       identifier
       name
       typeId
@@ -189,6 +192,7 @@ const actions = {
       { 
         id 
         path 
+        relations
         identifier
         name
         typeId
@@ -223,6 +227,7 @@ const actions = {
       { 
         id 
         path 
+        relations
         identifier
         name
         typeId
@@ -260,6 +265,7 @@ const actions = {
         typeIdentifier
         typeId
         path
+        relations
         name
         values
         channels
@@ -316,29 +322,32 @@ const actions = {
     const query = `
       mutation { updateItem(id: "` + item.internalId + '" ' + (item.name ? ', name: ' + objectToGraphgl(item.name) : '') +
       ', values: ' + (item.values ? objectToGraphgl(item.values) : null) +
-      `) { name, values, channels }
+      `) { name, values, channels, relations }
     }`
     const data = await serverFetch(query)
     const itemData = data.updateItem
     item.name = itemData.name
     item.values = itemData.values
     item.channels = itemData.channels
+    item.relations = itemData.relations
   },
   reloadItem: async (item) => {
     const data = await serverFetch('query { getItem(id: ' + item.internalId + `) { 
-      name, values, channels 
+      name, values, channels, relations 
     } }`)
     if (data.getItem) {
       const itemData = data.getItem
       item.name = itemData.name
       item.values = itemData.values
       item.channels = itemData.channels
+      item.relations = itemData.relations
     }
   },
   moveItem: async (item, parentId) => {
     const query = `
       mutation { moveItem(id: "` + item.internalId + '", parentId: "' + parentId + `") { 
         path
+        relations
         name
         values
         channels
@@ -346,6 +355,7 @@ const actions = {
     }`
     const data = await serverFetch(query)
     item.path = data.moveItem.path
+    item.relations = data.moveItem.relations
     item.name = data.moveItem.name
     item.values = data.moveItem.values
     item.channels = data.moveItem.channels
@@ -521,6 +531,7 @@ const actions = {
                   typeIdentifier
                   typeId
                   path
+                  relations
                   name
                   values
                   channels
