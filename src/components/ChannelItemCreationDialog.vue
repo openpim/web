@@ -48,12 +48,15 @@ export default {
     const typeRef = ref(null)
     let categories
 
+    let isYM = false
     function showDialog (itemSelected, channelId, typeIdentifier) {
       const name = {}
       newItemRef.value = { id: Date.now(), internalId: 0, children: [], name: name, identifier: '' }
       getChannelCategories(channelId).then(async (value) => {
         categories = value
-        const node = findNode(itemSelected.identifier, value.tree.children)
+        isYM = itemSelected.identifier.startsWith('ymcat_')
+        const test = isYM ? parseInt(itemSelected.identifier.substring(6)) : itemSelected.identifier
+        const node = findNode(test, value.tree.children)
         let childrens
         if (node) {
           childrens = node.children
@@ -82,7 +85,7 @@ export default {
     function create () {
       const node = findNode(identifierSelectedRef.value, categories.tree.children)
       const newItem = newItemRef.value
-      newItem.identifier = node.id
+      newItem.identifier = isYM ? 'ymcat_' + node.id : node.id
       newItem.name.ru = node.name
       newItem.typeIdentifier = typeRef.value
       newItem.children = []
