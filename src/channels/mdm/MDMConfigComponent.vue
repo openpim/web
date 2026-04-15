@@ -519,6 +519,10 @@ export default {
       {
         supplierId: 'chz_not_require_labeling',
         masterId: 'm_chz_not_require_labeling'
+      },
+      {
+        supplierId: 'chz_require_labeling',
+        masterId: 'm_chz_require_labeling'
       }
     ]
 
