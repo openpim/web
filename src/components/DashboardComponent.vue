@@ -16,6 +16,7 @@ import HorizontalBarChart from './HorizontalBarChart'
 import CircleChart from './CircleChart'
 import PieChart from './PieChart'
 import router from '../router'
+import * as userStore from '../store/users'
 
 export default {
   components: { BarChart, HorizontalBarChart, PieChart, CircleChart },
@@ -44,7 +45,12 @@ export default {
     const loadedRef = ref(false)
     const dataRef = ref(null)
 
-    onMounted(() => {
+    const { getServerConfig } = userStore.useStore()
+    const serverConfig = ref(null)
+
+    onMounted(async () => {
+      const result = await getServerConfig()
+      serverConfig.value = result
       getDashboardComponentData(props.dashboard.id, props.component.id).then(data => {
         if (data) {
           dataRef.value = data
@@ -64,7 +70,11 @@ export default {
         } else {
           localStorage.setItem('last_search_entity', 'ITEM')
           localStorage.setItem('search_to_open', JSON.stringify(searchToOpenRef.value))
-          window.open('/#/search', '_blank')
+          if (serverConfig.value?.dashboardLink === true) {
+            router.push('/search/')
+          } else {
+            window.open('/#/search', '_blank')
+          }
         }
       } else {
         // group by
@@ -118,7 +128,11 @@ export default {
         } else {
           localStorage.setItem('last_search_entity', 'ITEM')
           localStorage.setItem('search_to_open', JSON.stringify(searchToOpenRef.value))
-          window.open('/#/search', '_blank')
+          if (serverConfig.value?.dashboardLink === true) {
+            router.push('/search/')
+          } else {
+            window.open('/#/search', '_blank')
+          }
         }
       }
     }

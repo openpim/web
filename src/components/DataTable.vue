@@ -139,7 +139,7 @@
 
       <template v-slot:header="{ props }">
         <tr @mouseup="divMouseUp" @mousemove="divMouseMove">
-          <th v-for="header in props.headers" :key="header.identifier" :class="['dataTableHeader', { 'dataTableHeaderInvalid': isHeaderInvalid(header) }]">
+          <th v-for="header in props.headers" :key="header.identifier" :class="['dataTableHeader', { 'dataTableHeaderInvalid': isHeaderInvalid(header) }]" :data-identifier="header.identifier" :style="{ width: header.width ? header.width + 'px' : null }">
             <span class="ml-1 mr-1 subtitle-2" style="white-space:normal">{{ header.text }}</span>
             <v-btn small v-if="header.sortable" icon @click="headerSort(header)">
               <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
@@ -737,7 +737,12 @@ export default {
           }
         }
 
-        headersRef.value = savedCols
+        headersRef.value = savedCols.map(h => ({
+          ...h,
+          width: h.width || null,
+          filter: null,
+          filterType: 'VALUE'
+        }))
         localStorage.setItem('savedColumnsSelection', savedColumnsSelectionRef.value)
         loadLOVs()
       }
@@ -1918,6 +1923,9 @@ export default {
             header.value = { path: arr }
           }
           if (header.identifier !== '#thumbnail#') header.sortable = true
+
+          header.filter = null
+          header.filterType = 'VALUE'
           return header
         })
         if (changed) localStorage.setItem(props.headersStorageName, JSON.stringify(tst))
@@ -2008,7 +2016,28 @@ export default {
 
       curTableWidth = table.offsetWidth
     }
-    function divMouseUp (e) {
+    function divMouseUp () {
+      if (curCol) {
+        const identifier = curCol.getAttribute('data-identifier')
+        const width = curCol.offsetWidth
+
+        if (identifier) {
+          const index = headersRef.value.findIndex(h => h.identifier === identifier)
+
+          if (index !== -1) {
+            headersRef.value[index] = {
+              ...headersRef.value[index],
+              width
+            }
+
+            localStorage.setItem(
+              props.headersStorageName,
+              JSON.stringify(headersRef.value)
+            )
+          }
+        }
+      }
+
       curCol = undefined
       pageX = undefined
       curColWidth = undefined
@@ -2016,9 +2045,11 @@ export default {
     }
     function divMouseMove (e) {
       if (curCol) {
-        var diffX = e.pageX - pageX
+        const diffX = e.pageX - pageX
 
-        curCol.style.width = (curColWidth + diffX) + 'px'
+        const newWidth = Math.max(50, curColWidth + diffX)
+
+        curCol.style.width = newWidth + 'px'
         table.style.width = (curTableWidth + diffX) + 'px'
       }
     }
