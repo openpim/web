@@ -172,7 +172,8 @@ export default {
 
     const {
       loadAllAttributes,
-      getAllItemsAttributes
+      getAllItemsAttributes,
+      findByIdentifier
     } = attrStore.useStore()
 
     const {
@@ -230,6 +231,13 @@ export default {
         return lovsMapRef.value[filter.attr]
       } else if (lovsMapRef.value[filter.attr]) {
         getLOVData(lovsMapRef.value[filter.attr]).then(values => {
+          const identifier = filter.attr.replace('attr#', '')
+          const attr = findByIdentifier(identifier, true)
+          values = values.filter(val =>
+            !val.attrs ||
+              val.attrs.length === 0 ||
+              val.attrs.includes(attr.item.internalId)
+          )
           lovsMapRef.value[filter.attr] = values.map(elem => {
             return { value: elem.id, text: elem.value[currentLanguage.value.identifier] || '[' + elem.value[defaultLanguageIdentifier.value] + ']' }
           })
