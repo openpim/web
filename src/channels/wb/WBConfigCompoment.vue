@@ -10,6 +10,7 @@
     <v-checkbox :readonly="readonly" v-model="channel.config.wbGetContentRating" label="Получать среднюю оценку товара" required></v-checkbox>
     <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.wbAttrContentRating" :items="allAttributes" :readonly="readonly" label="Атрибут где лежит средняя оценка товара" clearable  v-if="channel.config.wbGetContentRating"/>
     <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :variants="false" :imageRelations="false" ></MappingConfigCompoment>
+    <v-checkbox :readonly="readonly" v-model="channel.config.saveVideos" label="Сохранять видео из личного кабинета" required></v-checkbox>
 
     <v-btn v-if="!readonly" class="mb-5 mt-5" text @click="sync">Синхронизация данных</v-btn>
     <v-checkbox :readonly="readonly" v-model="channel.config.debug" label="Выводить отладочную информацию при работе" required></v-checkbox>
