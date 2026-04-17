@@ -344,7 +344,9 @@ export default {
     }
 
     function categoryToCopySelected (mapping) {
-      relCategoryDialogRef.value.closeDialog()
+      if (relCategoryDialogRef.value?.closeDialog) {
+        relCategoryDialogRef.value.closeDialog()
+      }
       if (!categoryIdRef.value || !categoryRef.value) {
         alert(i18n.t('MappingConfigComponent.SelectCategoryForCopy'))
         return
@@ -356,7 +358,7 @@ export default {
       if (confirm(i18n.t('MappingConfigComponent.CopyMappingSheetsConfirmation'))) {
         const sourceSheets = mapping.sheets
         if (!categoryRef.value.sheets) {
-          categoryRef.value.sheets = []
+          root.$set(categoryRef.value, 'sheets', [])
         }
 
         let hasOverwrittenSheets = false
@@ -388,7 +390,7 @@ export default {
           }
 
           if (existingIndex >= 0) {
-            categoryRef.value.sheets.splice(existingIndex, 1, newSheet)
+            root.$set(categoryRef.value.sheets, existingIndex, newSheet)
             hasOverwrittenSheets = true
           } else {
             categoryRef.value.sheets.push(newSheet)
@@ -396,7 +398,21 @@ export default {
         }
 
         root.$set(props.channel.mappings, categoryRef.value.id, categoryRef.value)
-        sheetIdRef.value = null
+
+        const prevId = sheetIdRef.value
+
+        const found = categoryRef.value.sheets.find(s => s.id === prevId)
+
+        if (found) {
+          sheetIdRef.value = found.id
+          sheetRef.value = found
+        } else if (categoryRef.value.sheets.length > 0) {
+          sheetIdRef.value = categoryRef.value.sheets[0].id
+          sheetRef.value = categoryRef.value.sheets[0]
+        } else {
+          sheetIdRef.value = null
+          sheetRef.value = null
+        }
 
         if (hasOverwrittenSheets) {
           alert(i18n.t('MappingConfigComponent.SheetsOverwrittenWarning'))
