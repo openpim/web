@@ -398,7 +398,7 @@ export default {
         }
 
         root.$set(props.channel.mappings, categoryRef.value.id, categoryRef.value)
-        
+
         const prevId = sheetIdRef.value
 
         const found = categoryRef.value.sheets.find(s => s.id === prevId)
