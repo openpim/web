@@ -727,6 +727,15 @@ export default {
 
     watch(savedColumnsSelectionRef, (val) => {
       if (val) {
+        const currentFilters = headersRef.value.reduce((acc, h) => {
+          if (h.filter !== undefined && h.filter !== null) {
+            acc[h.identifier] = {
+              filter: h.filter,
+              filterType: h.filterType || 'VALUE'
+            }
+          }
+          return acc
+        }, {})
         let savedCols = []
 
         for (const property in savedColumnsRef.value) {
@@ -737,12 +746,29 @@ export default {
           }
         }
 
-        headersRef.value = savedCols.map(h => ({
-          ...h,
-          width: h.width || null,
-          filter: null,
-          filterType: 'VALUE'
-        }))
+        headersRef.value = savedCols.map(h => {
+          const existing = currentFilters[h.identifier]
+
+          return {
+            ...h,
+            width: h.width || null,
+            filter: existing?.filter ?? null,
+            filterType: existing?.filterType ?? 'VALUE'
+          }
+        })
+
+        filterHeaders.splice(0, filterHeaders.length)
+
+        headersRef.value.forEach(h => {
+          if (h.filter !== null && h.filter !== undefined && h.filter !== '') {
+            filterHeaders.push(h)
+          }
+        })
+
+        if (filterHeaders.length) {
+          applyFilter(filterHeaders[0])
+        }
+
         localStorage.setItem('savedColumnsSelection', savedColumnsSelectionRef.value)
         loadLOVs()
       }
@@ -752,7 +778,7 @@ export default {
       let onlyAttributes = null
       if (props.item && itemsRef.value && itemsRef.value.length > 0) { // filter attributes only when table show children (not in search)
         const first = itemsRef.value[0]
-        onlyAttributes = getAttributesForItem(first)
+        onlyAttributes = getAttributesForItem(first.typeId, first.path)
       }
 
       columnsSelectionDialogRef.value.showDialog([...headersRef.value], onlyAttributes)
@@ -1578,7 +1604,7 @@ export default {
     }
 
     function DataChanged () {
-      clearFilters()
+      // clearFilters()
       optionsRef.value.page = 1
       loadingRef.value = true
       totalItemsRef.value = 0
@@ -1827,7 +1853,7 @@ export default {
       let filter = null
       if (props.item && itemsRef.value && itemsRef.value.length > 0) {
         const first = itemsRef.value[0]
-        const onlyAttributes = getAttributesForItem(first)
+        const onlyAttributes = getAttributesForItem(first.typeId, first.path)
         filter = onlyAttributes.map(elem => elem.id)
       }
       attrSelectionDialogRef.value.showDialog(null, null, filter)
@@ -1839,7 +1865,7 @@ export default {
       let onlyAttributes = null
       if (props.item && itemsRef.value && itemsRef.value.length > 0) {
         const first = itemsRef.value[0]
-        onlyAttributes = getAttributesForItem(first)
+        onlyAttributes = getAttributesForItem(first.typeId, first.path)
       }
 
       groupIds.forEach(groupId => {
@@ -1923,9 +1949,6 @@ export default {
             header.value = { path: arr }
           }
           if (header.identifier !== '#thumbnail#') header.sortable = true
-
-          header.filter = null
-          header.filterType = 'VALUE'
           return header
         })
         if (changed) localStorage.setItem(props.headersStorageName, JSON.stringify(tst))
@@ -1945,6 +1968,14 @@ export default {
         }
       }
       loadLOVs()
+      const activeFilters = headersRef.value.filter(h =>
+        h.filter !== null && h.filter !== undefined && h.filter !== ''
+      )
+
+      if (activeFilters.length) {
+        filterHeaders.splice(0, filterHeaders.length, ...activeFilters)
+        applyFilter(activeFilters[0])
+      }
       DataChanged()
     })
 
@@ -2141,6 +2172,22 @@ export default {
       }
       if (!awaitingFilter) {
         awaitingFilter = setTimeout(() => {
+          const normalizedHeaders = headersRef.value.map(h => {
+            const newHeader = { ...h }
+
+            if (newHeader.filter == null || newHeader.filter === '') {
+              delete newHeader.filter
+              delete newHeader.filterType
+            }
+
+            return newHeader
+          })
+
+          localStorage.setItem(
+            props.headersStorageName,
+            JSON.stringify(normalizedHeaders)
+          )
+
           applyFilter(header)
         }, 1000)
       }
@@ -2218,15 +2265,15 @@ export default {
       filterWhere = newWhere
       optionsUpdate(optionsRef.value)
     }
-    function clearFilters () {
-      props.loadData().applyFilter(null)
-      filterHeaders.forEach(header => {
-        header.filter = ''
-        header.filterType = 'VALUE'
-      })
-      filterWhere = null
-      filterHeaders.splice(0, filterHeaders.length)
-    }
+    // function clearFilters () {
+    //   props.loadData().applyFilter(null)
+    //   filterHeaders.forEach(header => {
+    //     header.filter = ''
+    //     header.filterType = 'VALUE'
+    //   })
+    //   filterWhere = null
+    //   filterHeaders.splice(0, filterHeaders.length)
+    // }
     function getLOVItems (lovId) {
       if (!lovsMap) return []
       const lovValues = lovsMap[lovId]
