@@ -646,6 +646,8 @@ export default {
       { text: i18n.t('DataTable.ExcelImport.CREATE_UPDATE'), value: 'CREATE_UPDATE' }
     ]
 
+    let searchSourcePath = null
+
     function itemSelectionDialogSelected (id, initiator) {
       itemSelectionDialogRef.value.closeDialog()
       const trigger = initiator
@@ -779,6 +781,9 @@ export default {
       if (props.item && itemsRef.value && itemsRef.value.length > 0) { // filter attributes only when table show children (not in search)
         const first = itemsRef.value[0]
         onlyAttributes = getAttributesForItem(first.typeId, first.path)
+      } else if (searchSourcePath && itemsRef.value && itemsRef.value.length > 0) {
+        const first = itemsRef.value[0]
+        onlyAttributes = getAttributesForItem(first)
       }
 
       columnsSelectionDialogRef.value.showDialog([...headersRef.value], onlyAttributes)
@@ -1855,6 +1860,10 @@ export default {
         const first = itemsRef.value[0]
         const onlyAttributes = getAttributesForItem(first.typeId, first.path)
         filter = onlyAttributes.map(elem => elem.id)
+      } else if (searchSourcePath && itemsRef.value && itemsRef.value.length > 0) {
+        const first = itemsRef.value[0]
+        const onlyAttributes = getAttributesForItem(first)
+        filter = onlyAttributes.map(elem => elem.id)
       }
       attrSelectionDialogRef.value.showDialog(null, null, filter)
     }
@@ -1866,6 +1875,9 @@ export default {
       if (props.item && itemsRef.value && itemsRef.value.length > 0) {
         const first = itemsRef.value[0]
         onlyAttributes = getAttributesForItem(first.typeId, first.path)
+      } else if (searchSourcePath && itemsRef.value && itemsRef.value.length > 0) {
+        const first = itemsRef.value[0]
+        onlyAttributes = getAttributesForItem(first)
       }
 
       groupIds.forEach(groupId => {
@@ -1930,6 +1942,10 @@ export default {
 
     onMounted(async () => {
       serverConfig = await getServerConfig()
+      if (localStorage.getItem('search_source_path')) {
+        searchSourcePath = localStorage.getItem('search_source_path')
+        localStorage.removeItem('search_source_path')
+      }
       loadAllActions().then(() => { actionLoadedRef.value = true })
       loadAllTypes()
       loadAllTemplates()

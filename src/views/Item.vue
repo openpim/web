@@ -832,6 +832,7 @@ export default {
       const search = { user: '', filters: [], whereClause: where, extended: true }
       localStorage.setItem('last_search_entity', 'ITEM')
       localStorage.setItem('search_to_open', JSON.stringify(search))
+      if (type === 'source') localStorage.setItem('search_source_path', itemRef.value.path)
       window.open('/#/search', '_blank')
     }
 
