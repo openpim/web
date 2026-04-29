@@ -381,7 +381,7 @@ const actions = {
         // so ATTRIBUTES FOR RELATIONS MUST BE IN GROUP WITH LESS THEN 100 ATTRIBUTES in data model
         for (var j = 0; j < group.attributes.length; j++) {
           const attr = group.attributes[j]
-          if (attr.relations && attr.relations.find(relId => relId === relationId)) {
+          if (attr.relations && (!attr.valid || attr.valid.length === 0) && attr.relations.find(relId => relId === relationId)) {
             const idx = attrs.findIndex(elem => elem.identifier === attr.identifier)
             if (idx === -1) {
               if (access === -1 || access > 0) {
