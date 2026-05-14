@@ -17,6 +17,7 @@
     <v-checkbox :readonly="readonly" v-model="channel.config.saveVideos" label="Сохранять видео из личного кабинета" required></v-checkbox>
     <v-checkbox :readonly="readonly" v-model="channel.config.sendPriceUpdate" label="Посылать цены при обновлении товара" required></v-checkbox>
     <v-checkbox :readonly="readonly" v-if="!channel.config.sendPriceUpdate" v-model="channel.config.savePriceUpdate" label="Сохранять цены из Озон в систему при обновлении товара" required></v-checkbox>
+    <v-autocomplete v-if="channel.config.savePriceUpdate" item-text="text" item-value='identifier' v-model="channel.config.savePriceUpdateAttr" :items="allAttributes" :readonly="readonly" label="Атрибут куда сохранять цену" clearable/>
     <v-checkbox :readonly="readonly" v-model="channel.config.uniqueImages" label="Посылать уникальные URL для изображений" required></v-checkbox>
     <v-btn v-if="!readonly" class="mb-5 mt-5" text @click="sync">Синхронизация данных</v-btn>
     <v-btn v-if="!readonly" class="mb-5 mt-5" text @click="clearCache">Очистить кеш</v-btn>
