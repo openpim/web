@@ -1609,7 +1609,7 @@ export default {
     }
 
     function DataChanged () {
-      // clearFilters()
+      if (props.item) clearFilters() // if this is list of items under the parent we do not need previous filters, we must show all
       optionsRef.value.page = 1
       loadingRef.value = true
       totalItemsRef.value = 0
@@ -2281,15 +2281,17 @@ export default {
       filterWhere = newWhere
       optionsUpdate(optionsRef.value)
     }
-    // function clearFilters () {
-    //   props.loadData().applyFilter(null)
-    //   filterHeaders.forEach(header => {
-    //     header.filter = ''
-    //     header.filterType = 'VALUE'
-    //   })
-    //   filterWhere = null
-    //   filterHeaders.splice(0, filterHeaders.length)
-    // }
+
+    function clearFilters () {
+      props.loadData().applyFilter(null)
+      filterHeaders.forEach(header => {
+        header.filter = ''
+        header.filterType = 'VALUE'
+      })
+      filterWhere = null
+      filterHeaders.splice(0, filterHeaders.length)
+    }
+
     function getLOVItems (lovId) {
       if (!lovsMap) return []
       const lovValues = lovsMap[lovId]
