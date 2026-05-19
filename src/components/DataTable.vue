@@ -1609,7 +1609,7 @@ export default {
     }
 
     function DataChanged () {
-      if (props.item) clearFilters() // if this is list of items under the parent we do not need previous filters, we must show all
+      if (props.item || (serverConfig && serverConfig.clearFiltersInTable)) clearFilters() // if this is list of items under the parent we do not need previous filters, we must show all
       optionsRef.value.page = 1
       loadingRef.value = true
       totalItemsRef.value = 0
