@@ -454,7 +454,10 @@ export default {
               emit('performSearch')
             } else {
               const tst2 = localStorage.getItem('last_item_search')
-              if (tst2) searchSelected(JSON.parse(tst2))
+              if (tst2) {
+                await searchSelected(JSON.parse(tst2))
+                emit('performSearch')
+              }
             }
           }
         }
