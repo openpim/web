@@ -1984,13 +1984,20 @@ export default {
         }
       }
       loadLOVs()
-      const activeFilters = headersRef.value.filter(h =>
-        h.filter !== null && h.filter !== undefined && h.filter !== ''
-      )
 
-      if (activeFilters.length) {
-        filterHeaders.splice(0, filterHeaders.length, ...activeFilters)
-        applyFilter(activeFilters[0])
+      if (serverConfig && serverConfig.clearFiltersInTable) {
+        for (const header of headersRef.value) {
+          header.filter = ''
+        }
+        clearFilters()
+      } else {
+        const activeFilters = headersRef.value.filter(h =>
+          h.filter !== null && h.filter !== undefined && h.filter !== ''
+        )
+        if (activeFilters.length) {
+          filterHeaders.splice(0, filterHeaders.length, ...activeFilters)
+          applyFilter(activeFilters[0])
+        }
       }
       DataChanged()
     })
