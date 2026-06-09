@@ -368,10 +368,16 @@ export default {
         tmp.sort((a, b) => {
           return channelAttributesRef.value.findIndex(elem => elem.id === a.id) - channelAttributesRef.value.findIndex(elem => elem.id === b.id)
         })
-        if (props.channel.type === 3) {
+        const updateFlagField = props.channel.type === 3
+          ? 'useOzonOnUpdate'
+          : props.channel.type === 9
+            ? 'useYandexOnUpdate'
+            : null
+
+        if (updateFlagField) {
           tmp.forEach(mapping => {
-            if (!mapping.id.startsWith('#') && typeof mapping.useOzonOnUpdate !== 'boolean') {
-              root.$set(mapping, 'useOzonOnUpdate', false)
+            if (!mapping.id.startsWith('#') && typeof mapping[updateFlagField] !== 'boolean') {
+              root.$set(mapping, updateFlagField, false)
             }
           })
         }

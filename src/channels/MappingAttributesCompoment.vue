@@ -7,7 +7,7 @@
                     <th class="text-left" style="width:30%">{{$t('MappingConfigComponent.Table.ChannelAttribute')}}</th>
                     <th class="text-left" style="width:30%">{{$t('MappingConfigComponent.Table.Attribute')}}</th>
                     <th class="text-left">{{$t('MappingConfigComponent.Table.Expression')}}</th>
-                    <th v-if="showOzonUpdateFlag" class="text-left" style="width:10%">Из Ozon при update</th>
+                    <th v-if="showUpdateFlag" class="text-left" style="width:10%">{{ updateFlagLabel }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -71,10 +71,10 @@
                         <v-btn icon @click="remove(i)" class="d-inline-flex"><v-icon>mdi-minus-circle-outline</v-icon></v-btn>
                       </template>
                     </td>
-                    <td v-if="showOzonUpdateFlag" class="pa-1">
+                    <td v-if="showUpdateFlag" class="pa-1">
                       <v-checkbox
-                        v-if="canUseOzonUpdateFlag(attr)"
-                        v-model="attributes[i].useOzonOnUpdate"
+                        v-if="canUseUpdateFlag(attr)"
+                        v-model="attributes[i][updateFlagField]"
                         dense
                         hide-details
                         :readonly="readonly"
@@ -216,14 +216,34 @@ export default {
     const optDialogRef = ref(null)
     const attrManageDialogRef = ref(null)
     const attrValuesDialogRef = ref(null)
-    const showOzonUpdateFlag = computed(() => props.channel?.type === 3)
+    const updateFlagConfig = computed(() => {
+      if (props.channel?.type === 3) {
+        return {
+          field: 'useOzonOnUpdate',
+          label: 'Из Ozon при update'
+        }
+      }
+
+      if (props.channel?.type === 9) {
+        return {
+          field: 'useYandexOnUpdate',
+          label: 'Из Yandex при update'
+        }
+      }
+
+      return null
+    })
+
+    const showUpdateFlag = computed(() => !!updateFlagConfig.value)
+    const updateFlagField = computed(() => updateFlagConfig.value?.field || '')
+    const updateFlagLabel = computed(() => updateFlagConfig.value?.label || '')
 
     function getAttribute (id) {
       return props.channelAttributes.find(elem => elem.id === id)
     }
 
-    function canUseOzonUpdateFlag (attr) {
-      return props.channel?.type === 3 && attr?.id && !attr.id.startsWith('#')
+    function canUseUpdateFlag (attr) {
+      return showUpdateFlag.value && attr?.id && !attr.id.startsWith('#')
     }
 
     function openWindow (i) {
@@ -453,8 +473,10 @@ export default {
       attrValuesDialogRef,
       manageDialogClosed,
       showAttrValuesDialog,
-      showOzonUpdateFlag,
-      canUseOzonUpdateFlag,
+      showUpdateFlag,
+      updateFlagField,
+      updateFlagLabel,
+      canUseUpdateFlag,
       up,
       down,
       remove,
