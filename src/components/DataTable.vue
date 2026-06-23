@@ -1346,12 +1346,12 @@ export default {
                   const tst = attr.substring(idx + 1)
                   if (availableLangs.includes(tst)) {
                     if (!item.values[attrIdent] || typeof item.values[attrIdent] !== 'object') item.values[attrIdent] = {}
-                    item.values[attrIdent][tst] = convertValueIfNecessary(attrIdent, cellVal)
+                    item.values[attrIdent][tst] = convertValueIfNecessary(attrIdent, cellVal, cell)
                   } else {
-                    item.values[attr] = convertValueIfNecessary(attr, cellVal)
+                    item.values[attr] = convertValueIfNecessary(attr, cellVal, cell)
                   }
                 } else {
-                  item.values[attr] = convertValueIfNecessary(attr, cellVal)
+                  item.values[attr] = convertValueIfNecessary(attr, cellVal, cell)
                 }
               }
             }
@@ -1382,13 +1382,73 @@ export default {
       fileUploadRef.value = null
     }
 
-    function convertValueIfNecessary (attr, cellVal) {
+    function convertValueIfNecessary (attr, cellVal, cell) {
       const attrNode = findByIdentifier(attr)
       if (cellVal === null) {
         return attrNode && attrNode.item.type === AttributeType.Text ? '' : null
       } else {
-        return attrNode && attrNode.item.type === AttributeType.Text ? '' + cellVal : cellVal
+        if (attrNode && attrNode.item.type === AttributeType.Text) return '' + cellVal
+        if (attrNode && attrNode.item.type === AttributeType.Date) return normalizeImportedDate(cellVal, cell)
+        return cellVal
       }
+    }
+
+    function normalizeImportedDate (cellVal, cell) {
+      if (cellVal === null || cellVal === undefined || cellVal === '') return null
+
+      const numericValue = typeof cellVal === 'number' ? cellVal : Number(cellVal)
+      if (!isNaN(numericValue) && Number.isFinite(numericValue)) {
+        const parsedDate = XLSX.SSF.parse_date_code(numericValue)
+        if (parsedDate && parsedDate.y && parsedDate.m && parsedDate.d) {
+          return [
+            String(parsedDate.y).padStart(4, '0'),
+            String(parsedDate.m).padStart(2, '0'),
+            String(parsedDate.d).padStart(2, '0')
+          ].join('-')
+        }
+      }
+
+      if (cellVal instanceof Date && !isNaN(cellVal.getTime())) {
+        return [
+          String(cellVal.getUTCFullYear()).padStart(4, '0'),
+          String(cellVal.getUTCMonth() + 1).padStart(2, '0'),
+          String(cellVal.getUTCDate()).padStart(2, '0')
+        ].join('-')
+      }
+
+      const rawValue = ('' + cellVal).trim()
+      if (!rawValue) return null
+
+      const isoMatch = rawValue.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/)
+      if (isoMatch) {
+        return [
+          isoMatch[1],
+          String(isoMatch[2]).padStart(2, '0'),
+          String(isoMatch[3]).padStart(2, '0')
+        ].join('-')
+      }
+
+      const localMatch = rawValue.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/)
+      if (localMatch) {
+        return [
+          localMatch[3],
+          String(localMatch[2]).padStart(2, '0'),
+          String(localMatch[1]).padStart(2, '0')
+        ].join('-')
+      }
+
+      if (cell && typeof cell.w === 'string') {
+        const formattedMatch = cell.w.trim().match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/)
+        if (formattedMatch) {
+          return [
+            formattedMatch[3],
+            String(formattedMatch[2]).padStart(2, '0'),
+            String(formattedMatch[1]).padStart(2, '0')
+          ].join('-')
+        }
+      }
+
+      return rawValue
     }
 
     async function importRows (rows, headers, log) {
