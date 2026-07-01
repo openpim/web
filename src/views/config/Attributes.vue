@@ -17,6 +17,12 @@
             </template>
             <span>{{ $t('Config.LOV.Export') }}</span>
           </v-tooltip>
+          <v-tooltip bottom v-if="canEditConfigRef">
+            <template v-slot:activator="{ on }">
+              <v-btn icon v-on="on" @click="openImportConfigDialog"><v-icon>mdi-import</v-icon></v-btn>
+            </template>
+            <span>{{ $t('DataTable.ImportExcel') }}</span>
+          </v-tooltip>
         </v-toolbar>
         <template v-if="item"><input type="checkbox" v-model="showEmptyGroups" class="ml-5 mr-2">{{$t('Config.Attributes.ShowEmptyGroups')}}</template>
         <v-text-field @input="searchChanged" @clear="searchChanged" v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5 mt-2 pt-0">
@@ -184,6 +190,92 @@
         </v-dialog>
       </v-row>
     </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="importProgressDialogRef" persistent width="80%">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('DataTable.ExcelDialog.TitleImport') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-progress-linear v-model="excelDialogProgressRef" color="primary" height="25">
+                      <template v-slot:default="{ value }">
+                        <strong>{{ Math.ceil(value) }}%</strong>
+                      </template>
+                    </v-progress-linear>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="importProgressDialogRef = false">{{ $t('Cancel') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="importFinishedDialogRef" persistent width="500px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('DataTable.ExcelImport.Finished') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12" class="d-flex justify-center align-center">
+                    {{ $t('DataTable.ExcelImport.FinishedText', { count: importFinishedLogRef.length - 1 }) }}
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="12" class="d-flex justify-center align-center">
+                    <v-btn color="blue darken-1" text @click="downloadImportFinishedLog">{{ $t('DataTable.ExcelImport.Report') }}</v-btn>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="importFinishedDialogRef = false">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="importConfigDialogRef" persistent width="80%">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('DataTable.ExcelImport.Config') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-file-input chips show-size v-model="fileUploadRef" :label="$t('DataTable.ExcelImport.FileUpload')"></v-file-input>
+                    <v-select v-model="importModeRef" :items="importModesRef" :label="$t('DataTable.ExcelImport.ImportMode')"></v-select>
+                    <v-checkbox v-model="importStopOnErrorRef" :label="$t('DataTable.ExcelImport.ErrorStop')" required></v-checkbox>
+                    <v-checkbox v-model="importEmptyValuesRef" :label="$t('DataTable.ExcelImport.EmptyValues')" required></v-checkbox>
+                    <v-text-field type="number" v-model="importPageSizeRef" :label="$t('DataTable.ExcelImport.PageSize')" required></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="importConfigDialogRef = false">{{ $t('Cancel') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="importExcel" :disabled="!fileUploadRef || importPageSizeRef <= 0">{{ $t('DataTable.ExcelImport.Start') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
   </v-container>
 </template>
 
@@ -195,6 +287,7 @@ import router from '../../router'
 import * as errorStore from '../../store/error'
 import * as itemsStore from '../../store/item'
 import * as langStore from '../../store/languages'
+import * as lovStore from '../../store/lovs'
 import * as relStore from '../../store/relations.js'
 import * as typesStore from '../../store/types'
 import LanguageDependentField from '../../components/LanguageDependentField'
@@ -212,6 +305,11 @@ import XLSX from 'sheetjs-style'
 import { saveAs } from 'file-saver'
 import { s2ab } from '../../store/utils.js'
 import AttributeType from '../../constants/attributeTypes'
+import {
+  applyAttributeHeaderComments,
+  buildAttributeExportTable,
+  parseAttributeImportSheet
+} from './attributeExcel'
 
 export default {
   components: { LanguageDependentField, SystemInformation, OptionsTable, AttributeViewComponent, ValidVisibleComponent, RelationsSelectionDialog },
@@ -238,6 +336,7 @@ export default {
     } = typesStore.useStore()
 
     const {
+      languages,
       currentLanguage,
       defaultLanguageIdentifier,
       loadAllLanguages
@@ -250,11 +349,17 @@ export default {
       findByIdentifier,
       checkIdentifier,
       loadAllAttributes,
+      importAttributeConfig,
       saveData,
       assignData,
       removeGroup,
       removeAttribute
     } = attrStore.useStore()
+
+    const {
+      lovs,
+      loadAllLOVs
+    } = lovStore.useStore()
 
     const {
       relations,
@@ -286,6 +391,20 @@ export default {
     const rels = ref([])
     const exportDialogRef = ref(false)
     const excelDialogProgressRef = ref(0)
+    const importConfigDialogRef = ref(false)
+    const importProgressDialogRef = ref(false)
+    const importFinishedDialogRef = ref(false)
+    const importFinishedLogRef = ref([])
+    const fileUploadRef = ref(null)
+    const importModeRef = ref('UPDATE_ONLY')
+    const importStopOnErrorRef = ref(false)
+    const importEmptyValuesRef = ref(false)
+    const importPageSizeRef = ref(100)
+    const importModesRef = ref([
+      { text: i18n.t('DataTable.ExcelImport.CREATE_ONLY'), value: 'CREATE_ONLY' },
+      { text: i18n.t('DataTable.ExcelImport.UPDATE_ONLY'), value: 'UPDATE_ONLY' },
+      { text: i18n.t('DataTable.ExcelImport.CREATE_UPDATE'), value: 'CREATE_UPDATE' }
+    ])
 
     const filterDialogRef = ref(false)
     const filterData = ref({
@@ -633,6 +752,7 @@ export default {
     onMounted(() => {
       loadAllLanguages()
       loadAllTypes()
+      loadAllLOVs()
       loadAllRelations().then(() => {
         rels.value = relations
       })
@@ -712,13 +832,11 @@ export default {
     }
 
     async function exportData () {
-      const cols = ['group identifier', 'group name', 'identifier', 'name', 'type', 'valid', 'visible', 'relations', 'options']
-      const data = [cols]
       try {
         let allVisibleItemsIds = []
         for (const grp of groupsFiltered.value) {
-          for (const attr of grp.attributes) {
-            allVisibleItemsIds = allVisibleItemsIds.concat(attr.visible)
+          for (const attr of grp.attributes || []) {
+            allVisibleItemsIds = allVisibleItemsIds.concat(attr.visible || [])
           }
         }
         allVisibleItemsIds = [...new Set(allVisibleItemsIds)]
@@ -727,54 +845,176 @@ export default {
         const total = allVisibleItemsIds.length
         let page = 0
         let allVisibleItems = []
-        do {
+        while (itemsPerPage * page < total) {
           if (exportDialogRef.value) {
             const data = await loadItemsByIds(allVisibleItemsIds.slice(page * itemsPerPage, page * itemsPerPage + itemsPerPage))
             allVisibleItems = allVisibleItems.concat(data)
           }
-          excelDialogProgressRef.value = (page * itemsPerPage / total) * 100 < 100 ? (page * itemsPerPage / total) * 100 : 100
+          excelDialogProgressRef.value = Math.min(100, (page * itemsPerPage / Math.max(1, total)) * 100)
           page++
-        } while (itemsPerPage * page < total)
+        }
 
         if (exportDialogRef.value) {
-          for (const grp of groupsFiltered.value) {
-            for (const attr of grp.attributes) {
-              const row = [grp.identifier, grp.name[defaultLanguageIdentifier.value], attr.identifier, attr.name[defaultLanguageIdentifier.value]]
-              let type = attr.type
-              for (const prop in AttributeType) {
-                if (AttributeType[prop] === type) {
-                  type = prop
-                  break
-                }
-              }
-              row.push(type)
-              row.push(attr.valid.map(id => {
-                const type = findType(id).node
-                return (type) ? `${type.identifier} (${type.name[defaultLanguageIdentifier.value]})` : `[[[ ${id} ]]]`
-              }).join(', '))
-              row.push(attr.visible.map(id => {
-                const item = allVisibleItems.find(el => el.id === id)
-                return (item) ? `${item.identifier} (${(item.name[defaultLanguageIdentifier.value])})` : `[[[ ${id} ]]]`
-              }).join(', '))
-              row.push(attr.relations.map(id => {
-                const relation = relations.find(el => el.id === id)
-                return (relation) ? `${relation.identifier} (${relation.name[defaultLanguageIdentifier.value]})` : `[[[ ${id} ]]]`
-              }).join(', '))
-              row.push(attr.options.map(el => `${el.name} : ${el.value}`).join(', '))
-              data.push(row)
+          const allVisibleItemsById = new Map(allVisibleItems.map(item => [Number(item.id), item]))
+          const { columns, rows } = buildAttributeExportTable({
+            attributeTypes: AttributeType,
+            defaultLanguageIdentifier: defaultLanguageIdentifier.value,
+            groups: groupsFiltered.value,
+            languages: languages,
+            lovIdentifierById,
+            relationIdentifierById,
+            typeIdentifierById,
+            visibleIdentifierById: id => {
+              const item = allVisibleItemsById.get(Number(id))
+              return item ? item.identifier : id
             }
-          }
-          const ws = XLSX.utils.aoa_to_sheet(data)
+          })
+          const ws = XLSX.utils.aoa_to_sheet(rows)
+          applyAttributeHeaderComments(ws, XLSX, columns)
           const wb = XLSX.utils.book_new()
           XLSX.utils.book_append_sheet(wb, ws, 'Data')
           const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
-          saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'data.xlsx')
+          saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'attributes.xlsx')
         }
       } catch (e) {
         alert('Error! Can not export data')
       } finally {
         exportDialogRef.value = false
       }
+    }
+
+    function typeIdentifierById (id) {
+      const type = findType(id)
+      return type && type.node ? type.node.identifier : id
+    }
+
+    function relationIdentifierById (id) {
+      const relation = relations.find(el => Number(el.id) === Number(id) || Number(el.internalId) === Number(id))
+      return relation ? relation.identifier : id
+    }
+
+    function lovIdentifierById (id) {
+      const lov = lovs.find(el => Number(el.id) === Number(id) || Number(el.internalId) === Number(id))
+      return lov ? lov.identifier : id
+    }
+
+    function openImportConfigDialog () {
+      fileUploadRef.value = null
+      importConfigDialogRef.value = true
+    }
+
+    function getUploadFile () {
+      return Array.isArray(fileUploadRef.value) ? fileUploadRef.value[0] : fileUploadRef.value
+    }
+
+    function chunkArray (items, size) {
+      const chunks = []
+      for (let i = 0; i < items.length; i += size) {
+        chunks.push(items.slice(i, i + size))
+      }
+      return chunks
+    }
+
+    function appendImportLog (log, entity, responses) {
+      for (const row of responses || []) {
+        log.push([entity, row.identifier, row.result, JSON.stringify(row.errors || []), JSON.stringify(row.warnings || [])])
+      }
+    }
+
+    function responseHasErrors (responses) {
+      return (responses || []).some(row => row.errors && row.errors.length > 0)
+    }
+
+    async function importEntityChunks (entity, rows, pageSize, total, processedRef, log) {
+      for (const chunk of chunkArray(rows, pageSize)) {
+        if (!importProgressDialogRef.value) return false
+        const payload = entity === 'attrGroup'
+          ? { attrGroups: chunk, attributes: [] }
+          : { attrGroups: [], attributes: chunk }
+        const result = await importAttributeConfig(payload, importModeRef.value)
+        const responses = entity === 'attrGroup' ? result.attrGroups : result.attributes
+        appendImportLog(log, entity, responses)
+        processedRef.value += chunk.length
+        excelDialogProgressRef.value = Math.min(100, (processedRef.value / Math.max(1, total)) * 100)
+        if (importStopOnErrorRef.value && responseHasErrors(responses)) {
+          showError(JSON.stringify(responses.filter(row => row.errors && row.errors.length > 0)))
+          return false
+        }
+      }
+      return true
+    }
+
+    async function refreshAttributesAfterImport () {
+      await loadAllAttributes(true)
+      selectedRef.value = empty
+      selectedGroupsRef.value = []
+      activeRef.value = []
+      if (props.item) {
+        refreshItemAttributes()
+      } else {
+        groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
+      }
+    }
+
+    function importExcel () {
+      const file = getUploadFile()
+      if (!file) return
+
+      importConfigDialogRef.value = false
+      importProgressDialogRef.value = true
+      excelDialogProgressRef.value = 0
+
+      const reader = new FileReader()
+      reader.onload = async function (evt) {
+        try {
+          const wb = XLSX.read(evt.target.result, { type: 'binary' })
+          const ws = wb.Sheets[wb.SheetNames[0]]
+          const parsed = parseAttributeImportSheet(ws, XLSX, {
+            attributeTypes: AttributeType,
+            defaultLanguageIdentifier: defaultLanguageIdentifier.value,
+            importEmptyValues: importEmptyValuesRef.value
+          })
+
+          const pageSize = Math.max(1, Number(importPageSizeRef.value) || 100)
+          const log = [['entity', 'identifier', 'result', 'errors', 'warnings']]
+          const total = parsed.attrGroups.length + parsed.attributes.length
+          const processedRef = { value: 0 }
+
+          if (total === 0) {
+            showError(i18n.t('DataTable.ExcelImport.WrongFormat'))
+            importProgressDialogRef.value = false
+            return
+          }
+
+          let keepGoing = await importEntityChunks('attrGroup', parsed.attrGroups, pageSize, total, processedRef, log)
+          if (keepGoing) {
+            keepGoing = await importEntityChunks('attribute', parsed.attributes, pageSize, total, processedRef, log)
+          }
+
+          if (keepGoing) {
+            excelDialogProgressRef.value = 100
+            await refreshAttributesAfterImport()
+          }
+
+          importFinishedLogRef.value = log
+          importFinishedDialogRef.value = true
+        } catch (error) {
+          console.error('Error opening file', error)
+          showError(error.message || i18n.t('Error'))
+        } finally {
+          importProgressDialogRef.value = false
+          fileUploadRef.value = null
+        }
+      }
+      reader.readAsBinaryString(file)
+    }
+
+    function downloadImportFinishedLog () {
+      const ws = XLSX.utils.aoa_to_sheet(importFinishedLogRef.value)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Data')
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' })
+      saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'attribute-import-log.xlsx')
     }
 
     function identifierValidation (v) {
@@ -836,6 +1076,19 @@ export default {
       openExportDataDialog,
       exportDialogRef,
       excelDialogProgressRef,
+      openImportConfigDialog,
+      importExcel,
+      downloadImportFinishedLog,
+      importConfigDialogRef,
+      importProgressDialogRef,
+      importFinishedDialogRef,
+      importFinishedLogRef,
+      fileUploadRef,
+      importModeRef,
+      importModesRef,
+      importStopOnErrorRef,
+      importEmptyValuesRef,
+      importPageSizeRef,
       identifierRules: [
         v => identifierValidation(v)
       ],

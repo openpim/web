@@ -53,10 +53,16 @@ function findByComparator (id, comparator, onlyFirst, skipGroups) {
 }
 let attrsPromise
 const actions = {
-  loadAllAttributes: async () => {
+  loadAllAttributes: async (force) => {
+    if (force) {
+      attrsPromise = null
+    }
     if (!attrsPromise) attrsPromise = serverFetch('query { getAttributesInfo }')
     const data = await attrsPromise
-    if (groups.length > 0) return
+    if (!force && groups.length > 0) return
+    if (force) {
+      groups.splice(0, groups.length)
+    }
     if (data.getAttributesInfo) {
       data.getAttributesInfo.forEach(element => {
         element.attributes = element.attributes.sort((a, b) => a.order - b.order)
@@ -295,29 +301,61 @@ const actions = {
     }
     return attrArr
   },
-  importAttributes: async (rows, mode) => {
+  importAttributeConfig: async ({ attrGroups = [], attributes = [] }, mode) => {
+    const importMode = mode || 'UPDATE_ONLY'
+    const toGraphqlValue = value => {
+      const result = objectToGraphgl(value)
+      return typeof result === 'string' ? result.replace(/,$/, '').replace(/,\s*]$/, ']') : result
+    }
     let query = `
       mutation { import(
         config: {
-            mode: UPDATE_ONLY
+            mode: ${importMode}
             errors: PROCESS_WARN
-        },
-        attributes: [`
-    rows.forEach(row => {
-      query += objectToGraphgl(row)
-    })
-    query += `]
+        }`
+    if (attrGroups.length > 0) {
+      query += `,
+        attrGroups: ${toGraphqlValue(attrGroups)}`
+    }
+    if (attributes.length > 0) {
+      query += `,
+        attributes: ${toGraphqlValue(attributes)}`
+    }
+    query += `
         ) {
+        `
+    if (attrGroups.length > 0) {
+      query += `attrGroups {
+        identifier
+        result
+        id
+        errors { code message }
+        warnings { code message }
+      }
+        `
+    }
+    if (attributes.length > 0) {
+      query += `
         attributes {
         identifier
         result
         id
         errors { code message }
         warnings { code message }
-      }}}
+      }
+        `
+    }
+    query += `}}
     `
     const data = await serverFetch(query)
-    return data.import.attributes
+    return {
+      attrGroups: data.import.attrGroups || [],
+      attributes: data.import.attributes || []
+    }
+  },
+  importAttributes: async (rows, mode) => {
+    const data = await actions.importAttributeConfig({ attributes: rows }, mode)
+    return data.attributes
   },
   getAvailableItemsForRelationAttr: async (attr, val, searchStr, langIdentifier, limit, offset, order) => {
     let ids = []
