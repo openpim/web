@@ -60,10 +60,13 @@
                       <span class="font-weight-bold mr-2">{{ $t('ItemCreationDialog.Identifier') }} : </span><span>{{ itemRef.identifier }}</span>
                     </v-col>
                     <template v-for="(attr) in headerAttrs">
-                      <v-col :cols="12" :key="attr.id" v-if="getOption(attr, 'head', null)" class="caption pa-0">
+                      <v-col :cols="12" :key="attr.id" v-if="getOption(attr, 'head', null)" class="caption pa-0 d-flex align-center">
                         <span class="font-weight-bold mr-2">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }} :</span>
                           <span v-if="attr.type === AttributeType.URL">
                             <a :href="attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]" target="_blank">{{attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]}}</a>
+                          </span>
+                          <span v-if="attr.type === AttributeType.Boolean">
+                            <v-checkbox readonly dense hide-details v-model="itemRef.values[attr.identifier]" class="ma-0 pa-0"></v-checkbox>
                           </span>
                           <span v-else>{{attr.type === AttributeType.Relation ? getRelAttrValue(attr) : (attr.lov? getLOVValue(attr) : (attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]))}}</span>
                       </v-col>
