@@ -523,6 +523,10 @@ export default {
       {
         supplierId: 'chz_approval_process',
         masterId: 'm_chz_approval_process'
+      },
+      {
+        supplierId: 'mp_uid',
+        masterId: 'm_mp_uid'
       }
     ]
 
