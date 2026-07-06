@@ -414,6 +414,7 @@
 	"Search.Filter.Operation.Substring": "有",
 	"Search.Filter.Operation.NotSubstring": "没有",
 	"Search.Filter.Operation.List": "在列表中",
+	"Search.Filter.Operation.NotList": "不在列表中",
 	"Search.Filter.Operation.EqICase": "等于 (不区分大小写)",
 	"Search.Filter.Operation.NotEqICase": "不等于 (不区分大小写)",
 	"Search.Filter.Operation.SubstringICase": "有 (不区分大小写)",

@@ -141,6 +141,9 @@ export default {
               case 18:
                 operation = 'OP_contains'
                 break
+              case 19:
+                operation = 'OP_notIn'
+                break
             }
 
             if (filter.attr.startsWith('channel#')) {
@@ -159,7 +162,9 @@ export default {
               const lang = filter.attr.substring(5)
               data.name = {}
               data.name[lang] = {}
-              data.name[lang][operation] = filter.operation === 12 || filter.operation === 13 || filter.operation === 15 ? '%' + filter.value + '%' : filter.value
+              data.name[lang][operation] = (filter.operation === 10 || filter.operation === 19)
+                ? await parseValue(null, filter.attr, filter.value, filter)
+                : (filter.operation === 12 || filter.operation === 13 || filter.operation === 15 ? '%' + filter.value + '%' : filter.value)
             } else if (filter.attr.startsWith('attr#')) {
               const idx = filter.attr.indexOf('#', 5)
               if (idx === -1) {
@@ -233,7 +238,7 @@ export default {
       if (filter.operation === 16) return [{ OP_eq: '' }, { OP_eq: null }, { OP_eq: '[]' }]
       if (filter.operation === 17) return [{ OP_ne: '' }, { OP_ne: null }, { OP_ne: '[]' }]
       if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + (await parseSimpleValue(attrObj, attr, value)) + '%'
-      else if (filter.operation === 10) {
+      else if (filter.operation === 10 || filter.operation === 19) {
         const split = ('' + value).split(/\r\n|\n|\r/)
         if (!isRelAttr) {
           const arr = []

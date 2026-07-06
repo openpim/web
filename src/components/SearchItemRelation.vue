@@ -52,10 +52,10 @@
                       <v-text-field dense readonly v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-form-select" @click:append-outer="itemSelectionDialogRef.showDialog(filter)"></v-text-field>
                     </template>
                     <v-autocomplete v-if="filter.attr && filter.attr !== '#level#' && lovsMap[filter.attr]" dense v-model="filter.value" :items="lovsMap[filter.attr]" :label="$t('Search.Filter.Attribute.Value')"></v-autocomplete>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr != 'relationIdentifier' && !getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'relationIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="relSelectionDialogRef.showDialog(filter)"></v-text-field>
-                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)"></v-text-field>
-                    <v-textarea v-if="filter.operation === 10 && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 19 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && filter.attr != 'relationIdentifier' && !getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 19 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr === 'relationIdentifier' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required append-outer-icon="mdi-file-document-edit-outline" @click:append-outer="relSelectionDialogRef.showDialog(filter)"></v-text-field>
+                    <v-text-field v-if="(filter.operation !== 10 && filter.operation !== 19 && filter.operation !== 16 && filter.operation !== 17) && filter.attr && filter.attr !== '#level#' && getDateType(filter) && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required readonly append-outer-icon="mdi-calendar" @click:append-outer="datePickerDialogRef.showDialog(getDateType(filter), filter)"></v-text-field>
+                    <v-textarea v-if="(filter.operation === 10 || filter.operation === 19) && filter.attr && filter.attr !== '#level#' && !lovsMap[filter.attr]" dense v-model="filter.value" :label="$t('Search.Filter.Attribute.Value')" required></v-textarea>
                   </v-col>
                 </v-row>
 
@@ -281,6 +281,9 @@ export default {
               case 18:
                 operation = 'OP_contains'
                 break
+              case 19:
+                operation = 'OP_notIn'
+                break
             }
 
             if (filter.attr.startsWith('channel#')) {
@@ -299,7 +302,9 @@ export default {
               const lang = filter.attr.substring(5)
               data.name = {}
               data.name[lang] = {}
-              data.name[lang][operation] = filter.value
+              data.name[lang][operation] = (filter.operation === 10 || filter.operation === 19)
+                ? await parseValue(null, filter.attr, filter.value, filter)
+                : filter.value
             } else if (filter.attr.startsWith('attr#')) {
               const idx = filter.attr.indexOf('#', 5)
               if (idx === -1) {
@@ -334,7 +339,7 @@ export default {
       if (filter.operation === 16) return [{ OP_eq: '' }, { OP_eq: null }]
       if (filter.operation === 17) return [{ OP_ne: '' }, { OP_ne: null }]
       if (filter.operation === 12 || filter.operation === 13 || filter.operation === 15) return '%' + (await parseSimpleValue(attrObj, attr, value)) + '%'
-      else if (filter.operation === 10) {
+      else if (filter.operation === 10 || filter.operation === 19) {
         const arr = []
         const split = ('' + value).split(/\r\n|\n|\r/)
         for (const str of split) {
@@ -535,6 +540,7 @@ export default {
         { text: i18n.t('Search.Filter.Operation.Substring'), value: 9 },
         { text: i18n.t('Search.Filter.Operation.NotSubstring'), value: 13 },
         { text: i18n.t('Search.Filter.Operation.List'), value: 10 },
+        { text: i18n.t('Search.Filter.Operation.NotList'), value: 19 },
         { text: i18n.t('Search.Filter.Operation.EqICase'), value: 11 },
         { text: i18n.t('Search.Filter.Operation.NotEqICase'), value: 14 },
         { text: i18n.t('Search.Filter.Operation.SubstringICase'), value: 12 },

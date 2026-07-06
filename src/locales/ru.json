@@ -461,6 +461,7 @@
   "Search.Filter.Operation.Substring": "имеет",
   "Search.Filter.Operation.NotSubstring": "не имеет",
   "Search.Filter.Operation.List": "в списке",
+  "Search.Filter.Operation.NotList": "не в списке",
   "Search.Filter.Operation.EqICase": "равно (без регистра)",
   "Search.Filter.Operation.NotEqICase": "не равно (без регистра)",
   "Search.Filter.Operation.SubstringICase": "имеет (без регистра)",

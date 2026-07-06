@@ -464,6 +464,7 @@
   "Search.Filter.Operation.Substring": "has",
   "Search.Filter.Operation.NotSubstring": "not has",
   "Search.Filter.Operation.List": "in list",
+  "Search.Filter.Operation.NotList": "not in list",
   "Search.Filter.Operation.EqICase": "equals (case insensitive)",
   "Search.Filter.Operation.NotEqICase": "not equals (case insensitive)",
   "Search.Filter.Operation.SubstringICase": "has (case insensitive)",
