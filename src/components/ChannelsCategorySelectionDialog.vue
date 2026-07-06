@@ -31,6 +31,7 @@
 </template>
 <script>
 import { ref } from '@vue/composition-api'
+import { buildChannelMappingCopyItems, findChannelMappingBySelection } from '../channels/mappingUtils'
 import * as channelsStore from '../store/channels'
 import * as langStore from '../store/languages'
 
@@ -63,38 +64,18 @@ export default {
     const openRef = ref([])
 
     function selected () {
-      let mapping = null
-      // eslint-disable-next-line no-labels
-      exit:
-      for (let i = 0; i < itemsRef.value.length; i++) {
-        const chan = itemsRef.value[i]
-        for (let j = 0; j < chan.children.length; j++) {
-          const map = chan.children[j]
-          if (map.id === activeRef.value[0]) {
-            mapping = map.mapping
-            // eslint-disable-next-line no-labels
-            break exit
-          }
-        }
-      }
+      const mapping = findChannelMappingBySelection(itemsRef.value, activeRef.value[0])
       emit('selected', mapping)
     }
 
     const searchRef = ref('')
 
     function buildItems (channels) {
-      const data = []
-      channels.forEach(channel => {
-        const obj = { id: 'CHAN_' + channel.id, name: (channel.name[currentLanguage.value.identifier] || '[' + channel.name[defaultLanguageIdentifier.value] + ']'), channel: channel, children: [] }
-        if (channel.mappings) {
-          for (const prop in channel.mappings) {
-            const mapping = channel.mappings[prop]
-            obj.children.push({ id: channel.id + '_' + mapping.id, name: mapping.name, mapping: mapping })
-          }
-        }
-        data.push(obj)
-      })
-      itemsRef.value = data
+      itemsRef.value = buildChannelMappingCopyItems(
+        channels,
+        currentLanguage.value?.identifier,
+        defaultLanguageIdentifier.value
+      )
     }
 
     function showDialog () {

@@ -165,6 +165,7 @@ import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
 import MappingAttributesCompoment from './MappingAttributesCompoment'
 import ChannelsCategorySelectionDialog from '../components/ChannelsCategorySelectionDialog.vue'
+import { getChannelAttributeCategoryId } from './mappingUtils'
 
 import i18n from '../i18n'
 import getChannelFactory from '../channels'
@@ -347,7 +348,9 @@ export default {
     function loadAttributes () {
       if (!props.channel.type) return
 
-      getChannelAttributes(props.channel.internalId, categoryRef.value.id).then(arr => {
+      const categoryId = getChannelAttributeCategoryId(props.channel.type, categoryRef.value.id)
+
+      getChannelAttributes(props.channel.internalId, categoryId).then(arr => {
         channelAttributesRef.value = arr.sort((a, b) => {
           if (a.required && !b.required) return -1
           if (!a.required && b.required) return 1
