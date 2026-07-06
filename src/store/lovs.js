@@ -144,10 +144,20 @@ const actions = {
     return newLOV
   },
   saveLOV: async (lov) => {
+    const values = lov.values
+      ? lov.values.map(elem => ({
+        ...elem,
+        id: typeof elem.id === 'string' && /^-?\d+$/.test(elem.id.trim()) ? parseInt(elem.id, 10) : elem.id,
+        filter: typeof elem.filter === 'string'
+          ? (elem.filter.trim() ? (/^-?\d+$/.test(elem.filter.trim()) ? parseInt(elem.filter, 10) : elem.filter) : null)
+          : elem.filter
+      }))
+      : []
+
     if (lov.internalId === 0) {
       const query = `
         mutation { createLOV(identifier: "` + lov.identifier + '", name: ' + objectToGraphgl(lov.name) +
-        ', values: ' + (lov.values ? '' + objectToGraphgl(lov.values.map(elem => { return { ...elem, id: parseInt(elem.id), filter: elem.filter ? parseInt(elem.filter) : null } })) : '[]') +
+        ', values: ' + objectToGraphgl(values) +
         `)
       }`
       const data = await serverFetch(query)
@@ -156,7 +166,7 @@ const actions = {
     } else {
       const query = `
         mutation { updateLOV(id: "` + lov.internalId + '", name: ' + (lov.name ? '' + objectToGraphgl(lov.name) : '') +
-        ', values: ' + (lov.values ? '' + objectToGraphgl(lov.values.map(elem => { return { ...elem, id: parseInt(elem.id), filter: elem.filter ? parseInt(elem.filter) : null } })) : '[]') +
+        ', values: ' + objectToGraphgl(values) +
         `)
       }`
       await serverFetch(query)
