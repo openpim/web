@@ -24,7 +24,8 @@ function isAttributeVisibleForItem (attr, item, pathArr) {
   if (!attr.visible || attr.visible.length === 0) return false
 
   let paths = [pathArr]
-  if (attr.type !== RELATION_ATTRIBUTE_TYPE && attr.relations && attr.relations.length > 0) {
+  if (attr.type !== RELATION_ATTRIBUTE_TYPE && attr.relations && attr.relations.length > 0 &&
+    attr.valid && attr.valid.length > 0 && (!attr.options || !attr.options.some(opt => opt.name === 'standard_attribute' && opt.value === 'true'))) {
     paths = attr.relations.flatMap(relationId => getStoredRelationPaths(item, relationId))
     if (paths.length === 0) return false
   }
