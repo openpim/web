@@ -809,6 +809,7 @@
   "ImportConfig.ValueCannotBeGreaterThanTotalAmount": "Value can not be greater than total amount of rows",
   "ImportConfig.AreYouSure": "Are you sure?",
   "ImportConfig.Attribute.identifier": "Identifier",
+  "ImportConfig.Attribute.newIdentifier": "New identifier",
   "ImportConfig.Attribute.typeIdentifier": "Type identifier",
   "ImportConfig.Attribute.parentIdentifier": "Parent identifier",
   "ImportConfig.Attribute.Sources.Element": "XML element",

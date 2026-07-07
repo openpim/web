@@ -319,13 +319,17 @@ const actions = {
     }
   },
   updateItem: async (item) => {
+    const newIdentifier = item.newIdentifier ? ', newIdentifier: "' + item.newIdentifier + '"' : ''
     const query = `
       mutation { updateItem(id: "` + item.internalId + '" ' + (item.name ? ', name: ' + objectToGraphgl(item.name) : '') +
       ', values: ' + (item.values ? objectToGraphgl(item.values) : null) +
-      `) { name, values, channels, relations }
+      newIdentifier +
+      `) { identifier, name, values, channels, relations }
     }`
     const data = await serverFetch(query)
     const itemData = data.updateItem
+    item.identifier = itemData.identifier
+    delete item.newIdentifier
     item.name = itemData.name
     item.values = itemData.values
     item.channels = itemData.channels
