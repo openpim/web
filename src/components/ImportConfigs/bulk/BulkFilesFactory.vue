@@ -417,6 +417,7 @@ export default {
     const availableAttributes = computed(() => {
       const attrs = [
         { value: 'identifier', text: i18n.t('ImportConfig.Attribute.identifier') },
+        { value: 'newIdentifier', text: i18n.t('ImportConfig.Attribute.newIdentifier') },
         { value: 'typeIdentifier', text: i18n.t('ImportConfig.Attribute.typeIdentifier') },
         { value: 'parentIdentifier', text: i18n.t('ImportConfig.Attribute.parentIdentifier') },
         { value: 'image_type', text: i18n.t('BulkUpload.Attribute.image_type') },

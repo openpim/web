@@ -238,6 +238,10 @@ export default {
         name: i18n.t('ImportConfig.Attribute.identifier')
       },
       {
+        identifier: 'newIdentifier',
+        name: i18n.t('ImportConfig.Attribute.newIdentifier')
+      },
+      {
         identifier: 'typeIdentifier',
         name: i18n.t('ImportConfig.Attribute.typeIdentifier')
       },

@@ -802,6 +802,7 @@
   "ImportConfig.ValueCannotBeGreaterThanTotalAmount": "Значение не может быть большим количества строк во вкладке.",
   "ImportConfig.AreYouSure": "Вы уверены?",
   "ImportConfig.Attribute.identifier": "Идентификатор",
+  "ImportConfig.Attribute.newIdentifier": "Новый идентификатор",
   "ImportConfig.Attribute.typeIdentifier": "Идентификатор типа",
   "ImportConfig.Attribute.parentIdentifier": "Идентификатор родителя",
   "ImportConfig.Attribute.Sources.Element": "XML элемент",
