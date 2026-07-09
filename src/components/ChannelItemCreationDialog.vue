@@ -29,7 +29,7 @@ import { ref } from '@vue/composition-api'
 import * as itemsStore from '../store/item'
 import * as typesStore from '../store/types'
 import * as channelsStore from '../store/channels'
-import { findNode } from '../store/utils'
+import { findNode, findNodeByComparator } from '../store/utils'
 
 export default {
   name: 'ChannelItemCreation',
@@ -49,6 +49,12 @@ export default {
     let categories
 
     let isYM = false
+    function findYmCategoryNode (id, tree) {
+      if (!tree) return null
+      if (String(tree.id) === String(id)) return tree
+      return findNodeByComparator(id, tree.children || [], null, (target, item) => String(item.id) === String(target))
+    }
+
     function showDialog (itemSelected, channelId, typeIdentifier) {
       const name = {}
       newItemRef.value = { id: Date.now(), internalId: 0, children: [], name: name, identifier: '' }
@@ -56,10 +62,12 @@ export default {
         categories = value
         isYM = itemSelected.identifier.startsWith('ymcat_')
         const test = isYM ? parseInt(itemSelected.identifier.substring(6)) : itemSelected.identifier
-        const node = findNode(test, value.tree.children)
+        const node = isYM
+          ? findYmCategoryNode(itemSelected.identifier, value.tree)
+          : findNode(test, value.tree.children)
         let childrens
         if (node) {
-          childrens = node.children
+          childrens = isYM ? (node.children || []) : node.children
         } else {
           childrens = value.tree.children
         }
@@ -83,7 +91,9 @@ export default {
     }
 
     function create () {
-      const node = findNode(identifierSelectedRef.value, categories.tree.children)
+      const node = isYM
+        ? findYmCategoryNode(identifierSelectedRef.value, categories.tree)
+        : findNode(identifierSelectedRef.value, categories.tree.children)
       const newItem = newItemRef.value
       newItem.identifier = isYM ? 'ymcat_' + node.id : node.id
       newItem.name.ru = node.name
