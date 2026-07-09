@@ -210,7 +210,7 @@
           <FirstTabsItemComponent :item="itemRef"></FirstTabsItemComponent>
           <v-tab-item v-for="(attrGroups, grpIdx) in tabAttrGroups" :key="attrGroups.identifier"> <!-- Attributes -->
             <div class="mt-3"></div>
-            <v-text-field v-if="!getOption(itemType, 'hideIdentifier', false)" class="pb-0 pr-5 pl-5" v-model="itemRef.identifier" readonly :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
+            <v-text-field v-if="!getOption(itemType, 'hideIdentifier', false)" class="pb-0 pr-5 pl-5" v-model="itemRef.identifier" :readonly="!getOption(itemType, 'allow_identifier_change', false)" @input="identifierInput" :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
             <div :class="getOption(itemType, 'name_class', '')" :style="getOption(itemType, 'name_style', '')"><LanguageDependentField class="pb-0 pr-5 pl-5" @input="nameInput" :values="itemRef.name" v-model="itemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')"></LanguageDependentField></div>
 
             <v-card flat v-if="!tabsMode">
@@ -607,6 +607,7 @@ export default {
     const itemsDataTableRef = ref(null)
     const historyTableRef = ref(null)
     const itemRef = ref(null)
+    const originalIdentifierRef = ref(null)
     const tabRef = ref(null)
     const attrGroups = ref([])
     const itemPathRef = ref([])
@@ -1007,19 +1008,36 @@ export default {
       itemChangedRef.value = true
     }
 
+    function identifierInput () {
+      itemRef.value.newIdentifier = itemRef.value.identifier
+      router.dataChanged('_identifier', i18n.t('Router.Changed.Identifier'))
+      itemChangedRef.value = true
+    }
+
     async function save () {
       // TODO !!! not working yet https://composition-api.vuejs.org/api.html#template-refs
       for (let i = 0; i < attributeValues.value.length; i++) {
         const attrVal = attributeValues.value[i]
         if (!attrVal.isValid()) return
       }
+      const oldIdentifier = originalIdentifierRef.value
+      const identifierChanged = !!itemRef.value.newIdentifier && itemRef.value.newIdentifier !== oldIdentifier
+      if (identifierChanged) {
+        if (!confirm(i18n.t('IdentifierChangeConfirm', { old: oldIdentifier, new: itemRef.value.newIdentifier }))) return
+      }
       if (sourceRelationsListRef.value) await sourceRelationsListRef.value.saveAll()
       if (targetRelationsListRef.value) await targetRelationsListRef.value.saveAll()
       await updateItem(itemRef.value)
+      router.clearDataChanged('_identifier')
+      router.clearDataChanged(oldIdentifier + '_name')
+      router.clearDataChanged(oldIdentifier)
       router.clearDataChanged(itemRef.value.identifier + '_name')
       router.clearDataChanged(itemRef.value.identifier)
+      originalIdentifierRef.value = itemRef.value.identifier
       itemChangedRef.value = false
-      // TODO: use existing table options
+      if (identifierChanged) {
+        router.replace('/item/' + itemRef.value.identifier)
+      }
       const data = await loadDataFunction({ page: 1, itemsPerPage: 10 })
       childrenLoaded(data.rows, data.count)
       // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
@@ -1108,6 +1126,7 @@ export default {
       enrichItem(item)
 
       itemRef.value = item
+      originalIdentifierRef.value = item.identifier
       itemChangedRef.value = false
       // if (itemsDataTableRef.value) itemsDataTableRef.value.DataChanged()
       if (itemRecordsTable.value) itemRecordsTable.value.DataChanged()
@@ -1676,6 +1695,7 @@ export default {
       tabAttrGroups,
       nameInput,
       attrInput,
+      identifierInput,
       save,
       move,
       duplicate,
