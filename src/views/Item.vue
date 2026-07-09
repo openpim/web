@@ -210,7 +210,7 @@
           <FirstTabsItemComponent :item="itemRef"></FirstTabsItemComponent>
           <v-tab-item v-for="(attrGroups, grpIdx) in tabAttrGroups" :key="attrGroups.identifier"> <!-- Attributes -->
             <div class="mt-3"></div>
-            <v-text-field v-if="!getOption(itemType, 'hideIdentifier', false)" class="pb-0 pr-5 pl-5" v-model="itemRef.identifier" :readonly="!getOption(itemType, 'allow_identifier_change', false)" @input="identifierInput" :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
+            <v-text-field v-if="!getOption(itemType, 'hideIdentifier', false)" class="pb-0 pr-5 pl-5" v-model="itemRef.identifier" :readonly="!(getOption(itemType, 'allow_identifier_change', false) && isAdmin)" @input="identifierInput" :label="$t('ItemCreationDialog.Identifier')" required></v-text-field>
             <div :class="getOption(itemType, 'name_class', '')" :style="getOption(itemType, 'name_style', '')"><LanguageDependentField class="pb-0 pr-5 pl-5" @input="nameInput" :values="itemRef.name" v-model="itemRef.name[currentLanguage.identifier]" :rules="nameRules" :label="$t('ItemCreationDialog.Name')"></LanguageDependentField></div>
 
             <v-card flat v-if="!tabsMode">
@@ -998,6 +998,7 @@ export default {
     })
 
     const itemChangedRef = ref(false)
+    const isAdmin = computed(() => currentRoles.some(role => role.identifier === 'admin'))
     function nameInput () {
       router.dataChanged(itemRef.value.identifier + '_name', i18n.t('Router.Changed.Name'))
       itemChangedRef.value = true
@@ -1758,6 +1759,7 @@ export default {
       getChannelFactory,
       syncItem,
       itemChangedRef,
+      isAdmin,
       refreshChannels,
       sourceRelationSearch,
       targetRelationSearch,
