@@ -527,6 +527,10 @@ export default {
       {
         supplierId: 'mp_uid',
         masterId: 'm_mp_uid'
+      },
+      {
+        supplierId: 'okpd2',
+        masterId: 'm_okpd2'
       }
     ]
 
