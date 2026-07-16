@@ -21,6 +21,7 @@ export async function serverFetch (query, variables) {
   if (resp.ok) {
     const json = await resp.json()
     if (json.errors && json.errors.length > 0) {
+      err.store.showError(json.errors[0].message)
       throw new Error(json.errors[0].message)
     }
     const data = json.data
