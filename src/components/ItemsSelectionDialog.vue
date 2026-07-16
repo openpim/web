@@ -190,7 +190,8 @@ export default {
 
       function cloneWithFilter (elem, arr) {
         const clone = { ...elem }
-        clone.children = elem.children.filter(item => {
+        const children = elem.children || []
+        clone.children = children.filter(item => {
           const type = findType(item.typeId)
           return hasTypes(type.node, arr)
         }).map(child => { return cloneWithFilter(child, arr) })

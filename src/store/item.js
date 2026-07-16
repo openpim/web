@@ -16,6 +16,11 @@ const {
   getAttributesForSearch
 } = attrStore.store
 
+function typeCanHaveChildren (type) {
+  return (type.children && type.children.length > 0) ||
+    (type.options && type.options.some(elem => elem.name === 'relChildrenSort'))
+}
+
 function enrichItem (item) {
   if (item) {
     item.id = parseInt(item.id)
@@ -26,7 +31,11 @@ function enrichItem (item) {
     item.typeIdentifier = type.identifier
     item.typeIconColor = type.iconColor
     item.typeFile = type.file
-    item.children = []
+    if (typeCanHaveChildren(type)) {
+      item.children = []
+    } else {
+      delete item.children
+    }
   }
   return item
 }
@@ -294,6 +303,13 @@ const actions = {
     const itemData = data.createItem
     const newId = parseInt(itemData.id)
     item.internalId = newId
+    let type = findType(item.typeId).node
+    if (type.link !== 0) type = findType(type.link).node
+    if (typeCanHaveChildren(type)) {
+      item.children = []
+    } else {
+      delete item.children
+    }
 
     if (findParentForChildren && parent && parent.id !== -1) {
       const path = []
