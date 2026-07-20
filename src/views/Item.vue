@@ -68,6 +68,10 @@
                           <span v-if="attr.type === AttributeType.Boolean">
                             <v-checkbox readonly dense hide-details v-model="itemRef.values[attr.identifier]" class="ma-0 pa-0"></v-checkbox>
                           </span>
+                          <span
+                            v-else-if="attr.type === AttributeType.Text && attr.richText"
+                            v-html="attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]"
+                          ></span>
                           <span v-else>{{attr.type === AttributeType.Relation ? getRelAttrValue(attr) : (attr.lov? getLOVValue(attr) : (attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]))}}</span>
                       </v-col>
                     </template>
@@ -1239,8 +1243,15 @@ export default {
               item.values[attr.identifier] = null
             }
 
-            if (attr.type === AttributeType.Text && attr.richText && item.values[attr.identifier] === null) {
-              item.values[attr.identifier] = ''
+            if (attr.type === AttributeType.Text && attr.richText) {
+              const val = attr.languageDependent ? item.values[attr.identifier][currentLanguage.value.identifier] : item.values[attr.identifier]
+              if (val === null || val === undefined || typeof val === 'object') {
+                if (attr.languageDependent) {
+                  item.values[attr.identifier][currentLanguage.value.identifier] = ''
+                } else {
+                  item.values[attr.identifier] = ''
+                }
+              }
             } else if (attr.type === AttributeType.URL) {
               if (!item.values[attr.identifier + '_text']) {
                 if (attr.languageDependent) {
