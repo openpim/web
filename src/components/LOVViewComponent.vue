@@ -10,7 +10,8 @@
         :rules="nameRules" :label="$t('Config.Languages.Name')"></LanguageDependentField>
       <v-alert v-if="loadingRef" type="info">{{ $t('Config.LOV.Loading') }}</v-alert>
       <v-data-table :headers="headers" :items="filteredValues" hide-default-header dense :page.sync="currentPage"
-        :items-per-page="itemsPerPage">
+        :items-per-page="itemsPerPage"
+        :footer-props="{ itemsPerPageOptions: [5, 10, 15, 50, 100, -1], showFirstLastPage: true }">
         <template v-slot:top>
           <div class="d-flex align-items-center justify-content-between">
             <v-text-field type="text" class="pa-0" v-model="search" append-icon="mdi-magnify" :label="$t('Search')"
