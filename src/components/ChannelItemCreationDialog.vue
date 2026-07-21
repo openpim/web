@@ -95,7 +95,7 @@ export default {
         ? findYmCategoryNode(identifierSelectedRef.value, categories.tree)
         : findNode(identifierSelectedRef.value, categories.tree.children)
       const newItem = newItemRef.value
-      newItem.identifier = isYM ? 'ymcat_' + node.id : node.id
+      newItem.identifier = node.id
       newItem.name.ru = node.name
       newItem.typeIdentifier = typeRef.value
       newItem.children = []
