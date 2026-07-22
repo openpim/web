@@ -1,4 +1,4 @@
-FROM node:12 AS builder
+FROM node:20-bookworm AS builder
 
 COPY ./src /web/src
 COPY ./public /web/public
@@ -14,7 +14,7 @@ WORKDIR /web
 RUN npm update && npm install
 RUN npm run build
 
-FROM node:12
+FROM node:20-bookworm
 
 RUN apt-get update && apt-get install -y curl gnupg apt-utils nginx procps
 
