@@ -11,7 +11,7 @@
           <span>{{ $t('Add') }}</span>
         </v-tooltip -->
       </v-toolbar>
-      <v-btn small icon fab absolute top right @click="add(false)" class="mt-7 mr-1"><v-icon>mdi-plus</v-icon></v-btn>
+      <v-btn small icon fab absolute top right @click="add(false)" v-if="selectedRef && selectedRef.children" class="mt-7 mr-1"><v-icon>mdi-plus</v-icon></v-btn>
       <v-treeview dense activatable hoverable transition :items="itemsTree" :load-children="loadChildren" @update:active="activeChanged" :active.sync="activeRef" :open.sync="openRef">
         <template v-slot:prepend="{ item }">
           <v-icon v-if="item.typeIcon" :color="item.typeIconColor">mdi-{{ item.typeIcon }}</v-icon>
