@@ -248,7 +248,7 @@
                                   <template v-for="(attr,i) in group.itemAttributes">
                                     <tr v-if="getAttrRange(group.itemAttributes, i) < getTableRowsCount(group)*n && getAttrRange(group.itemAttributes, i) >= getTableRowsCount(group)*(n-1)" :key="i" style="vertical-align: middle;">
                                       <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', '')">{{ i + 1 }}</td>
-                                      <td :style="getOption(attr, 'style', '') + ';overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'" :class="getOption(attr, 'class', 'stripped-table-text')" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
+                                      <td :style="getOption(attr, 'style', '') + ';' + getOption(attr, 'titleStyle', '') + ';overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'" :class="getOption(attr, 'class', 'stripped-table-text')" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
                                       <td :style="getOption(attr, 'style', '') + ';overflow: hidden; max-width: 0;'" :class="getOption(attr, 'class', '')">
                                         <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="true"></AttributeValue>
                                       </td>
@@ -299,7 +299,7 @@
                                   <template v-for="(attr,i) in group.itemAttributes">
                                     <tr v-if="getAttrRange(group.itemAttributes, i) < getTableRowsCount(group)*n && getAttrRange(group.itemAttributes, i) >= getTableRowsCount(group)*(n-1)" :key="i" style="vertical-align: middle;">
                                       <td :style="getOption(attr, 'style', '')" :class="getOption(attr, 'class', '')">{{ i + 1 }}</td>
-                                      <td :style="getOption(attr, 'style', '') + ';overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'" :class="getOption(attr, 'class', 'stripped-table-text')" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
+                                      <td :style="getOption(attr, 'style', '') + ';' + getOption(attr, 'titleStyle', '') + ';overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'" :class="getOption(attr, 'class', 'stripped-table-text')" :title="attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']'">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }}</td>
                                       <td :style="getOption(attr, 'style', '') + ';overflow: hidden; max-width: 0;'" :class="getOption(attr, 'class', '')">
                                         <AttributeValue @input="attrInput" :ref="el => { attributeValues[i] = el }" :item="itemRef" :attr="attr" :values="itemRef.values" :dense="false" :inTableView="true"></AttributeValue>
                                       </td>

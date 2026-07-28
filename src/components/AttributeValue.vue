@@ -1,5 +1,5 @@
 <template>
-<div ref="componentRoot">
+  <div ref="componentRoot" v-title-style="getTextOption('titleStyle', '')">
     <div v-if="!dense && !inTableView" :set="desc = getTextOption('description', '')">
       <h6 v-if="getTextOption('group_title', '').length > 0" class='mb-0 mt-2 mr-0 subtitle-1'>{{getTextOption('group_title', '')}}</h6>
       <!-- Text -->
@@ -707,6 +707,7 @@ import eventBus from '../eventBus'
 import dateFormat from 'dateformat'
 
 import CustomAttributeValueComponent from '../_customizations/attributes/CustomAttributeValueComponent.vue'
+import { applyAttributeTitleStyle } from '../utils/applyAttributeTitleStyle'
 import CustomAttributeTooltipComponent from '../_customizations/attributes/CustomAttributeTooltipComponent.vue'
 
 // Jodit
@@ -714,6 +715,16 @@ import 'jodit/build/jodit.min.css'
 import { JoditEditor } from 'jodit-vue'
 
 export default {
+  directives: {
+    titleStyle: {
+      inserted (element, binding) {
+        applyAttributeTitleStyle(element, binding.value)
+      },
+      componentUpdated (element, binding) {
+        applyAttributeTitleStyle(element, binding.value)
+      }
+    }
+  },
   components: { LanguageDependentField, JoditEditor, CustomAttributeValueComponent, CustomAttributeTooltipComponent },
   props: {
     item: {
