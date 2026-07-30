@@ -65,13 +65,16 @@ const actions = {
   },
   save: async (search) => {
     if (!search.extended) search.whereClause = { orAnd: search.orAnd }
+    const whereClausePayload = search.extended && search.extWhereClause
+      ? JSON.parse(search.extWhereClause)
+      : search.whereClause
     const query = `
       mutation ($filters:JSON) { saveSearch(identifier: "` + search.identifier + '", name: ' + (search.name ? objectToGraphgl(search.name) : '') +
       ', entity: "' + search.entity + '"' +
       ', publicSearch: ' + search.public +
       ', extended: ' + search.extended +
       ', filters: $filters ' +
-      ', whereClause: ' + (search.whereClause ? objectToGraphgl(search.whereClause) : '') +
+      ', whereClause: ' + (whereClausePayload ? objectToGraphgl(whereClausePayload) : '') +
       `)
     }`
     await serverFetch(query, { filters: search.filters })
