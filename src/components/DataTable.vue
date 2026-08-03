@@ -424,6 +424,7 @@ import AttributeType from '../constants/attributeTypes'
 import XLSX from 'xlsx'
 import dateFormat from 'dateformat'
 import router from '../router'
+import { serializeTableHeaders } from '../tableHeadersStorage.mjs'
 
 import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterButtonsComponent'
 import RelationAttributeSearchComponent from '../components/RelationAttributeSearch.vue'
@@ -699,7 +700,7 @@ export default {
       headersRef.value = arr
       loadLOVs()
       loadParentsIfNecessary()
-      localStorage.setItem(props.headersStorageName, JSON.stringify(arr))
+      localStorage.setItem(props.headersStorageName, serializeTableHeaders(arr))
       relationAttributesItemsRef.value = await getRelationAttributesItems(itemsRef.value, false)
     }
 
@@ -1737,6 +1738,8 @@ export default {
         // check for old format of headers list
         let changed = false
         tst = JSON.parse(tst)
+        if (tst.some(header => Object.prototype.hasOwnProperty.call(header, 'filter') || Object.prototype.hasOwnProperty.call(header, 'filterType'))) changed = true
+        tst = JSON.parse(serializeTableHeaders(tst))
         tst = tst.map(header => {
           if (Array.isArray(header.value)) {
             changed = true
@@ -1746,7 +1749,7 @@ export default {
           if (header.identifier !== '#thumbnail#') header.sortable = true
           return header
         })
-        if (changed) localStorage.setItem(props.headersStorageName, JSON.stringify(tst))
+        if (changed) localStorage.setItem(props.headersStorageName, serializeTableHeaders(tst))
         headersRef.value = tst
       }
       const tst2 = localStorage.getItem('savedColumnsSelection')
