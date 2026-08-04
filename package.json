@@ -31,6 +31,7 @@
     "vue-pdf": "^4.3.0",
     "vue-router": "^3.1.5",
     "vuetify": "^2.4.6",
+    "xlsx": "^0.18.5",
     "xregexp": "^4.3.0"
   },
   "devDependencies": {
