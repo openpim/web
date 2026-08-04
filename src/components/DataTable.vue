@@ -474,7 +474,6 @@ import AttributeType from '../constants/attributeTypes'
 import XLSX from 'sheetjs-style'
 import dateFormat from 'dateformat'
 import router from '../router'
-import { serializeTableHeaders } from '../tableHeadersStorage.mjs'
 
 import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterButtonsComponent'
 import RelationAttributeSearchComponent from '../components/RelationAttributeSearch.vue'
@@ -2373,6 +2372,10 @@ export default {
 
     function getTableWhere () {
       return filterWhere || props.loadData().where
+    }
+
+    function serializeTableHeaders (headers) {
+      return JSON.stringify((headers || []).map(({ filter, filterType, ...header }) => header))
     }
 
     return {
