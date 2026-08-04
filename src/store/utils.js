@@ -154,9 +154,11 @@ function objectToGraphgl (value) {
         const attr = attrStore.store.findByIdentifier(prop, true)
         if (obj) {
           if (attr && attr.item.type === 3) { // Integer
-            result += prop + ':' + (isNaN(parseInt(obj)) ? null : parseInt(obj)) + ','
+            const parsedInt = parseInt(obj)
+            result += prop + ':' + (isNaN(parsedInt) || !Number.isFinite(parsedInt) ? null : parsedInt) + ','
           } else if (attr && attr.item.type === 4) { // Float
-            result += prop + ':' + (isNaN(parseFloat(obj)) ? null : parseFloat(obj)) + ','
+            const parsedFloat = parseFloat(obj)
+            result += prop + ':' + (isNaN(parsedFloat) || !Number.isFinite(parsedFloat) ? null : parsedFloat) + ','
           } else {
             let tmp = obj
             if (tmp.endsWith('"') || tmp.endsWith('\\')) tmp += ' '
@@ -176,9 +178,9 @@ function objectToGraphgl (value) {
         const noEmpty = !obj && attr ? attr.item.options.some(elem => elem.name === 'noEmptyValue' && elem.value === 'true') : false
         if (attr && attr.item.type === 7) { // LOV
           // LOV can be NaN here is it was wrong value as string for example, so system converted it to NaN and we should send null to server
-          if (!noEmpty) result += prop + ':' + (isNaN(obj) ? null : obj) + ','
+          if (!noEmpty) result += prop + ':' + (isNaN(obj) || !Number.isFinite(obj) ? null : obj) + ','
         } else {
-          if (!noEmpty) result += prop + ':' + obj + ','
+          if (!noEmpty) result += prop + ':' + (obj === Infinity || obj === -Infinity ? null : obj) + ','
         }
       }
     }
