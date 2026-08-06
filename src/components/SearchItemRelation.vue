@@ -106,6 +106,7 @@ import DatePickerDialog from '../components/DatePickerDialog'
 import AttributeType from '../constants/attributeTypes'
 import * as relStore from '../store/relations'
 import router from '../router'
+import { parseRelationSearchValue } from '../utils/relationSearchValues.mjs'
 
 export default {
   components: { SearchSaveDialog, SearchLoadDialog, ItemsSelectionDialog, RelationsSelectionDialog, DatePickerDialog },
@@ -361,19 +362,7 @@ export default {
       const serverConfig = await getServerConfig()
       const trimSearchString = serverConfig && serverConfig.trimSearchString
       if (attrObj && attrObj.type === 1) return trimSearchString ? ('' + value).trim() : ('' + value)
-      if (attr === 'identifier' ||
-        attr === 'parentIdentifier' ||
-        attr === 'typeIdentifier' ||
-        attr === 'createdBy' ||
-        attr === 'updatedBy' ||
-        attr === 'fileOrigName' ||
-        attr === 'mimeType') return trimSearchString ? ('' + value).trim() : ('' + value)
-
-      if (value.startsWith('"') && value.endsWith('"')) {
-        return value.substring(1, value.length - 1)
-      } else {
-        return isNaN(value) ? value : (value.length > 0 ? parseFloat(value) : null)
-      }
+      return parseRelationSearchValue(attr, value, trimSearchString)
     }
 
     function checkLOV (attr, val) {

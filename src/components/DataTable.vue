@@ -144,6 +144,12 @@
             <v-btn small v-if="header.sortable" icon @click="headerSort(header)">
               <v-icon small>{{ header.icon || 'mdi-arrow-up-down'}}</v-icon>
             </v-btn>
+            <v-tooltip top v-if="isCopyableIdentifierColumn(header)">
+              <template v-slot:activator="{ on }">
+                <v-btn small icon v-on="on" @click.stop="showCopyColumnValuesDialog(header)"><v-icon small>mdi-content-copy</v-icon></v-btn>
+              </template>
+              <span>{{ $t('DataTable.CopyColumnValues') }}</span>
+            </v-tooltip>
             <v-btn small icon @click="showMassUpdateDialog(header)" v-if="typeof (header.identifier) !== 'undefined'
               && header.identifier !== 'id'
               && header.identifier !== 'identifier'
@@ -444,6 +450,26 @@
         </v-dialog>
       </v-row>
     </template>
+    <template>
+      <v-row justify="center">
+        <v-dialog v-model="copyColumnValuesDialogRef" persistent width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('DataTable.CopyColumnValuesDialog.Title', { column: copyColumnValuesHeaderRef ? copyColumnValuesHeaderRef.text : '' }) }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-progress-linear v-if="copyColumnValuesLoadingRef" indeterminate color="primary"></v-progress-linear>
+              <v-textarea v-else readonly :value="copyColumnValuesRef" rows="16" no-resize hide-details></v-textarea>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="copyColumnValues" :disabled="copyColumnValuesLoadingRef || !copyColumnValuesRef">{{ $t('DataTable.CopyColumnValuesDialog.Copy') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="copyColumnValuesDialogRef=false">{{ $t('Close') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
 </div>
 </template>
 <script>
@@ -474,6 +500,7 @@ import AttributeType from '../constants/attributeTypes'
 import XLSX from 'sheetjs-style'
 import dateFormat from 'dateformat'
 import router from '../router'
+import { isCopyableIdentifierColumn as isCopyableIdentifierColumnForSearch, loadAllUniqueColumnValues } from '../utils/copyColumnValues.mjs'
 
 import AfterButtonsComponent from '../_customizations/table/afterButtons/AfterButtonsComponent'
 import RelationAttributeSearchComponent from '../components/RelationAttributeSearch.vue'
@@ -634,6 +661,11 @@ export default {
     const filterDialogRef = ref(false)
     const filterDialogDataRef = ref('VALUE')
     const filterDialogHeaderRef = ref(null)
+
+    const copyColumnValuesDialogRef = ref(false)
+    const copyColumnValuesHeaderRef = ref(null)
+    const copyColumnValuesRef = ref('')
+    const copyColumnValuesLoadingRef = ref(false)
 
     const fileUploadRef = ref(null)
     const importModeRef = ref('UPDATE_ONLY')
@@ -1147,6 +1179,77 @@ export default {
       filterDialogHeaderRef.value = header
       filterDialogDataRef.value = filterDialogHeaderRef.value.filterType
       filterDialogRef.value = true
+    }
+
+    function isCopyableIdentifierColumn (header) {
+      return isCopyableIdentifierColumnForSearch(
+        searchEntityRef.value,
+        header.identifier
+      )
+    }
+
+    async function showCopyColumnValuesDialog (header) {
+      copyColumnValuesHeaderRef.value = header
+      copyColumnValuesRef.value = ''
+      copyColumnValuesLoadingRef.value = true
+      copyColumnValuesDialogRef.value = true
+      const sortBy = optionsRef.value.sortBy && optionsRef.value.sortBy.length > 0 ? [...optionsRef.value.sortBy] : ['id']
+      const sortDesc = optionsRef.value.sortDesc && optionsRef.value.sortDesc.length > 0 ? [...optionsRef.value.sortDesc] : [false]
+      if (!sortBy.includes('id')) {
+        sortBy.push('id')
+        sortDesc.push(false)
+      }
+
+      try {
+        copyColumnValuesRef.value = await loadAllUniqueColumnValues(
+          props.loadData,
+          header.identifier,
+          { sortBy, sortDesc }
+        )
+      } catch (err) {
+        console.error('Unable to load all column values', err)
+        showError(i18n.t('DataTable.CopyColumnValuesDialog.LoadFailed'))
+      } finally {
+        copyColumnValuesLoadingRef.value = false
+      }
+    }
+
+    function fallbackCopyColumnValues () {
+      const textarea = document.createElement('textarea')
+      textarea.value = copyColumnValuesRef.value
+      textarea.setAttribute('readonly', '')
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      try {
+        textarea.select()
+        return document.execCommand('copy')
+      } catch (err) {
+        console.warn('Unable to copy column values with fallback', err)
+        return false
+      } finally {
+        document.body.removeChild(textarea)
+      }
+    }
+
+    async function copyColumnValues () {
+      let copied = false
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(copyColumnValuesRef.value)
+          copied = true
+        }
+      } catch (err) {
+        console.warn('Unable to copy column values with Clipboard API', err)
+      }
+
+      if (!copied) copied = fallbackCopyColumnValues()
+
+      if (copied) {
+        showInfo(i18n.t('DataTable.CopyColumnValuesDialog.Copied'))
+      } else {
+        showError(i18n.t('DataTable.CopyColumnValuesDialog.CopyFailed'))
+      }
     }
 
     function filterUpdate () {
@@ -2483,6 +2586,13 @@ export default {
       getTableWhere,
       buttonActionStatusDialog,
       filterChanged,
+      isCopyableIdentifierColumn,
+      showCopyColumnValuesDialog,
+      copyColumnValuesDialogRef,
+      copyColumnValuesHeaderRef,
+      copyColumnValuesRef,
+      copyColumnValuesLoadingRef,
+      copyColumnValues,
       getLOVItems,
       DATE_FORMAT: process.env.VUE_APP_DATE_FORMAT,
       required: value => !!value || i18n.t('ItemRelationsList.Required'),
