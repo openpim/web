@@ -1246,7 +1246,7 @@ export default {
       if (!copied) copied = fallbackCopyColumnValues()
 
       if (copied) {
-        showInfo(i18n.t('DataTable.CopyColumnValuesDialog.Copied'))
+        copyColumnValuesDialogRef.value = false
       } else {
         showError(i18n.t('DataTable.CopyColumnValuesDialog.CopyFailed'))
       }
