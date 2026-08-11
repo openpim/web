@@ -103,6 +103,7 @@ export default {
           newItem.typeIcon = type.icon
           newItem.typeIconColor = type.iconColor
           newItem.typeId = type.internalId
+          newItem.typeIdentifier = type.identifier
           emit('created', newItem)
         })
       }
