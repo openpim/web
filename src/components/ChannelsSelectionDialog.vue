@@ -183,14 +183,12 @@ export default {
         loadAllChannels().then(() => {
           selectionDialogRef.value = true
           channelsListRef.value = getAvailableChannelsWithGroups(props.editAccessOnly)
-          const arr = selected ? selected.map(id => String(channelsListRef.value.findIndex(rel => rel.id === id || rel.internalId === id))) : []
-          selectedChannelsRef.value = arr
+          selectedChannelsRef.value = selected || []
         })
       } else {
         selectionDialogRef.value = true
         channelsListRef.value = getAvailableChannelsWithGroups(props.editAccessOnly)
-        const arr = selected ? selected.map(id => String(channelsListRef.value.findIndex(rel => rel.id === id || rel.internalId === id))) : []
-        selectedChannelsRef.value = arr
+        selectedChannelsRef.value = selected || []
       }
     }
 
