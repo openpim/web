@@ -449,6 +449,7 @@
     <ItemsSelectionDialog ref="itemSelectionDialogRef" @selected="itemSelectionDialogSelected"/>
     <FileUploadDialog ref="fileUploadDialogRef" :typeId="itemRef.typeId" @upload="linkNewFile"/>
     <ItemDuplicationDialog ref="itemDuplicationDialogRef" @duplicated="itemDuplicated"/>
+    <CustomDuplicationDialog ref="itemCustomDuplicationDialogRef" @duplicated="itemDuplicated"/>
     <ChannelsSelectionDialog ref="chanSelectionDialogRef" :multiselect="true" :editAccessOnly="true" @selected="channelsSelected"/>
     <CollectionsSelectionDialog ref="collSelectionDialogRef" :editAccessOnly="true" @selected="collectionsSelected"/>
     <ShowAttributesDialog ref="showAttributesDialogRef" @selected="showAttributes"/>
@@ -484,6 +485,7 @@ import AttributeType from '../constants/attributeTypes'
 import ItemsSelectionDialog from '../components/ItemsSelectionDialog'
 import FileUploadDialog from '../components/FileUploadDialog'
 import ItemDuplicationDialog from '../components/ItemDuplicationDialog'
+import CustomDuplicationDialog from '../_customizations/item/customDuplicationDialog.vue'
 import ChannelsSelectionDialog from '../components/ChannelsSelectionDialog'
 import CollectionsSelectionDialog from '../components/CollectionsSelectionDialog'
 import ActionStatusDialog from '../components/ActionStatusDialog'
@@ -497,6 +499,7 @@ import FirstTabsItemComponent from '../_customizations/item/tabs/firstTabs/TabsI
 import LastTabsComponent from '../_customizations/item/tabs/lastTabs/TabsComponent'
 import LastTabsItemComponent from '../_customizations/item/tabs/lastTabs/TabsItemComponent'
 import customEnableButton from '../_customizations/item/customEnableButton.js'
+import customDuplicationDialog from '../_customizations/item/customDuplicationDialog.js'
 
 import BeforeAttributesComponent from '../_customizations/item/beforeAttributes/BeforeAttributesComponent'
 import AfterAttributesComponent from '../_customizations/item/afterAttributes/AfterAttributesComponent'
@@ -516,6 +519,7 @@ export default {
     ItemsSelectionDialog,
     FileUploadDialog,
     ItemDuplicationDialog,
+    CustomDuplicationDialog,
     HistoryTable,
     AfterButtonsComponent,
     AfterSpacerComponent,
@@ -624,6 +628,7 @@ export default {
     const itemSelectionDialogRef = ref(null)
     const fileUploadDialogRef = ref(null)
     const itemDuplicationDialogRef = ref(null)
+    const itemCustomDuplicationDialogRef = ref(null)
     const chanSelectionDialogRef = ref(null)
     const collSelectionDialogRef = ref(null)
     const showAttributesDialogRef = ref(null)
@@ -1055,12 +1060,18 @@ export default {
       showInfo(i18n.t('Saved'))
     }
 
-    function duplicate () {
-      itemDuplicationDialogRef.value.showDialog(itemRef.value)
+    async function duplicate () {
+      const obj = await customDuplicationDialog(itemRef.value)
+      if (obj) {
+        itemCustomDuplicationDialogRef.value.showDialog(itemRef.value)
+      } else {
+        itemDuplicationDialogRef.value.showDialog(itemRef.value)
+      }
     }
 
     function itemDuplicated (itemCopy) {
       itemDuplicationDialogRef.value.closeDialog()
+      if (itemCustomDuplicationDialogRef.value.closeDialog) itemCustomDuplicationDialogRef.value.closeDialog()
       const parent = itemPathRef.value.length > 0 ? itemPathRef.value[itemPathRef.value.length - 1] : null
 
       createItem(itemCopy, parent, true).then(() => {
@@ -1749,6 +1760,7 @@ export default {
       linkNewFile,
       hasFileUpload,
       itemDuplicationDialogRef,
+      itemCustomDuplicationDialogRef,
       itemDuplicated,
       auditEnabled,
       getOption,
