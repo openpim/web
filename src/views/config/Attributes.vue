@@ -386,6 +386,10 @@ export default {
     const openRef = ref([])
     const selectedGroupsRef = ref([])
     const maxChiidrenNumber = 100
+    function toTreeGroup (group, attributes) {
+      const attrs = attributes || group.attributes
+      return { ...group, attributes: attrs, children: attrs.slice(0, maxChiidrenNumber) }
+    }
     const showEmptyGroups = ref(false)
     const grpId = ref(null)
     const rels = ref([])
@@ -471,7 +475,7 @@ export default {
         if (props.item) {
           groupsFiltered.value = filteredAttributes
         } else {
-          groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
+          groupsFiltered.value = groups.map(group => toTreeGroup(group))
         }
       }
     }
@@ -493,7 +497,7 @@ export default {
           for (let k = 0; k < groupsToUse.length; k++) {
             const group = groupsToUse[k]
             if (group.name[currentLanguage.value.identifier].toLowerCase().includes(searchRef.value.toLowerCase())) {
-              groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) })
+              groupsFiltered.value.push(toTreeGroup(group))
               continue
             }
             const foundAttr = []
@@ -504,14 +508,14 @@ export default {
               }
             }
             if (foundAttr.length) {
-              groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: foundAttr, children: foundAttr.slice(0, maxChiidrenNumber) })
+              groupsFiltered.value.push(toTreeGroup(group, foundAttr))
             }
           }
         } else {
           if (props.item) {
             groupsFiltered.value = filteredAttributes
           } else {
-            groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
+            groupsFiltered.value = groups.map(group => toTreeGroup(group))
           }
         }
       } else {
@@ -543,7 +547,7 @@ export default {
             }
           }
           if (foundAttr.length) {
-            groupsFiltered.value.push({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: foundAttr, children: foundAttr.slice(0, maxChiidrenNumber) })
+            groupsFiltered.value.push(toTreeGroup(group, foundAttr))
           }
         }
       }
@@ -775,7 +779,7 @@ export default {
             }
           }
         }
-        if (!props.item) groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
+        if (!props.item) groupsFiltered.value = groups.map(group => toTreeGroup(group))
       })
     })
 
@@ -821,8 +825,8 @@ export default {
         })
       }
 
-      filteredAttributes = newGroups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
-      groupsFiltered.value = filteredAttributes.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.children }))
+      filteredAttributes = newGroups.map(group => toTreeGroup(group))
+      groupsFiltered.value = filteredAttributes.map(group => ({ ...group }))
     }
 
     function openExportDataDialog () {
@@ -952,7 +956,7 @@ export default {
       if (props.item) {
         refreshItemAttributes()
       } else {
-        groupsFiltered.value = groups.map(group => ({ id: group.id, identifier: group.identifier, internalId: group.internalId, group: group.group, name: group.name, attributes: group.attributes, children: group.attributes.slice(0, maxChiidrenNumber) }))
+        groupsFiltered.value = groups.map(group => toTreeGroup(group))
       }
     }
 
