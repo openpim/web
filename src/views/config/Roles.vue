@@ -6,22 +6,48 @@
           <v-toolbar-title>{{ $t('Config.Roles.Roles') }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom v-if="canEditConfigRef">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="add"><v-icon>mdi-plus</v-icon></v-btn>
+            <template v-slot:activator="{ }">
+              <v-menu offset-y>
+                <template v-slot:activator="{ on: menuOn }">
+                  <v-btn icon v-on="menuOn"><v-icon>mdi-plus</v-icon></v-btn>
+                </template>
+                <v-list>
+                  <v-list-item @click="add(true)">
+                    <v-list-item-title>{{ $t('Config.Roles.NewGroupName') }}</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="add(false)">
+                    <v-list-item-title>{{ $t('Config.Roles.NewName') }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </template>
             <span>{{ $t('Add') }}</span>
           </v-tooltip>
         </v-toolbar>
         <v-text-field v-model="searchRef" @input="clearSelection" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-        <v-list nav dense>
-          <v-list-item-group v-model="itemRef" color="primary">
-            <v-list-item v-for="(item, i) in rolesFiltered" :key="i">
-              <v-list-item-icon><v-icon>mdi-account-check</v-icon></v-list-item-icon>
+        <v-list :expand="!!searchRef" nav dense>
+          <v-list-group v-for="group in roleTree.groups" :key="group.id" prepend-icon="mdi-folder"
+            @click="itemRef = roleId(group)" :value="group.children.some(child => sameId(itemRef, roleId(child))) || sameId(itemRef, roleId(group)) || !!searchRef">
+            <template v-slot:activator>
               <v-list-item-content>
-                <v-list-item-title>{{item.identifier + ' - ' + item.name}}</v-list-item-title>
+                <v-list-item-title>{{ group.identifier + ' - ' + group.name }}</v-list-item-title>
+              </v-list-item-content>
+            </template>
+            <v-list-item v-for="role in group.children" :key="role.id" @click="itemRef = roleId(role)"
+              :class="{ 'v-item--active': sameId(itemRef, roleId(role)), 'v-list-item--active': sameId(itemRef, roleId(role)) }">
+              <v-list-item-icon class="ml-6"><v-icon>mdi-account-check</v-icon></v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>{{ role.identifier + ' - ' + role.name }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-          </v-list-item-group>
+          </v-list-group>
+          <v-list-item v-for="role in roleTree.singles" :key="role.id" @click="itemRef = roleId(role)"
+            :class="{ 'v-item--active': sameId(itemRef, roleId(role)), 'v-list-item--active': sameId(itemRef, roleId(role)), 'primary--text': sameId(itemRef, roleId(role)) }">
+            <v-list-item-icon><v-icon>mdi-account-check</v-icon></v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>{{ role.identifier + ' - ' + role.name }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list>
       </v-col>
       <v-col cols="9">
@@ -32,15 +58,16 @@
           </div>
 
           <v-text-field v-model="selectedRef.name" :label="$t('Config.Roles.Name')" :rules="nameRules" required></v-text-field>
+          <v-text-field v-model.number="selectedRef.order" type="number" :label="$t('Config.Roles.Order')" required></v-text-field>
 
-          <v-tabs v-model="tabRef">
+          <v-tabs v-if="!selectedRef.group" v-model="tabRef">
             <v-tab v-text="$t('Config.Roles.Data')"></v-tab>
             <v-tab v-text="$t('Config.Roles.Relation')"></v-tab>
             <v-tab v-text="$t('Config.Roles.Configuration')"></v-tab>
             <v-tab v-text="$t('Config.Roles.Channels')"></v-tab>
             <v-tab v-text="$t('Config.Roles.Other')"></v-tab>
           </v-tabs>
-          <v-tabs-items v-model="tabRef">
+          <v-tabs-items v-if="!selectedRef.group" v-model="tabRef">
             <!-- Items restrictions -->
             <v-tab-item>
               <v-card class="mb-5 mt-2">
@@ -233,7 +260,15 @@
           <OptionsTable :options="selectedRef.options" @changed="optionsChanged" />
 
           <v-btn class="mr-4" v-if="canEditConfigRef" @click="save" :disabled="selectedRef.identifier && selectedRef.identifier === 'admin'">{{ $t('Save') }}</v-btn>
-          <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="selectedRef.identifier && selectedRef.identifier === 'admin'">{{ $t('Remove') }}</v-btn>
+          <v-menu :close-on-content-click="false" offset-y v-if="canEditConfigRef && !selectedRef.group">
+            <template v-slot:activator="{ on }"><v-btn class="mr-4" v-on="on">{{ $t('Move') }}</v-btn></template>
+            <v-card class="pa-4" min-width="360">
+              <v-autocomplete v-model="selectedParentIdsRef" :items="availableGroups" item-value="internalId" item-text="name"
+                :label="$t('Config.Roles.Groups')" multiple chips clearable></v-autocomplete>
+              <div class="text-end"><v-btn @click="move">{{ $t('Save') }}</v-btn></div>
+            </v-card>
+          </v-menu>
+          <v-btn class="mr-4" v-if="canEditConfigRef" @click.stop="remove" :disabled="(selectedRef.identifier && selectedRef.identifier === 'admin') || hasRoleChildren">{{ $t('Remove') }}</v-btn>
         </v-form>
       </v-col>
     </v-row>
@@ -281,6 +316,9 @@ export default {
 
     const {
       roles,
+      roleId,
+      sameId,
+      buildRoleTree,
       addRole,
       saveRole,
       loadAllRoles,
@@ -318,7 +356,8 @@ export default {
     const formRef = ref(null)
     const tabRef = ref(null)
     const selectedRef = ref(empty)
-    const itemRef = ref(0)
+    const itemRef = ref(null)
+    const selectedParentIdsRef = ref([])
     const relSelectionDialogRef = ref(null)
     const attrSelectionDialogRef = ref(null)
     const typeSelectionDialogRef = ref(null)
@@ -331,13 +370,16 @@ export default {
         router.push('/config/roles')
         return
       }
-      if (rolesFiltered && selected < rolesFiltered.value.length) {
-        if (previous && rolesFiltered.value[previous].internalId === 0) {
+      const role = roles.find(item => sameId(roleId(item), selected))
+      if (role) {
+        const previousRole = roles.find(item => sameId(roleId(item), previous))
+        if (previousRole && previousRole.internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
 
-        selectedRef.value = rolesFiltered.value[selected]
-        if (selectedRef.value.itemAccess.fromItems) {
+        selectedRef.value = role
+        selectedParentIdsRef.value = [...(role.parentIds || [])]
+        if (!role.group && selectedRef.value.itemAccess.fromItems) {
           loadItemsByIds(selectedRef.value.itemAccess.fromItems, false).then(items => {
             fromItems.value = items
           })
@@ -351,15 +393,18 @@ export default {
       }
     })
 
-    function add () {
-      selectedRef.value = addRole()
-      itemRef.value = roles.length - 1
+    function add (group) {
+      const parentIds = !group && selectedRef.value && selectedRef.value.group ? [roleId(selectedRef.value)] : []
+      selectedRef.value = addRole(group, parentIds)
+      selectedParentIdsRef.value = [...parentIds]
+      itemRef.value = roleId(selectedRef.value)
     }
 
     function save () {
       if (formRef.value.validate()) {
         router.push('/config/roles/' + selectedRef.value.identifier)
-        saveRole(selectedRef.value).then(() => {
+        saveRole(selectedRef.value).then(id => {
+          itemRef.value = id
           showInfo(i18n.t('Saved'))
         })
       }
@@ -371,6 +416,14 @@ export default {
         selectedRef.value = empty
         router.push('/config/roles')
       }
+    }
+
+    const availableGroups = computed(() => roles.filter(role => role.group && role.internalId !== 0).map(role => ({ ...role, internalId: roleId(role) })))
+    const hasRoleChildren = computed(() => selectedRef.value && selectedRef.value.group && roles.some(role => !role.group && (role.parentIds || []).some(id => sameId(id, roleId(selectedRef.value)))))
+
+    function move () {
+      selectedRef.value.parentIds = [...selectedParentIdsRef.value]
+      save()
     }
 
     function editValid () {
@@ -529,20 +582,7 @@ export default {
     }
 
     const searchRef = ref('')
-    const rolesFiltered = computed(() => {
-      let arr = roles
-      if (searchRef.value) {
-        const s = searchRef.value.toLowerCase()
-        arr = roles.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || item.name.toLowerCase().indexOf(s) > -1)
-      }
-      return arr.sort((a, b) => {
-        if (a.name[defaultLanguageIdentifier.value] && b.name[defaultLanguageIdentifier.value]) {
-          return a.name[defaultLanguageIdentifier.value].localeCompare(b.name[defaultLanguageIdentifier.value])
-        } else {
-          return 0
-        }
-      })
-    })
+    const roleTree = computed(() => buildRoleTree(roles, searchRef.value))
     function clearSelection () {
       selectedRef.value = null
       itemRef.value = null
@@ -559,16 +599,19 @@ export default {
 
           const id = router.currentRoute.params.id
           if (id) {
-            const idx = roles.findIndex((elem) => elem.identifier === id)
-            if (idx !== -1) {
-              selectedRef.value = roles[idx]
-              itemRef.value = idx
+            const role = roles.find((elem) => elem.identifier === id)
+            if (role) {
+              selectedRef.value = role
+              selectedParentIdsRef.value = [...(role.parentIds || [])]
+              itemRef.value = roleId(role)
             } else {
               router.push('/config/roles')
             }
           } else {
             if (roles.length > 0) {
               selectedRef.value = roles[0]
+              selectedParentIdsRef.value = [...(roles[0].parentIds || [])]
+              itemRef.value = roleId(roles[0])
             }
           }
         })
@@ -603,11 +646,18 @@ export default {
       formRef,
       tabRef,
       roles,
+      roleId,
+      sameId,
+      roleTree,
+      availableGroups,
+      hasRoleChildren,
+      selectedParentIdsRef,
       selectedRef,
       itemRef,
       add,
       remove,
       save,
+      move,
       relSelectionDialogRef,
       roleRelations,
       editRelations,
@@ -632,7 +682,6 @@ export default {
       optionsChanged,
       removeFromItems,
       searchRef,
-      rolesFiltered,
       clearSelection,
       configSelection: [
         { text: i18n.t('Config.Roles.Select.Config1'), value: 0 },
