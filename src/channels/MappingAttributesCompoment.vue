@@ -44,6 +44,19 @@
                         </template>
                         <span>Этот атрибут используется в фильтре на маркетплейсе</span>
                       </v-tooltip>
+                      <v-tooltip bottom v-if="canCopyMappingRow(i)">
+                        <template v-slot:activator="{ on }">
+                          <v-btn
+                            icon
+                            v-on="on"
+                            :data-testid="`copy-mapping-row-${i}`"
+                            @click.stop="openCopyDialog(i)"
+                          >
+                            <v-icon>mdi-content-copy</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>{{ $t('MappingConfigComponent.CopyAttribute.Action') }}</span>
+                      </v-tooltip>
                     </td>
                     <td class="pa-1">
                       <v-row>
@@ -129,6 +142,12 @@
     </template>
     <AttributeManageDialog ref="attrManageDialogRef" @manage="manageDialogClosed"/>
     <AttributeValuesDialog ref="attrValuesDialogRef" />
+    <AttributeMappingCopyDialog
+      v-model="copyDialogOpen"
+      :source-label="copySourceLabel"
+      :targets="copyTargets"
+      @confirm="copyToCategories"
+    />
   </div>
 </template>
 <script>
@@ -136,7 +155,9 @@ import { ref, onMounted, computed } from '@vue/composition-api'
 import * as langStore from '../store/languages'
 import OptionsTable from '../components/OptionsTable.vue'
 import AttributeManageDialog from './AttributeManageDialog.vue'
+import AttributeMappingCopyDialog from './AttributeMappingCopyDialog.vue'
 import AttributeValuesDialog from './AttributeValuesDialog.vue'
+import { copyAttributeMappingToCategories, getAttributeMappingCopyTargets } from './attributeMappingCopy.mjs'
 import i18n from '../i18n'
 import AttributeType from '../constants/attributeTypes'
 import * as attrStore from '../store/attributes'
@@ -145,7 +166,7 @@ import * as lovStore from '../store/lovs'
 import * as chanStore from '../store/channels'
 
 export default {
-  components: { OptionsTable, AttributeManageDialog, AttributeValuesDialog },
+  components: { OptionsTable, AttributeManageDialog, AttributeMappingCopyDialog, AttributeValuesDialog },
   props: {
     attributes: {
       required: true
@@ -186,6 +207,7 @@ export default {
   setup (props, { root }) {
     const {
       currentLanguage,
+      defaultLanguageIdentifier,
       loadAllLanguages
     } = langStore.useStore()
 
@@ -216,6 +238,10 @@ export default {
     const optDialogRef = ref(null)
     const attrManageDialogRef = ref(null)
     const attrValuesDialogRef = ref(null)
+    const copyDialogOpen = ref(false)
+    const copySourceIndex = ref(-1)
+    const copySourceLabel = ref('')
+    const copyTargets = ref([])
     const updateFlagConfig = computed(() => {
       if (props.channel?.type === 3) {
         return {
@@ -240,6 +266,51 @@ export default {
 
     function getAttribute (id) {
       return props.channelAttributes.find(elem => elem.id === id)
+    }
+
+    function categoryLabel (category, key) {
+      if (typeof category?.name === 'string') return category.name
+      return category?.name?.[currentLanguage.value?.identifier] ||
+        category?.name?.[defaultLanguageIdentifier.value] ||
+        Object.values(category?.name || {}).find(Boolean) || key
+    }
+
+    function mappingCopyTargets (index) {
+      return getAttributeMappingCopyTargets({
+        mappings: props.channel?.mappings,
+        sourceCategory: props.category,
+        sourceIndex: index
+      })
+    }
+
+    function canCopyMappingRow (index) {
+      return !props.readonly && !!props.category && mappingCopyTargets(index).length > 0
+    }
+
+    function openCopyDialog (index) {
+      const row = props.attributes[index]
+      copySourceIndex.value = index
+      copySourceLabel.value = getAttribute(row?.id)?.name || row?.name || row?.value || row?.id || ''
+      copyTargets.value = mappingCopyTargets(index).map(target => ({
+        ...target,
+        label: categoryLabel(target.category, target.key)
+      }))
+      copyDialogOpen.value = true
+    }
+
+    function copyToCategories (targetKeys) {
+      const result = copyAttributeMappingToCategories({
+        mappings: props.channel?.mappings,
+        sourceCategory: props.category,
+        sourceIndex: copySourceIndex.value,
+        targetKeys
+      })
+      showInfo(i18n.t('MappingConfigComponent.CopyAttribute.Result', {
+        copied: result.copied,
+        overwrite: result.overwritten,
+        insert: result.inserted,
+        skipped: result.skipped.length
+      }))
     }
 
     function canUseUpdateFlag (attr) {
@@ -482,7 +553,13 @@ export default {
       remove,
       pimAttributesAll,
       addMapping,
-      removeMapping
+      removeMapping,
+      copyDialogOpen,
+      copySourceLabel,
+      copyTargets,
+      canCopyMappingRow,
+      openCopyDialog,
+      copyToCategories
     }
   }
 }

@@ -26,7 +26,7 @@
               </v-tooltip>
             </v-col>
           </v-row>
-          <MappingAttributesCompoment v-if="categoryRef && pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly"  :channel="channel" :canManageAttributes="canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="categoryAttributes" />
+          <MappingAttributesCompoment v-if="categoryRef && pimAttributesRef && pimAttributesRef.length > 0" :readonly="readonly" :category="categoryRef" :channel="channel" :canManageAttributes="canEditConfig('attributes')" :attributes="categoryRef.attributes" :pimAttributes="pimAttributesRef" :channelAttributes="categoryAttributes" />
 
           <v-autocomplete v-if="categoryRef && pimAttributesRef && pimAttributesRef.length > 0" item-value="internalId" item-text="name.ru" chips multiple v-model="categoryRef.attrGroups" :items="groups" :readonly="readonly" label="Выгружать все атрибуты из групп" clearable />
 
