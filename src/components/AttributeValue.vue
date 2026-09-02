@@ -990,6 +990,8 @@ export default {
 
         const sel = depSelected.value
         const hasSel = sel.count > 0
+        const dependentRelation = props.attr.options.find(option => option.name === 'dependentRelation')?.value
+        const requestValue = dependentRelation ? props.values[dependentRelation] : props.values[props.attr.identifier]
 
         const all = []
         const have = new Set()
@@ -1019,7 +1021,7 @@ export default {
 
         let offset = 0
         for (let pageIdx = 0; pageIdx < MAX_PAGES; pageIdx++) {
-          const resp = await getAvailableItemsForRelationAttr(props.attr, props.values[props.attr.identifier], searchStr, langId, PAGE_SIZE, offset, 'ASC')
+          const resp = await getAvailableItemsForRelationAttr(props.attr, requestValue, searchStr, langId, PAGE_SIZE, offset, 'ASC')
           const page = resp.getItemsForRelationAttribute || []
           pushPage(page)
           offset += PAGE_SIZE
