@@ -60,7 +60,13 @@
                       <span class="font-weight-bold mr-2">{{ $t('ItemCreationDialog.Identifier') }} : </span><span>{{ itemRef.identifier }}</span>
                     </v-col>
                     <template v-for="(attr) in headerAttrs">
-                      <v-col :cols="12" :key="attr.id" v-if="getOption(attr, 'head', null)" class="caption pa-0 d-flex align-center">
+                      <v-col
+                        :cols="12"
+                        :key="attr.id"
+                        v-if="getOption(attr, 'head', null)"
+                        class="caption pa-0 d-flex"
+                        :class="getOption(attr, 'headNewLine', false) ? 'flex-column align-start' : 'align-center'"
+                      >
                         <span class="font-weight-bold mr-2">{{ attr.name[currentLanguage.identifier] || '[' + attr.name[defaultLanguageIdentifier] + ']' }} :</span>
                           <span v-if="attr.type === AttributeType.URL">
                             <a :href="attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]" target="_blank">{{attr.languageDependent ? itemRef.values[attr.identifier][currentLanguage.identifier] : itemRef.values[attr.identifier]}}</a>
