@@ -5,6 +5,7 @@
   "scripts": {
     "demo": "vue-cli-service serve --port 8080 --host demo.openpim.org",
     "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+    "serve_mac": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && node generate-buildno.js && vue-cli-service build",
     "build_mac": "export NODE_OPTIONS=--openssl-legacy-provider && node generate-buildno.js && vue-cli-service build",
     "docker": "docker build --tag openpim:web -f docker/Dockerfile .",
