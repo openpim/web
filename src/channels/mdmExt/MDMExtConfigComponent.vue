@@ -108,6 +108,19 @@
         </v-tooltip>
       </v-col>
     </v-row>
+    <v-row v-if="categoryRef && categoryIdRef">
+      <v-col cols="11">
+        <v-textarea :rows="1" auto-grow :readonly="readonly" v-model="categoryRef.categoryExpr" :label="$t('MappingConfigComponent.CategoryExpr')" :hint="$t('MappingConfigComponent.MasterCategoryExprHint')" persistent-hint required/>
+      </v-col>
+      <v-col cols="1">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-on="on" :disabled="readonly" @click="openCategoryExprDialog"><v-icon>mdi-message-outline</v-icon></v-btn>
+          </template>
+          <span>{{ $t('MappingConfigComponent.EditExpression') }}</span>
+        </v-tooltip>
+      </v-col>
+    </v-row>
     <v-row v-if="dataLoading">
       <v-col cols="12" style="text-align: center;"><v-progress-circular indeterminate color="primary"></v-progress-circular></v-col>
     </v-row>
@@ -135,6 +148,31 @@
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Cancel') }}</v-btn>
               <v-btn color="blue darken-1" text @click="addCategory">{{ $t('Select') }}</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </template>
+    <template>
+      <v-row justify="center" v-if="categoryRef">
+        <v-dialog v-model="categoryExprDialogRef" persistent max-width="90%">
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ $t('MappingConfigComponent.CategoryExpr') }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-textarea v-model="categoryExprDraftRef" :readonly="readonly" :rows="15"></v-textarea>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="cancelCategoryExpr">{{ $t('Cancel') }}</v-btn>
+              <v-btn color="blue darken-1" text @click="saveCategoryExpr">{{ $t('Save') }}</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -246,6 +284,8 @@ export default {
     const categoriesTreeRef = ref(null)
     const treeSearchRef = ref('')
     const treeActiveRef = ref([])
+    const categoryExprDialogRef = ref(false)
+    const categoryExprDraftRef = ref('')
 
     const mappedCategories = computed(() => {
       if (props.channel && props.channel.mappings) {
@@ -373,6 +413,7 @@ export default {
       delete data.channels
 
       categoryRef.value = data
+      categoryRef.value.categoryExpr = ''
 
       if (props.channel.config.supplierCategoryTypes.indexOf(parseInt(categoryRef.value.typeId)) === -1) {
         alert(i18n.t('MappingConfigComponent.IncorrectCategoryTypeSelected'))
@@ -432,6 +473,27 @@ export default {
       }
     }
 
+    function openCategoryExprDialog () {
+      if (props.readonly || !categoryRef.value) return
+      categoryExprDraftRef.value = categoryRef.value.categoryExpr || ''
+      categoryExprDialogRef.value = true
+    }
+
+    function saveCategoryExpr () {
+      if (!categoryRef.value) return
+      if (Object.prototype.hasOwnProperty.call(categoryRef.value, 'categoryExpr')) {
+        categoryRef.value.categoryExpr = categoryExprDraftRef.value
+      } else {
+        root.$set(categoryRef.value, 'categoryExpr', categoryExprDraftRef.value)
+      }
+      categoryExprDialogRef.value = false
+    }
+
+    function cancelCategoryExpr () {
+      categoryExprDialogRef.value = false
+      categoryExprDraftRef.value = ''
+    }
+
     function categoryChanged () {
       categoryRef.value = mappedCategories.value.find(elem => elem.id === categoryIdRef.value)
       // if (categoryRef.value?.categoryAttr) lovChanged(categoryRef.value.categoryAttr)
@@ -454,7 +516,7 @@ export default {
           if (!resp.rows) return
 
           const filteredRows = resp.rows.filter(row => {
-            const ids = String(row.values[masterCategoryAttributeIdentifier.value]).split(',')
+            const ids = String(row.values[masterCategoryAttributeIdentifier.value]).split(',').map(elem => elem.trim())
             return ids.includes(categoryRef.value.identifier)
           })
 
@@ -590,6 +652,11 @@ export default {
       addCategory,
       remove,
       categoryChanged,
+      categoryExprDialogRef,
+      categoryExprDraftRef,
+      openCategoryExprDialog,
+      saveCategoryExpr,
+      cancelCategoryExpr,
       mappedCategories,
       dialogRef,
       categoriesTreeRef,

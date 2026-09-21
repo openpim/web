@@ -682,6 +682,8 @@
   "MappingConfigComponent.CopyAttribute.Title": "Copy mapping row",
   "MappingConfigComponent.AddAttribute": "Add attribute",
   "MappingConfigComponent.CategoryExpr": "Expression to find category",
+  "MappingConfigComponent.EditExpression": "Edit expression",
+  "MappingConfigComponent.MasterCategoryExprHint": "The expression computes the master category identifier for an item, so one supplier category mapping can serve several master categories",
   "MappingConfigComponent.AttributeForCategory": "Attribute for category",
   "MappingConfigComponent.CategoryAttributeValue": "Attribute value",
   "MappingConfigComponent.SheetAdd": "Create sheet",

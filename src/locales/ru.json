@@ -679,6 +679,8 @@
   "MappingConfigComponent.CopyAttribute.Title": "Копирование строки маппинга",
   "MappingConfigComponent.AddAttribute": "Добавить атрибут",
   "MappingConfigComponent.CategoryExpr": "Выражение для определения категории",
+  "MappingConfigComponent.EditExpression": "Редактировать выражение",
+  "MappingConfigComponent.MasterCategoryExprHint": "Выражение вычисляет идентификатор категории мастер-системы для товара, что позволяет одному маппингу категории поставщика работать с несколькими категориями мастер",
   "MappingConfigComponent.AttributeForCategory": "Атрибут где находится категория",
   "MappingConfigComponent.CategoryAttributeValue": "Значение атрибута",
   "MappingConfigComponent.SheetAdd": "Создание нового листа",

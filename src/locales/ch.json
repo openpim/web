@@ -614,6 +614,7 @@
 	"MappingConfigComponent.CopyAttribute.Title": "复制映射行",
 	"MappingConfigComponent.AddAttribute": "添加属性",
 	"MappingConfigComponent.CategoryExpr": "类型的表达性",
+	"MappingConfigComponent.EditExpression": "编辑表达式",
 	"MappingConfigComponent.AttributeForCategory": "类型所在的属性",
 	"MappingConfigComponent.CategoryAttributeValue": "属性值",
 	"MappingConfigComponent.CategoryAdd": "创建新类型",
