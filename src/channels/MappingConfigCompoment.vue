@@ -88,15 +88,7 @@
               </v-tooltip>
             </v-col>
           </v-row>
-          <v-textarea
-            v-model="categoryRef.categoryExpr"
-            readonly
-            :rows="3"
-            append-outer-icon="mdi-message-outline"
-            :label="$t('MappingConfigComponent.CategoryExpr')"
-            @click="openCategoryExprDialog"
-            @click:append-outer="openCategoryExprDialog"
-          />
+          <v-textarea :rows="1" :readonly="readonly" v-model="categoryRef.categoryExpr" label="Выражение для определения категории" required/>
           <v-row>
             <v-col cols="6">
               <v-autocomplete @input="lovChanged" item-text="name.ru" item-value='identifier' v-model="categoryRef.categoryAttr" :items="lovAttributes" :readonly="readonly" label="Атрибут где находится категория маркетплейса" clearable/>
@@ -149,35 +141,6 @@
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="dialogRef = false">{{ $t('Cancel') }}</v-btn>
               <v-btn color="blue darken-1" text @click="addCategory">{{ $t('Select') }}</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-row>
-    </template>
-    <template>
-      <v-row justify="center" v-if="categoryIdRef">
-        <v-dialog v-model="categoryExprDialogRef" persistent max-width="90%">
-          <v-card>
-            <v-card-title>
-              <span class="headline">{{ $t('MappingConfigComponent.CategoryExpr') }}</span>
-            </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-textarea
-                      v-model="categoryExprDraftRef"
-                      :readonly="readonly"
-                      :rows="15"
-                    ></v-textarea>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="cancelCategoryExpr">{{ $t('Cancel') }}</v-btn>
-              <v-btn color="blue darken-1" text @click="saveCategoryExpr">{{ $t('Save') }}</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -293,8 +256,8 @@ export default {
     const categoryRef = ref(null)
     const channelAttributesRef = ref([])
     const pimAttributesRef = ref([])
-    const categoryExprDialogRef = ref(false)
-    const categoryExprDraftRef = ref('')
+    const exprDialogRef = ref(null)
+    const exprAttrRef = ref(null)
     const relSelectionDialogRef = ref(null)
     const relVideoSelectionDialogRef = ref(null)
     const relVideoCoverSelectionDialogRef = ref(null)
@@ -347,7 +310,7 @@ export default {
         counter++
       }
       dialogRef.value = false
-      categoryRef.value = { id: newCat.id, name: newName, key: newCatId, valid: props.channel.valid || [], visible: [], attributes: [], categoryExpr: '' }
+      categoryRef.value = { id: newCat.id, name: newName, key: newCatId, valid: props.channel.valid || [], visible: [], attributes: [] }
       loadAttributes()
       root.$set(props.channel.mappings, newCatId, categoryRef.value)
       categoryIdRef.value = newCatId
@@ -490,27 +453,6 @@ export default {
       }
     }
 
-    function openCategoryExprDialog () {
-      if (props.readonly || !categoryRef.value) return
-      categoryExprDraftRef.value = categoryRef.value.categoryExpr || ''
-      categoryExprDialogRef.value = true
-    }
-
-    function saveCategoryExpr () {
-      if (!categoryRef.value) return
-      if (Object.prototype.hasOwnProperty.call(categoryRef.value, 'categoryExpr')) {
-        categoryRef.value.categoryExpr = categoryExprDraftRef.value
-      } else {
-        root.$set(categoryRef.value, 'categoryExpr', categoryExprDraftRef.value)
-      }
-      categoryExprDialogRef.value = false
-    }
-
-    function cancelCategoryExpr () {
-      categoryExprDialogRef.value = false
-      categoryExprDraftRef.value = ''
-    }
-
     function categoryToCopySelected (mapping) {
       relCategoryDialogRef.value.closeDialog()
       if (confirm('Все настройки атрибутов будут переписаны. Продолжать?')) {
@@ -584,11 +526,8 @@ export default {
       categoryChanged,
       pimAttributesRef,
       channelAttributesRef,
-      categoryExprDialogRef,
-      categoryExprDraftRef,
-      openCategoryExprDialog,
-      saveCategoryExpr,
-      cancelCategoryExpr,
+      exprDialogRef,
+      exprAttrRef,
       imgRelations,
       vidRelations,
       vidCoverRelations,

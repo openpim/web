@@ -21,17 +21,25 @@
           </v-btn>
         </div>
 
-        <v-list class="copy-dialog__targets" dense>
-          <v-list-item v-for="target in filteredTargets" :key="target.key">
-            <v-checkbox
-              dense
-              hide-details
-              :input-value="selectedKeys.includes(target.key)"
-              :label="target.label"
-              @change="toggleTarget(target.key, $event)"
-            />
-          </v-list-item>
-        </v-list>
+        <div class="copy-dialog__targets">
+          <v-treeview
+            v-if="treeItems.length"
+            v-model="selectedKeys"
+            :items="treeItems"
+            :search="search"
+            :filter="filterItem"
+            :open.sync="openKeys"
+            item-disabled="disabled"
+            selectable
+            selection-type="leaf"
+            dense
+            hoverable
+            selected-color="primary"
+          />
+          <div v-else class="copy-dialog__empty">
+            {{ $t('MappingConfigComponent.CopyAttribute.NoTargets') }}
+          </div>
+        </div>
 
         <v-alert v-if="selectedKeys.length" class="mt-3" dense type="warning" text>
           {{ $t('MappingConfigComponent.CopyAttribute.Summary', { overwrite: overwriteCount, insert: insertCount }) }}
@@ -40,7 +48,7 @@
         <v-alert v-if="incompatibleTargets.length" class="mt-3" dense type="info" text>
           <div>{{ $t('MappingConfigComponent.CopyAttribute.Incompatible') }}</div>
           <div class="copy-dialog__incompatible">
-            {{ incompatibleTargets.map(target => target.label).join(', ') }}
+            {{ incompatibleLabels }}
           </div>
         </v-alert>
       </v-card-text>
@@ -66,7 +74,8 @@ export default {
   data () {
     return {
       search: '',
-      selectedKeys: []
+      selectedKeys: [],
+      openKeys: []
     }
   },
   computed: {
@@ -76,13 +85,29 @@ export default {
     incompatibleTargets () {
       return this.targets.filter(target => target.mode === 'skip')
     },
-    filteredTargets () {
-      const query = this.search.trim().toLocaleLowerCase()
-      if (!query) return this.compatibleTargets
-      return this.compatibleTargets.filter(target => target.label.toLocaleLowerCase().includes(query))
+    incompatibleLabels () {
+      return this.incompatibleTargets.map(target => `${target.channelLabel} → ${target.label}`).join(', ')
+    },
+    treeItems () {
+      const groups = []
+      const groupsById = new Map()
+      for (const target of this.targets) {
+        let group = groupsById.get(target.channelId)
+        if (!group) {
+          group = { id: this.channelNodeId(target.channelId), name: target.channelLabel, children: [] }
+          groupsById.set(target.channelId, group)
+          groups.push(group)
+        }
+        group.children.push({
+          id: target.id,
+          name: target.label,
+          disabled: target.mode === 'skip'
+        })
+      }
+      return groups
     },
     selectedTargets () {
-      return this.compatibleTargets.filter(target => this.selectedKeys.includes(target.key))
+      return this.compatibleTargets.filter(target => this.selectedKeys.includes(target.id))
     },
     overwriteCount () {
       return this.selectedTargets.filter(target => target.mode === 'overwrite').length
@@ -96,16 +121,21 @@ export default {
       if (open) {
         this.search = ''
         this.selectedKeys = []
+        this.openKeys = []
       }
     }
   },
   methods: {
-    toggleTarget (key, selected) {
-      if (selected && !this.selectedKeys.includes(key)) this.selectedKeys = [...this.selectedKeys, key]
-      if (!selected) this.selectedKeys = this.selectedKeys.filter(value => value !== key)
+    channelNodeId (channelId) {
+      return 'channel-' + channelId
+    },
+    filterItem (item, search, textKey) {
+      const query = (search || '').trim().toLocaleLowerCase()
+      if (!query) return true
+      return (item[textKey] || '').toLocaleLowerCase().includes(query)
     },
     selectAll () {
-      this.selectedKeys = this.compatibleTargets.map(target => target.key)
+      this.selectedKeys = this.compatibleTargets.map(target => target.id)
     },
     confirmCopy () {
       if (this.selectedKeys.length === 0) return
@@ -130,6 +160,11 @@ export default {
 .copy-dialog__targets {
   max-height: 320px;
   overflow-y: auto;
+}
+
+.copy-dialog__empty {
+  padding: 12px 0;
+  opacity: 0.6;
 }
 
 .copy-dialog__incompatible {

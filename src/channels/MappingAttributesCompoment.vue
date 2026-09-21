@@ -8,6 +8,7 @@
                     <th class="text-left" style="width:30%">{{$t('MappingConfigComponent.Table.Attribute')}}</th>
                     <th class="text-left">{{$t('MappingConfigComponent.Table.Expression')}}</th>
                     <th v-if="showUpdateFlag" class="text-left" style="width:10%">{{ updateFlagLabel }}</th>
+                    <th class="text-right" style="width:1%"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -43,19 +44,6 @@
                           <v-icon v-on="on" class="ml-0" small>mdi-filter-outline</v-icon>
                         </template>
                         <span>Этот атрибут используется в фильтре на маркетплейсе</span>
-                      </v-tooltip>
-                      <v-tooltip bottom v-if="canCopyMappingRow(i)">
-                        <template v-slot:activator="{ on }">
-                          <v-btn
-                            icon
-                            v-on="on"
-                            :data-testid="`copy-mapping-row-${i}`"
-                            @click.stop="openCopyDialog(i)"
-                          >
-                            <v-icon>mdi-content-copy</v-icon>
-                          </v-btn>
-                        </template>
-                        <span>{{ $t('MappingConfigComponent.CopyAttribute.Action') }}</span>
                       </v-tooltip>
                     </td>
                     <td class="pa-1">
@@ -93,6 +81,21 @@
                         :readonly="readonly"
                         class="mt-0 pt-0"
                       />
+                    </td>
+                    <td class="pa-1 text-right">
+                      <v-tooltip bottom v-if="canCopyMappingRow(i)">
+                        <template v-slot:activator="{ on }">
+                          <v-btn
+                            icon
+                            v-on="on"
+                            :data-testid="`copy-mapping-row-${i}`"
+                            @click.stop="openCopyDialog(i)"
+                          >
+                            <v-icon>mdi-content-copy</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>{{ $t('MappingConfigComponent.CopyAttribute.Action') }}</span>
+                      </v-tooltip>
                     </td>
                   </tr>
                 </tbody>
@@ -157,13 +160,167 @@ import OptionsTable from '../components/OptionsTable.vue'
 import AttributeManageDialog from './AttributeManageDialog.vue'
 import AttributeMappingCopyDialog from './AttributeMappingCopyDialog.vue'
 import AttributeValuesDialog from './AttributeValuesDialog.vue'
-import { copyAttributeMappingToCategories, getAttributeMappingCopyTargets } from './attributeMappingCopy.mjs'
 import i18n from '../i18n'
 import AttributeType from '../constants/attributeTypes'
 import * as attrStore from '../store/attributes'
 import * as errorStore from '../store/error'
 import * as lovStore from '../store/lovs'
 import * as chanStore from '../store/channels'
+
+const COPYABLE_FIELDS = [
+  'attrIdent',
+  'expr',
+  'mapping',
+  'options',
+  'useOzonOnUpdate',
+  'useYandexOnUpdate'
+]
+
+const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value, key)
+
+function cloneJson (value) {
+  if (value === undefined) return undefined
+  return JSON.parse(JSON.stringify(value))
+}
+
+function getRowIdentity (row) {
+  if (row?.value !== undefined && row?.value !== null && row.value !== '') {
+    return { field: 'value', value: String(row.value) }
+  }
+  if (row?.id !== undefined && row?.id !== null) {
+    return { field: 'id', value: String(row.id) }
+  }
+  return null
+}
+
+function hasSameIdentity (row, identity) {
+  if (!identity) return false
+  const candidate = getRowIdentity(row)
+  return candidate?.field === identity.field && candidate.value === identity.value
+}
+
+function findSourceEntry (mappings, sourceCategory) {
+  const entries = Object.entries(mappings || {})
+  return entries.find(([, category]) => category === sourceCategory) ||
+    entries.find(([key, category]) => sourceCategory?.key === key || category?.key === sourceCategory?.key)
+}
+
+function getSourceContext ({ mappings, sourceCategory, sourceIndex }) {
+  const sourceEntry = findSourceEntry(mappings, sourceCategory)
+  const sourceAttributes = sourceCategory?.attributes
+  const sourceRow = Array.isArray(sourceAttributes) ? sourceAttributes[sourceIndex] : null
+  const identity = getRowIdentity(sourceRow)
+  if (!sourceEntry || !sourceRow || !identity) return null
+
+  let ordinal = 0
+  for (let index = 0; index < sourceIndex; index++) {
+    if (hasSameIdentity(sourceAttributes[index], identity)) ordinal++
+  }
+
+  return {
+    sourceKey: sourceEntry[0],
+    sourceRow,
+    identity,
+    ordinal
+  }
+}
+
+function getMatchingIndexes (category, identity) {
+  if (!Array.isArray(category?.attributes)) return []
+  const indexes = []
+  category.attributes.forEach((row, index) => {
+    if (hasSameIdentity(row, identity)) indexes.push(index)
+  })
+  return indexes
+}
+
+function applyCopiedSettings (targetRow, sourceRow) {
+  for (const field of COPYABLE_FIELDS) {
+    if (hasOwn(sourceRow, field)) targetRow[field] = cloneJson(sourceRow[field])
+    else delete targetRow[field]
+  }
+  return targetRow
+}
+
+function getChannelIdentity (channel) {
+  return String(channel?.internalId || channel?.id || '')
+}
+
+function getAttributeMappingCopyTargetsForChannels ({ channels, sourceChannel, sourceCategory, sourceIndex }) {
+  const source = getSourceContext({ mappings: sourceChannel?.mappings, sourceCategory, sourceIndex })
+  if (!source) return []
+
+  const sourceIdentity = getChannelIdentity(sourceChannel)
+  const targets = []
+
+  for (const channel of channels || []) {
+    if (!channel || !channel.mappings) continue
+    const isSourceChannel = getChannelIdentity(channel) === sourceIdentity
+
+    for (const [key, category] of Object.entries(channel.mappings)) {
+      if (key === '_default' || !category || category.deleted) continue
+      if (!Array.isArray(category.attributes)) continue
+      if (isSourceChannel && key === source.sourceKey) continue
+
+      const matchingIndexes = getMatchingIndexes(category, source.identity)
+      const mode = matchingIndexes.length > source.ordinal ? 'overwrite' : 'insert'
+
+      targets.push({
+        id: (isSourceChannel ? 'self' : getChannelIdentity(channel)) + '::' + key,
+        channelId: channel.internalId || channel.id,
+        channel,
+        key,
+        category,
+        mode,
+        reason: null
+      })
+    }
+  }
+
+  return targets
+}
+
+function copyAttributeMappingToTargets ({ sourceChannel, sourceCategory, sourceIndex, targets }) {
+  const result = { copied: 0, overwritten: 0, inserted: 0, skipped: [], changedChannels: [] }
+  const source = getSourceContext({ mappings: sourceChannel?.mappings, sourceCategory, sourceIndex })
+  if (!source) return result
+
+  const readingTime = new Date(Date.now() + 1000).toISOString()
+  const changedChannels = new Map()
+
+  for (const target of targets || []) {
+    const category = target?.category
+    if (!category || !Array.isArray(category.attributes) || !target.channel) {
+      result.skipped.push({ key: target?.id, reason: 'invalid-target' })
+      continue
+    }
+
+    const matchingIndexes = getMatchingIndexes(category, source.identity)
+    if (matchingIndexes.length === 0) {
+      category.attributes.push(cloneJson(source.sourceRow))
+      result.inserted++
+    } else if (matchingIndexes.length > source.ordinal) {
+      const targetIndex = matchingIndexes[source.ordinal]
+      const replacement = applyCopiedSettings(cloneJson(category.attributes[targetIndex]), source.sourceRow)
+      category.attributes.splice(targetIndex, 1, replacement)
+      result.overwritten++
+    } else {
+      const lastMatchingIndex = matchingIndexes[matchingIndexes.length - 1]
+      const newRow = applyCopiedSettings(cloneJson(category.attributes[lastMatchingIndex]), source.sourceRow)
+      category.attributes.splice(lastMatchingIndex + 1, 0, newRow)
+      result.inserted++
+    }
+
+    result.copied++
+    category.readingTime = readingTime
+
+    const channelIdentity = getChannelIdentity(target.channel)
+    if (!changedChannels.has(channelIdentity)) changedChannels.set(channelIdentity, target.channel)
+  }
+
+  result.changedChannels = [...changedChannels.values()]
+  return result
+}
 
 export default {
   components: { OptionsTable, AttributeManageDialog, AttributeMappingCopyDialog, AttributeValuesDialog },
@@ -229,7 +386,11 @@ export default {
     const { showInfo, showError } = errorStore.useStore()
 
     const {
-      getChannelAttributeValues
+      getChannelAttributeValues,
+      channels: allChannels,
+      getAvailableChannels,
+      loadAllChannelsWithMapping,
+      saveChannel
     } = chanStore.useStore()
 
     const exprAttrRef = ref(null)
@@ -275,42 +436,111 @@ export default {
         Object.values(category?.name || {}).find(Boolean) || key
     }
 
+    function channelLabel (channel) {
+      if (!channel) return ''
+      return channel.name?.[currentLanguage.value?.identifier] ||
+        channel.name?.[defaultLanguageIdentifier.value] ||
+        Object.values(channel.name || {}).find(Boolean) ||
+        channel.identifier ||
+        String(channel.internalId || channel.id || '')
+    }
+
+    function channelIdentity (channel) {
+      return String(channel?.internalId || channel?.id || '')
+    }
+
+    function copyTargetChannels () {
+      const type = props.channel?.type
+      if (type == null) return [props.channel]
+
+      const result = []
+      const seen = new Set()
+      const push = (channel, isSource) => {
+        if (!channel || channel.group) return
+        if (!isSource && !channel.internalId) return
+        if (channel.type !== type) return
+        const id = channelIdentity(channel)
+        if (seen.has(id)) return
+        seen.add(id)
+        result.push(channel)
+      }
+
+      push(props.channel, true)
+      for (const channel of getAvailableChannels(true)) push(channel, false)
+      return result
+    }
+
     function mappingCopyTargets (index) {
-      return getAttributeMappingCopyTargets({
-        mappings: props.channel?.mappings,
+      return getAttributeMappingCopyTargetsForChannels({
+        channels: copyTargetChannels(),
+        sourceChannel: props.channel,
         sourceCategory: props.category,
         sourceIndex: index
       })
     }
 
     function canCopyMappingRow (index) {
-      return !props.readonly && !!props.category && mappingCopyTargets(index).length > 0
+      if (props.readonly || !props.category) return false
+      return mappingCopyTargets(index).length > 0
     }
 
-    function openCopyDialog (index) {
+    async function openCopyDialog (index) {
       const row = props.attributes[index]
       copySourceIndex.value = index
       copySourceLabel.value = getAttribute(row?.id)?.name || row?.name || row?.value || row?.id || ''
+
+      if (allChannels.length === 0) {
+        try {
+          await loadAllChannelsWithMapping()
+        } catch (error) {
+          console.error('Failed to load channels for mapping copy', error)
+        }
+      }
+
       copyTargets.value = mappingCopyTargets(index).map(target => ({
         ...target,
+        channelLabel: channelLabel(target.channel),
         label: categoryLabel(target.category, target.key)
       }))
       copyDialogOpen.value = true
     }
 
-    function copyToCategories (targetKeys) {
-      const result = copyAttributeMappingToCategories({
-        mappings: props.channel?.mappings,
+    async function copyToCategories (targetIds) {
+      const selectedTargets = copyTargets.value.filter(target => targetIds.includes(target.id))
+      const result = copyAttributeMappingToTargets({
+        sourceChannel: props.channel,
         sourceCategory: props.category,
         sourceIndex: copySourceIndex.value,
-        targetKeys
+        targets: selectedTargets
       })
-      showInfo(i18n.t('MappingConfigComponent.CopyAttribute.Result', {
+
+      const sourceIdentity = channelIdentity(props.channel)
+      const channelsToSave = result.changedChannels.filter(channel => channel.internalId)
+
+      let savedChannels = 0
+      for (const channel of channelsToSave) {
+        try {
+          await saveChannel(channel)
+          savedChannels++
+        } catch (error) {
+          showError(i18n.t('MappingConfigComponent.CopyAttribute.SaveChannelError', {
+            name: channelLabel(channel),
+            error: error?.message || String(error)
+          }))
+        }
+      }
+
+      const summary = i18n.t('MappingConfigComponent.CopyAttribute.Result', {
         copied: result.copied,
         overwrite: result.overwritten,
         insert: result.inserted,
         skipped: result.skipped.length
-      }))
+      })
+      const currentChannelChanged = result.changedChannels.some(channel => channelIdentity(channel) === sourceIdentity)
+      const messageParts = [summary]
+      if (currentChannelChanged && !props.channel?.internalId) messageParts.push(i18n.t('MappingConfigComponent.CopyAttribute.SaveHint'))
+      if (savedChannels) messageParts.push(i18n.t('MappingConfigComponent.CopyAttribute.SavedChannels', { count: savedChannels }))
+      showInfo(messageParts.join(' '))
     }
 
     function canUseUpdateFlag (attr) {

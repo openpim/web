@@ -413,7 +413,7 @@ export default {
       delete data.channels
 
       categoryRef.value = data
-      categoryRef.value.categoryExpr = ''
+      root.$set(categoryRef.value, 'categoryExpr', categoryRef.value.categoryExpr || '')
 
       if (props.channel.config.supplierCategoryTypes.indexOf(parseInt(categoryRef.value.typeId)) === -1) {
         alert(i18n.t('MappingConfigComponent.IncorrectCategoryTypeSelected'))
@@ -481,11 +481,7 @@ export default {
 
     function saveCategoryExpr () {
       if (!categoryRef.value) return
-      if (Object.prototype.hasOwnProperty.call(categoryRef.value, 'categoryExpr')) {
-        categoryRef.value.categoryExpr = categoryExprDraftRef.value
-      } else {
-        root.$set(categoryRef.value, 'categoryExpr', categoryExprDraftRef.value)
-      }
+      root.$set(categoryRef.value, 'categoryExpr', categoryExprDraftRef.value)
       categoryExprDialogRef.value = false
     }
 
@@ -496,6 +492,9 @@ export default {
 
     function categoryChanged () {
       categoryRef.value = mappedCategories.value.find(elem => elem.id === categoryIdRef.value)
+      if (categoryRef.value && !Object.prototype.hasOwnProperty.call(categoryRef.value, 'categoryExpr')) {
+        root.$set(categoryRef.value, 'categoryExpr', '')
+      }
       // if (categoryRef.value?.categoryAttr) lovChanged(categoryRef.value.categoryAttr)
       loadAttributes()
     }
@@ -516,7 +515,7 @@ export default {
           if (!resp.rows) return
 
           const filteredRows = resp.rows.filter(row => {
-            const ids = String(row.values[masterCategoryAttributeIdentifier.value]).split(',').map(elem => elem.trim())
+            const ids = String(row.values[masterCategoryAttributeIdentifier.value]).split(',')
             return ids.includes(categoryRef.value.identifier)
           })
 
