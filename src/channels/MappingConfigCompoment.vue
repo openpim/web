@@ -130,7 +130,7 @@
                   <v-col cols="12">
                     <template v-if="categoriesTreeRef">
                       <v-text-field v-model="treeSearchRef" label="Поиск" flat hide-details clearable clear-icon="mdi-close-circle-outline"></v-text-field>
-                      <v-treeview class="scroll-body" :search="treeSearchRef" dense hoverable activatable :active.sync="treeActiveRef" :items="categoriesTreeRef.children"></v-treeview>
+                      <v-treeview class="scroll-body" :search="treeSearchRef" dense hoverable activatable :active.sync="treeActiveRef" :items="categoriesTreeRef.children" :load-children="channelFactory.hasLazyCategories ? loadChildren : undefined"></v-treeview>
                     </template>
                     <v-autocomplete v-else dense v-model="newCategoryIdRef" :items="availableCategories" item-text="name" item-value="id" :label="$t('MappingConfigComponent.Add.Category')"></v-autocomplete>
                   </v-col>
@@ -220,7 +220,8 @@ export default {
 
     const {
       getChannelCategories,
-      getChannelAttributes
+      getChannelAttributes,
+      getChannelSubCategories
     } = channelsStore.useStore()
 
     const {
@@ -280,6 +281,17 @@ export default {
       }
     }
 
+    // lazy loading of nested categories (e.g. DNS: class -> specs)
+    async function loadChildren (item) {
+      if (!item || !Array.isArray(item.children)) return
+      try {
+        const children = await getChannelSubCategories(props.channel.internalId, item.id)
+        if (children && children.length > 0) item.children.push(...children)
+      } catch (error) {
+        showError(error.message)
+      }
+    }
+
     function add () {
       newCategoryIdRef.value = null
       dialogRef.value = true
@@ -292,7 +304,14 @@ export default {
         if (treeActiveRef.value.length === 0) return
         const parents = []
         newCat = findNodeByComparator(treeActiveRef.value[0], categoriesTreeRef.value.children, parents, (id, item) => item.id === id)
-        if (newCat.children && newCat.children.length > 0) return
+        if (newCat.children && newCat.children.length > 0) {
+          showError('Выберите конечную категорию (спецификацию), а не группу классов')
+          return
+        }
+        if (newCat.lazy) {
+          showError('Разверните класс (стрелка слева) и выберите спецификацию')
+          return
+        }
         const fulName = parents.join('\\')
         newName = fulName + '\\' + newCat.name
       } else {
@@ -550,6 +569,7 @@ export default {
       relCategoryDialogRef,
       categoryToCopySelected,
       relations,
+      loadChildren,
       channelFactory: getChannelFactory(props.channel.type)
     }
   }

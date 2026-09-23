@@ -196,10 +196,11 @@ import MDMConfigCompoment from '../../channels/mdm/MDMConfigComponent'
 import MDMExtConfigCompoment from '../../channels/mdmExt/MDMExtConfigComponent'
 import XLSTemplConfigCompoment from '../../channels/xlsTemplate/XLSTemplConfigCompoment.vue'
 import YandexConfigCompoment from '../../channels/yandex/YandexConfigCompoment.vue'
+import DnsConfigCompoment from '../../channels/dns/DnsConfigCompoment.vue'
 import OptionsTable from '../../components/OptionsTable'
 
 export default {
-  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment, YMConfigCompoment, ExtMapConfigCompoment, MDMConfigCompoment, MDMExtConfigCompoment, XLSTemplConfigCompoment, YandexConfigCompoment, OptionsTable },
+  components: { LanguageDependentField, SystemInformation, ExtConfigCompoment, WBConfigCompoment, ValidVisibleComponent, OzonConfigCompoment, YMConfigCompoment, ExtMapConfigCompoment, MDMConfigCompoment, MDMExtConfigCompoment, XLSTemplConfigCompoment, YandexConfigCompoment, DnsConfigCompoment, OptionsTable },
   setup (props, { root }) {
     const { canViewConfig, canEditConfig } = userStore.useStore()
     const {
@@ -481,7 +482,8 @@ export default {
       { value: 6, text: i18n.t('Channels.Type.MDM') },
       { value: 7, text: i18n.t('Channels.Type.ExcelTemplate') },
       { value: 8, text: i18n.t('Channels.Type.MDM.External') },
-      { value: 9, text: i18n.t('Channels.Type.Yandex') }
+      { value: 9, text: i18n.t('Channels.Type.Yandex') },
+      { value: 10, text: i18n.t('Channels.Type.DNS') }
     ])
 
     function optionsChanged (val) {

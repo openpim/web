@@ -627,6 +627,7 @@
   "Channels.Type.MDM.External": "Master data (external)",
   "Channels.Type.ExcelTemplate": "Excel Template",
   "Channels.Type.Yandex": "Yandex",
+  "Channels.Type.DNS": "DNS",
   "Channels.SelectionDialog.Title": "Channels selection",
   "ChannelView.Dashboard": "Dashboard",
   "ChannelView.Executions": "Executions",

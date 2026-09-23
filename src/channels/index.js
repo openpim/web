@@ -7,6 +7,7 @@ import MDMFactory from './mdm'
 import MDMExternalFactory from './mdmExt'
 import XLSTemplFactory from './xlsTemplate'
 import YandexFactory from './yandex'
+import DnsFactory from './dns'
 
 function getConfigCompoment () { return null }
 function getStandardAttributes () { return null }
@@ -15,6 +16,7 @@ const empty = {
   hasExecutions: false,
   hasItemSync: false,
   canManageAttributes: false,
+  hasLazyCategories: false,
   getConfigCompoment,
   getStandardAttributes
 }
@@ -30,6 +32,7 @@ export default function getChannelFactory (type) {
     case 7: return XLSTemplFactory
     case 8: return MDMExternalFactory
     case 9: return YandexFactory
+    case 10: return DnsFactory
     default: return empty
   }
 }
