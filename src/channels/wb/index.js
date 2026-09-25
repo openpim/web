@@ -86,6 +86,12 @@ function getStandardAttributes () {
       required: false,
       dictionary: false,
       description: 'Подтверждение, что на товар нанесён обязательный код маркировки Честного знака: true — продавец подтверждает, что на товар нанесён обязательный код маркировки. false — продавец не подтверждает, что на товар нанесён обязательный код маркировки.'
+    },
+    {
+      id: '#documents',
+      name: 'Документы',
+      required: false,
+      dictionary: false
     }
   ]
 }
