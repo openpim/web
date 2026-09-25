@@ -30,7 +30,6 @@ export default {
   hasExecutions: true,
   hasItemSync: true,
   canManageAttributes: true,
-  hasLazyCategories: true,
   getConfigCompoment,
   getStandardAttributes
 }

@@ -16,7 +16,6 @@ const empty = {
   hasExecutions: false,
   hasItemSync: false,
   canManageAttributes: false,
-  hasLazyCategories: false,
   getConfigCompoment,
   getStandardAttributes
 }

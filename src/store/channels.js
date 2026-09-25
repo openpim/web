@@ -260,10 +260,6 @@ const actions = {
     const data = await serverFetch('query { getChannelCategories(id: "' + channelId + '") { list {id name} tree } }')
     return data.getChannelCategories
   },
-  getChannelSubCategories: async (channelId, nodeId) => {
-    const data = await serverFetch('query { getChannelSubCategories(channelId: "' + channelId + '", nodeId: "' + nodeId + '") }')
-    return data.getChannelSubCategories
-  },
   getChannelAttributes: async (channelId, categoryId) => {
     const data = await serverFetch('query { getChannelAttributes(channelId: "' + channelId + '", categoryId: "' + categoryId + '") {id name category required filtering allowCustomValues dictionary description dictionaryLink dictionaryLinkPost} }')
     return data.getChannelAttributes
