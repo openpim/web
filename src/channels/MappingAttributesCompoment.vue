@@ -1,5 +1,15 @@
 <template>
   <div>
+          <v-text-field
+            v-if="channelAttributes && channelAttributes.length > 0"
+            dense
+            clearable
+            hide-details
+            class="mb-3"
+            append-icon="mdi-magnify"
+            :label="$t('Search')"
+            @input="updateMappingSearch"
+          />
           <v-simple-table dense class="mb-4" v-if="channelAttributes && channelAttributes.length > 0">
               <template v-slot:default>
                 <thead>
@@ -12,7 +22,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(elem, i) in attributes" :key="i" :set="attr = getAttribute(elem.id)">
+                  <tr v-for="row in filteredAttributes" :key="row.index" :set="attr = getAttribute(row.item.id)">
                     <td class="pa-1">
                       <v-tooltip bottom v-if="attr.description" color="blue-grey darken-4">
                         <template v-slot:activator="{ on }">
@@ -20,16 +30,16 @@
                         </template>
                         <span>{{ attr.description }}</span>
                       </v-tooltip>
-                      <span :class="attr.required ? 'font-weight-bold' : ''"  @click="showHelp(i)">{{ attr.name }}</span>
+                      <span :class="attr.required ? 'font-weight-bold' : ''"  @click="showHelp(row.index)">{{ attr.name }}</span>
                       <v-tooltip bottom v-if="showValuesList">
                         <template v-slot:activator="{ on }">
-                          <v-btn icon v-on="on" @click="showAttrValuesDialog(elem.value)"><v-icon>mdi-arrow-top-right</v-icon></v-btn>
+                          <v-btn icon v-on="on" @click="showAttrValuesDialog(row.item.value)"><v-icon>mdi-arrow-top-right</v-icon></v-btn>
                         </template>
                         <span>{{ 'Show values' }}</span>
                       </v-tooltip>
                       <v-tooltip bottom v-if="attr.dictionaryLink">
                         <template v-slot:activator="{ on }">
-                          <v-btn icon v-on="on" @click="openWindow(i)"><v-icon>mdi-arrow-top-right</v-icon></v-btn>
+                          <v-btn icon v-on="on" @click="openWindow(row.index)"><v-icon>mdi-arrow-top-right</v-icon></v-btn>
                         </template>
                         <span>{{ $t('MappingConfigComponent.Table.DictionaryLink') + ' - ' + attr.dictionaryLink}}</span>
                       </v-tooltip>
@@ -48,34 +58,34 @@
                     </td>
                     <td class="pa-1">
                       <v-row>
-                        <v-autocomplete dense :readonly="readonly" v-model="attributes[i].attrIdent" :items="pimAttributesAll" clearable :append-outer-icon="canManageAttributes ? 'mdi-format-list-bulleted-type' : ''" @click:append-outer="manageAttribute(i, attributes[i])"></v-autocomplete>
+                        <v-autocomplete dense :readonly="readonly" v-model="attributes[row.index].attrIdent" :items="pimAttributesAll" clearable :append-outer-icon="canManageAttributes ? 'mdi-format-list-bulleted-type' : ''" @click:append-outer="manageAttribute(row.index, attributes[row.index])"></v-autocomplete>
                         <v-tooltip bottom v-if="supportMultiValues">
                           <template v-slot:activator="{ on }">
-                            <v-btn icon v-on="on" @click="addMapping(i)"><v-icon>mdi-plus</v-icon></v-btn>
+                            <v-btn icon v-on="on" @click="addMapping(row.index)"><v-icon>mdi-plus</v-icon></v-btn>
                           </template>
                           <span>{{ $t('MappingConfigComponent.AddMapping') }}</span>
                         </v-tooltip>
                         <v-tooltip bottom v-if="supportMultiValues">
                           <template v-slot:activator="{ on }">
-                            <v-btn icon v-on="on" @click="removeMapping(i)"><v-icon>mdi-minus</v-icon></v-btn>
+                            <v-btn icon v-on="on" @click="removeMapping(row.index)"><v-icon>mdi-minus</v-icon></v-btn>
                           </template>
                           <span>{{ $t('MappingConfigComponent.RemoveMapping') }}</span>
                         </v-tooltip>
                       </v-row>
                     </td>
                     <td class="pa-1">
-                      <v-text-field v-if="!canManageOrder" v-model="attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[i])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[i])" />
+                      <v-text-field v-if="!canManageOrder" v-model="attributes[row.index].expr" dense :readonly="readonly" class="ml-3 mr-3" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[row.index])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[row.index])" />
                       <template v-if="canManageOrder">
-                        <v-text-field v-model="attributes[i].expr" dense :readonly="readonly" class="ml-3 mr-3 d-inline-flex" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[i])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[i])" />
-                        <v-btn icon @click="up(i)" class="d-inline-flex"><v-icon>mdi-arrow-up-circle-outline</v-icon></v-btn>
-                        <v-btn icon @click="down(i)" class="d-inline-flex"><v-icon>mdi-arrow-down-circle-outline</v-icon></v-btn>
-                        <v-btn icon @click="remove(i)" class="d-inline-flex"><v-icon>mdi-minus-circle-outline</v-icon></v-btn>
+                        <v-text-field v-model="attributes[row.index].expr" dense :readonly="readonly" class="ml-3 mr-3 d-inline-flex" :prepend-icon="attr.dictionaryLink ? 'mdi-arrow-top-right' : ''" @click:prepend="showOptions(attributes[row.index])" append-outer-icon="mdi-message-outline" @click:append-outer="showExpression(attributes[row.index])" />
+                        <v-btn icon @click="up(row.index)" class="d-inline-flex"><v-icon>mdi-arrow-up-circle-outline</v-icon></v-btn>
+                        <v-btn icon @click="down(row.index)" class="d-inline-flex"><v-icon>mdi-arrow-down-circle-outline</v-icon></v-btn>
+                        <v-btn icon @click="remove(row.index)" class="d-inline-flex"><v-icon>mdi-minus-circle-outline</v-icon></v-btn>
                       </template>
                     </td>
                     <td v-if="showUpdateFlag" class="pa-1">
                       <v-checkbox
                         v-if="canUseUpdateFlag(attr)"
-                        v-model="attributes[i][updateFlagField]"
+                        v-model="attributes[row.index][updateFlagField]"
                         dense
                         hide-details
                         :readonly="readonly"
@@ -83,13 +93,13 @@
                       />
                     </td>
                     <td class="pa-1 text-right">
-                      <v-tooltip bottom v-if="canCopyMappingRow(i)">
+                      <v-tooltip bottom v-if="canCopyMappingRow(row.index)">
                         <template v-slot:activator="{ on }">
                           <v-btn
                             icon
                             v-on="on"
-                            :data-testid="`copy-mapping-row-${i}`"
-                            @click.stop="openCopyDialog(i)"
+                            :data-testid="`copy-mapping-row-${row.index}`"
+                            @click.stop="openCopyDialog(row.index)"
                           >
                             <v-icon>mdi-content-copy</v-icon>
                           </v-btn>
@@ -154,7 +164,7 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, computed } from '@vue/composition-api'
+import { ref, onMounted, onUnmounted, computed } from '@vue/composition-api'
 import * as langStore from '../store/languages'
 import OptionsTable from '../components/OptionsTable.vue'
 import AttributeManageDialog from './AttributeManageDialog.vue'
@@ -399,6 +409,21 @@ export default {
     const optDialogRef = ref(null)
     const attrManageDialogRef = ref(null)
     const attrValuesDialogRef = ref(null)
+    const appliedMappingSearchRef = ref('')
+    let mappingSearchTimer = null
+
+    function updateMappingSearch (value) {
+      if (mappingSearchTimer) clearTimeout(mappingSearchTimer)
+      mappingSearchTimer = setTimeout(() => {
+        appliedMappingSearchRef.value = value || ''
+        mappingSearchTimer = null
+      }, 500)
+    }
+
+    onUnmounted(() => {
+      if (mappingSearchTimer) clearTimeout(mappingSearchTimer)
+    })
+
     const copyDialogOpen = ref(false)
     const copySourceIndex = ref(-1)
     const copySourceLabel = ref('')
@@ -636,6 +661,66 @@ export default {
       return props.pimAttributes.concat(missingAttrs)
     })
 
+    const pimAttributeOptionsByIdentifier = computed(() => {
+      return new Map(pimAttributesAll.value.map(option => [option.value, option]))
+    })
+
+    const pimAttributesByIdentifier = computed(() => {
+      const attributesByIdentifier = new Map()
+      groups.forEach(group => {
+        const groupAttributes = group.attributes || []
+        groupAttributes.forEach(attribute => {
+          attributesByIdentifier.set(attribute.identifier, attribute)
+        })
+      })
+      return attributesByIdentifier
+    })
+
+    function collectSearchText (value, values = []) {
+      if (value === null || value === undefined) return values
+      if (Array.isArray(value)) value.forEach(item => collectSearchText(item, values))
+      else if (typeof value === 'object') Object.values(value).forEach(item => collectSearchText(item, values))
+      else values.push(String(value))
+      return values
+    }
+
+    const searchableAttributes = computed(() => {
+      return props.attributes.map((item, index) => {
+        const channelAttribute = getAttribute(item.id)
+        const pimOption = pimAttributeOptionsByIdentifier.value.get(item.attrIdent)
+        const pimIdentifier = String(item.attrIdent || '').split('#')[0]
+        const pimAttribute = pimAttributesByIdentifier.value.get(pimIdentifier)
+        const pimDescriptions = (pimAttribute?.options || [])
+          .filter(option => option?.name === 'description')
+          .map(option => option.value)
+        const rowValues = Object.keys(item)
+          .map(key => item[key])
+          .filter(value => value === null || value === undefined || typeof value !== 'object')
+        const searchText = collectSearchText([
+          rowValues,
+          channelAttribute?.id,
+          channelAttribute?.value,
+          channelAttribute?.identifier,
+          channelAttribute?.name,
+          channelAttribute?.description,
+          channelAttribute?.dictionaryLink,
+          pimOption?.value,
+          pimOption?.text,
+          pimAttribute?.identifier,
+          pimAttribute?.name,
+          pimDescriptions
+        ]).join(' ').toLocaleLowerCase()
+
+        return { item, index, searchText }
+      })
+    })
+
+    const filteredAttributes = computed(() => {
+      const query = (appliedMappingSearchRef.value || '').trim().toLocaleLowerCase()
+      if (!query) return props.attributes.map((item, index) => ({ item, index }))
+      return searchableAttributes.value.filter(row => row.searchText.includes(query))
+    })
+
     async function manageAttribute (i, attrMapping) {
       if (attrMapping.expr && !confirm(i18n.t('MappingConfigComponent.Attr.ConfirmExist'))) return
 
@@ -701,8 +786,12 @@ export default {
                   pimAttr.lov = parseInt(tst.internalId || tst.id)
                 } else if (confirm(i18n.t('AttributeManageDialog.ConfirmDictionary'))) {
                   const lov = { identifier: catAttrId, id: Date.now(), internalId: 0, name: name, values: [] }
+                  const language = currentLanguage.value.identifier
                   ;[json.result, json.values].forEach(arr => arr?.forEach(elem => {
-                    const val = { [currentLanguage.value.identifier]: elem.value }
+                    // Словарь канала может вернуть элемент без значения (например DNS без title).
+                    // undefined в JSONObject ломает валидацию мутации, поэтому такие элементы пропускаем.
+                    if (!elem || elem.value === undefined || elem.value === null) return
+                    const val = { [language]: elem.value }
                     lov.values.push({ id: elem.id, value: val })
                   }))
                   await saveLOV(lov)
@@ -782,6 +871,8 @@ export default {
       down,
       remove,
       pimAttributesAll,
+      updateMappingSearch,
+      filteredAttributes,
       addMapping,
       removeMapping,
       copyDialogOpen,
