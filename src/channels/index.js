@@ -8,6 +8,7 @@ import MDMExternalFactory from './mdmExt'
 import XLSTemplFactory from './xlsTemplate'
 import YandexFactory from './yandex'
 import DnsFactory from './dns'
+import MVideoFactory from './mvideo'
 
 function getConfigCompoment () { return null }
 function getStandardAttributes () { return null }
@@ -32,6 +33,7 @@ export default function getChannelFactory (type) {
     case 8: return MDMExternalFactory
     case 9: return YandexFactory
     case 10: return DnsFactory
+    case 11: return MVideoFactory
     default: return empty
   }
 }

@@ -628,6 +628,7 @@
   "Channels.Type.ExcelTemplate": "Excel Template",
   "Channels.Type.Yandex": "Yandex",
   "Channels.Type.DNS": "DNS",
+  "Channels.Type.MVideo": "MVideo",
   "Channels.SelectionDialog.Title": "Channels selection",
   "ChannelView.Dashboard": "Dashboard",
   "ChannelView.Executions": "Executions",
