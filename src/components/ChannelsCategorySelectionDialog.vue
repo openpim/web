@@ -9,7 +9,7 @@
           <v-row>
             <v-col cols="12">
               <v-text-field v-model="searchRef" :label="$t('Filter')" flat hide-details clearable clear-icon="mdi-close-circle-outline" class="ml-5 mr-5"></v-text-field>
-              <v-treeview :search="searchRef" dense activatable hoverable :items="itemsRef" :active.sync="activeRef" :open="openRef">
+              <v-treeview :search="searchRef" item-text="name" dense activatable hoverable :items="itemsRef" :active.sync="activeRef" :open.sync="openRef">
                 <template v-slot:prepend="{ item }">
                   <v-icon v-if="item.channel">mdi-access-point</v-icon>
                 </template>
@@ -24,13 +24,13 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="selectionDialogRef = false">{{ $t('Cancel') }}</v-btn>
-        <v-btn color="blue darken-1" text @click="selected" :disabled='activeRef.length===0 || activeRef[0].startsWith("CHAN")'>{{ $t('Select') }}</v-btn>
+        <v-btn color="blue darken-1" text @click="selected" :disabled="!selectedMapping">{{ $t('Select') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 <script>
-import { ref } from '@vue/composition-api'
+import { ref, computed } from '@vue/composition-api'
 import { buildChannelMappingCopyItems, findChannelMappingBySelection } from '../channels/mappingUtils'
 import * as channelsStore from '../store/channels'
 import * as langStore from '../store/languages'
@@ -53,19 +53,18 @@ export default {
     } = langStore.useStore()
 
     const {
-      channels,
       getAvailableChannelsWithGroups,
-      loadAllChannels
+      loadAllChannelsWithMapping
     } = channelsStore.useStore()
 
     const selectionDialogRef = ref(false)
     const itemsRef = ref([])
     const activeRef = ref([])
     const openRef = ref([])
+    const selectedMapping = computed(() => findChannelMappingBySelection(itemsRef.value, activeRef.value[0]))
 
     function selected () {
-      const mapping = findChannelMappingBySelection(itemsRef.value, activeRef.value[0])
-      emit('selected', mapping)
+      if (selectedMapping.value) emit('selected', selectedMapping.value)
     }
 
     const searchRef = ref('')
@@ -78,20 +77,15 @@ export default {
       )
     }
 
-    function showDialog () {
-      if (channels.length === 0) {
-        loadAllChannels().then(() => {
-          selectionDialogRef.value = true
-          let tmp = getAvailableChannelsWithGroups(props.editAccessOnly)
-          if (props.channelType) tmp = tmp.filter(channel => channel.type === props.channelType)
-          buildItems(tmp)
-        })
-      } else {
-        selectionDialogRef.value = true
-        let tmp = getAvailableChannelsWithGroups(props.editAccessOnly)
-        if (props.channelType) tmp = tmp.filter(channel => channel.type === props.channelType)
-        buildItems(tmp)
-      }
+    async function showDialog () {
+      activeRef.value = []
+      openRef.value = []
+      searchRef.value = ''
+      await loadAllChannelsWithMapping()
+      let tmp = getAvailableChannelsWithGroups(props.editAccessOnly)
+      if (props.channelType != null) tmp = tmp.filter(channel => Number(channel.type) === Number(props.channelType))
+      buildItems(tmp)
+      selectionDialogRef.value = true
     }
 
     function closeDialog () {
@@ -105,6 +99,7 @@ export default {
       searchRef,
       selectionDialogRef,
       selected,
+      selectedMapping,
       showDialog,
       closeDialog,
       currentLanguage,

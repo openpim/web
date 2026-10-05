@@ -149,6 +149,7 @@ import * as userStore from '../../store/users'
 import ValidVisibleComponent from '../../components/ValidVisibleComponent'
 import RelationsSelectionDialog from '../../components/RelationsSelectionDialog'
 import MappingAttributesCompoment from '../MappingAttributesCompoment'
+import { copyCategoryAttributeSettings } from '../mappingUtils'
 import ChannelsCategorySelectionDialog from '../../components/ChannelsCategorySelectionDialog.vue'
 
 import i18n from '../../i18n'
@@ -292,15 +293,9 @@ export default {
 
     function categoryToCopySelected (mapping) {
       relCategoryDialogRef.value.closeDialog()
+      if (props.readonly || !mapping || !categoryRef.value) return
       if (confirm(i18n.t('MappingConfigComponent.CopyMappingConfirmation'))) {
-        for (let i = 0; i < categoryRef.value.attributes.length; i++) {
-          const attr = categoryRef.value.attributes[i]
-          const tst = mapping.attributes.find(elem => elem.id === attr.id)
-          if (tst) {
-            attr.attrIdent = tst.attrIdent
-            attr.expr = tst.expr
-          }
-        }
+        copyCategoryAttributeSettings(mapping, categoryRef.value)
       }
     }
 

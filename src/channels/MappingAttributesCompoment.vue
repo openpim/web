@@ -295,7 +295,6 @@ function copyAttributeMappingToTargets ({ sourceChannel, sourceCategory, sourceI
   const source = getSourceContext({ mappings: sourceChannel?.mappings, sourceCategory, sourceIndex })
   if (!source) return result
 
-  const readingTime = new Date(Date.now() + 1000).toISOString()
   const changedChannels = new Map()
 
   for (const target of targets || []) {
@@ -322,7 +321,7 @@ function copyAttributeMappingToTargets ({ sourceChannel, sourceCategory, sourceI
     }
 
     result.copied++
-    category.readingTime = readingTime
+    if (target.channel.type === 2 || target.channel.type === 3) category.changed = true
 
     const channelIdentity = getChannelIdentity(target.channel)
     if (!changedChannels.has(channelIdentity)) changedChannels.set(channelIdentity, target.channel)
@@ -531,6 +530,7 @@ export default {
     }
 
     async function copyToCategories (targetIds) {
+      if (props.readonly) return
       const selectedTargets = copyTargets.value.filter(target => targetIds.includes(target.id))
       const result = copyAttributeMappingToTargets({
         sourceChannel: props.channel,
@@ -543,17 +543,28 @@ export default {
       const channelsToSave = result.changedChannels.filter(channel => channel.internalId)
 
       let savedChannels = 0
+      let failedChannels = 0
       for (const channel of channelsToSave) {
         try {
           await saveChannel(channel)
+          const readingTime = new Date(Date.now() + 1000).toISOString()
+          for (const target of selectedTargets.filter(target => target.channel === channel)) {
+            if (channel.type === 2 || channel.type === 3) {
+              root.$delete(target.category, 'changed')
+              root.$set(target.category, 'readingTime', readingTime)
+            }
+          }
           savedChannels++
         } catch (error) {
+          failedChannels++
           showError(i18n.t('MappingConfigComponent.CopyAttribute.SaveChannelError', {
             name: channelLabel(channel),
             error: error?.message || String(error)
           }))
         }
       }
+
+      if (failedChannels > 0) return
 
       const summary = i18n.t('MappingConfigComponent.CopyAttribute.Result', {
         copied: result.copied,

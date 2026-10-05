@@ -165,7 +165,7 @@ import ValidVisibleComponent from '../components/ValidVisibleComponent'
 import RelationsSelectionDialog from '../components/RelationsSelectionDialog'
 import MappingAttributesCompoment from './MappingAttributesCompoment'
 import ChannelsCategorySelectionDialog from '../components/ChannelsCategorySelectionDialog.vue'
-import { getChannelAttributeCategoryId } from './mappingUtils'
+import { getChannelAttributeCategoryId, copyCategoryAttributeSettings } from './mappingUtils'
 
 import i18n from '../i18n'
 import getChannelFactory from '../channels'
@@ -462,15 +462,10 @@ export default {
 
     function categoryToCopySelected (mapping) {
       relCategoryDialogRef.value.closeDialog()
+      if (props.readonly || !mapping || !categoryRef.value) return
       if (confirm('Все настройки атрибутов будут переписаны. Продолжать?')) {
-        for (let i = 0; i < categoryRef.value.attributes.length; i++) {
-          const attr = categoryRef.value.attributes[i]
-          const tst = mapping.attributes.find(elem => elem.id === attr.id)
-          if (tst) {
-            attr.attrIdent = tst.attrIdent
-            attr.expr = tst.expr
-          }
-        }
+        copyCategoryAttributeSettings(mapping, categoryRef.value)
+        if (props.channel.type === 2 || props.channel.type === 3) root.$set(categoryRef.value, 'changed', true)
       }
     }
 

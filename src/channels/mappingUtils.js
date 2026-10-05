@@ -36,10 +36,11 @@ export function buildChannelMappingCopyItems (channels, currentLanguageIdentifie
     if (channel.mappings) {
       for (const prop in channel.mappings) {
         const mapping = channel.mappings[prop]
+        if (!mapping || mapping.deleted) continue
         const mappingKey = getMappingStorageKey(mapping, prop)
         obj.children.push({
           id: channelId + '_' + mappingKey,
-          name: mapping.name,
+          name: getLocalizedName(mapping.name, currentLanguageIdentifier, defaultLanguageIdentifier, mappingKey),
           mapping: mapping
         })
       }
@@ -49,6 +50,34 @@ export function buildChannelMappingCopyItems (channels, currentLanguageIdentifie
   }
 
   return data
+}
+
+export function copyCategoryAttributeSettings (source, target) {
+  if (!Array.isArray(source?.attributes) || !Array.isArray(target?.attributes)) return
+  const identity = row => row?.value != null && row.value !== ''
+    ? 'value:' + String(row.value)
+    : row?.id != null ? 'id:' + String(row.id) : null
+  const sources = new Map()
+  for (const row of JSON.parse(JSON.stringify(source.attributes))) {
+    const key = identity(row)
+    if (!key) continue
+    if (!sources.has(key)) sources.set(key, [])
+    sources.get(key).push(row)
+  }
+  const ordinals = new Map()
+  target.attributes.forEach((row, index) => {
+    const key = identity(row)
+    const ordinal = ordinals.get(key) || 0
+    ordinals.set(key, ordinal + 1)
+    const copied = sources.get(key)?.[ordinal]
+    if (!copied) return
+    const replacement = { ...row }
+    for (const field of ['attrIdent', 'expr', 'mapping', 'options', 'useOzonOnUpdate', 'useYandexOnUpdate']) {
+      if (Object.prototype.hasOwnProperty.call(copied, field)) replacement[field] = copied[field]
+      else delete replacement[field]
+    }
+    target.attributes.splice(index, 1, replacement)
+  })
 }
 
 export function findChannelMappingBySelection (items, selectedValue) {

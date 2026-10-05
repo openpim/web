@@ -85,6 +85,7 @@ import * as relStore from '../../store/relations'
 import * as userStore from '../../store/users'
 import ValidVisibleComponent from '../../components/ValidVisibleComponent'
 import MappingAttributesCompoment from '../MappingAttributesCompoment'
+import { copyCategoryAttributeSettings } from '../mappingUtils'
 import ChannelsCategorySelectionDialog from '../../components/ChannelsCategorySelectionDialog.vue'
 import YMAdditionalParams from '../ym/YMAdditionalParams.vue'
 
@@ -282,16 +283,10 @@ export default {
 
     function categoryToCopySelected (mapping) {
       relCategoryDialogRef.value.closeDialog()
+      if (props.readonly || !mapping || !categoryRef.value) return
       if (confirm('Все настройки атрибутов будут переписаны. Продолжать?')) {
-        for (let i = 0; i < categoryRef.value.attributes.length; i++) {
-          const attr = categoryRef.value.attributes[i]
-          const tst = mapping.attributes.find(elem => elem.id === attr.id)
-          if (tst) {
-            attr.attrIdent = tst.attrIdent
-            attr.expr = tst.expr
-          }
-        }
-        categoryRef.value.params = mapping.params
+        copyCategoryAttributeSettings(mapping, categoryRef.value)
+        root.$set(categoryRef.value, 'params', JSON.parse(JSON.stringify(mapping.params || [])))
       }
     }
 
