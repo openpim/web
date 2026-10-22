@@ -45,6 +45,7 @@ import * as channelsStore from '../../store/channels'
 import i18n from '../../i18n'
 import * as userStore from '../../store/users'
 import router from '../../router'
+import { navigateConfig } from '../../utils/configNavigation'
 import LOVViewComponent from '../../components/LOVViewComponent.vue'
 import newLOVGenerator from '../../_customizations/lovs/newLOVGenerator'
 
@@ -90,23 +91,23 @@ export default {
       // if (typeof (previous) === 'undefined') return
       if (selected == null) {
         selectedRef.value = empty
-        router.push('/config/lovs')
+        navigateConfig(router, '/config/lovs')
         return
       }
       const arr = lovsFiltered.value
-      if (selected < arr.length) {
-        if (previous && arr[previous].internalId === 0) {
+      if (Number.isInteger(selected) && selected >= 0 && selected < arr.length) {
+        if (previous != null && selectedRef.value && selectedRef.value.internalId === 0) {
           showInfo(i18n.t('Config.NotSaved'))
         }
         selectedRef.value = arr[selected]
         checkOldValues()
         if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
-          router.push('/config/lovs/' + selectedRef.value.identifier)
+          navigateConfig(router, '/config/lovs/' + selectedRef.value.identifier)
         } else {
-          router.push('/config/lovs')
+          navigateConfig(router, '/config/lovs')
         }
       }
-    })
+    }, { lazy: true })
 
     function checkOldValues () {
       selectedRef.value.values.forEach(elem => {
@@ -171,7 +172,7 @@ export default {
             checkOldValues()
             itemRef.value = idx
           } else {
-            router.push('/config/lovs')
+            navigateConfig(router, '/config/lovs')
           }
         }
       })

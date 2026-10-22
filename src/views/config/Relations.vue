@@ -91,6 +91,7 @@ import * as errorStore from '../../store/error'
 import * as typesStore from '../../store/types'
 import i18n from '../../i18n'
 import router from '../../router'
+import { navigateConfig } from '../../utils/configNavigation'
 import TypeSelectionDialog from '../../components/TypeSelectionDialog'
 import * as langStore from '../../store/languages'
 import LanguageDependentField from '../../components/LanguageDependentField'
@@ -132,38 +133,19 @@ export default {
     const formRef = ref(null)
     const typeSelectionDialogRef = ref(null)
     const selectedRef = ref(empty)
-    const itemRef = ref(0)
+    const itemRef = ref(null)
     const sources = computed(() => {
-      if (selectedRef.value.sources) {
-        return selectedRef.value.sources.map((id) => findType(id).node)
+      if (selectedRef.value && selectedRef.value.sources) {
+        return selectedRef.value.sources.map((id) => findType(id).node).filter(Boolean)
       } else {
         return []
       }
     })
     const targets = computed(() => {
-      if (selectedRef.value.targets) {
-        return selectedRef.value.targets.map((id) => findType(id).node)
+      if (selectedRef.value && selectedRef.value.targets) {
+        return selectedRef.value.targets.map((id) => findType(id).node).filter(Boolean)
       } else {
         return []
-      }
-    })
-
-    watch(itemRef, (selected, previous) => {
-      if (selected == null) {
-        selectedRef.value = empty
-        router.push('/config/relations')
-        return
-      }
-      if (selected < relationsFiltered.value.length) {
-        if (previous && relationsFiltered.value[previous].internalId === 0) {
-          showInfo(i18n.t('Config.NotSaved'))
-        }
-        selectedRef.value = relationsFiltered.value[selected]
-        if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
-          router.push('/config/relations/' + selectedRef.value.identifier)
-        } else {
-          router.push('/config/relations')
-        }
       }
     })
 
@@ -174,7 +156,7 @@ export default {
 
     function save () {
       if (formRef.value.validate()) {
-        router.push('/config/relations/' + selectedRef.value.identifier)
+        navigateConfig(router, '/config/relations/' + selectedRef.value.identifier)
         saveRelation(selectedRef.value).then(() => {
           showInfo(i18n.t('Saved'))
         })
@@ -185,7 +167,7 @@ export default {
       if (confirm(i18n.t('Config.Relations.Confirm.Delete'))) {
         removeRelation(selectedRef.value.id)
         selectedRef.value = empty
-        router.push('/config/relations')
+        navigateConfig(router, '/config/relations')
       }
     }
 
@@ -212,7 +194,7 @@ export default {
 
     const searchRef = ref('')
     const relationsFiltered = computed(() => {
-      let arr = relations
+      let arr = relations.slice()
       if (searchRef.value) {
         const s = searchRef.value.toLowerCase()
         arr = relations.filter(item => item.identifier.toLowerCase().indexOf(s) > -1 || (item.name && Object.values(item.name).find(val => val.toLowerCase().indexOf(s) > -1)))
@@ -225,14 +207,32 @@ export default {
         }
       })
     })
+    watch(itemRef, (selected, previous) => {
+      if (selected == null) {
+        selectedRef.value = empty
+        navigateConfig(router, '/config/relations')
+        return
+      }
+      if (Number.isInteger(selected) && selected >= 0 && selected < relationsFiltered.value.length) {
+        if (previous != null && selectedRef.value && selectedRef.value.internalId === 0) {
+          showInfo(i18n.t('Config.NotSaved'))
+        }
+        selectedRef.value = relationsFiltered.value[selected]
+        if (selectedRef.value.internalId !== 0 && selectedRef.value.identifier) {
+          navigateConfig(router, '/config/relations/' + selectedRef.value.identifier)
+        } else {
+          navigateConfig(router, '/config/relations')
+        }
+      }
+    }, { lazy: true })
+
     function clearSelection () {
-      selectedRef.value = null
+      selectedRef.value = empty
       itemRef.value = null
     }
 
     onMounted(() => {
-      loadAllTypes()
-      loadAllRelations().then(() => {
+      Promise.all([loadAllTypes(), loadAllRelations()]).then(() => {
         canViewConfigRef.value = canViewConfig('types')
         canEditConfigRef.value = canEditConfig('types')
 
@@ -250,11 +250,12 @@ export default {
             selectedRef.value = relations[idx]
             itemRef.value = idx
           } else {
-            router.push('/config/relations')
+            navigateConfig(router, '/config/relations')
           }
         } else {
           if (relations.length > 0) {
             selectedRef.value = relations[0]
+            itemRef.value = 0
           }
         }
       })
