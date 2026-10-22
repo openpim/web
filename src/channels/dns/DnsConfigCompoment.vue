@@ -1,7 +1,8 @@
 <template>
   <div>
     <v-text-field v-if="channel" v-model="channel.config.dnsApiToken" :readonly="readonly" label="API-ключ DNS (sp_live_…)" required type="password"></v-text-field>
-    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.dnsIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут, где хранить идентификатор товара DNS" clearable/>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.dnsIdAttr" :items="allAttributes" :readonly="readonly" label="Атрибут, где хранить идентификатор товара DNS (UUID)" clearable/>
+    <v-autocomplete item-text="text" item-value='identifier' v-model="channel.config.dnsCodeAttr" :items="allAttributes" :readonly="readonly" label="Атрибут для кода DNS" hint="Поле товара, в которое будет записываться Код DNS (mdmNomenclatureCode) из ответа API." persistent-hint clearable/>
 
     <MappingConfigCompoment v-if="channel" :channel="channel" :readonly=readonly :variants="false" :imageRelations="false" ></MappingConfigCompoment>
     <v-btn v-if="!readonly" class="mb-5 mt-5" text @click="sync">Синхронизация данных</v-btn>
@@ -41,6 +42,9 @@ export default {
       }
       if (chan && !chan.config.dnsIdAttr) {
         root.$set(chan.config, 'dnsIdAttr', '')
+      }
+      if (chan && !chan.config.dnsCodeAttr) {
+        root.$set(chan.config, 'dnsCodeAttr', '')
       }
     })
 
