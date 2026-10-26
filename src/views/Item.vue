@@ -115,7 +115,7 @@
                       <template v-if="itemRef.channels[channel.identifier].status === 4">
                         <v-tooltip top :disabled="!itemRef.channels[channel.identifier].message">
                           <template v-slot:activator="{ on }">
-                            <v-chip small v-on="on" class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip>
+                            <v-chip small v-on="on" class="ma-2" color="indigo" text-color="white"> {{$t(channel.type === 10 && itemRef.channels[channel.identifier].dnsNeedsResubmission === true ? 'ItemView.Channels.DnsActionRequired' : 'ItemView.Channels.Waiting')}}</v-chip>
                           </template>
                             <span>{{ itemRef.channels[channel.identifier].message || null }}</span>
                         </v-tooltip>
@@ -419,7 +419,7 @@
                         <template v-if="itemRef.channels[channel.identifier].status === 1"><v-chip class="ma-2" color="" text-color="black"> {{$t('ItemView.Channels.Submitted')}}</v-chip></template>
                         <template v-if="itemRef.channels[channel.identifier].status === 2"><v-chip class="ma-2" color="green" text-color="white"> {{$t('ItemView.Channels.Synced')}}</v-chip></template>
                         <template v-if="itemRef.channels[channel.identifier].status === 3"><v-chip class="ma-2" color="red" text-color="white"> {{$t('ItemView.Channels.Error')}}</v-chip></template>
-                        <template v-if="itemRef.channels[channel.identifier].status === 4"><v-chip class="ma-2" color="indigo" text-color="white"> {{$t('ItemView.Channels.Waiting')}}</v-chip></template>
+                        <template v-if="itemRef.channels[channel.identifier].status === 4"><v-chip class="ma-2" color="indigo" text-color="white"> {{$t(channel.type === 10 && itemRef.channels[channel.identifier].dnsNeedsResubmission === true ? 'ItemView.Channels.DnsActionRequired' : 'ItemView.Channels.Waiting')}}</v-chip></template>
                       </div>
                     </v-col>
                     <v-col cols="3">
@@ -437,7 +437,10 @@
                       </span>
                     </v-col>
                     <v-col cols="12" v-if="itemRef.channels[channel.identifier].message">
-                      <div>{{$t('ItemView.Channels.Message')}}: {{itemRef.channels[channel.identifier].message}}</div>
+                      <div :style="channel.type === 10 ? { whiteSpace: 'pre-line' } : null">{{$t('ItemView.Channels.Message')}}: {{itemRef.channels[channel.identifier].message}}</div>
+                    </v-col>
+                    <v-col cols="12" v-if="channel.type === 10 && itemRef.channels[channel.identifier].status === 4 && itemRef.channels[channel.identifier].dnsNeedsResubmission === true">
+                      <a href="https://seller.dns-shop.ru/" target="_blank" rel="noopener noreferrer">{{$t('ItemView.Channels.OpenDnsPortal')}}</a>
                     </v-col>
                   </v-row>
                 </v-card-text>

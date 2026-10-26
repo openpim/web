@@ -378,6 +378,8 @@
   "ItemView.Channels.Synced": "OK",
   "ItemView.Channels.Error": "Error",
   "ItemView.Channels.Waiting": "Waiting",
+  "ItemView.Channels.DnsActionRequired": "Action required in DNS",
+  "ItemView.Channels.OpenDnsPortal": "Open DNS seller portal",
   "ItemView.Channels.SyncItem": "Sync",
   "ItemView.Channels.RemoveChannel": "Remove channel",
   "ItemView.Search": "Search",

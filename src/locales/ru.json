@@ -375,6 +375,8 @@
   "ItemView.Channels.Synced": "OK",
   "ItemView.Channels.Error": "Ошибка",
   "ItemView.Channels.Waiting": "Ожидание ответа",
+  "ItemView.Channels.DnsActionRequired": "Требуется действие в DNS",
+  "ItemView.Channels.OpenDnsPortal": "Открыть кабинет DNS",
   "ItemView.Channels.SyncItem": "Синхронизация",
   "ItemView.Channels.RemoveChannel": "Удалить канал",
   "ItemView.Search": "Поиск",
